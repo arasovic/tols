@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [sveltekit()],
+  base: '/dev-utilities/',
   test: {
     globals: true,
     environment: 'jsdom',

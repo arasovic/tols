@@ -104,6 +104,7 @@
 </script>
 
 <svelte:window on:keydown={(e) => {
+  if (!browser) return
   // Cmd+B / Ctrl+B toggles sidebar on desktop
   if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
     e.preventDefault()
@@ -120,7 +121,7 @@
 
 <aside class="sidebar" class:open={isOpen}>
   <div class="sidebar-header">
-    <a href="{base}/json" class="logo" on:click={closeDrawer}>
+    <a href="{base}/" class="logo" on:click={closeDrawer}>
       <div class="logo-icon">
         <Braces size={18} />
       </div>
@@ -198,6 +199,14 @@
 
   .sidebar.open {
     transform: translateX(0);
+  }
+
+  @media (min-width: 768px) {
+    .sidebar {
+      position: static;
+      transform: none;
+      transition: none;
+    }
   }
 
   .sidebar-header {
@@ -296,8 +305,13 @@
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     transition: all var(--transition-fast);
-    animation: slideIn var(--transition) var(--ease-out) backwards;
-    animation-delay: var(--delay);
+  }
+
+  @media (max-width: 767px) {
+    .nav-item {
+      animation: slideIn var(--transition) var(--ease-out) backwards;
+      animation-delay: var(--delay);
+    }
   }
 
   @keyframes slideIn {
@@ -380,7 +394,9 @@
 
   @media (min-width: 768px) {
     .sidebar {
-      transform: translateX(0);
+      position: static;
+      transform: none;
+      transition: none;
     }
 
     .sidebar-overlay {

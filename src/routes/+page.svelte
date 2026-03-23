@@ -356,7 +356,7 @@
 <div class="home-container">
   <header class="home-header">
     <div class="header-top">
-      <a href="/" class="logo">
+      <a href="{base}/" class="logo">
         <div class="logo-icon">
           <Braces size={20} />
         </div>
