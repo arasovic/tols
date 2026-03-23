@@ -528,12 +528,18 @@
     background: transparent;
     border: none;
     outline: none;
-    padding: 0;
+    padding: var(--space-2) var(--space-3);
     min-width: 0;
   }
 
   .search-input::placeholder {
     color: var(--text-muted);
+  }
+
+  .search-input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 
   .search-actions {
@@ -560,6 +566,11 @@
   .search-clear:hover {
     background: var(--bg-active);
     color: var(--text-primary);
+  }
+
+  .search-clear:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .kbd-shortcut {
@@ -786,6 +797,11 @@
     background: var(--bg-hover);
     border-color: var(--border-strong);
     color: var(--text-primary);
+  }
+
+  .suggestion-chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   /* Footer */
