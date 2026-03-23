@@ -1,5 +1,6 @@
 <script>
   import { goto } from '$app/navigation'
+  import { base } from '$app/paths'
   import { browser } from '$app/environment'
   import { onMount, tick } from 'svelte'
   import { Search, Command, ArrowRight, Clock, X } from 'lucide-svelte'
@@ -167,7 +168,11 @@
     if (!tool) return
     addToRecent(tool.id)
     closeOverlay()
-    goto(tool.path)
+    const targetPath = tool.path.startsWith('/') ? tool.path : `/${tool.path}`
+    const finalPath = targetPath.startsWith(base)
+      ? targetPath
+      : `${base}${targetPath}`
+    goto(finalPath)
   }
 
   /**

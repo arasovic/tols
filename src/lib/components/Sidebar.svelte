@@ -1,5 +1,6 @@
 <script>
   import { page } from '$app/stores'
+  import { base } from '$app/paths'
   import { theme } from '$lib/stores/theme'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
@@ -94,7 +95,12 @@
     isOpen = false
   }
 
-  $: currentTool = $page.url.pathname.slice(1) || 'json'
+  $: pathWithoutBase = $page.url.pathname.startsWith(base)
+    ? $page.url.pathname.slice(base.length)
+    : $page.url.pathname
+  $: currentTool = pathWithoutBase.length > 1
+    ? pathWithoutBase.slice(1)
+    : 'json'
 </script>
 
 <svelte:window on:keydown={(e) => {
@@ -114,7 +120,7 @@
 
 <aside class="sidebar" class:open={isOpen}>
   <div class="sidebar-header">
-    <a href="/json" class="logo" on:click={closeDrawer}>
+    <a href="{base}/json" class="logo" on:click={closeDrawer}>
       <div class="logo-icon">
         <Braces size={18} />
       </div>
@@ -134,7 +140,7 @@
       <span class="nav-label">Tools</span>
       {#each tools as tool, i}
         <a
-          href="/{tool.id}"
+          href="{base}/{tool.id}"
           class="nav-item"
           class:active={currentTool === tool.id}
           on:click={closeDrawer}

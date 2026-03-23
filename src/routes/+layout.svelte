@@ -1,5 +1,6 @@
 <script>
   import { page } from '$app/stores'
+  import { base } from '$app/paths'
   import Sidebar from '$lib/components/Sidebar.svelte'
   import SearchOverlay from '$lib/components/SearchOverlay.svelte'
   import { toolTitles } from '$lib/config/tools.js'
@@ -20,7 +21,10 @@
 
   $: currentPath = $page.url.pathname.slice(1) || ''
   $: title = toolTitles[currentPath] || 'DevUtils'
-  $: isHomePage = $page.url.pathname === '/'
+  $: normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base
+  $: isHomePage = $page.url.pathname === '/' ||
+                   $page.url.pathname === normalizedBase ||
+                   $page.url.pathname === normalizedBase + '/'
 </script>
 
 <svelte:window on:keydown={(e) => {
