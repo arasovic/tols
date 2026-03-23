@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest --run",
+    "test:watch": "vitest --run"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.0",

@@ -244,8 +244,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    max-width: 800px;
-    margin: 0 auto;
+    width: 100%;
   }
 
   .tool-bar {
@@ -562,7 +561,7 @@
     color: var(--text-primary);
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     .tool-bar {
       flex-direction: column;
       gap: var(--space-3);

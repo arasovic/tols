@@ -2,7 +2,7 @@
   import Base64Tool from '$lib/tools/Base64Tool.svelte'
 
   const pageTitle = 'Base64 Encoder/Decoder - DevUtils | Online Base64 Converter'
-  const pageDescription = 'Free online Base64 encoder and decoder. Convert text to Base64 and decode Base64 to text instantly. Supports all Base64 standards including URL-safe encoding.'
+  const pageDescription = 'Free online Base64 encoder and decoder tool for developers. Encode and decode Base64 text instantly with full UTF-8 support for web development projects.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/base64'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
 </script>
@@ -50,6 +50,7 @@
   <article>
     <Base64Tool />
 
+    <div class="seo-section">
     <section class="seo-content" aria-labelledby="what-is">
       <h2 id="what-is">What is Base64?</h2>
       <p>
@@ -102,17 +103,28 @@
         for use in URLs and filenames without additional encoding.
       </p>
     </section>
+    </div>
   </article>
 </main>
 
 <style>
+  .seo-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border-subtle);
+  }
+
   .seo-content {
-    max-width: 1200px;
-    margin: var(--space-8) auto 0;
+    width: 100%;
+    margin-top: var(--space-6);
     padding: var(--space-6);
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
+  }
+
+  .seo-content:first-child {
+    margin-top: 0;
   }
 
   .seo-content h2 {
@@ -155,10 +167,15 @@
     font-weight: var(--font-medium);
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
+    .seo-section {
+      margin-top: var(--space-6);
+      padding-top: var(--space-6);
+    }
+
     .seo-content {
       padding: var(--space-4);
-      margin-top: var(--space-6);
+      margin-top: var(--space-4);
     }
   }
 </style>

@@ -10,9 +10,10 @@
   let flags = 'g'
   let matches = []
   let error = ''
+  let errorDetails = ''
   let highlightedInput = ''
-  let timeout
-  let saveTimeout
+  let timeout = null
+  let saveTimeout = null
 
   const flagOptions = [
     { value: 'g', label: 'Global', desc: 'Find all matches' },
@@ -41,20 +42,20 @@
     } catch (e) {
       input = EXAMPLE_TEXT
       pattern = EXAMPLE_REGEX
-      console.warn('Failed to load from localStorage:', e)
+      error = 'Failed to load from localStorage: ' + (e.message || 'Unknown error')
     }
   }
 
   function saveState() {
     try {
-      clearTimeout(saveTimeout)
+      if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
         localStorage.setItem('devutils-regex-input', input)
         localStorage.setItem('devutils-regex-pattern', pattern)
         localStorage.setItem('devutils-regex-flags', flags)
       }, 500)
     } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
+      error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
     }
   }
 
@@ -64,6 +65,7 @@
   })
 
   function escapeHtml(text) {
+    if (!text) return ''
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -74,6 +76,7 @@
 
   function performMatch() {
     error = ''
+    errorDetails = ''
     matches = []
     highlightedInput = ''
 
@@ -112,12 +115,13 @@
 
       highlightedInput = highlighted
     } catch (e) {
-      error = 'Invalid regex: ' + e.message
+      error = 'Invalid regex pattern'
+      errorDetails = e.message || 'Unknown error'
     }
   }
 
   function debouncedMatch() {
-    clearTimeout(timeout)
+    if (timeout) clearTimeout(timeout)
     timeout = setTimeout(() => {
       performMatch()
       saveState()
@@ -130,12 +134,13 @@
     matches = []
     highlightedInput = ''
     error = ''
+    errorDetails = ''
     try {
       localStorage.removeItem('devutils-regex-input')
       localStorage.removeItem('devutils-regex-pattern')
       localStorage.removeItem('devutils-regex-flags')
     } catch (e) {
-      console.warn('Failed to clear localStorage:', e)
+      error = 'Failed to clear localStorage: ' + (e.message || 'Unknown error')
     }
   }
 
@@ -218,7 +223,12 @@
         <line x1="12" y1="8" x2="12" y2="12"></line>
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
       </svg>
-      <span>{error}</span>
+      <div class="error-content">
+        <span class="error-title">{error}</span>
+        {#if errorDetails}
+          <span class="error-details">{errorDetails}</span>
+        {/if}
+      </div>
     </div>
   {/if}
 
@@ -312,8 +322,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    max-width: 1000px;
-    margin: 0 auto;
+    width: 100%;
   }
 
   .tool-bar {
@@ -474,6 +483,21 @@
     margin-top: 1px;
   }
 
+  .error-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .error-title {
+    font-weight: var(--font-semibold);
+  }
+
+  .error-details {
+    color: var(--error-muted);
+    font-size: var(--text-xs);
+  }
+
   .panels-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -488,6 +512,11 @@
     border-radius: var(--radius-md);
     overflow: hidden;
     animation: fadeIn var(--transition-normal) ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .panel-header {
@@ -627,6 +656,17 @@
     background: var(--bg-hover);
   }
 
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(8px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
   .match-index {
     display: flex;
     align-items: center;
@@ -686,6 +726,20 @@
     flex-shrink: 0;
   }
 
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    border-radius: var(--radius-sm);
+  }
+
+  .badge-accent {
+    background: var(--accent-muted);
+    color: var(--accent);
+  }
+
   .info-bar {
     display: flex;
     align-items: center;
@@ -714,20 +768,8 @@
     color: var(--text-primary);
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeInUp {
-    from { 
-      opacity: 0; 
-      transform: translateY(8px); 
-    }
-    to { 
-      opacity: 1; 
-      transform: translateY(0); 
-    }
+  .mono {
+    font-family: var(--font-mono);
   }
 
   @media (max-width: 768px) {

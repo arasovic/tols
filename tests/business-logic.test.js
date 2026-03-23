@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { 
-  validateUuidCount, 
-  generateLoremIpsum, 
-  processUrlText, 
-  extractPathFromUrl, 
+import {
+  validateUuidCount,
+  generateLoremIpsum,
+  processUrlText,
+  extractPathFromUrl,
   processJson,
   processRegex,
   processBase64,
@@ -16,20 +16,8 @@ import {
   decodeJWT
 } from './test-utils.js'
 
-// JWT processing function directly in test file to avoid import issues
-export async function processJwt(token) {
-  if (!token.trim()) {
-    return { valid: false, error: 'Please enter a JWT token' }
-  }
-
-  const result = await decodeJWT(token)
-
-  if (result.valid) {
-    return result
-  } else {
-    return { valid: false, error: result.error }
-  }
-}
+// Import processJwt from source instead of duplicating
+import { processJwt } from './test-utils.js'
 
 describe('Business Logic Tests', () => {
   describe('UUID Logic', () => {
@@ -70,7 +58,7 @@ describe('Business Logic Tests', () => {
     it('should respect startWithLorem flag', () => {
       const withLorem = generateLoremIpsum(1, 5, true)
       const withoutLorem = generateLoremIpsum(1, 5, false)
-      
+
       expect(withLorem.charAt(0)).toBe('L')
       expect(withoutLorem.charAt(0)).toBe('l')
     })
@@ -195,7 +183,7 @@ describe('Business Logic Tests', () => {
 
     it('should convert human readable to Unix timestamp', () => {
       const result = processTimestamp('2024-01-15 14:30:00', 'toUnix', '')
-      expect(result.output).toBe('1705318200') // Updated to match actual output
+      expect(result.output).toBe('1705318200')
       expect(result.error).toBe('')
     })
 
@@ -273,7 +261,7 @@ describe('Business Logic Tests', () => {
       const encodedHeader = btoa(JSON.stringify(header))
       const encodedPayload = btoa(JSON.stringify(payload))
       const token = `${encodedHeader}.${encodedPayload}.signature`
-      
+
       const result = await processJwt(token)
       expect(result.valid).toBe(true)
       expect(result.header).toEqual(header)
@@ -283,13 +271,13 @@ describe('Business Logic Tests', () => {
     it('should show error for invalid JWT format', async () => {
       const result = await processJwt('invalid.token')
       expect(result.valid).toBe(false)
-      expect(result.error).toBe('Invalid JWT format')
+      expect(result.error).toBe('Invalid JWT format: expected 3 parts separated by dots')
     })
 
     it('should show error for malformed JWT encoding', async () => {
       const result = await processJwt('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid_payload.signature')
       expect(result.valid).toBe(false)
-      expect(result.error).toBe('Invalid JWT encoding')
+      expect(result.error).toBe('Invalid JWT header: unable to decode Base64 or parse JSON')
     })
   })
 })

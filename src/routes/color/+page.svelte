@@ -2,7 +2,7 @@
   import ColorTool from '$lib/tools/ColorTool.svelte'
 
   const pageTitle = 'Color Converter - DevUtils | HEX, RGB, HSL Color Tool'
-  const pageDescription = 'Convert between HEX, RGB, and HSL color formats. Pick colors, get CSS codes, and explore color harmonies. Free online color converter for designers and developers.'
+  const pageDescription = 'Free online color converter tool for web developers and designers. Convert instantly between HEX, RGB, and HSL color formats for professional projects.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/color'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
 </script>
@@ -50,6 +50,7 @@
   <article>
     <ColorTool />
 
+    <div class="seo-section">
     <section class="seo-content" aria-labelledby="what-is">
       <h2 id="what-is">What is Color Converter?</h2>
       <p>
@@ -106,17 +107,28 @@
         like lightening or darkening.
       </p>
     </section>
+    </div>
   </article>
 </main>
 
 <style>
+  .seo-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border-subtle);
+  }
+
   .seo-content {
-    max-width: 1200px;
-    margin: var(--space-8) auto 0;
+    width: 100%;
+    margin-top: var(--space-6);
     padding: var(--space-6);
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
+  }
+
+  .seo-content:first-child {
+    margin-top: 0;
   }
 
   .seo-content h2 {
@@ -159,10 +171,15 @@
     font-weight: var(--font-medium);
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
+    .seo-section {
+      margin-top: var(--space-6);
+      padding-top: var(--space-6);
+    }
+
     .seo-content {
       padding: var(--space-4);
-      margin-top: var(--space-6);
+      margin-top: var(--space-4);
     }
   }
 </style>

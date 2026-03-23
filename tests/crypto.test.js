@@ -39,24 +39,24 @@ describe('Crypto Utils', () => {
     it('should hash message with SHA-256', async () => {
       const message = 'hello world'
       const hash = await hashMessage(message, 'SHA-256')
-      
+
       expect(hash).toBeTruthy()
-      expect(hash).toMatch(/^[a-f0-9]{64}$/) // SHA-256 produces 64 hex chars
+      expect(hash).toMatch(/^[a-f0-9]{64}$/)
     })
 
     it('should hash message with SHA-1', async () => {
       const message = 'hello world'
       const hash = await hashMessage(message, 'SHA-1')
-      
+
       expect(hash).toBeTruthy()
-      expect(hash).toMatch(/^[a-f0-9]{40}$/) // SHA-1 produces 40 hex chars
+      expect(hash).toMatch(/^[a-f0-9]{40}$/)
     })
 
     it('should produce consistent hash for same message', async () => {
       const message = 'test message'
       const hash1 = await hashMessage(message, 'SHA-256')
       const hash2 = await hashMessage(message, 'SHA-256')
-      
+
       expect(hash1).toBe(hash2)
     })
 
@@ -65,7 +65,7 @@ describe('Crypto Utils', () => {
       const message2 = 'hello universe'
       const hash1 = await hashMessage(message1, 'SHA-256')
       const hash2 = await hashMessage(message2, 'SHA-256')
-      
+
       expect(hash1).not.toBe(hash2)
     })
 
@@ -81,7 +81,7 @@ describe('Crypto Utils', () => {
     })
 
     it('should handle Unicode characters', async () => {
-      const message = 'こんにちは世界' // Japanese characters
+      const message = 'こんにちは世界'
       const hash = await hashMessage(message, 'SHA-256')
       expect(hash).toMatch(/^[a-f0-9]{64}$/)
     })
@@ -91,16 +91,16 @@ describe('Crypto Utils', () => {
     it('should hash message with MD5', async () => {
       const message = 'hello world'
       const hash = await hashMD5(message)
-      
+
       expect(hash).toBeTruthy()
-      expect(hash).toMatch(/^[a-f0-9]{32}$/) // MD5 produces 32 hex chars
+      expect(hash).toMatch(/^[a-f0-9]{32}$/)
     })
 
     it('should produce consistent MD5 hash for same message', async () => {
       const message = 'test message'
       const hash1 = await hashMD5(message)
       const hash2 = await hashMD5(message)
-      
+
       expect(hash1).toBe(hash2)
     })
 
@@ -109,7 +109,7 @@ describe('Crypto Utils', () => {
       const message2 = 'hello universe'
       const hash1 = await hashMD5(message1)
       const hash2 = await hashMD5(message2)
-      
+
       expect(hash1).not.toBe(hash2)
     })
 
@@ -125,65 +125,65 @@ describe('Crypto Utils', () => {
   })
 
   describe('decodeJWT', () => {
-it('should decode valid JWT token', async () => {
-    const header = { alg: 'HS256', typ: 'JWT' }
-    const payload = { sub: '1234567890', name: 'John Doe', iat: 1516239022 }
-    
-    const encodedHeader = btoa(JSON.stringify(header))
-    const encodedPayload = btoa(JSON.stringify(payload))
-    const token = `${encodedHeader}.${encodedPayload}.signature`
-    
-    const result = await decodeJWT(token)
-    
-    expect(result.valid).toBe(true)
-    expect(result.header).toEqual(header)
-    expect(result.payload).toEqual(payload)
-  })
+    it('should decode valid JWT token', async () => {
+      const header = { alg: 'HS256', typ: 'JWT' }
+      const payload = { sub: '1234567890', name: 'John Doe', iat: 1516239022 }
 
-it('should return error for invalid JWT format', async () => {
-    const invalidToken = 'invalid.token'
-    const result = await decodeJWT(invalidToken)
-    
-    expect(result.valid).toBe(false)
-    expect(result.error).toBe('Invalid JWT format')
-  })
+      const encodedHeader = btoa(JSON.stringify(header))
+      const encodedPayload = btoa(JSON.stringify(payload))
+      const token = `${encodedHeader}.${encodedPayload}.signature`
 
-  it('should return error for malformed JWT encoding', async () => {
-    const malformedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid_payload.signature'
-    const result = await decodeJWT(malformedToken)
-    
-    expect(result.valid).toBe(false)
-    expect(result.error).toBe('Invalid JWT encoding')
-  })
+      const result = await decodeJWT(token)
 
-  it('should handle JWT with empty payload', async () => {
-    const header = { alg: 'HS256', typ: 'JWT' }
-    const payload = {}
-    
-    const encodedHeader = btoa(JSON.stringify(header))
-    const encodedPayload = btoa(JSON.stringify(payload))
-    const token = `${encodedHeader}.${encodedPayload}.signature`
-    
-    const result = await decodeJWT(token)
-    
-    expect(result.valid).toBe(true)
-    expect(result.header).toEqual(header)
-    expect(result.payload).toEqual(payload)
-  })
+      expect(result.valid).toBe(true)
+      expect(result.header).toEqual(header)
+      expect(result.payload).toEqual(payload)
+    })
 
-  it('should handle JWT with special characters in payload', async () => {
-    const header = { alg: 'HS256', typ: 'JWT' }
-    const payload = { message: 'Hello World!', special: '@#$%^&*()' }
-    
-    const encodedHeader = btoa(JSON.stringify(header))
-    const encodedPayload = btoa(JSON.stringify(payload))
-    const token = `${encodedHeader}.${encodedPayload}.signature`
-    
-    const result = await decodeJWT(token)
-    
-    expect(result.valid).toBe(true)
-    expect(result.payload.message).toBe('Hello World!')
-    expect(result.payload.special).toBe('@#$%^&*()')
-  })
+    it('should return error for invalid JWT format', async () => {
+      const invalidToken = 'invalid.token'
+      const result = await decodeJWT(invalidToken)
+
+      expect(result.valid).toBe(false)
+      expect(result.error).toBe('Invalid JWT format: expected 3 parts separated by dots')
+    })
+
+    it('should return error for malformed JWT encoding', async () => {
+      const malformedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid_payload.signature'
+      const result = await decodeJWT(malformedToken)
+
+      expect(result.valid).toBe(false)
+      expect(result.error).toContain('unable to decode')
+    })
+
+    it('should handle JWT with empty payload', async () => {
+      const header = { alg: 'HS256', typ: 'JWT' }
+      const payload = {}
+
+      const encodedHeader = btoa(JSON.stringify(header))
+      const encodedPayload = btoa(JSON.stringify(payload))
+      const token = `${encodedHeader}.${encodedPayload}.signature`
+
+      const result = await decodeJWT(token)
+
+      expect(result.valid).toBe(true)
+      expect(result.header).toEqual(header)
+      expect(result.payload).toEqual(payload)
+    })
+
+    it('should handle JWT with special characters in payload', async () => {
+      const header = { alg: 'HS256', typ: 'JWT' }
+      const payload = { message: 'Hello World!', special: '@#$%^&*()' }
+
+      const encodedHeader = btoa(JSON.stringify(header))
+      const encodedPayload = btoa(JSON.stringify(payload))
+      const token = `${encodedHeader}.${encodedPayload}.signature`
+
+      const result = await decodeJWT(token)
+
+      expect(result.valid).toBe(true)
+      expect(result.payload.message).toBe('Hello World!')
+      expect(result.payload.special).toBe('@#$%^&*()')
+    })
   })
 })

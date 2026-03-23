@@ -226,8 +226,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
-    max-width: 1000px;
-    margin: 0 auto;
+    width: 100%;
     animation: fadeIn var(--transition) var(--ease-out);
   }
 
@@ -477,7 +476,7 @@
     border-color: rgba(59, 130, 246, 0.2);
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 768px) {
     .workspace {
       grid-template-columns: 1fr;
     }

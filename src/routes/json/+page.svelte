@@ -2,7 +2,7 @@
   import JsonTool from '$lib/tools/JsonTool.svelte'
 
   const pageTitle = 'JSON Formatter - DevUtils | Online JSON Validator & Beautifier'
-  const pageDescription = 'Free online JSON formatter, validator, and beautifier. Format, minify, and validate JSON data instantly. Supports syntax highlighting and error detection.'
+  const pageDescription = 'Free online JSON formatter, validator, and minifier. Format, validate, and beautify JSON data instantly with syntax error highlighting support included.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/json'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
 </script>
@@ -13,7 +13,6 @@
   <meta name="keywords" content="JSON formatter, JSON validator, JSON beautifier, JSON minifier, JSON parser, online JSON tool, format JSON, validate JSON" />
   <link rel="canonical" href={canonicalUrl} />
 
-  <!-- Open Graph -->
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={pageDescription} />
   <meta property="og:type" content="website" />
@@ -21,24 +20,18 @@
   <meta property="og:image" content={ogImage} />
   <meta property="og:site_name" content="DevUtils" />
 
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
   <meta name="twitter:description" content={pageDescription} />
   <meta name="twitter:image" content={ogImage} />
 
-  <!-- JSON-LD Structured Data -->
   {@html `<script type="application/ld+json">${JSON.stringify({
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "JSON Formatter",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Any",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "description": pageDescription,
     "featureList": [
       "Format and beautify JSON",
@@ -49,11 +42,7 @@
       "Copy formatted output"
     ],
     "url": canonicalUrl,
-    "provider": {
-      "@type": "Organization",
-      "name": "DevUtils",
-      "url": "https://arasovic.github.io/dev-utilities"
-    }
+    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
@@ -61,6 +50,7 @@
   <article>
     <JsonTool />
 
+    <div class="seo-section">
     <section class="seo-content" aria-labelledby="what-is">
       <h2 id="what-is">What is JSON Formatter?</h2>
       <p>
@@ -120,17 +110,28 @@
         numbers, booleans, and null values.
       </p>
     </section>
+    </div>
   </article>
 </main>
 
 <style>
+  .seo-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border-subtle);
+  }
+
   .seo-content {
-    max-width: 1200px;
-    margin: var(--space-8) auto 0;
+    width: 100%;
+    margin-top: var(--space-6);
     padding: var(--space-6);
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
+  }
+
+  .seo-content:first-child {
+    margin-top: 0;
   }
 
   .seo-content h2 {
@@ -173,10 +174,15 @@
     font-weight: var(--font-medium);
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
+    .seo-section {
+      margin-top: var(--space-6);
+      padding-top: var(--space-6);
+    }
+
     .seo-content {
       padding: var(--space-4);
-      margin-top: var(--space-6);
+      margin-top: var(--space-4);
     }
   }
 </style>

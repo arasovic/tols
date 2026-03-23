@@ -1,14 +1,21 @@
 <script>
   import { page } from '$app/stores'
   import Sidebar from '$lib/components/Sidebar.svelte'
+  import SearchOverlay from '$lib/components/SearchOverlay.svelte'
   import { toolTitles } from '$lib/config/tools.js'
-  import { Menu } from 'lucide-svelte'
+  import { Menu, Search } from 'lucide-svelte'
   import '../app.css'
 
   let sidebarOpen = false
+  /** @type {import('$lib/components/SearchOverlay.svelte').default} */
+  let searchOverlay
 
   function toggleSidebar() {
     sidebarOpen = !sidebarOpen
+  }
+
+  function openSearch() {
+    searchOverlay?.open()
   }
 
   $: currentPath = $page.url.pathname.slice(1) || ''
@@ -17,13 +24,14 @@
 </script>
 
 <svelte:window on:keydown={(e) => {
-  // Ctrl+K / Cmd+K toggles sidebar on tool pages
-  // Note: On homepage, this shortcut focuses the search input instead (handled in +page.svelte)
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+  // Cmd+B / Ctrl+B toggles sidebar
+  if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
     e.preventDefault()
     toggleSidebar()
   }
 }} />
+
+<SearchOverlay bind:this={searchOverlay} />
 
 <div class="layout" class:home-layout={isHomePage}>
   {#if !isHomePage}
@@ -38,7 +46,15 @@
         </button>
         <span class="page-title">{title}</span>
         <div class="header-actions">
-          <kbd class="kbd">Ctrl+K / ⌘K</kbd>
+          <button
+            class="search-trigger"
+            on:click={() => openSearch()}
+            aria-label="Open search (Cmd+K)"
+          >
+            <Search size={16} />
+            <span class="search-text">Search</span>
+            <kbd class="kbd">⌘K</kbd>
+          </button>
         </div>
       </header>
     {/if}
@@ -137,6 +153,30 @@
     gap: var(--space-2);
   }
 
+  .search-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .search-trigger:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+
+  .search-text {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+  }
+
   .kbd {
     display: inline-flex;
     align-items: center;
@@ -145,7 +185,7 @@
     font-size: var(--text-xs);
     font-weight: var(--font-medium);
     color: var(--text-tertiary);
-    background: var(--bg-elevated);
+    background: var(--bg-surface);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-sm);
     white-space: nowrap;
@@ -153,11 +193,14 @@
 
   .content {
     flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: var(--space-4);
     overflow-y: auto;
+    width: 100%;
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     .menu-btn {
       display: flex;
     }
@@ -166,7 +209,11 @@
       padding: var(--space-3);
     }
 
-    .kbd {
+    .search-text {
+      display: none;
+    }
+
+    .search-trigger .kbd {
       display: none;
     }
   }

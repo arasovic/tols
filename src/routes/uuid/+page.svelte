@@ -2,7 +2,7 @@
   import UuidTool from '$lib/tools/UuidTool.svelte'
 
   const pageTitle = 'UUID Generator - DevUtils | Free UUID v4 Generator'
-  const pageDescription = 'Generate UUIDs (Universally Unique Identifiers) instantly. Create single or bulk UUID v4 for your applications. Free online UUID generator with copy functionality.'
+  const pageDescription = 'Free online UUID generator tool for web developers. Create version 4 UUIDs instantly for unique identifiers in databases and distributed software apps.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/uuid'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
 </script>
@@ -50,6 +50,7 @@
   <article>
     <UuidTool />
 
+    <div class="seo-section">
     <section class="seo-content" aria-labelledby="what-is">
       <h2 id="what-is">What is a UUID?</h2>
       <p>
@@ -102,17 +103,28 @@
         They use the browser's crypto.getRandomValues() API for randomness.
       </p>
     </section>
+    </div>
   </article>
 </main>
 
 <style>
+  .seo-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border-subtle);
+  }
+
   .seo-content {
-    max-width: 1200px;
-    margin: var(--space-8) auto 0;
+    width: 100%;
+    margin-top: var(--space-6);
     padding: var(--space-6);
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
+  }
+
+  .seo-content:first-child {
+    margin-top: 0;
   }
 
   .seo-content h2 {
@@ -155,10 +167,15 @@
     font-weight: var(--font-medium);
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
+    .seo-section {
+      margin-top: var(--space-6);
+      padding-top: var(--space-6);
+    }
+
     .seo-content {
       padding: var(--space-4);
-      margin-top: var(--space-6);
+      margin-top: var(--space-4);
     }
   }
 </style>

@@ -50,70 +50,82 @@
   <article>
     <HashTool />
 
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is a Hash Function?</h2>
-      <p>
-        A hash function is a cryptographic algorithm that takes an input of any size and produces a
-        fixed-size string of characters, known as a hash value or digest. Hash functions are designed
-        to be one-way functions, meaning it's practically impossible to reverse the process and get
-        the original input from the hash.
-      </p>
-    </section>
+    <div class="seo-section">
+      <section class="seo-content" aria-labelledby="what-is">
+        <h2 id="what-is">What is a Hash Function?</h2>
+        <p>
+          A hash function is a cryptographic algorithm that takes an input of any size and produces a
+          fixed-size string of characters, known as a hash value or digest. Hash functions are designed
+          to be one-way functions, meaning it's practically impossible to reverse the process and get
+          the original input from the hash.
+        </p>
+      </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Hash Calculator</h2>
-      <ol>
-        <li><strong>Enter your text</strong> - Type or paste the text you want to hash</li>
-        <li><strong>Select algorithms</strong> - Choose which hash algorithms to calculate (MD5, SHA-1, SHA-256, SHA-512)</li>
-        <li><strong>View results</strong> - Hashes are calculated automatically as you type</li>
-        <li><strong>Copy hashes</strong> - Click the copy button next to any hash to copy it</li>
-      </ol>
-    </section>
+      <section class="seo-content" aria-labelledby="how-to-use">
+        <h2 id="how-to-use">How to Use Hash Calculator</h2>
+        <ol>
+          <li><strong>Enter your text</strong> - Type or paste the text you want to hash</li>
+          <li><strong>Select algorithms</strong> - Choose which hash algorithms to calculate (MD5, SHA-1, SHA-256, SHA-512)</li>
+          <li><strong>View results</strong> - Hashes are calculated automatically as you type</li>
+          <li><strong>Copy hashes</strong> - Click the copy button next to any hash to copy it</li>
+        </ol>
+      </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Hash Calculator Features</h2>
-      <ul>
-        <li><strong>Multiple algorithms</strong> - Supports MD5, SHA-1, SHA-256, and SHA-512</li>
-        <li><strong>Real-time calculation</strong> - Hashes update instantly as you type</li>
-        <li><strong>Secure computation</strong> - Uses native Web Crypto API</li>
-        <li><strong>One-click copy</strong> - Copy any hash with a single click</li>
-        <li><strong>Lowercase output</strong> - Consistent lowercase hexadecimal format</li>
-        <li><strong>Auto-save</strong> - Saves your input automatically</li>
-      </ul>
-    </section>
+      <section class="seo-content" aria-labelledby="features">
+        <h2 id="features">Hash Calculator Features</h2>
+        <ul>
+          <li><strong>Multiple algorithms</strong> - Supports MD5, SHA-1, SHA-256, and SHA-512</li>
+          <li><strong>Real-time calculation</strong> - Hashes update instantly as you type</li>
+          <li><strong>Secure computation</strong> - Uses native Web Crypto API</li>
+          <li><strong>One-click copy</strong> - Copy any hash with a single click</li>
+          <li><strong>Lowercase output</strong> - Consistent lowercase hexadecimal format</li>
+          <li><strong>Auto-save</strong> - Saves your input automatically</li>
+        </ul>
+      </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+      <section class="seo-content" aria-labelledby="faq">
+        <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is the difference between MD5 and SHA-256?</h3>
-      <p>
-        MD5 produces a 128-bit hash and is considered cryptographically broken for security purposes.
-        SHA-256 produces a 256-bit hash and is currently considered secure. Use SHA-256 for security-critical applications.
-      </p>
+        <h3>What is the difference between MD5 and SHA-256?</h3>
+        <p>
+          MD5 produces a 128-bit hash and is considered cryptographically broken for security purposes.
+          SHA-256 produces a 256-bit hash and is currently considered secure. Use SHA-256 for security-critical applications.
+        </p>
 
-      <h3>Can I reverse a hash to get the original text?</h3>
-      <p>
-        No, hash functions are designed to be one-way. While brute-force attacks are possible for short
-        or common passwords, properly designed hash functions cannot be reversed mathematically.
-      </p>
+        <h3>Can I reverse a hash to get the original text?</h3>
+        <p>
+          No, hash functions are designed to be one-way. While brute-force attacks are possible for short
+          or common passwords, properly designed hash functions cannot be reversed mathematically.
+        </p>
 
-      <h3>Are my hashes calculated securely?</h3>
-      <p>
-        Yes, all hash calculations are performed locally in your browser using the Web Crypto API.
-        Your data never leaves your device.
-      </p>
-    </section>
+        <h3>Are my hashes calculated securely?</h3>
+        <p>
+          Yes, all hash calculations are performed locally in your browser using the Web Crypto API.
+          Your data never leaves your device.
+        </p>
+      </section>
+    </div>
   </article>
 </main>
 
 <style>
+  .seo-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border-subtle);
+  }
+
   .seo-content {
-    max-width: 1200px;
-    margin: var(--space-8) auto 0;
+    width: 100%;
+    margin-top: var(--space-6);
     padding: var(--space-6);
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
+  }
+
+  .seo-content:first-child {
+    margin-top: 0;
   }
 
   .seo-content h2 {
@@ -156,10 +168,15 @@
     font-weight: var(--font-medium);
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
+    .seo-section {
+      margin-top: var(--space-6);
+      padding-top: var(--space-6);
+    }
+
     .seo-content {
       padding: var(--space-4);
-      margin-top: var(--space-6);
+      margin-top: var(--space-4);
     }
   }
 </style>

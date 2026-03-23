@@ -199,8 +199,7 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
     animation: fadeIn var(--transition) var(--ease-out);
   }
 
@@ -387,7 +386,7 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
     font-size: var(--text-sm);
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 768px) {
     .workspace {
       grid-template-columns: 1fr;
     }
