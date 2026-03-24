@@ -169,7 +169,7 @@ describe('QrcodeTool', () => {
     const { container } = render(QrcodeTool)
 
     const textInput = container.querySelector('input[type="text"]')
-    expect(textInput?.value).toBe('https://devutils.tools')
+    expect(textInput?.value).toBe('https://github.com/arasovic/dev-utilities')
   })
 
   it('should have size slider with min and max', () => {

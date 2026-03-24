@@ -2,7 +2,7 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { onMount, onDestroy } from 'svelte'
 
-  let qrText = 'https://devutils.tools'
+  let qrText = 'https://github.com/arasovic/dev-utilities'
   let qrSize = 200
   let qrCanvas
   let error = ''
@@ -18,7 +18,7 @@
       if (savedSize) qrSize = parseInt(savedSize)
     } catch (e) {
       // Fallback to defaults if localStorage fails
-      qrText = 'https://devutils.tools'
+      qrText = 'https://github.com/arasovic/dev-utilities'
       qrSize = 200
     }
   }
