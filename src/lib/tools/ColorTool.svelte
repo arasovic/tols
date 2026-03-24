@@ -1,45 +1,21 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
+  const STORAGE_KEY = 'devutils:color-tool:hex'
   const EXAMPLE_HEX = '3B82F6'
 
   let hex = ''
   let rgb = ''
   let hsl = ''
   let colorPreview = '#0a0a0c'
-  let saveTimeout
+  let saveTimeout = null
+  let isMounted = false
+  let errorMessage = ''
 
-  function loadState() {
-    try {
-      const savedHex = localStorage.getItem('devutils-color-hex')
-      if (savedHex) {
-        hex = savedHex
-        updateColor()
-      } else {
-        hex = EXAMPLE_HEX
-        updateColor()
-      }
-    } catch (e) {
-      hex = EXAMPLE_HEX
-      console.warn('Failed to load from localStorage:', e)
-    }
+  function waitForDebounce(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
-
-  function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
-        localStorage.setItem('devutils-color-hex', hex)
-      }, 500)
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
-    }
-  }
-
-  onMount(() => {
-    loadState()
-  })
 
   function hexToRgb(hexInput) {
     let clean = hexInput.replace(/[^0-9A-Fa-f]/g, '')
@@ -64,7 +40,9 @@
 
     const max = Math.max(r, g, b)
     const min = Math.min(r, g, b)
-    let h, s, l = (max + min) / 2
+    let h = 0
+    let s = 0
+    const l = (max + min) / 2
 
     if (max === min) {
       h = s = 0
@@ -103,6 +81,7 @@
       rgb = ''
       hsl = ''
       colorPreview = '#0a0a0c'
+      errorMessage = ''
       return
     }
 
@@ -111,22 +90,48 @@
       rgb = ''
       hsl = ''
       colorPreview = '#0a0a0c'
+      errorMessage = 'Invalid color format'
       return
     }
 
     rgb = `rgb(${rgbObj.r}, ${rgbObj.g}, ${rgbObj.b})`
     const hslObj = rgbToHsl(rgbObj.r, rgbObj.g, rgbObj.b)
     hsl = `hsl(${hslObj.h}, ${hslObj.s}%, ${hslObj.l}%)`
-    
+
     const properHex = [rgbObj.r, rgbObj.g, rgbObj.b].map(v => v.toString(16).padStart(2, '0')).join('')
     colorPreview = `#${properHex}`
+    errorMessage = ''
   }
 
-  function handleHexInput(e) {
-    let value = e.target.value.replace(/[^0-9A-Fa-f]/g, '').substring(0, 6)
-    hex = value
-    updateColor()
-    saveState()
+  function saveState() {
+    try {
+      clearTimeout(saveTimeout)
+      saveTimeout = setTimeout(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, hex)
+        } catch (e) {
+          console.warn('Failed to save to localStorage:', e)
+        }
+      }, 500)
+    } catch (e) {
+      console.warn('Failed to schedule save:', e)
+    }
+  }
+
+  function loadState() {
+    try {
+      const savedHex = localStorage.getItem(STORAGE_KEY)
+      if (savedHex) {
+        hex = savedHex
+        updateColor()
+      } else {
+        hex = EXAMPLE_HEX
+        updateColor()
+      }
+    } catch (e) {
+      hex = EXAMPLE_HEX
+      console.warn('Failed to load from localStorage:', e)
+    }
   }
 
   function clear() {
@@ -134,8 +139,9 @@
     rgb = ''
     hsl = ''
     colorPreview = '#0a0a0c'
+    errorMessage = ''
     try {
-      localStorage.removeItem('devutils-color-hex')
+      localStorage.removeItem(STORAGE_KEY)
     } catch (e) {
       console.warn('Failed to clear localStorage:', e)
     }
@@ -147,32 +153,85 @@
     saveState()
   }
 
-  function handleRgbInput(e) {
-    const match = e.target.value.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/)
-    if (match) {
-      const r = parseInt(match[1])
-      const g = parseInt(match[2])
-      const b = parseInt(match[3])
-      if (r <= 255 && g <= 255 && b <= 255) {
-        hex = [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
-        updateColor()
+  function handleHexInput(e) {
+    let value = e.target.value.replace(/^#/, '').replace(/[^0-9A-Fa-f]/g, '').substring(0, 6)
+    hex = value
+    updateColor()
+    saveState()
+  }
+
+  function parseRgbInput(value) {
+    const rgbaMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/)
+    if (rgbaMatch) {
+      const r = parseInt(rgbaMatch[1])
+      const g = parseInt(rgbaMatch[2])
+      const b = parseInt(rgbaMatch[3])
+      if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
+        return { r, g, b }
       }
+    }
+    return null
+  }
+
+  function handleRgbInput(e) {
+    const value = e.target.value.trim()
+    if (!value) {
+      errorMessage = ''
+      return
+    }
+    const rgbObj = parseRgbInput(value)
+    if (rgbObj) {
+      hex = [rgbObj.r, rgbObj.g, rgbObj.b].map(v => v.toString(16).padStart(2, '0')).join('')
+      updateColor()
+      saveState()
+    } else {
+      errorMessage = 'Invalid RGB format. Expected: rgb(255, 0, 0)'
     }
   }
 
-  function handleHslInput(e) {
-    const match = e.target.value.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/)
-    if (match) {
-      const h = parseInt(match[1])
-      const s = parseInt(match[2])
-      const l = parseInt(match[3])
-      if (h >= 0 && h <= 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100) {
-        const rgbObj = hslToRgb(h, s, l)
-        hex = [rgbObj.r, rgbObj.g, rgbObj.b].map(v => v.toString(16).padStart(2, '0')).join('')
-        updateColor()
+  function parseHslInput(value) {
+    const hslaMatch = value.match(/^hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)$/)
+    if (hslaMatch) {
+      let h = parseInt(hslaMatch[1])
+      const s = parseInt(hslaMatch[2])
+      const l = parseInt(hslaMatch[3])
+      if (h === 360) h = 0
+      if (h >= 0 && h < 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100) {
+        return { h, s, l }
       }
     }
+    return null
   }
+
+  function handleHslInput(e) {
+    const value = e.target.value.trim()
+    if (!value) {
+      errorMessage = ''
+      return
+    }
+    const hslObj = parseHslInput(value)
+    if (hslObj) {
+      const rgbObj = hslToRgb(hslObj.h, hslObj.s, hslObj.l)
+      hex = [rgbObj.r, rgbObj.g, rgbObj.b].map(v => v.toString(16).padStart(2, '0')).join('')
+      updateColor()
+      saveState()
+    } else {
+      errorMessage = 'Invalid HSL format. Expected: hsl(0, 100%, 50%)'
+    }
+  }
+
+  onMount(() => {
+    isMounted = true
+    loadState()
+  })
+
+  onDestroy(() => {
+    isMounted = false
+    if (saveTimeout) {
+      clearTimeout(saveTimeout)
+      saveTimeout = null
+    }
+  })
 </script>
 
 <div class="tool">
@@ -189,15 +248,25 @@
       </svg>
       <h1 class="tool-title-text">Color Converter</h1>
     </div>
-    
+
     <div class="tool-actions">
-      <button class="btn-ghost" on:click={loadExample} title="Load Example">
+      <button
+        class="btn-ghost"
+        on:click={loadExample}
+        title="Load Example"
+        aria-label="Load example color"
+      >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear">
+      <button
+        class="btn-ghost"
+        on:click={clear}
+        title="Clear"
+        aria-label="Clear all fields"
+      >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -207,7 +276,12 @@
   </div>
 
   <div class="preview-card">
-    <div class="color-swatch" style="background-color: {colorPreview};">
+    <div
+      class="color-swatch"
+      style="background-color: {colorPreview};"
+      role="img"
+      aria-label="Color preview: {hex ? '#' + hex.toUpperCase() : 'None'}"
+    >
       <div class="swatch-overlay"></div>
     </div>
     <div class="preview-info">
@@ -215,6 +289,12 @@
       <span class="preview-hex mono">{hex ? '#' + hex.toUpperCase() : '#000000'}</span>
     </div>
   </div>
+
+  {#if errorMessage}
+    <div class="error-bar" role="alert" aria-live="polite">
+      <span class="error-message">{errorMessage}</span>
+    </div>
+  {/if}
 
   <div class="formats-grid">
     <div class="format-card">
@@ -233,7 +313,10 @@
         placeholder="#000000"
         class="format-input mono"
         maxlength="7"
+        aria-label="HEX color value"
+        aria-describedby="hex-desc"
       />
+      <span id="hex-desc" class="sr-only">Enter a HEX color value without the hash symbol</span>
     </div>
 
     <div class="format-card">
@@ -251,7 +334,10 @@
         on:input={handleRgbInput}
         placeholder="rgb(0, 0, 0)"
         class="format-input mono"
+        aria-label="RGB color value"
+        aria-describedby="rgb-desc"
       />
+      <span id="rgb-desc" class="sr-only">Enter an RGB or RGBA color value</span>
     </div>
 
     <div class="format-card">
@@ -269,7 +355,10 @@
         on:input={handleHslInput}
         placeholder="hsl(0, 0%, 0%)"
         class="format-input mono"
+        aria-label="HSL color value"
+        aria-describedby="hsl-desc"
       />
+      <span id="hsl-desc" class="sr-only">Enter an HSL or HSLA color value</span>
     </div>
   </div>
 
@@ -408,6 +497,18 @@
     letter-spacing: 0.05em;
   }
 
+  .error-bar {
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-error);
+    border: 1px solid var(--border-error);
+    border-radius: var(--radius-md);
+  }
+
+  .error-message {
+    font-size: var(--text-sm);
+    color: var(--text-error);
+  }
+
   .formats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -464,6 +565,18 @@
 
   .format-input::placeholder {
     color: var(--text-disabled);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .info-bar {

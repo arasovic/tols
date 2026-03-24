@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_LEFT = `function greet(name) {
   return "Hello, " + name + "!";
@@ -22,36 +22,64 @@ console.log(greet(user));`
   let diff = []
   let timeout = null
   let saveTimeout = null
+  let isTruncated = false
+  let isInitialized = false
+
+  const MAX_LINES = 10000
+  const MAX_CHARS = 1000000
 
   function loadState() {
     try {
       const savedLeft = localStorage.getItem('devutils-diff-left')
       const savedRight = localStorage.getItem('devutils-diff-right')
-      if (savedLeft) leftInput = savedLeft
-      else leftInput = EXAMPLE_LEFT
-      if (savedRight) rightInput = savedRight
-      else rightInput = EXAMPLE_RIGHT
-    } catch (e) {}
+      if (savedLeft !== null) {
+        leftInput = savedLeft
+      } else {
+        leftInput = EXAMPLE_LEFT
+      }
+      if (savedRight !== null) {
+        rightInput = savedRight
+      } else {
+        rightInput = EXAMPLE_RIGHT
+      }
+    } catch (e) {
+      console.warn('Failed to load state from localStorage:', e)
+    }
   }
 
   function saveState() {
+    if (!isInitialized) return
     try {
       if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
         localStorage.setItem('devutils-diff-left', leftInput)
         localStorage.setItem('devutils-diff-right', rightInput)
       }, 500)
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to save state to localStorage:', e)
+    }
   }
 
   onMount(() => {
     loadState()
-    computeDiff()
+    // Mark as initialized - reactive block will trigger initial computeDiff
+    isInitialized = true
   })
 
-  // Reactive: compute diff when inputs change
-  $: if (leftInput !== undefined && rightInput !== undefined) {
-    computeDiff()
+  onDestroy(() => {
+    if (timeout) clearTimeout(timeout)
+    if (saveTimeout) clearTimeout(saveTimeout)
+  })
+
+  // Reactive: trigger debounced diff computation when inputs change
+  $: if (isInitialized && leftInput !== undefined && rightInput !== undefined) {
+    debouncedCompute()
+  }
+
+  const diffCache = new Map()
+
+  function getCacheKey(oldLine, newLine) {
+    return `${oldLine}\x00${newLine}`
   }
 
   /**
@@ -62,9 +90,7 @@ console.log(greet(user));`
     const n = oldLines.length
     const m = newLines.length
     const max = n + m
-    const size = 2 * max + 1
 
-    // V[k] stores the x value of the furthest reaching path on diagonal k
     const v = new Map()
     const trace = []
 
@@ -84,7 +110,6 @@ console.log(greet(user));`
 
         let y = x - k
 
-        // Follow the snake
         while (x < n && y < m && oldLines[x] === newLines[y]) {
           x++
           y++
@@ -122,14 +147,12 @@ console.log(greet(user));`
       const prevX = prevV.get(prevK)
       const prevY = prevX - prevK
 
-      // Add diagonal moves (equals) first
       while (x > prevX && y > prevY) {
         x--
         y--
         edits.unshift({ type: 'equal', oldIndex: x, newIndex: y, oldLine: oldLines[x], newLine: newLines[y] })
       }
 
-      // Add the edit
       if (x > prevX) {
         x--
         edits.unshift({ type: 'delete', oldIndex: x, newIndex: null, oldLine: oldLines[x], newLine: null })
@@ -139,7 +162,6 @@ console.log(greet(user));`
       }
     }
 
-    // Add remaining diagonal moves at the beginning
     while (x > 0 && y > 0) {
       x--
       y--
@@ -160,7 +182,6 @@ console.log(greet(user));`
     if (n === 0) return newWords.map(w => ({ type: 'insert', newWord: w }))
     if (m === 0) return oldWords.map(w => ({ type: 'delete', oldWord: w }))
 
-    // Use full DP matrix for correct backtracking
     const dp = Array(n + 1).fill(null).map(() => Array(m + 1).fill(0))
     const direction = Array(n + 1).fill(null).map(() => Array(m + 1).fill(null))
 
@@ -179,7 +200,6 @@ console.log(greet(user));`
       }
     }
 
-    // Backtrack to find the diff
     const result = []
     let i = n
     let j = m
@@ -220,11 +240,16 @@ console.log(greet(user));`
   }
 
   /**
-   * Compute word-level diff between two lines
+   * Compute word-level diff between two lines with caching
    */
   function computeWordDiff(oldLine, newLine) {
     if (oldLine === newLine) {
       return [{ type: 'equal', text: oldLine }]
+    }
+
+    const cacheKey = getCacheKey(oldLine, newLine)
+    if (diffCache.has(cacheKey)) {
+      return diffCache.get(cacheKey)
     }
 
     const oldTokens = tokenize(oldLine)
@@ -236,7 +261,6 @@ console.log(greet(user));`
 
     const lcs = computeLCS(oldTokens, newTokens)
 
-    // Group consecutive operations
     const groups = []
     let currentGroup = null
 
@@ -258,7 +282,6 @@ console.log(greet(user));`
 
     if (currentGroup) groups.push(currentGroup)
 
-    // Convert to display format with deduplication for modified lines
     const result = []
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i]
@@ -271,12 +294,12 @@ console.log(greet(user));`
       }
     }
 
+    diffCache.set(cacheKey, result)
     return result
   }
 
   /**
    * Calculate similarity ratio between two strings (0-1)
-   * Used to determine if lines are modifications or separate changes
    */
   function similarityScore(str1, str2) {
     if (!str1 || !str2) return 0
@@ -285,20 +308,18 @@ console.log(greet(user));`
     if (len1 === 0 && len2 === 0) return 1
     if (len1 === 0 || len2 === 0) return 0
 
-    const maxLen = Math.max(len1, len2)
     const tokens1 = tokenize(str1)
     const tokens2 = tokenize(str2)
 
-    // Quick token-level similarity
     const commonTokens = new Set(tokens1.filter(t => tokens2.includes(t)))
     const uniqueTokens = new Set([...tokens1, ...tokens2])
     return uniqueTokens.size > 0 ? commonTokens.size / uniqueTokens.size : 0
   }
 
-  const MAX_LINES = 10000
-
   function computeDiff() {
-    // Handle empty inputs
+    diffCache.clear()
+    isTruncated = false
+
     if (!leftInput && !rightInput) {
       diff = []
       return
@@ -307,14 +328,24 @@ console.log(greet(user));`
     let oldLines = leftInput ? leftInput.split('\n') : ['']
     let newLines = rightInput ? rightInput.split('\n') : ['']
 
-    // Guard against extremely large inputs
+    const totalChars = leftInput.length + rightInput.length
+    if (totalChars > MAX_CHARS) {
+      console.warn('Input too large, truncating to', MAX_CHARS, 'characters')
+      isTruncated = true
+      const leftRatio = leftInput.length / totalChars
+      const maxLeftChars = Math.floor(MAX_CHARS * leftRatio)
+      const maxRightChars = MAX_CHARS - maxLeftChars
+      oldLines = leftInput.slice(0, maxLeftChars).split('\n')
+      newLines = rightInput.slice(0, maxRightChars).split('\n')
+    }
+
     if (oldLines.length > MAX_LINES || newLines.length > MAX_LINES) {
       console.warn('Input too large, truncating to', MAX_LINES, 'lines')
+      isTruncated = true
       oldLines = oldLines.slice(0, MAX_LINES)
       newLines = newLines.slice(0, MAX_LINES)
     }
 
-    // Handle whitespace-only lines properly
     const normalizedOldLines = oldLines.map(line => line || '')
     const normalizedNewLines = newLines.map(line => line || '')
 
@@ -341,7 +372,6 @@ console.log(greet(user));`
           newWordDiff: null
         })
       } else if (edit.type === 'delete') {
-        // Check if next is insert with sufficient similarity (modified line)
         const nextEdit = edits[i + 1]
         const isModified = nextEdit &&
           nextEdit.type === 'insert' &&
@@ -359,9 +389,8 @@ console.log(greet(user));`
             oldWordDiff: wordDiff.filter(w => w.type === 'equal' || w.type === 'delete'),
             newWordDiff: wordDiff.filter(w => w.type === 'equal' || w.type === 'insert')
           })
-          i++ // Skip the insert since we handled it
+          i++
         } else {
-          // Pure deletion
           const wordDiff = [{ type: 'delete', text: edit.oldLine }]
           result.push({
             type: 'removed',
@@ -375,7 +404,6 @@ console.log(greet(user));`
           })
         }
       } else if (edit.type === 'insert') {
-        // Pure insertion (not part of a modification)
         const wordDiff = [{ type: 'insert', text: edit.newLine }]
         result.push({
           type: 'added',
@@ -393,7 +421,7 @@ console.log(greet(user));`
     diff = result
   }
 
-  function debouncedDiff() {
+  function debouncedCompute() {
     if (timeout) clearTimeout(timeout)
     timeout = setTimeout(() => {
       computeDiff()
@@ -405,25 +433,35 @@ console.log(greet(user));`
     leftInput = ''
     rightInput = ''
     diff = []
+    isTruncated = false
     try {
       localStorage.removeItem('devutils-diff-left')
       localStorage.removeItem('devutils-diff-right')
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to clear localStorage:', e)
+    }
   }
 
   function loadExample() {
     leftInput = EXAMPLE_LEFT
     rightInput = EXAMPLE_RIGHT
-    computeDiff()
-    saveState()
+    debouncedCompute()
   }
 
   function swap() {
     const temp = leftInput
     leftInput = rightInput
     rightInput = temp
-    computeDiff()
-    saveState()
+    debouncedCompute()
+  }
+
+  function getSplitDiffContent() {
+    return diff.map(d => {
+      if (d.type === 'removed') return `- ${d.left}`
+      if (d.type === 'added') return `+ ${d.right}`
+      if (d.type === 'modified') return `- ${d.left}\n+ ${d.right}`
+      return ` ${d.left}`
+    }).join('\n')
   }
 </script>
 
@@ -457,7 +495,13 @@ console.log(greet(user));`
           <span>Original</span>
           <span class="char-count">{leftInput.length} chars</span>
         </div>
-        <textarea bind:value={leftInput} on:input={debouncedDiff} placeholder="Paste original text..." class="diff-textarea"></textarea>
+        <textarea
+          bind:value={leftInput}
+          on:input={debouncedCompute}
+          placeholder="Paste original text..."
+          class="diff-textarea"
+          aria-label="Original text input"
+        ></textarea>
       </div>
 
       <div class="diff-panel">
@@ -465,25 +509,42 @@ console.log(greet(user));`
           <span>Modified</span>
           <span class="char-count">{rightInput.length} chars</span>
         </div>
-        <textarea bind:value={rightInput} on:input={debouncedDiff} placeholder="Paste modified text..." class="diff-textarea"></textarea>
+        <textarea
+          bind:value={rightInput}
+          on:input={debouncedCompute}
+          placeholder="Paste modified text..."
+          class="diff-textarea"
+          aria-label="Modified text input"
+        ></textarea>
       </div>
     </div>
 
     <div class="diff-result">
       <div class="result-header">
         <h3>Word-Level Comparison</h3>
+        {#if diff.length > 0}
+          <CopyButton text={getSplitDiffContent()} />
+        {/if}
       </div>
-      <div class="diff-grid">
+      {#if isTruncated}
+        <div class="truncation-warning">
+          <span class="warning-icon">⚠️</span>
+          <span>Input truncated due to size limits. Showing first {MAX_LINES.toLocaleString()} lines.</span>
+        </div>
+      {/if}
+      <div class="diff-grid" role="table" aria-label="Diff comparison results">
         {#each diff as item, idx}
-          <div class="diff-row {item.type}">
-            <div class="line-num">{item.oldLineNum ?? ''}</div>
-            <div class="line-content old">
+          <div class="diff-row {item.type}" role="row">
+            <div class="line-num" role="cell">{item.oldLineNum ?? ''}</div>
+            <div class="line-content old" role="cell">
               {#if item.type === 'added'}
-                <span class="empty-line"></span>
+                <span class="empty-line" aria-label="Empty line"></span>
               {:else if item.oldWordDiff}
                 {#each item.oldWordDiff as word}
                   {#if word.type === 'delete'}
-                    <span class="word-delete">{word.text}</span>
+                    <span class="word-delete" aria-label="Deleted text">
+                      <span class="change-icon">−</span>{word.text}
+                    </span>
                   {:else}
                     <span>{word.text}</span>
                   {/if}
@@ -492,14 +553,16 @@ console.log(greet(user));`
                 {item.left || ' '}
               {/if}
             </div>
-            <div class="line-num">{item.newLineNum ?? ''}</div>
-            <div class="line-content new">
+            <div class="line-num" role="cell">{item.newLineNum ?? ''}</div>
+            <div class="line-content new" role="cell">
               {#if item.type === 'removed'}
-                <span class="empty-line"></span>
+                <span class="empty-line" aria-label="Empty line"></span>
               {:else if item.newWordDiff}
                 {#each item.newWordDiff as word}
                   {#if word.type === 'insert'}
-                    <span class="word-insert">{word.text}</span>
+                    <span class="word-insert" aria-label="Inserted text">
+                      <span class="change-icon">+</span>{word.text}
+                    </span>
                   {:else}
                     <span>{word.text}</span>
                   {/if}
@@ -519,7 +582,13 @@ console.log(greet(user));`
           <span>Original Text</span>
           <span class="char-count">{leftInput.length} chars</span>
         </div>
-        <textarea bind:value={leftInput} on:input={debouncedDiff} placeholder="Paste original text..." class="diff-textarea"></textarea>
+        <textarea
+          bind:value={leftInput}
+          on:input={debouncedCompute}
+          placeholder="Paste original text..."
+          class="diff-textarea"
+          aria-label="Original text input"
+        ></textarea>
       </div>
 
       <div class="diff-panel">
@@ -527,7 +596,13 @@ console.log(greet(user));`
           <span>Modified Text</span>
           <span class="char-count">{rightInput.length} chars</span>
         </div>
-        <textarea bind:value={rightInput} on:input={debouncedDiff} placeholder="Paste modified text..." class="diff-textarea"></textarea>
+        <textarea
+          bind:value={rightInput}
+          on:input={debouncedCompute}
+          placeholder="Paste modified text..."
+          class="diff-textarea"
+          aria-label="Modified text input"
+        ></textarea>
       </div>
 
       <div class="unified-result">
@@ -542,11 +617,17 @@ console.log(greet(user));`
             }).join('\n')} />
           {/if}
         </div>
+        {#if isTruncated}
+          <div class="truncation-warning">
+            <span class="warning-icon">⚠️</span>
+            <span>Input truncated due to size limits. Showing first {MAX_LINES.toLocaleString()} lines.</span>
+          </div>
+        {/if}
         <div class="unified-content">
           {#each diff as item}
             {#if item.type === 'removed'}
-              <div class="unified-line removed">
-                <span class="line-marker">-</span>
+              <div class="unified-line removed" role="row" aria-label="Removed line {item.oldLineNum}">
+                <span class="line-marker" aria-hidden="true">−</span>
                 <span class="line-text">
                   {#if item.oldWordDiff}
                     {#each item.oldWordDiff as word}
@@ -562,8 +643,8 @@ console.log(greet(user));`
                 </span>
               </div>
             {:else if item.type === 'added'}
-              <div class="unified-line added">
-                <span class="line-marker">+</span>
+              <div class="unified-line added" role="row" aria-label="Added line {item.newLineNum}">
+                <span class="line-marker" aria-hidden="true">+</span>
                 <span class="line-text">
                   {#if item.newWordDiff}
                     {#each item.newWordDiff as word}
@@ -579,8 +660,8 @@ console.log(greet(user));`
                 </span>
               </div>
             {:else if item.type === 'modified'}
-              <div class="unified-line removed">
-                <span class="line-marker">-</span>
+              <div class="unified-line removed modified-pair" role="row" aria-label="Modified line {item.oldLineNum} (old)">
+                <span class="line-marker" aria-hidden="true">−</span>
                 <span class="line-text">
                   {#if item.oldWordDiff}
                     {#each item.oldWordDiff as word}
@@ -595,8 +676,8 @@ console.log(greet(user));`
                   {/if}
                 </span>
               </div>
-              <div class="unified-line added">
-                <span class="line-marker">+</span>
+              <div class="unified-line added modified-pair" role="row" aria-label="Modified line {item.newLineNum} (new)">
+                <span class="line-marker" aria-hidden="true">+</span>
                 <span class="line-text">
                   {#if item.newWordDiff}
                     {#each item.newWordDiff as word}
@@ -612,8 +693,8 @@ console.log(greet(user));`
                 </span>
               </div>
             {:else}
-              <div class="unified-line same">
-                <span class="line-marker"> </span>
+              <div class="unified-line same" role="row" aria-label="Unchanged line {item.oldLineNum}">
+                <span class="line-marker" aria-hidden="true"> </span>
                 <span class="line-text">{item.left}</span>
               </div>
             {/if}
@@ -653,38 +734,68 @@ console.log(greet(user));`
   .diff-row .line-num { padding: var(--space-1) var(--space-2); background: var(--bg-elevated); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); text-align: right; min-width: 40px; }
   .diff-row .line-content { padding: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-sm); white-space: pre-wrap; word-break: break-all; }
   .diff-row.same .line-content { background: var(--bg-surface); color: var(--text-primary); }
-  .diff-row.removed .line-content.old { background: var(--diff-remove-bg); color: var(--error); }
-  .diff-row.added .line-content.new { background: var(--diff-add-bg); color: var(--success); }
-  .diff-row.modified .line-content.old { background: var(--diff-remove-bg-subtle); }
-  .diff-row.modified .line-content.new { background: var(--diff-add-bg-subtle); }
+  .diff-row.removed .line-content.old { background: var(--diff-remove-bg); color: var(--error); border-left: 3px solid var(--error); }
+  .diff-row.added .line-content.new { background: var(--diff-add-bg); color: var(--success); border-left: 3px solid var(--success); }
+  .diff-row.modified .line-content.old { background: var(--diff-remove-bg-subtle); border-left: 3px solid var(--warning); }
+  .diff-row.modified .line-content.new { background: var(--diff-add-bg-subtle); border-left: 3px solid var(--warning); }
   .unified-result { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
   .unified-content { max-height: 400px; overflow: auto; }
   .unified-line { display: flex; font-family: var(--font-mono); font-size: var(--text-sm); }
   .line-marker { width: 24px; padding: var(--space-1) var(--space-2); background: var(--bg-elevated); text-align: center; flex-shrink: 0; }
   .line-text { flex: 1; padding: var(--space-1) var(--space-3); white-space: pre-wrap; word-break: break-all; }
   .unified-line.same { background: var(--bg-surface); }
-  .unified-line.removed { background: var(--diff-remove-bg); }
-  .unified-line.removed .line-marker { color: var(--error); }
-  .unified-line.added { background: var(--diff-add-bg); }
-  .unified-line.added .line-marker { color: var(--success); }
+  .unified-line.removed { background: var(--diff-remove-bg); border-left: 3px solid var(--error); }
+  .unified-line.removed .line-marker { color: var(--error); font-weight: bold; }
+  .unified-line.added { background: var(--diff-add-bg); border-left: 3px solid var(--success); }
+  .unified-line.added .line-marker { color: var(--success); font-weight: bold; }
+  .unified-line.modified-pair { position: relative; }
+  .unified-line.modified-pair::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--border-subtle);
+  }
 
   /* Word-level diff styles */
   .word-delete {
     background: var(--diff-word-remove-bg);
     text-decoration: line-through;
     border-radius: 2px;
-    padding: 0 1px;
+    padding: 1px 3px;
     color: var(--error);
+    border: 1px dashed var(--error);
   }
   .word-insert {
     background: var(--diff-word-add-bg);
     border-radius: 2px;
-    padding: 0 1px;
+    padding: 1px 3px;
     color: var(--success);
+    border: 1px solid var(--success);
+  }
+  .change-icon {
+    font-weight: bold;
+    margin-right: 2px;
+    opacity: 0.8;
   }
   .empty-line {
     display: inline-block;
     min-height: 1.2em;
+  }
+  .truncation-warning {
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-warning);
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: var(--text-sm);
+    color: var(--text-warning);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .warning-icon {
+    font-size: var(--text-base);
   }
 
   @media (max-width: 768px) {

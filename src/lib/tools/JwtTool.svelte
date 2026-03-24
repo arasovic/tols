@@ -1,7 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { decodeJWT } from '$lib/utils/crypto.js'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
 
@@ -10,6 +10,15 @@
   let error = ''
   let timeout
   let saveTimeout
+  let showStorageWarning = true
+  let storageEnabled = true
+
+  function formatDate(timestamp) {
+    if (!timestamp || typeof timestamp !== 'number') return 'Invalid date'
+    const date = new Date(timestamp * 1000)
+    if (isNaN(date.getTime())) return 'Invalid date'
+    return date.toLocaleString()
+  }
 
   function loadState() {
     try {
@@ -18,15 +27,16 @@
         token = savedToken
       } else {
         token = EXAMPLE_JWT
-        decode()
       }
     } catch (e) {
       token = EXAMPLE_JWT
+      storageEnabled = false
       console.warn('Failed to load from localStorage:', e)
     }
   }
 
   function saveState() {
+    if (!storageEnabled) return
     try {
       clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
@@ -37,40 +47,13 @@
     }
   }
 
-  onMount(() => {
-    loadState()
-    if (token) decode()
-  })
-
-  function decode() {
-    error = ''
-    decoded = null
-
-    if (!token.trim()) {
-      return
-    }
-
-    const result = decodeJWT(token)
-
-    if (result.valid) {
-      decoded = result
-    } else {
-      error = result.error
-    }
+  function dismissStorageWarning() {
+    showStorageWarning = false
   }
 
-  function debouncedDecode() {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      decode()
-      saveState()
-    }, 150)
-  }
-
-  function clear() {
-    token = ''
-    decoded = null
-    error = ''
+  function disableStorage() {
+    storageEnabled = false
+    showStorageWarning = false
     try {
       localStorage.removeItem('devutils-jwt-token')
     } catch (e) {
@@ -78,14 +61,87 @@
     }
   }
 
-  function loadExample() {
+  onMount(async () => {
+    loadState()
+    if (token) await decode()
+  })
+
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
+  })
+
+  async function decode() {
+    error = ''
+    decoded = null
+
+    if (!token || !token.trim()) {
+      return
+    }
+
+    try {
+      const result = await decodeJWT(token)
+
+      if (result.valid) {
+        decoded = result
+        // Store the original base64url signature parts for display
+        const parts = token.split('.')
+        if (parts.length === 3) {
+          decoded.signatureBase64 = parts[2]
+        }
+      } else {
+        error = result.error
+      }
+    } catch (e) {
+      error = 'Failed to decode JWT'
+    }
+  }
+
+  async function debouncedDecode() {
+    clearTimeout(timeout)
+    timeout = setTimeout(async () => {
+      await decode()
+      saveState()
+    }, 150)
+  }
+
+  async function clear() {
+    token = ''
+    decoded = null
+    error = ''
+    if (storageEnabled) {
+      try {
+        localStorage.removeItem('devutils-jwt-token')
+      } catch (e) {
+        console.warn('Failed to clear localStorage:', e)
+      }
+    }
+  }
+
+  async function loadExample() {
     token = EXAMPLE_JWT
-    decode()
+    await decode()
     saveState()
   }
 </script>
 
 <div class="tool">
+  {#if showStorageWarning && storageEnabled}
+    <div class="storage-warning" role="note">
+      <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <span class="warning-text">
+        JWT tokens are stored in localStorage for convenience. 
+        <button class="warning-action" on:click={disableStorage}>Disable storage</button>
+        or 
+        <button class="warning-action" on:click={dismissStorageWarning}>dismiss</button>
+      </span>
+    </div>
+  {/if}
+
   <div class="tool-bar">
     <div class="tool-title">
       <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -96,13 +152,13 @@
     </div>
     
     <div class="tool-actions">
-      <button class="btn-ghost" on:click={loadExample} title="Load Example">
+      <button class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load example JWT token">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear">
+      <button class="btn-ghost" on:click={clear} title="Clear" aria-label="Clear JWT token">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -122,11 +178,12 @@
       placeholder="Paste JWT token here (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...)"
       class="input-area mono"
       spellcheck="false"
+      aria-label="JWT token input"
     ></textarea>
   </div>
 
   {#if error}
-    <div class="error-state">
+    <div class="error-state" role="alert">
       <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"></circle>
         <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -170,7 +227,7 @@
           <span class="badge badge-warning" title="Signature verification requires the secret key and is not performed by this decoder">Not Verified</span>
         </div>
         <div class="signature-content">
-          <code class="signature-text">{decoded.signature}</code>
+          <code class="signature-text">{decoded.signatureBase64 || decoded.signature}</code>
           <p class="signature-note">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
@@ -191,13 +248,13 @@
       {#if decoded.payload?.exp}
         <div class="info-item">
           <span class="info-label">Expires:</span>
-          <span class="info-value">{new Date(decoded.payload.exp * 1000).toLocaleString()}</span>
+          <span class="info-value">{formatDate(decoded.payload.exp)}</span>
         </div>
       {/if}
       {#if decoded.payload?.iat}
         <div class="info-item">
           <span class="info-label">Issued:</span>
-          <span class="info-value">{new Date(decoded.payload.iat * 1000).toLocaleString()}</span>
+          <span class="info-value">{formatDate(decoded.payload.iat)}</span>
         </div>
       {/if}
     </div>
@@ -218,6 +275,43 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
+  }
+
+  .storage-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--warning-subtle);
+    border: 1px solid var(--warning-muted);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--warning);
+  }
+
+  .warning-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+  }
+
+  .warning-text {
+    line-height: 1.5;
+  }
+
+  .warning-action {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--warning);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: inherit;
+  }
+
+  .warning-action:hover {
+    color: var(--warning-hover);
   }
 
   .tool-bar {

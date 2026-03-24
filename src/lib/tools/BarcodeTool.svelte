@@ -1,21 +1,33 @@
 <script>
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy, tick } from 'svelte'
 
   let barcodeText = 'CODE128'
   let barcodeType = 'CODE128'
   let canvas
   let error = ''
   let saveTimeout = null
+  let debounceTimeout = null
+  let isMounted = false
+
+  const DEBOUNCE_DELAY = 150
+  const SAVE_DELAY = 500
+  const MAX_INPUT_LENGTH = 100
+  const MAX_CANVAS_WIDTH = 10000
+  const MODULE_WIDTH = 2
+  const MODULE_HEIGHT = 100
+  const QUIET_ZONE = 10
+
+  const INVALID_CHARS_MESSAGE = 'Invalid characters detected. Only printable ASCII characters (32-127) are supported for Code128.'
+  const EMPTY_INPUT_MESSAGE = 'Please enter text to encode'
+  const TOO_LONG_MESSAGE = `Input too long. Maximum ${MAX_INPUT_LENGTH} characters allowed.`
 
   // Code 128 character set
   const CODE128 = {
-    // Start codes
     START_A: 103,
     START_B: 104,
     START_C: 105,
     STOP: 106,
-    
-    // Character patterns (11 modules each: 1=black, 0=white)
+
     patterns: [
       '11011001100', '11001101100', '11001100110', '10010011000', '10010001100',
       '10001001100', '10011001000', '10011000100', '10001100100', '11001001000',
@@ -42,58 +54,92 @@
     ]
   }
 
-  // Map characters to Code 128 values
   function getCode128Value(char, set) {
     const code = char.charCodeAt(0)
-    
+
     if (set === 'A') {
-      if (code >= 0 && code <= 31) return code + 64  // Control characters
+      if (code >= 0 && code <= 31) return code + 64
       if (code >= 32 && code <= 95) return code - 32
-      return code < 32 ? code + 64 : code - 32
+      return -1
     }
-    
+
     if (set === 'B') {
       if (code >= 32 && code <= 127) return code - 32
       return -1
     }
-    
+
     if (set === 'C') {
-      // Only digits for Code C
       return -1
     }
-    
+
     return -1
   }
 
-  // Determine best character set
   function determineSet(text) {
-    // Check if all characters are digits (use Set C)
-    if (/^\d{2,}$/.test(text) && text.length % 2 === 0) {
-      return 'C'
-    }
-    
-    // Check if contains lowercase (use Set B)
-    if (/[a-z]/.test(text)) {
+    if (!text || text.length === 0) {
       return 'B'
     }
-    
-    // Default to Set B
+
+    const hasOnlyDigits = /^\d+$/.test(text)
+    const hasLowercase = /[a-z]/.test(text)
+    const hasUppercase = /[A-Z]/.test(text)
+    const hasControlChars = /[\x00-\x1F]/.test(text)
+    const hasExtendedAscii = /[\x80-\xFF]/.test(text)
+
+    if (hasControlChars) {
+      return 'A'
+    }
+
+    if (hasOnlyDigits && text.length >= 4) {
+      return 'C'
+    }
+
+    if (hasLowercase || hasUppercase || !hasExtendedAscii) {
+      return 'B'
+    }
+
     return 'B'
   }
 
-  // Encode text to Code 128 values
+  function validateInput(text) {
+    if (!text || text.trim().length === 0) {
+      return { valid: false, message: EMPTY_INPUT_MESSAGE }
+    }
+
+    if (text.length > MAX_INPUT_LENGTH) {
+      return { valid: false, message: TOO_LONG_MESSAGE }
+    }
+
+    for (let i = 0; i < text.length; i++) {
+      const code = text.charCodeAt(i)
+      if (code < 32 || code > 127) {
+        return { valid: false, message: INVALID_CHARS_MESSAGE }
+      }
+    }
+
+    return { valid: true, message: '' }
+  }
+
+  function findInvalidCharacters(text) {
+    const invalid = []
+    for (let i = 0; i < text.length; i++) {
+      const code = text.charCodeAt(i)
+      if (code < 32 || code > 127) {
+        invalid.push({ char: text[i], index: i, code })
+      }
+    }
+    return invalid
+  }
+
   function encodeCode128(text) {
     const set = determineSet(text)
     const values = []
-    
-    // Add start code
+
     if (set === 'A') values.push(CODE128.START_A)
     else if (set === 'B') values.push(CODE128.START_B)
     else values.push(CODE128.START_C)
-    
-    // Encode characters
+
     if (set === 'C') {
-      // Pair digits
       for (let i = 0; i < text.length; i += 2) {
         const pair = parseInt(text.substring(i, i + 2), 10)
         values.push(pair)
@@ -106,18 +152,16 @@
         }
       }
     }
-    
-    // Calculate checksum
+
     let checksum = values[0]
     for (let i = 1; i < values.length; i++) {
       checksum += values[i] * i
     }
     checksum = checksum % 103
     values.push(checksum)
-    
-    // Add stop code
+
     values.push(CODE128.STOP)
-    
+
     return values
   }
 
@@ -125,10 +169,10 @@
     try {
       const savedText = localStorage.getItem('devutils-barcode-text')
       const savedType = localStorage.getItem('devutils-barcode-type')
-      if (savedText) barcodeText = savedText
-      if (savedType) barcodeType = savedType
+      if (savedText !== null) barcodeText = savedText
+      if (savedType !== null) barcodeType = savedType
     } catch (e) {
-      error = 'Failed to load saved state'
+      console.error('Failed to load saved state:', e)
     }
   }
 
@@ -136,22 +180,56 @@
     try {
       if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
-        localStorage.setItem('devutils-barcode-text', barcodeText)
-        localStorage.setItem('devutils-barcode-type', barcodeType)
-      }, 500)
+        try {
+          localStorage.setItem('devutils-barcode-text', barcodeText)
+          localStorage.setItem('devutils-barcode-type', barcodeType)
+        } catch (storageError) {
+          console.error('Failed to save state to localStorage:', storageError)
+        }
+      }, SAVE_DELAY)
     } catch (e) {
-      error = 'Failed to save state'
+      console.error('Failed to schedule state save:', e)
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     loadState()
-    if (canvas) generateBarcode()
+    await tick()
+    if (canvas && barcodeText) {
+      generateBarcode()
+    }
+    isMounted = true
+  })
+
+  onDestroy(() => {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout)
+      saveTimeout = null
+    }
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout)
+      debounceTimeout = null
+    }
+    isMounted = false
   })
 
   function generateBarcode() {
-    if (!canvas || !barcodeText) {
-      error = barcodeText ? 'Canvas not available' : 'Please enter text'
+    const previousError = error
+    error = ''
+
+    if (!canvas) {
+      error = 'Canvas not available'
+      return
+    }
+
+    const validation = validateInput(barcodeText)
+    if (!validation.valid) {
+      error = validation.message
+      const invalidChars = findInvalidCharacters(barcodeText)
+      if (invalidChars.length > 0) {
+        const details = invalidChars.slice(0, 3).map(c => `'${c.char}' (char ${c.code}) at pos ${c.index}`).join(', ')
+        error += ` Problem at: ${details}${invalidChars.length > 3 ? '...' : ''}`
+      }
       return
     }
 
@@ -163,53 +241,56 @@
       }
 
       const values = encodeCode128(barcodeText)
-      
-      // Calculate dimensions
-      const moduleWidth = 2
-      const moduleHeight = 100
-      const quietZone = 10
-      const totalWidth = values.reduce((sum, val) => sum + 11, 0) * moduleWidth + quietZone * 2
-      
-      canvas.width = totalWidth
-      canvas.height = moduleHeight + 40
 
-      // Clear canvas (white background)
+      const totalWidth = values.reduce((sum) => sum + 11, 0) * MODULE_WIDTH + QUIET_ZONE * 2
+
+      if (totalWidth > MAX_CANVAS_WIDTH) {
+        error = `Barcode too wide (${totalWidth}px). Maximum width is ${MAX_CANVAS_WIDTH}px.`
+        return
+      }
+
+      canvas.width = totalWidth
+      canvas.height = MODULE_HEIGHT + 40
+
       ctx.fillStyle = '#ffffff'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Draw barcode
-      let x = quietZone
+      let x = QUIET_ZONE
       ctx.fillStyle = '#000000'
-      
+
       for (const val of values) {
         const pattern = CODE128.patterns[val]
         if (pattern) {
           for (let i = 0; i < pattern.length; i++) {
             if (pattern[i] === '1') {
-              ctx.fillRect(x + i * moduleWidth, 0, moduleWidth, moduleHeight)
+              ctx.fillRect(x + i * MODULE_WIDTH, 0, MODULE_WIDTH, MODULE_HEIGHT)
             }
           }
-          x += 11 * moduleWidth
+          x += 11 * MODULE_WIDTH
         }
       }
-      
-      // Draw text
+
       ctx.fillStyle = '#000000'
       ctx.font = '14px monospace'
       ctx.textAlign = 'center'
-      ctx.fillText(barcodeText, canvas.width / 2, moduleHeight + 25)
-      
+      ctx.fillText(barcodeText, canvas.width / 2, MODULE_HEIGHT + 25)
+
       error = ''
     } catch (e) {
       error = 'Error generating barcode: ' + (e.message || 'Unknown error')
+      console.error('Barcode generation error:', e)
     }
   }
 
   function debouncedGenerate() {
-    setTimeout(() => {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout)
+    }
+    debounceTimeout = setTimeout(() => {
       generateBarcode()
       saveState()
-    }, 100)
+      debounceTimeout = null
+    }, DEBOUNCE_DELAY)
   }
 
   function downloadPNG() {
@@ -224,6 +305,7 @@
       link.click()
     } catch (e) {
       error = 'Failed to download barcode'
+      console.error('Download error:', e)
     }
   }
 
@@ -234,7 +316,7 @@
       localStorage.removeItem('devutils-barcode-text')
       localStorage.removeItem('devutils-barcode-type')
     } catch (e) {
-      error = 'Failed to clear saved state'
+      console.error('Failed to clear saved state:', e)
     }
     if (canvas) {
       const ctx = canvas.getContext('2d')
@@ -247,8 +329,11 @@
 
   function loadExample() {
     barcodeText = 'CODE128'
-    generateBarcode()
-    saveState()
+    error = ''
+    setTimeout(() => {
+      generateBarcode()
+      saveState()
+    }, 0)
   }
 </script>
 
@@ -259,40 +344,70 @@
       <p class="tool-desc">Generate Code128 barcodes</p>
     </div>
     <div class="tool-actions">
-      <button class="icon-btn" on:click={loadExample} title="Load Example">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
+      <button
+        class="icon-btn"
+        on:click={loadExample}
+        title="Load Example"
+        aria-label="Load example barcode text"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/>
+        </svg>
       </button>
-      <button class="icon-btn" on:click={clear} title="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <button
+        class="icon-btn"
+        on:click={clear}
+        title="Clear"
+        aria-label="Clear barcode input"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
       </button>
     </div>
   </div>
 
   {#if error}
-    <div class="error-display">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="error-display" role="alert" aria-live="polite">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
       <span>{error}</span>
     </div>
   {/if}
 
   <div class="barcode-input">
     <div class="input-group">
-      <label>Text to encode</label>
-      <input type="text" bind:value={barcodeText} on:input={debouncedGenerate} placeholder="Enter text or numbers..." />
+      <label for="barcode-text">Text to encode</label>
+      <input
+        id="barcode-text"
+        type="text"
+        bind:value={barcodeText}
+        on:input={debouncedGenerate}
+        placeholder="Enter text or numbers..."
+        maxlength={MAX_INPUT_LENGTH}
+        aria-invalid={error ? 'true' : 'false'}
+        aria-describedby={error ? 'barcode-error' : undefined}
+      />
     </div>
     <div class="input-group type-group">
-      <label>Type</label>
-      <select bind:value={barcodeType}>
+      <label for="barcode-type">Type</label>
+      <select id="barcode-type" bind:value={barcodeType}>
         <option value="CODE128">Code128</option>
       </select>
     </div>
   </div>
 
   <div class="barcode-preview">
-    <canvas bind:this={canvas}></canvas>
+    <canvas
+      bind:this={canvas}
+      aria-label={barcodeText ? `Barcode representing: ${barcodeText}` : 'Barcode preview area'}
+    ></canvas>
     {#if barcodeText}
       <button class="download-btn" on:click={downloadPNG}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
         Download PNG
       </button>
     {/if}

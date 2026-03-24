@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <catalog>
@@ -22,12 +22,15 @@
   </book>
 </catalog>`
 
+  const MAX_INPUT_SIZE = 10 * 1024 * 1024 // 10MB limit
+
   let input = ''
   let output = ''
   let error = ''
   let mode = 'format'
   let timeout = null
   let saveTimeout = null
+  let modeTimeout = null
 
   function loadState() {
     try {
@@ -43,15 +46,18 @@
   }
 
   function saveState() {
-    try {
-      if (saveTimeout) clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    if (saveTimeout) clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-xml-input', input)
         localStorage.setItem('devutils-xml-mode', mode)
-      }, 500)
-    } catch (e) {
-      error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
-    }
+      } catch (e) {
+        // Only show error if not already showing an error
+        if (!error) {
+          error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
+        }
+      }
+    }, 500)
   }
 
   onMount(() => {
@@ -59,47 +65,84 @@
     if (input) process()
   })
 
+  onDestroy(() => {
+    if (timeout) clearTimeout(timeout)
+    if (saveTimeout) clearTimeout(saveTimeout)
+    if (modeTimeout) clearTimeout(modeTimeout)
+  })
+
   function formatXML(xml) {
     let formatted = ''
     let indent = 0
     const tab = '  '
+    const tagStack = []
+    const mismatches = []
     
     // Tokenize XML - handle tags, text, CDATA, comments, and processing instructions
     const tokens = []
     let i = 0
+    const xmlLength = xml.length
     
-    while (i < xml.length) {
+    while (i < xmlLength) {
       if (xml[i] === '<') {
         // Check for various types of tags
-        if (xml.substring(i, i + 4) === '<!--') {
+        if (i + 4 <= xmlLength && xml.substring(i, i + 4) === '<!--') {
           // Comment
           const end = xml.indexOf('-->', i)
-          if (end === -1) break
+          if (end === -1) {
+            mismatches.push('Unclosed comment starting at position ' + i)
+            break
+          }
           tokens.push({ type: 'comment', content: xml.substring(i, end + 3) })
           i = end + 3
-        } else if (xml.substring(i, i + 9) === '<![CDATA[') {
+        } else if (i + 9 <= xmlLength && xml.substring(i, i + 9) === '<![CDATA[') {
           // CDATA
           const end = xml.indexOf(']]>', i)
-          if (end === -1) break
+          if (end === -1) {
+            mismatches.push('Unclosed CDATA section starting at position ' + i)
+            break
+          }
           tokens.push({ type: 'cdata', content: xml.substring(i, end + 3) })
           i = end + 3
-        } else if (xml.substring(i, i + 2) === '<?') {
+        } else if (i + 2 <= xmlLength && xml.substring(i, i + 2) === '<?') {
           // Processing instruction
           const end = xml.indexOf('?>', i)
-          if (end === -1) break
+          if (end === -1) {
+            mismatches.push('Unclosed processing instruction starting at position ' + i)
+            break
+          }
           tokens.push({ type: 'pi', content: xml.substring(i, end + 2) })
           i = end + 2
-        } else if (xml.substring(i, i + 2) === '</') {
+        } else if (i + 9 <= xmlLength && xml.substring(i, i + 9).toUpperCase() === '<!DOCTYPE') {
+          // DOCTYPE declaration
+          const end = xml.indexOf('>', i)
+          if (end === -1) {
+            mismatches.push('Unclosed DOCTYPE declaration starting at position ' + i)
+            break
+          }
+          tokens.push({ type: 'doctype', content: xml.substring(i, end + 1) })
+          i = end + 1
+        } else if (i + 2 <= xmlLength && xml.substring(i, i + 2) === '</') {
           // Closing tag
           const end = xml.indexOf('>', i)
-          if (end === -1) break
+          if (end === -1) {
+            mismatches.push('Unclosed end tag starting at position ' + i)
+            break
+          }
           const tagName = xml.substring(i + 2, end).trim().split(/\s+/)[0]
+          // Check for tag mismatch
+          if (tagStack.length > 0 && tagStack[tagStack.length - 1] !== tagName) {
+            mismatches.push(`Tag mismatch: expected </${tagStack[tagStack.length - 1]}> but found </${tagName}>`)
+          }
           tokens.push({ type: 'close', name: tagName })
           i = end + 1
         } else {
           // Opening or self-closing tag
           const end = xml.indexOf('>', i)
-          if (end === -1) break
+          if (end === -1) {
+            mismatches.push('Unclosed tag starting at position ' + i)
+            break
+          }
           const tagContent = xml.substring(i + 1, end)
           const isSelfClosing = tagContent.endsWith('/')
           const actualContent = isSelfClosing ? tagContent.slice(0, -1).trim() : tagContent.trim()
@@ -114,7 +157,7 @@
           })
           i = end + 1
         }
-      } else if (!xml.substring(i).trim()) {
+      } else if (i < xmlLength && !xml.substring(i).trim()) {
         // Skip whitespace at end
         break
       } else {
@@ -123,7 +166,7 @@
         let text
         if (nextTag === -1) {
           text = xml.substring(i)
-          i = xml.length
+          i = xmlLength
         } else {
           text = xml.substring(i, nextTag)
           i = nextTag
@@ -134,8 +177,12 @@
       }
     }
     
+    // Check for unclosed tags
+    if (tagStack.length > 0) {
+      mismatches.push(`Unclosed tags: ${tagStack.join(', ')}`)
+    }
+    
     // Format tokens
-    const tagStack = []
     for (let j = 0; j < tokens.length; j++) {
       const token = tokens[j]
       
@@ -145,6 +192,9 @@
           formatted += tab.repeat(indent) + token.content + '\n'
           break
         case 'cdata':
+          formatted += tab.repeat(indent) + token.content + '\n'
+          break
+        case 'doctype':
           formatted += tab.repeat(indent) + token.content + '\n'
           break
         case 'open':
@@ -163,9 +213,14 @@
           formatted += tab.repeat(indent) + token.full + '\n'
           break
         case 'text':
-          formatted += tab.repeat(indent) + escapeXml(token.content) + '\n'
+          // Text nodes should NOT be escaped - they're already plain text
+          formatted += tab.repeat(indent) + token.content + '\n'
           break
       }
+    }
+    
+    if (mismatches.length > 0) {
+      throw new Error('XML structure error: ' + mismatches.join('; '))
     }
     
     return formatted.trim() || xml
@@ -182,18 +237,44 @@
 
   function minifyXML(xml) {
     return xml
-      .replace(/>\s+</g, '><')
-      .replace(/\s{2,}/g, ' ')
-      .replace(/\n/g, ' ')
-      .replace(/>\s+</g, '><')
+      .replace(/>[\t\n\r ]+</g, '><')
+      .replace(/[\t\n\r ]{2,}/g, ' ')
       .trim()
   }
 
   function validateXML(xml) {
+    // Check max input size
+    if (xml.length > MAX_INPUT_SIZE) {
+      return `Input exceeds maximum size of ${MAX_INPUT_SIZE / 1024 / 1024}MB`
+    }
+    
     const parser = new DOMParser()
     const doc = parser.parseFromString(xml, 'application/xml')
+    
+    // Check for parser error - try multiple approaches for cross-browser compatibility
     const parseError = doc.querySelector('parsererror')
-    return parseError ? parseError.textContent.split('\n')[0] : null
+    if (parseError) {
+      const errorText = parseError.textContent || ''
+      // Extract just the first meaningful line, handling different browser formats
+      const lines = errorText.split(/\r?\n/).filter(line => line.trim())
+      // Look for error description in various formats
+      for (const line of lines) {
+        const trimmed = line.trim()
+        // Skip namespace declarations and generic error prefixes
+        if (trimmed && 
+            !trimmed.startsWith('xmlns:') && 
+            !trimmed.startsWith('http://') &&
+            !trimmed.startsWith('XML Parsing Error') &&
+            !trimmed.startsWith('Location:') &&
+            !trimmed.startsWith('Line Number') &&
+            trimmed.length > 5) {
+          return trimmed
+        }
+      }
+      // Fallback: return first non-empty line
+      return lines[0] || 'Unknown XML parsing error'
+    }
+    return null
   }
 
   function process() {
@@ -227,13 +308,16 @@
     timeout = setTimeout(() => {
       process()
       saveState()
-    }, 300)
+    }, 400)
   }
 
   function setMode(newMode) {
-    mode = newMode
-    process()
-    saveState()
+    if (modeTimeout) clearTimeout(modeTimeout)
+    modeTimeout = setTimeout(() => {
+      mode = newMode
+      process()
+      saveState()
+    }, 50)
   }
 
   function clear() {
@@ -266,13 +350,13 @@
         <button class="segment" class:active={mode === 'format'} on:click={() => setMode('format')}>Format</button>
         <button class="segment" class:active={mode === 'minify'} on:click={() => setMode('minify')}>Minify</button>
       </div>
-      <button class="icon-btn" on:click={loadExample} title="Load Example">
+      <button class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example XML">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="icon-btn" on:click={clear} title="Clear">
+      <button class="icon-btn" on:click={clear} title="Clear" aria-label="Clear input">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
@@ -281,7 +365,7 @@
   </div>
 
   {#if error}
-    <div class="error-display">
+    <div class="error-display" role="alert" aria-live="polite">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="8" x2="12" y2="12"/>
@@ -303,6 +387,7 @@
         placeholder="Paste XML here..." 
         class="editor-textarea" 
         spellcheck="false"
+        aria-label="XML Input"
       ></textarea>
     </div>
 
@@ -316,7 +401,7 @@
           {/if}
         </div>
       </div>
-      <pre class="output-display">{output || 'Output will appear here...'}</pre>
+      <pre class="output-display" role="region" aria-label="XML Output">{output || 'Output will appear here...'}</pre>
     </div>
   </div>
 </div>

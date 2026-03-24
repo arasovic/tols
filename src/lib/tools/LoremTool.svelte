@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   let paragraphs = 3
   let words = 50
@@ -8,6 +8,12 @@
   let output = ''
   let timeout
   let saveTimeout
+
+  function getRandomWordIndex(max) {
+    const array = new Uint32Array(1)
+    crypto.getRandomValues(array)
+    return array[0] % max
+  }
 
   const loremWords = [
     'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -55,32 +61,37 @@
   function generate() {
     output = ''
 
-    if (paragraphs < 1) {
+    const validParagraphs = Math.min(Math.max(paragraphs, 0), 50)
+    const validWords = Math.min(Math.max(words, 0), 500)
+
+    if (validParagraphs < 1) {
       return
     }
 
     const paragraphTexts = []
 
-    for (let p = 0; p < paragraphs; p++) {
+    for (let p = 0; p < validParagraphs; p++) {
       const paragraphWords = []
-      const wordCount = words || Math.floor(Math.random() * 20) + 10
+      const wordCount = validWords === 0 ? Math.floor(Math.random() * 20) + 10 : validWords
 
       for (let i = 0; i < wordCount; i++) {
-        const wordIndex = (i + p * wordCount) % loremWords.length
+        const wordIndex = getRandomWordIndex(loremWords.length)
         paragraphWords.push(loremWords[wordIndex])
       }
 
       const text = paragraphWords.join(' ')
-      paragraphTexts.push(startWithLorem ? text.charAt(0).toUpperCase() + text.slice(1) + '.' : text)
+      paragraphTexts.push(text.charAt(0).toUpperCase() + text.slice(1) + '.')
     }
 
     output = paragraphTexts.join('\n\n')
-    saveState()
   }
 
   function debouncedGenerate() {
     clearTimeout(timeout)
-    timeout = setTimeout(generate, 150)
+    timeout = setTimeout(() => {
+      generate()
+      saveState()
+    }, 150)
   }
 
   function clear() {
@@ -118,6 +129,11 @@
       generate()
     }
   }
+
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
+  })
 </script>
 
 <div class="tool">
@@ -162,7 +178,13 @@
           <input
             type="number"
             bind:value={paragraphs}
-            on:input={debouncedGenerate}
+            on:input={() => {
+              clearTimeout(timeout)
+              timeout = setTimeout(() => {
+                generate()
+                saveState()
+              }, 150)
+            }}
             min="1"
             max="50"
             class="counter-input"
@@ -181,7 +203,13 @@
         <input
           type="number"
           bind:value={words}
-          on:input={debouncedGenerate}
+          on:input={() => {
+            clearTimeout(timeout)
+            timeout = setTimeout(() => {
+              generate()
+              saveState()
+            }, 150)
+          }}
           min="1"
           max="500"
           class="words-input"
@@ -194,7 +222,13 @@
           <input
             type="checkbox"
             bind:checked={startWithLorem}
-            on:change={debouncedGenerate}
+            on:change={() => {
+              clearTimeout(timeout)
+              timeout = setTimeout(() => {
+                generate()
+                saveState()
+              }, 150)
+            }}
           />
           <span class="toggle-slider"></span>
         </label>

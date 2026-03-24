@@ -1,9 +1,13 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_REGEX = '\\d+'
   const EXAMPLE_TEXT = 'There are 42 apples and 123 oranges'
+  const REGEX_TIMEOUT_MS = 5000
+  const DEBOUNCE_DELAY_MS = 150
+  const SAVE_DELAY_MS = 500
+  const VALID_FLAGS = new Set(['g', 'i', 'm', 's', 'u', 'y'])
 
   let input = ''
   let pattern = ''
@@ -14,14 +18,48 @@
   let highlightedInput = ''
   let timeout = null
   let saveTimeout = null
+  let currentWorker = null
+  let persistentError = ''
 
   const flagOptions = [
     { value: 'g', label: 'Global', desc: 'Find all matches' },
     { value: 'i', label: 'Case Insensitive', desc: 'Ignore case' },
     { value: 'm', label: 'Multiline', desc: '^$ match line start/end' },
     { value: 's', label: 'Dotall', desc: '. matches newlines' },
-    { value: 'u', label: 'Unicode', desc: 'Enable unicode' }
+    { value: 'u', label: 'Unicode', desc: 'Enable unicode' },
+    { value: 'y', label: 'Sticky', desc: 'Match from lastIndex only' }
   ]
+
+  const workerScript = `
+    self.onmessage = function(e) {
+      const { pattern, flags, text, id } = e.data;
+      try {
+        const regex = new RegExp(pattern, flags);
+        let result;
+        if (!regex.global) {
+          result = text.match(regex);
+        } else {
+          result = Array.from(text.matchAll(regex));
+        }
+        self.postMessage({ id, result, error: null });
+      } catch (err) {
+        self.postMessage({ id, result: null, error: err.message });
+      }
+    };
+  `;
+
+  function createWorker() {
+    const blob = new Blob([workerScript], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(blob);
+    return new Worker(workerUrl);
+  }
+
+  function terminateWorker() {
+    if (currentWorker) {
+      currentWorker.terminate();
+      currentWorker = null;
+    }
+  }
 
   function loadState() {
     try {
@@ -38,11 +76,17 @@
       } else {
         pattern = EXAMPLE_REGEX
       }
-      if (savedFlags) flags = savedFlags
+      if (savedFlags) {
+        const validatedFlags = validateFlags(savedFlags)
+        flags = validatedFlags || 'g'
+      }
+      error = ''
+      errorDetails = ''
     } catch (e) {
       input = EXAMPLE_TEXT
       pattern = EXAMPLE_REGEX
-      error = 'Failed to load from localStorage: ' + (e.message || 'Unknown error')
+      flags = 'g'
+      persistentError = `Failed to load from localStorage: ${e.message || 'Unknown error'}`
     }
   }
 
@@ -50,18 +94,29 @@
     try {
       if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
-        localStorage.setItem('devutils-regex-input', input)
-        localStorage.setItem('devutils-regex-pattern', pattern)
-        localStorage.setItem('devutils-regex-flags', flags)
-      }, 500)
+        try {
+          localStorage.setItem('devutils-regex-input', input)
+          localStorage.setItem('devutils-regex-pattern', pattern)
+          localStorage.setItem('devutils-regex-flags', flags)
+          persistentError = ''
+        } catch (e) {
+          persistentError = `Failed to save to localStorage: ${e.message || 'Unknown error'}`
+        }
+      }, SAVE_DELAY_MS)
     } catch (e) {
-      error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
+      persistentError = `Failed to save to localStorage: ${e.message || 'Unknown error'}`
     }
   }
 
   onMount(() => {
     loadState()
     performMatch()
+  })
+
+  onDestroy(() => {
+    if (timeout) clearTimeout(timeout)
+    if (saveTimeout) clearTimeout(saveTimeout)
+    terminateWorker()
   })
 
   function escapeHtml(text) {
@@ -72,51 +127,123 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;')
+      .replace(/`/g, '&#96;')
+      .replace(/\0/g, '&#0;')
   }
 
-  function performMatch() {
+  function validateFlags(flagString) {
+    if (!flagString) return ''
+    const uniqueFlags = [...new Set(flagString.split(''))]
+    const validOnly = uniqueFlags.filter(f => VALID_FLAGS.has(f))
+    return validOnly.join('')
+  }
+
+  async function performMatchWithTimeout(pattern, flags, text) {
+    // Check if Web Workers are available (not available in test environments like jsdom)
+    const workersAvailable = typeof Worker !== 'undefined' && typeof Blob !== 'undefined' && typeof URL !== 'undefined' && URL.createObjectURL
+
+    if (!workersAvailable) {
+      // Fallback to synchronous execution for test environments
+      return new Promise((resolve, reject) => {
+        try {
+          const regex = new RegExp(pattern, flags)
+          let result
+          if (!regex.global) {
+            result = text.match(regex)
+          } else {
+            result = Array.from(text.matchAll(regex))
+          }
+          resolve(result)
+        } catch (err) {
+          reject(new Error(err.message))
+        }
+      })
+    }
+
+    return new Promise((resolve, reject) => {
+      terminateWorker()
+
+      const worker = createWorker()
+      currentWorker = worker
+      const timeoutId = setTimeout(() => {
+        terminateWorker()
+        reject(new Error('Regex operation timed out - possible catastrophic backtracking'))
+      }, REGEX_TIMEOUT_MS)
+
+      worker.onmessage = (e) => {
+        clearTimeout(timeoutId)
+        terminateWorker()
+        const { result, error: workerError } = e.data
+        if (workerError) {
+          reject(new Error(workerError))
+        } else {
+          resolve(result)
+        }
+      }
+
+      worker.onerror = (e) => {
+        clearTimeout(timeoutId)
+        terminateWorker()
+        reject(new Error('Worker error: ' + e.message))
+      }
+
+      worker.postMessage({ pattern, flags, text, id: Date.now() })
+    })
+  }
+
+  async function performMatch() {
     error = ''
     errorDetails = ''
     matches = []
     highlightedInput = ''
 
     if (!pattern.trim()) {
+      highlightedInput = ''
       return
     }
 
     if (!input) {
+      highlightedInput = ''
       return
     }
 
     try {
-      const regex = new RegExp(pattern, flags)
+      const validatedFlags = validateFlags(flags)
 
-      if (!regex.global) {
-        const match = input.match(regex)
-        if (match) {
-          matches = [match]
+      let matchResult = await performMatchWithTimeout(pattern, validatedFlags, input)
+
+      const isGlobal = validatedFlags.includes('g')
+
+      if (!isGlobal) {
+        if (matchResult) {
+          matches = [matchResult]
         }
       } else {
-        matches = Array.from(input.matchAll(regex))
+        matches = matchResult || []
       }
 
       let highlighted = ''
       let lastIndex = 0
 
       matches.forEach(match => {
+        if (!match || typeof match.index !== 'number') {
+          return
+        }
         const start = match.index
-        const end = start + match[0].length
+        const end = start + (match[0]?.length || 0)
         highlighted += escapeHtml(input.substring(lastIndex, start))
-        highlighted += '<mark class="match-highlight">' + escapeHtml(match[0]) + '</mark>'
+        highlighted += `<mark class="match-highlight">${escapeHtml(match[0] || '')}</mark>`
         lastIndex = end
       })
 
       highlighted += escapeHtml(input.substring(lastIndex))
 
-      highlightedInput = highlighted
+      highlightedInput = highlighted || escapeHtml(input)
     } catch (e) {
       error = 'Invalid regex pattern'
       errorDetails = e.message || 'Unknown error'
+      matches = []
+      highlightedInput = ''
     }
   }
 
@@ -125,7 +252,7 @@
     timeout = setTimeout(() => {
       performMatch()
       saveState()
-    }, 150)
+    }, DEBOUNCE_DELAY_MS)
   }
 
   function clear() {
@@ -135,16 +262,19 @@
     highlightedInput = ''
     error = ''
     errorDetails = ''
+    persistentError = ''
     try {
       localStorage.removeItem('devutils-regex-input')
       localStorage.removeItem('devutils-regex-pattern')
       localStorage.removeItem('devutils-regex-flags')
     } catch (e) {
-      error = 'Failed to clear localStorage: ' + (e.message || 'Unknown error')
+      persistentError = `Failed to clear localStorage: ${e.message || 'Unknown error'}`
     }
   }
 
   function loadExample() {
+    error = ''
+    errorDetails = ''
     input = EXAMPLE_TEXT
     pattern = EXAMPLE_REGEX
     performMatch()
@@ -152,13 +282,18 @@
   }
 
   function toggleFlag(flag) {
+    if (!VALID_FLAGS.has(flag)) return
     if (flags.includes(flag)) {
-      flags = flags.replace(flag, '')
+      flags = flags.replace(new RegExp(flag, 'g'), '')
     } else {
       flags += flag
     }
     performMatch()
     saveState()
+  }
+
+  function dismissPersistentError() {
+    persistentError = ''
   }
 </script>
 
@@ -171,7 +306,7 @@
       </svg>
       <h1 class="tool-title-text">Regex Tester</h1>
     </div>
-    
+
     <div class="tool-actions">
       <button class="btn-ghost" on:click={loadExample} title="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -188,27 +323,49 @@
     </div>
   </div>
 
+  {#if persistentError}
+    <div class="persistent-error">
+      <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span class="error-content">{persistentError}</span>
+      <button class="error-dismiss" on:click={dismissPersistentError} aria-label="Dismiss error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  {/if}
+
   <div class="pattern-card">
+    <label for="regex-pattern" class="pattern-label">Regex Pattern</label>
     <div class="pattern-input-group">
       <span class="delimiter">/</span>
       <input
         type="text"
+        id="regex-pattern"
         bind:value={pattern}
         on:input={debouncedMatch}
         placeholder="Enter regex pattern..."
         class="pattern-input mono"
         spellcheck="false"
+        aria-label="Regex pattern"
       />
       <span class="delimiter">/</span>
-      <span class="flags-display mono">{flags}</span>
+      <span class="flags-display mono" aria-label="Active regex flags">{flags}</span>
     </div>
     <div class="flags-row">
       {#each flagOptions as flag}
-        <button 
+        <button
           class="flag-btn"
           class:active={flags.includes(flag.value)}
           on:click={() => toggleFlag(flag.value)}
           title="{flag.label}: {flag.desc}"
+          aria-label="Toggle {flag.label} flag ({flag.value})"
+          aria-pressed={flags.includes(flag.value)}
         >
           {flag.value}
         </button>
@@ -235,22 +392,24 @@
   <div class="panels-grid">
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">Test String</span>
+        <label for="regex-input-text" class="panel-title">Test String</label>
         <span class="panel-badge">{input.length} chars</span>
       </div>
       <textarea
+        id="regex-input-text"
         bind:value={input}
         on:input={debouncedMatch}
         placeholder="Enter text to test against the regex..."
         class="input-area"
         spellcheck="false"
+        aria-label="Text to match against regex pattern"
       ></textarea>
     </div>
 
     <div class="panel">
       <div class="panel-header">
         <span class="panel-title">
-          Matches 
+          Matches
           {#if matches.length > 0}
             <span class="match-count">{matches.length}</span>
           {/if}
@@ -269,7 +428,15 @@
             <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
             <path d="m15 5 4 4"></path>
           </svg>
-          <span>Matches will appear here</span>
+          <span>
+            {#if !pattern.trim()}
+              Enter a regex pattern to see matches
+            {:else if !input}
+              Enter text to test against the regex
+            {:else}
+              Matches will appear here
+            {/if}
+          </span>
         </div>
       {/if}
     </div>
@@ -377,6 +544,45 @@
   .btn-ghost:hover {
     background: var(--bg-hover);
     color: var(--text-primary);
+  }
+
+  .persistent-error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--error-subtle);
+    border: 1px solid var(--error-muted);
+    border-radius: var(--radius-md);
+    color: var(--error);
+    font-size: var(--text-sm);
+  }
+
+  .persistent-error .error-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+
+  .persistent-error .error-content {
+    flex: 1;
+  }
+
+  .error-dismiss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--error);
+    transition: all var(--transition);
+    flex-shrink: 0;
+  }
+
+  .error-dismiss:hover {
+    background: var(--error-muted);
   }
 
   .pattern-card {
@@ -657,13 +863,13 @@
   }
 
   @keyframes fadeInUp {
-    from { 
-      opacity: 0; 
-      transform: translateY(8px); 
+    from {
+      opacity: 0;
+      transform: translateY(8px);
     }
-    to { 
-      opacity: 1; 
-      transform: translateY(0); 
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -770,6 +976,12 @@
 
   .mono {
     font-family: var(--font-mono);
+  }
+
+  .pattern-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
   }
 
   @media (max-width: 768px) {

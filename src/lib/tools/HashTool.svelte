@@ -1,9 +1,14 @@
+<script context="module">
+  export const EXAMPLE_HASH_TEXT = 'Hello World'
+  export const DEBOUNCE_DELAY_MS = 150
+  export const SAVE_DEBOUNCE_DELAY_MS = 500
+  export const MAX_INPUT_LENGTH = 100000
+</script>
+
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { hashMessage, hashMD5 } from '$lib/utils/crypto.js'
-  import { onMount } from 'svelte'
-
-  const EXAMPLE_HASH_TEXT = 'Hello World'
+  import { onMount, onDestroy } from 'svelte'
 
   let input = ''
   let algorithm = 'SHA-256'
@@ -11,6 +16,7 @@
   let error = ''
   let timeout
   let saveTimeout
+  let pendingHashId = 0
 
   const algorithms = [
     { value: 'SHA-256', name: 'SHA-256', bits: 256 },
@@ -19,7 +25,15 @@
     { value: 'MD5', name: 'MD5', bits: 128 }
   ]
 
+  const validAlgorithmValues = algorithms.map(a => a.value)
+
+  function isValidAlgorithm(algo) {
+    return validAlgorithmValues.includes(algo)
+  }
+
   function loadState() {
+    if (typeof window === 'undefined') return
+
     try {
       const savedInput = localStorage.getItem('devutils-hash-input')
       const savedAlgorithm = localStorage.getItem('devutils-hash-algorithm')
@@ -29,7 +43,7 @@
         input = EXAMPLE_HASH_TEXT
         hash()
       }
-      if (savedAlgorithm && algorithms.find(a => a.value === savedAlgorithm)) {
+      if (savedAlgorithm && isValidAlgorithm(savedAlgorithm)) {
         algorithm = savedAlgorithm
       }
     } catch (e) {
@@ -39,12 +53,14 @@
   }
 
   function saveState() {
+    if (typeof window === 'undefined') return
+
     try {
       clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
         localStorage.setItem('devutils-hash-input', input)
         localStorage.setItem('devutils-hash-algorithm', algorithm)
-      }, 500)
+      }, SAVE_DEBOUNCE_DELAY_MS)
     } catch (e) {
       console.warn('Failed to save to localStorage:', e)
     }
@@ -55,22 +71,36 @@
     if (input) hash()
   })
 
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
+  })
+
   async function hash() {
+    const currentHashId = ++pendingHashId
     error = ''
-    output = ''
 
     if (!input.trim()) {
+      output = ''
       return
     }
 
     try {
+      let result
       if (algorithm === 'MD5') {
-        output = await hashMD5(input)
+        result = await hashMD5(input)
       } else {
-        output = await hashMessage(input, algorithm)
+        result = await hashMessage(input, algorithm)
+      }
+
+      if (currentHashId === pendingHashId) {
+        output = result
       }
     } catch (e) {
-      error = 'Hash calculation failed: ' + e.message
+      if (currentHashId === pendingHashId) {
+        output = ''
+        error = 'Hash calculation failed. Please try again.'
+      }
     }
   }
 
@@ -79,13 +109,15 @@
     timeout = setTimeout(() => {
       hash()
       saveState()
-    }, 150)
+    }, DEBOUNCE_DELAY_MS)
   }
 
   function clear() {
     input = ''
     output = ''
     error = ''
+    if (typeof window === 'undefined') return
+
     try {
       localStorage.removeItem('devutils-hash-input')
       localStorage.removeItem('devutils-hash-algorithm')
@@ -105,6 +137,35 @@
     hash()
     saveState()
   }
+
+  function getCurrentAlgorithmBits() {
+    const algo = algorithms.find(a => a.value === algorithm)
+    return algo ? algo.bits : 0
+  }
+
+  function handleAlgoKeyDown(event, algo) {
+    const currentIndex = algorithms.findIndex(a => a.value === algorithm)
+    const algoIndex = algorithms.findIndex(a => a.value === algo.value)
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      selectAlgorithm(algo.value)
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      const prevIndex = algoIndex > 0 ? algoIndex - 1 : algorithms.length - 1
+      const prevAlgo = algorithms[prevIndex]
+      selectAlgorithm(prevAlgo.value)
+      const prevButton = document.querySelector(`[data-algo="${prevAlgo.value}"]`)
+      if (prevButton) prevButton.focus()
+    } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      event.preventDefault()
+      const nextIndex = algoIndex < algorithms.length - 1 ? algoIndex + 1 : 0
+      const nextAlgo = algorithms[nextIndex]
+      selectAlgorithm(nextAlgo.value)
+      const nextButton = document.querySelector(`[data-algo="${nextAlgo.value}"]`)
+      if (nextButton) nextButton.focus()
+    }
+  }
 </script>
 
 <div class="tool">
@@ -118,15 +179,27 @@
       </svg>
       <h1 class="tool-title-text">Hash Generator</h1>
     </div>
-    
+
     <div class="tool-actions">
-      <button class="btn-ghost" on:click={loadExample} title="Load Example">
+      <button
+        class="btn-ghost"
+        on:click={loadExample}
+        title="Load Example"
+        aria-label="Load example text"
+        type="button"
+      >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear">
+      <button
+        class="btn-ghost"
+        on:click={clear}
+        title="Clear"
+        aria-label="Clear all fields"
+        type="button"
+      >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -137,12 +210,18 @@
 
   <div class="controls-card">
     <span class="control-label">Select Algorithm</span>
-    <div class="algorithm-selector">
+    <div class="algorithm-selector" role="radiogroup" aria-label="Hash algorithm selection">
       {#each algorithms as algo}
-        <button 
-          class="algo-btn" 
+        <button
+          class="algo-btn"
           class:active={algorithm === algo.value}
           on:click={() => selectAlgorithm(algo.value)}
+          on:keydown={(e) => handleAlgoKeyDown(e, algo)}
+          role="radio"
+          aria-checked={algorithm === algo.value}
+          aria-label="{algo.name} {algo.bits}-bit hash algorithm"
+          data-algo={algo.value}
+          type="button"
         >
           <span class="algo-name">{algo.name}</span>
           <span class="algo-bits">{algo.bits}-bit</span>
@@ -154,7 +233,7 @@
   <div class="panel">
     <div class="panel-header">
       <span class="panel-title">Input Text</span>
-      <span class="panel-badge">{input.length} chars</span>
+      <span class="panel-badge" data-testid="input-char-count">{input.length} chars</span>
     </div>
     <textarea
       bind:value={input}
@@ -162,10 +241,13 @@
       placeholder="Enter text to hash..."
       class="input-area"
       spellcheck="false"
+      maxlength={MAX_INPUT_LENGTH}
+      aria-label="Input text to hash"
+      data-testid="hash-input"
     ></textarea>
   </div>
 
-  <div class="panel output-panel">
+  <div class="panel output-panel" aria-live="polite" aria-atomic="true">
     <div class="panel-header">
       <span class="panel-title">
         <span class="hash-type">{algorithm}</span>
@@ -173,16 +255,14 @@
       </span>
       <div class="header-actions">
         {#if output}
-          <span class="panel-badge">{output.length} chars</span>
+          <span class="panel-badge" data-testid="output-char-count">{output.length} chars</span>
         {/if}
-        {#if output}
-          <CopyButton text={output} />
-        {/if}
+        <CopyButton text={output} disabled={!output} />
       </div>
     </div>
-    
+
     {#if error}
-      <div class="error-state">
+      <div class="error-state" role="alert" aria-live="assertive" data-testid="error-state">
         <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -191,7 +271,7 @@
         <span>{error}</span>
       </div>
     {:else if output}
-      <div class="hash-output">
+      <div class="hash-output" data-testid="hash-output">
         <code>{output}</code>
       </div>
     {:else}
@@ -219,7 +299,7 @@
       </div>
       <div class="info-item">
         <span class="info-label">Digest:</span>
-        <span class="info-value">{algorithms.find(a => a.value === algorithm)?.bits}-bit</span>
+        <span class="info-value">{getCurrentAlgorithmBits()}-bit</span>
       </div>
     {/if}
   </div>
@@ -498,6 +578,20 @@
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     color: var(--text-primary);
+  }
+
+  .badge {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+  }
+
+  .badge-accent {
+    background: var(--accent-subtle);
+    color: var(--accent);
   }
 
   @keyframes fadeIn {

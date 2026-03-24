@@ -133,9 +133,13 @@ export function generateUUIDs(count) {
 
 /**
  * @param {string} token
- * @returns {{valid: boolean, header?: object, payload?: object, signature?: string, error?: string}}
+ * @returns {Promise<{valid: boolean, header?: object, payload?: object, signature?: string, error?: string}>}
  */
 export async function decodeJWT(token) {
+  if (!token || typeof token !== 'string') {
+    return { valid: false, error: 'Please enter a JWT token' }
+  }
+
   const parts = token.split('.')
   if (parts.length !== 3) {
     return { valid: false, error: 'Invalid JWT format: expected 3 parts separated by dots' }
@@ -143,25 +147,37 @@ export async function decodeJWT(token) {
 
   let header
   let payload
-  let signature
+
+  // Helper to convert base64url to base64
+  /**
+   * @param {string} str
+   * @returns {string}
+   */
+  function base64urlToBase64(str) {
+    // Replace base64url chars with base64 chars and add padding if needed
+    let base64 = str.replace(/-/g, '+').replace(/_/g, '/')
+    // Add padding
+    while (base64.length % 4) {
+      base64 += '='
+    }
+    return base64
+  }
 
   try {
-    header = JSON.parse(atob(parts[0]))
+    header = JSON.parse(atob(base64urlToBase64(parts[0])))
   } catch (err) {
     return { valid: false, error: 'Invalid JWT header: unable to decode Base64 or parse JSON' }
   }
 
   try {
-    payload = JSON.parse(atob(parts[1]))
+    payload = JSON.parse(atob(base64urlToBase64(parts[1])))
   } catch (err) {
     return { valid: false, error: 'Invalid JWT payload: unable to decode Base64 or parse JSON' }
   }
 
-  try {
-    signature = atob(parts[2])
-  } catch (err) {
-    return { valid: false, error: 'Invalid JWT signature: unable to decode Base64' }
-  }
+  // For signature, just return the base64url string (it's binary data)
+  // We don't try to decode it since it may not be valid UTF-8
+  const signature = parts[2]
 
   return { valid: true, header, payload, signature }
 }

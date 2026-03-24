@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_HTML = `<!DOCTYPE html>
 <html>
@@ -36,8 +36,9 @@
       else input = EXAMPLE_HTML
       if (savedMode) mode = savedMode
     } catch (e) {
+      console.error('Failed to load from localStorage:', e)
       input = EXAMPLE_HTML
-      error = 'Failed to load from localStorage: ' + (e.message || 'Unknown error')
+      error = 'Failed to load saved content. Using default example.'
     }
   }
 
@@ -45,17 +46,26 @@
     try {
       if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
-        localStorage.setItem('devutils-html-input', input)
-        localStorage.setItem('devutils-html-mode', mode)
+        try {
+          localStorage.setItem('devutils-html-input', input)
+          localStorage.setItem('devutils-html-mode', mode)
+        } catch (e) {
+          console.error('Failed to save to localStorage:', e)
+        }
       }, 500)
     } catch (e) {
-      error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
+      console.error('Failed to schedule save:', e)
     }
   }
 
   onMount(() => {
     loadState()
     if (input) process()
+  })
+
+  onDestroy(() => {
+    if (timeout) clearTimeout(timeout)
+    if (saveTimeout) clearTimeout(saveTimeout)
   })
 
   // Void elements that don't need closing tags
@@ -87,8 +97,8 @@
           }
           tokens.push({ type: 'comment', content: html.substring(i, end + 3) })
           i = end + 3
-        } else if (html.substring(i, i + 9).toLowerCase() === '<!doctype') {
-          // DOCTYPE
+        } else if (html.substring(i, i + 9).toLowerCase() === '<!doctype' || html.substring(i, i + 9).toUpperCase() === '<!DOCTYPE') {
+          // DOCTYPE - case insensitive match
           const end = html.indexOf('>', i)
           if (end === -1) {
             tokens.push({ type: 'doctype', content: html.substring(i) })
@@ -164,11 +174,25 @@
         case 'close':
           if (tagStack.length > 0 && tagStack[tagStack.length - 1] === token.name) {
             tagStack.pop()
+            if (!PRESERVE_WHITESPACE.has(token.name)) {
+              indent = Math.max(0, indent - 1)
+            }
+          } else {
+            // Mismatched tag - find matching tag in stack
+            const stackIndex = tagStack.lastIndexOf(token.name)
+            if (stackIndex !== -1) {
+              // Remove all tags from stackIndex onwards and adjust indent
+              const tagsToRemove = tagStack.length - stackIndex
+              for (let k = stackIndex; k < tagStack.length; k++) {
+                if (!PRESERVE_WHITESPACE.has(tagStack[k])) {
+                  indent = Math.max(0, indent - 1)
+                }
+              }
+              tagStack.splice(stackIndex)
+            }
+            // If not found, keep current indent
           }
-          if (!PRESERVE_WHITESPACE.has(token.name)) {
-            indent = Math.max(0, indent - 1)
-          }
-          formatted += tab.repeat(indent) + '</' + token.name + '>\n'
+          formatted += tab.repeat(Math.max(0, indent)) + '</' + token.name + '>\n'
           break
         case 'self-closing':
           formatted += tab.repeat(indent) + token.content + '\n'
@@ -179,14 +203,15 @@
             if (tagStack.length > 0 && PRESERVE_WHITESPACE.has(tagStack[tagStack.length - 1])) {
               formatted += token.content
             } else {
-              formatted += tab.repeat(indent) + escapeHtml(trimmed) + '\n'
+              // Text content should NOT be escaped - it's already plain text
+              formatted += tab.repeat(indent) + trimmed + '\n'
             }
           }
           break
       }
     }
     
-    return formatted.trim() || html
+    return formatted.trim() || escapeHtml(html)
   }
 
   function escapeHtml(str) {
@@ -197,7 +222,20 @@
   }
 
   function minifyHTML(html) {
-    let minified = html
+    // Protect whitespace-sensitive elements during minification
+    const protectedBlocks = []
+    let protectedIndex = 0
+    
+    // Replace whitespace-sensitive content with placeholders
+    const WHITESPACE_SENSITIVE = /<(pre|code|textarea|script|style)[^>]*>[\s\S]*?<\/\1>/gi
+    let protectedHtml = html.replace(WHITESPACE_SENSITIVE, (match) => {
+      const placeholder = `___PROTECTED_${protectedIndex}___`
+      protectedBlocks.push({ placeholder, content: match })
+      protectedIndex++
+      return placeholder
+    })
+    
+    let minified = protectedHtml
       .replace(/>\s+</g, '><')
       .replace(/\s{2,}/g, ' ')
       .replace(/\n/g, ' ')
@@ -213,6 +251,11 @@
         .replace(/\s*>/g, '>')
         .replace(/<\s*/g, '<')
     }
+    
+    // Restore protected blocks
+    protectedBlocks.forEach(({ placeholder, content }) => {
+      minified = minified.replace(placeholder, content)
+    })
 
     return minified.trim()
   }
@@ -232,6 +275,7 @@
       } else {
         output = minifyHTML(input)
       }
+      saveState()
     } catch (e) {
       error = 'Error processing HTML: ' + (e.message || 'Unknown error')
     }
@@ -241,7 +285,6 @@
     if (timeout) clearTimeout(timeout)
     timeout = setTimeout(() => {
       process()
-      saveState()
     }, 300)
   }
 
@@ -259,7 +302,8 @@
       localStorage.removeItem('devutils-html-input')
       localStorage.removeItem('devutils-html-mode')
     } catch (e) {
-      error = 'Failed to clear localStorage: ' + (e.message || 'Unknown error')
+      console.error('Failed to clear localStorage:', e)
+      error = 'Failed to clear saved content.'
     }
   }
 
@@ -281,13 +325,13 @@
         <button class="segment" class:active={mode === 'beautify'} on:click={() => setMode('beautify')}>Beautify</button>
         <button class="segment" class:active={mode === 'minify'} on:click={() => setMode('minify')}>Minify</button>
       </div>
-      <button class="icon-btn" on:click={loadExample} title="Load Example">
+      <button class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load Example">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="icon-btn" on:click={clear} title="Clear">
+      <button class="icon-btn" on:click={clear} title="Clear" aria-label="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
@@ -297,19 +341,19 @@
 
   {#if mode === 'minify'}
     <div class="options-bar">
-      <label class="option">
-        <input type="checkbox" bind:checked={removeComments} on:change={debouncedProcess}>
+      <label class="option" for="remove-comments">
+        <input type="checkbox" id="remove-comments" bind:checked={removeComments} on:change={debouncedProcess}>
         <span>Remove comments</span>
       </label>
-      <label class="option">
-        <input type="checkbox" bind:checked={removeWhitespace} on:change={debouncedProcess}>
+      <label class="option" for="remove-whitespace">
+        <input type="checkbox" id="remove-whitespace" bind:checked={removeWhitespace} on:change={debouncedProcess}>
         <span>Remove extra whitespace</span>
       </label>
     </div>
   {/if}
 
   {#if error}
-    <div class="error-display">
+    <div class="error-display" role="alert">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="8" x2="12" y2="12"/>
@@ -344,7 +388,7 @@
           {/if}
         </div>
       </div>
-      <pre class="output-display">{output || 'Output will appear here...'}</pre>
+      <pre class="output-display" aria-live="polite">{output || 'Output will appear here...'}</pre>
     </div>
   </div>
 </div>

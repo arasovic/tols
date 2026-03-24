@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_JSON = `{
   "name": "DevUtils",
@@ -9,7 +9,10 @@
   "active": true
 }`
 
-const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
+  const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
+  const MAX_INPUT_SIZE = 1024 * 1024 // 1MB
+  const DEBOUNCE_DELAY = 300
+  const SAVE_DELAY = 500
 
   let input = ''
   let output = ''
@@ -17,6 +20,7 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
   let compact = false
   let timeout
   let saveTimeout
+  let saveInProgress = false
 
   function loadState() {
     try {
@@ -31,6 +35,7 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
       if (savedCompact) compact = savedCompact === 'true'
     } catch (e) {
       input = EXAMPLE_JSON
+      error = 'Failed to load from localStorage: ' + e.message
       console.warn('Failed to load from localStorage:', e)
     }
   }
@@ -42,21 +47,40 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
   }
 
   function saveState() {
-    try {
+    if (saveInProgress) {
       clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    }
+    saveInProgress = true
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-json-input', input)
         localStorage.setItem('devutils-json-compact', compact.toString())
-      }, 500)
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
-    }
+      } catch (e) {
+        error = 'Failed to save to localStorage: ' + e.message
+        console.warn('Failed to save to localStorage:', e)
+      } finally {
+        saveInProgress = false
+      }
+    }, SAVE_DELAY)
   }
 
   onMount(() => {
     loadState()
     if (input) process()
   })
+
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
+  })
+
+  function validateInputSize() {
+    if (input.length > MAX_INPUT_SIZE) {
+      error = `Input exceeds maximum size of ${MAX_INPUT_SIZE / 1024 / 1024}MB. Large files may cause performance issues.`
+      return false
+    }
+    return true
+  }
 
   function process() {
     error = ''
@@ -67,15 +91,20 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
       return
     }
 
+    if (!validateInputSize()) {
+      return
+    }
+
     try {
       const parsed = JSON.parse(input)
       output = compact ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2)
     } catch (e) {
-      const match = e.message.match(/position (\d+)/)
+      const match = e.message.match(/position (\d+)/i)
       if (match) {
         const position = parseInt(match[1])
-        const line = input.substring(0, position).split('\n').length
-        const column = position - input.lastIndexOf('\n', position - 1)
+        const lines = input.substring(0, position).split('\n')
+        const line = lines.length
+        const column = lines[lines.length - 1].length + 1
         error = `Invalid JSON at line ${line}, column ${column}`
       } else {
         error = 'Invalid JSON: ' + e.message
@@ -88,7 +117,7 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
     timeout = setTimeout(() => {
       process()
       saveState()
-    }, 300)
+    }, DEBOUNCE_DELAY)
   }
 
   function minify() {
@@ -111,6 +140,7 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
       localStorage.removeItem('devutils-json-input')
       localStorage.removeItem('devutils-json-compact')
     } catch (e) {
+      error = 'Failed to clear localStorage: ' + e.message
       console.warn('Failed to clear localStorage:', e)
     }
   }
@@ -123,11 +153,14 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
       <p class="tool-desc">Format, validate, and minify JSON data</p>
     </div>
     <div class="tool-actions">
-      <div class="segmented">
+      <div class="segmented" role="tablist" aria-label="JSON formatting options">
         <button
           class="segment"
           class:active={!compact}
           on:click={prettify}
+          role="tab"
+          aria-selected={!compact}
+          aria-label="Format JSON with indentation"
         >
           Prettify
         </button>
@@ -135,18 +168,21 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
           class="segment"
           class:active={compact}
           on:click={minify}
+          role="tab"
+          aria-selected={compact}
+          aria-label="Minify JSON to single line"
         >
           Minify
         </button>
       </div>
-      <button class="icon-btn" on:click={loadExample} title="Load Example">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <button class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example JSON">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="icon-btn" on:click={clear} title="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <button class="icon-btn" on:click={clear} title="Clear" aria-label="Clear input and output">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
       </button>
@@ -165,6 +201,8 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
         placeholder={PLACEHOLDER_TEXT}
         class="editor-textarea"
         spellcheck="false"
+        aria-label="JSON input"
+        aria-describedby={error ? 'json-error' : undefined}
       ></textarea>
     </div>
 
@@ -179,8 +217,8 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
         </div>
       </div>
       {#if error}
-        <div class="error-display">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <div class="error-display" role="alert" id="json-error" aria-live="polite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -188,7 +226,7 @@ const PLACEHOLDER_TEXT = '{"name": "Example", "version": "1.0.0"}'
           <span>{error}</span>
         </div>
       {:else}
-        <pre class="output-display">{output || 'Output will appear here...'}</pre>
+        <pre class="output-display" role="region" aria-label="JSON output">{output || 'Output will appear here...'}</pre>
       {/if}
     </div>
   </div>

@@ -1,4 +1,6 @@
 <script>
+  import CssFilterTool from '$lib/tools/CssFilterTool.svelte'
+
   const pageTitle = 'CSS Filter Generator - DevUtils | Apply Visual Filters'
   const pageDescription = 'Free online CSS filter generator tool with visual controls. Create blur, brightness, contrast, and other filter effects with live preview and CSS code output.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/css-filter'
@@ -46,9 +48,7 @@
 
 <main id="main-content">
   <article>
-    <div class="tool-container">
-      <p>CSS Filter Generator tool coming soon.</p>
-    </div>
+    <CssFilterTool />
 
     <div class="seo-section">
     <section class="seo-content" aria-labelledby="what-is">

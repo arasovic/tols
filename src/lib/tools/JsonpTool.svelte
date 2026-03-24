@@ -1,19 +1,61 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_URL = 'https://api.example.com/data'
   const EXAMPLE_CALLBACK = 'myCallback'
+  const DEBOUNCE_DELAY = 300
+  const SAVE_DEBOUNCE_DELAY = 500
 
   let url = EXAMPLE_URL
   let callback = EXAMPLE_CALLBACK
   let response = '{"name": "John", "age": 30}'
-  let generatedScript = ''
-  let parsedResult = null
+  let generatedScript = `<script src="${EXAMPLE_URL}?callback=${EXAMPLE_CALLBACK}"><\/script>`
+  let parsedResult = { status: 'success', data: { name: 'John', age: 30 } }
   let timeout
   let saveTimeout
+  let urlInputId = 'jsonp-url'
+  let callbackInputId = 'jsonp-callback'
+  let responseTextareaId = 'jsonp-response'
+
+  function isLocalStorageAvailable() {
+    try {
+      const testKey = '__test__'
+      localStorage.setItem(testKey, testKey)
+      localStorage.removeItem(testKey)
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  function sanitizeForHtml(str) {
+    if (!str) return ''
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+  }
+
+  function validateUrl(value) {
+    if (!value) return true
+    try {
+      new URL(value)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  function validateCallbackName(value) {
+    if (!value) return true
+    return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)
+  }
 
   function loadState() {
+    if (!isLocalStorageAvailable()) return
     try {
       const savedUrl = localStorage.getItem('devutils-jsonp-url')
       const savedCallback = localStorage.getItem('devutils-jsonp-callback')
@@ -21,18 +63,28 @@
       if (savedUrl) url = savedUrl
       if (savedCallback) callback = savedCallback
       if (savedResponse) response = savedResponse
-    } catch (e) {}
+      generateScript()
+    } catch (e) {
+      console.warn('Failed to load state from localStorage:', e)
+    }
   }
 
   function saveState() {
+    if (!isLocalStorageAvailable()) return
     try {
       clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
-        localStorage.setItem('devutils-jsonp-url', url)
-        localStorage.setItem('devutils-jsonp-callback', callback)
-        localStorage.setItem('devutils-jsonp-response', response)
-      }, 500)
-    } catch (e) {}
+        try {
+          localStorage.setItem('devutils-jsonp-url', url)
+          localStorage.setItem('devutils-jsonp-callback', callback)
+          localStorage.setItem('devutils-jsonp-response', response)
+        } catch (e) {
+          console.warn('Failed to save state to localStorage:', e)
+        }
+      }, SAVE_DEBOUNCE_DELAY)
+    } catch (e) {
+      console.warn('Failed to schedule state save:', e)
+    }
   }
 
   onMount(() => {
@@ -40,9 +92,16 @@
     generateScript()
   })
 
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
+  })
+
   function generateScript() {
-    generatedScript = `<script src="${url}?callback=${callback}"><\/script>`
-    
+    const sanitizedUrl = sanitizeForHtml(url)
+    const sanitizedCallback = sanitizeForHtml(callback)
+    generatedScript = `<script src="${sanitizedUrl}?callback=${sanitizedCallback}"><\/script>`
+
     try {
       const data = JSON.parse(response)
       parsedResult = {
@@ -62,7 +121,7 @@
     timeout = setTimeout(() => {
       generateScript()
       saveState()
-    }, 300)
+    }, DEBOUNCE_DELAY)
   }
 
   function clear() {
@@ -71,11 +130,14 @@
     response = ''
     generatedScript = ''
     parsedResult = null
+    if (!isLocalStorageAvailable()) return
     try {
       localStorage.removeItem('devutils-jsonp-url')
       localStorage.removeItem('devutils-jsonp-callback')
       localStorage.removeItem('devutils-jsonp-response')
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to clear localStorage:', e)
+    }
   }
 
   function loadExample() {
@@ -94,10 +156,10 @@
       <p class="tool-desc">Simulate JSONP requests and parse responses</p>
     </div>
     <div class="tool-actions">
-      <button class="icon-btn" on:click={loadExample} title="Load Example">
+      <button class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load Example">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
       </button>
-      <button class="icon-btn" on:click={clear} title="Clear">
+      <button class="icon-btn" on:click={clear} title="Clear" aria-label="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
@@ -106,18 +168,18 @@
   <div class="jsonp-inputs">
     <div class="input-row">
       <div class="input-group">
-        <label>URL</label>
-        <input type="text" bind:value={url} on:input={debouncedGenerate} placeholder="https://api.example.com/data" />
+        <label for={urlInputId}>URL</label>
+        <input id={urlInputId} type="text" bind:value={url} on:input={debouncedGenerate} placeholder="https://api.example.com/data" />
       </div>
       <div class="input-group callback-group">
-        <label>Callback Function</label>
-        <input type="text" bind:value={callback} on:input={debouncedGenerate} placeholder="myCallback" />
+        <label for={callbackInputId}>Callback Function</label>
+        <input id={callbackInputId} type="text" bind:value={callback} on:input={debouncedGenerate} placeholder="myCallback" />
       </div>
     </div>
 
     <div class="input-group">
-      <label>Simulated Response (JSON)</label>
-      <textarea bind:value={response} on:input={debouncedGenerate} placeholder='{{"key": "value"}}' class="response-textarea"></textarea>
+      <label for={responseTextareaId}>Simulated Response (JSON)</label>
+      <textarea id={responseTextareaId} bind:value={response} on:input={debouncedGenerate} placeholder='{{"key": "value"}}' class="response-textarea"></textarea>
     </div>
   </div>
 

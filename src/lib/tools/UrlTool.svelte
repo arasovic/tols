@@ -1,8 +1,11 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_URL = 'https://example.com/path?name=John&age=30'
+  const DEBOUNCE_DELAY_MS = 150
+  const SAVE_DEBOUNCE_DELAY_MS = 500
+  const MAX_INPUT_LENGTH = 100000
 
   let input = ''
   let output = ''
@@ -17,13 +20,9 @@
       const savedMode = localStorage.getItem('devutils-url-mode')
       if (savedInput) {
         input = savedInput
-      } else {
-        input = EXAMPLE_URL
-        process()
       }
       if (savedMode) mode = savedMode
     } catch (e) {
-      input = EXAMPLE_URL
       console.warn('Failed to load from localStorage:', e)
     }
   }
@@ -34,7 +33,7 @@
       saveTimeout = setTimeout(() => {
         localStorage.setItem('devutils-url-input', input)
         localStorage.setItem('devutils-url-mode', mode)
-      }, 500)
+      }, SAVE_DEBOUNCE_DELAY_MS)
     } catch (e) {
       console.warn('Failed to save to localStorage:', e)
     }
@@ -42,7 +41,18 @@
 
   onMount(() => {
     loadState()
-    if (input) process()
+    if (input.trim()) {
+      process()
+    } else {
+      input = EXAMPLE_URL
+      process()
+      saveState()
+    }
+  })
+
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
   })
 
   function process() {
@@ -50,6 +60,8 @@
     output = ''
 
     if (!input.trim()) {
+      output = ''
+      error = ''
       return
     }
 
@@ -60,7 +72,9 @@
         output = decodeURIComponent(input)
       }
     } catch (e) {
-      error = 'Invalid input for URL ' + mode
+      error = mode === 'encode'
+        ? 'Invalid input for URL encoding'
+        : 'Invalid input for URL decoding'
     }
   }
 
@@ -69,7 +83,7 @@
     timeout = setTimeout(() => {
       process()
       saveState()
-    }, 150)
+    }, DEBOUNCE_DELAY_MS)
   }
 
   function clear() {
@@ -96,13 +110,22 @@
     saveState()
   }
 
+  function debouncedSave() {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      saveState()
+    }, SAVE_DEBOUNCE_DELAY_MS)
+  }
+
   function extractFromURL() {
     try {
       const url = new URL(input)
       const path = url.pathname + url.search + url.hash
+      input = path
       output = encodeURIComponent(path)
       mode = 'encode'
       error = ''
+      debouncedSave()
     } catch (e) {
       error = 'Invalid URL format'
     }
@@ -111,9 +134,11 @@
   function extractPath() {
     try {
       const url = new URL(input)
-      output = url.pathname
+      input = url.pathname
+      output = encodeURIComponent(url.pathname)
       mode = 'encode'
       error = ''
+      debouncedSave()
     } catch (e) {
       error = 'Invalid URL format'
     }
@@ -123,12 +148,25 @@
     try {
       const url = new URL(input)
       const params = new URLSearchParams(url.search)
-      output = encodeURIComponent(params.toString())
+      const paramsString = params.toString()
+      input = paramsString
+      output = encodeURIComponent(paramsString)
       mode = 'encode'
       error = ''
+      debouncedSave()
     } catch (e) {
       error = 'Invalid URL format'
     }
+  }
+
+  function getPlaceholderText() {
+    return mode === 'encode'
+      ? 'Enter text to encode (e.g., https://example.com/path)...'
+      : 'Enter URL-encoded string to decode (e.g., hello%20world)...'
+  }
+
+  function getEmptyStateText() {
+    return mode === 'encode' ? 'Enter text to encode' : 'Enter encoded string to decode'
   }
 </script>
 
@@ -141,12 +179,15 @@
       </svg>
       <h1 class="tool-title-text">URL Encoder/Decoder</h1>
     </div>
-    
+
     <div class="tool-actions">
-      <div class="mode-toggle">
-        <button 
-          class="mode-btn" 
+      <div class="mode-toggle" role="tablist" aria-label="Mode selection">
+        <button
+          type="button"
+          class="mode-btn"
           class:active={mode === 'encode'}
+          role="tab"
+          aria-selected={mode === 'encode'}
           on:click={() => setMode('encode')}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -157,9 +198,12 @@
           </svg>
           Encode
         </button>
-        <button 
-          class="mode-btn" 
+        <button
+          type="button"
+          class="mode-btn"
           class:active={mode === 'decode'}
+          role="tab"
+          aria-selected={mode === 'decode'}
           on:click={() => setMode('decode')}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -169,13 +213,13 @@
         </button>
       </div>
 
-      <button class="btn-ghost" on:click={loadExample} title="Load Example">
+      <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear">
+      <button type="button" class="btn-ghost" on:click={clear} title="Clear">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -196,20 +240,38 @@
         </span>
         <div class="header-actions">
           {#if mode === 'encode'}
-            <button class="extract-btn" on:click={extractFromURL} title="Extract from URL">
+            <button
+              type="button"
+              class="extract-btn"
+              on:click={extractFromURL}
+              aria-label="Extract path, query and hash from URL"
+              title="Extract path, query and hash from URL"
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
               </svg>
-              Extract
+              Extract Path+Params
             </button>
-            <button class="extract-btn" on:click={extractPath} title="Extract path">
+            <button
+              type="button"
+              class="extract-btn"
+              on:click={extractPath}
+              aria-label="Extract pathname from URL"
+              title="Extract pathname from URL"
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
               </svg>
               Path
             </button>
-            <button class="extract-btn" on:click={extractParams} title="Extract parameters">
+            <button
+              type="button"
+              class="extract-btn"
+              on:click={extractParams}
+              aria-label="Extract query parameters from URL"
+              title="Extract query parameters from URL"
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
                 <line x1="8" y1="6" x2="21" y2="6"></line>
                 <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -221,15 +283,17 @@
               Params
             </button>
           {/if}
-          <span class="panel-badge">{input.length} chars</span>
+          <span class="panel-badge" data-testid="input-char-count">{input.length} chars</span>
         </div>
       </div>
       <textarea
         bind:value={input}
         on:input={debouncedProcess}
-        placeholder={mode === 'encode' ? 'Enter text or URL to encode...' : 'Enter URL-encoded string to decode...'}
+        placeholder={getPlaceholderText()}
         class="input-area"
         spellcheck="false"
+        maxlength={MAX_INPUT_LENGTH}
+        aria-label={mode === 'encode' ? 'Text to encode' : 'URL-encoded text to decode'}
       ></textarea>
     </div>
 
@@ -243,14 +307,14 @@
           {/if}
         </span>
         {#if output}
-          <span class="panel-badge">{output.length} chars</span>
+          <span class="panel-badge" data-testid="output-char-count">{output.length} chars</span>
         {/if}
         {#if output}
           <CopyButton text={output} />
         {/if}
       </div>
       {#if error}
-        <div class="error-state">
+        <div class="error-state" role="alert" aria-live="assertive">
           <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -259,14 +323,14 @@
           <span>{error}</span>
         </div>
       {:else if output}
-        <div class="output-content mono">{output}</div>
+        <div class="output-content mono" data-testid="output-content">{output}</div>
       {:else}
         <div class="empty-state">
           <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
           </svg>
-          <span>{mode === 'encode' ? 'Enter text to encode' : 'Enter encoded string to decode'}</span>
+          <span>{getEmptyStateText()}</span>
         </div>
       {/if}
     </div>
@@ -352,6 +416,8 @@
     color: var(--text-secondary);
     background: transparent;
     transition: all var(--transition);
+    border: none;
+    cursor: pointer;
   }
 
   .mode-btn:hover {
@@ -374,6 +440,8 @@
     background: transparent;
     color: var(--text-tertiary);
     transition: all var(--transition);
+    border: none;
+    cursor: pointer;
   }
 
   .btn-ghost:hover {
@@ -429,6 +497,8 @@
     color: var(--text-tertiary);
     background: transparent;
     transition: all var(--transition);
+    border: none;
+    cursor: pointer;
   }
 
   .extract-btn:hover {
@@ -442,6 +512,16 @@
     padding: 2px 6px;
     background: var(--bg-surface);
     border-radius: var(--radius-sm);
+  }
+
+  .badge-accent {
+    background: var(--accent);
+    color: white;
+  }
+
+  .badge-info {
+    background: var(--info-muted);
+    color: var(--info);
   }
 
   .input-area {
@@ -542,9 +622,11 @@
     color: var(--text-primary);
   }
 
-  .badge-info {
-    background: var(--info-muted);
-    color: var(--info);
+  .badge {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
   }
 
   @keyframes fadeIn {

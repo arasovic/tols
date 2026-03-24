@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_MARKDOWN = `# Markdown Example
 
@@ -22,11 +22,42 @@ This is a **bold** text and this is *italic*.
 
 [Link to DevUtils](#)`
 
+  const DEBOUNCE_DELAY = 300
+  const SAVE_DELAY = 500
+
+  const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:', 'tel:']
+
   let input = ''
   let htmlOutput = ''
   let error = ''
-  let timeout = null
+  let processTimeout = null
   let saveTimeout = null
+
+  function isSafeUrl(url) {
+    if (!url || url.startsWith('#') || url.startsWith('/')) {
+      return true
+    }
+    try {
+      const parsed = new URL(url, window.location.href)
+      return ALLOWED_PROTOCOLS.includes(parsed.protocol)
+    } catch {
+      return false
+    }
+  }
+
+  function sanitizeUrl(url) {
+    if (!url || url.startsWith('#') || url.startsWith('/')) {
+      return url
+    }
+    try {
+      const parsed = new URL(url, window.location.href)
+      if (ALLOWED_PROTOCOLS.includes(parsed.protocol)) {
+        return url
+      }
+    } catch {
+    }
+    return '#'
+  }
 
   function loadState() {
     try {
@@ -47,7 +78,7 @@ This is a **bold** text and this is *italic*.
       if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(() => {
         localStorage.setItem('devutils-markdown-input', input)
-      }, 500)
+      }, SAVE_DELAY)
     } catch (e) {
       error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
     }
@@ -58,7 +89,11 @@ This is a **bold** text and this is *italic*.
     if (input) process()
   })
 
-  // Escape HTML special characters
+  onDestroy(() => {
+    if (processTimeout) clearTimeout(processTimeout)
+    if (saveTimeout) clearTimeout(saveTimeout)
+  })
+
   function escapeHtml(text) {
     return text
       .replace(/&/g, '&amp;')
@@ -67,7 +102,6 @@ This is a **bold** text and this is *italic*.
       .replace(/"/g, '&quot;')
   }
 
-  // Parse markdown to HTML
   function markdownToHTML(md) {
     let html = md
     const lines = html.split('\n')
@@ -78,14 +112,15 @@ This is a **bold** text and this is *italic*.
     let inList = false
     let listItems = []
     let listType = ''
+    let inBlockquote = false
+    let blockquoteLines = []
 
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i]
 
-      // Code blocks (fenced)
       if (line.startsWith('```')) {
         if (inCodeBlock) {
-          result.push(`<pre><code${codeBlockLang ? ` class="language-${codeBlockLang}"` : ''}>${escapeHtml(codeBlockContent.join('\n'))}</code></pre>`)
+          result.push(`<pre><code${codeBlockLang ? ` class="language-${escapeHtml(codeBlockLang)}"` : ''}>${escapeHtml(codeBlockContent.join('\n'))}</code></pre>`)
           inCodeBlock = false
           codeBlockLang = ''
           codeBlockContent = []
@@ -101,24 +136,34 @@ This is a **bold** text and this is *italic*.
         continue
       }
 
-      // Horizontal rule
       if (/^(---|___|\*\*\*)$/.test(line.trim())) {
         if (inList) {
           result.push(`<${listType}>${listItems.join('')}</${listType}>`)
           inList = false
           listItems = []
+          listType = ''
+        }
+        if (inBlockquote) {
+          result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
+          inBlockquote = false
+          blockquoteLines = []
         }
         result.push('<hr>')
         continue
       }
 
-      // Headers
       const headerMatch = line.match(/^(#{1,6})\s+(.+)$/)
       if (headerMatch) {
         if (inList) {
           result.push(`<${listType}>${listItems.join('')}</${listType}>`)
           inList = false
           listItems = []
+          listType = ''
+        }
+        if (inBlockquote) {
+          result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
+          inBlockquote = false
+          blockquoteLines = []
         }
         const level = headerMatch[1].length
         const content = parseInline(headerMatch[2])
@@ -126,19 +171,23 @@ This is a **bold** text and this is *italic*.
         continue
       }
 
-      // Blockquote
       const quoteMatch = line.match(/^>\s?(.*)$/)
       if (quoteMatch) {
         if (inList) {
           result.push(`<${listType}>${listItems.join('')}</${listType}>`)
           inList = false
           listItems = []
+          listType = ''
         }
-        result.push(`<blockquote>${parseInline(quoteMatch[1])}</blockquote>`)
+        inBlockquote = true
+        blockquoteLines.push(quoteMatch[1])
         continue
+      } else if (inBlockquote) {
+        result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
+        inBlockquote = false
+        blockquoteLines = []
       }
 
-      // List items
       const ulMatch = line.match(/^(\s*)[-*+]\s+(.+)$/)
       const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/)
       
@@ -158,77 +207,101 @@ This is a **bold** text and this is *italic*.
         listItems.push(`<li>${content}</li>`)
         continue
       } else if (inList && line.trim() === '') {
-        result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-        inList = false
-        listItems = []
+        const nextLine = lines[i + 1]
+        const nextUlMatch = nextLine && nextLine.match(/^(\s*)[-*+]\s+(.+)$/)
+        const nextOlMatch = nextLine && nextLine.match(/^(\s*)\d+\.\s+(.+)$/)
+        
+        if (!nextUlMatch && !nextOlMatch) {
+          result.push(`<${listType}>${listItems.join('')}</${listType}>`)
+          inList = false
+          listItems = []
+          listType = ''
+        } else {
+          const nextIsOrdered = !!nextOlMatch
+          const nextListType = nextIsOrdered ? 'ol' : 'ul'
+          
+          if (listType !== nextListType) {
+            result.push(`<${listType}>${listItems.join('')}</${listType}>`)
+            inList = false
+            listItems = []
+            listType = ''
+          }
+        }
         continue
       } else if (inList) {
         result.push(`<${listType}>${listItems.join('')}</${listType}>`)
         inList = false
         listItems = []
+        listType = ''
       }
 
-      // Indented code block
       if (line.startsWith('    ')) {
         const codeLines = []
-        while (i < lines.length && (lines[i].startsWith('    ') || lines[i].trim() === '')) {
-          codeLines.push(lines[i].slice(4))
-          i++
+        while (i < lines.length) {
+          const currentLine = lines[i]
+          if (currentLine.startsWith('    ')) {
+            codeLines.push(currentLine.slice(4))
+            i++
+          } else if (currentLine.trim() === '') {
+            codeLines.push('')
+            i++
+          } else {
+            break
+          }
         }
         i--
         result.push(`<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`)
         continue
       }
 
-      // Paragraph
       if (line.trim()) {
         result.push(`<p>${parseInline(line)}</p>`)
       }
     }
 
-    // Close any open list
     if (inList) {
       result.push(`<${listType}>${listItems.join('')}</${listType}>`)
+    }
+    if (inBlockquote) {
+      result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
     }
 
     return result.join('\n')
   }
 
-  // Parse inline elements
   function parseInline(text) {
     let html = escapeHtml(text)
 
-    // Code
     html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
 
-    // Strong (bold)
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>')
 
-    // Emphasis (italic)
     html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>')
     html = html.replace(/_([^_]+)_/g, '<em>$1</em>')
 
-    // Strikethrough
     html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>')
 
-    // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+      const safeSrc = sanitizeUrl(src)
+      return `<img src="${safeSrc}" alt="${alt}">`
+    })
 
-    // Images
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
+      const safeUrl = sanitizeUrl(url)
+      return `<a href="${safeUrl}">${label}</a>`
+    })
 
-    // Line breaks
     html = html.replace(/  $/gm, '<br>')
 
     return html
   }
 
   function process() {
-    htmlOutput = ''
     error = ''
 
     if (!input.trim()) {
+      htmlOutput = ''
       return
     }
 
@@ -236,16 +309,16 @@ This is a **bold** text and this is *italic*.
       htmlOutput = markdownToHTML(input)
     } catch (e) {
       error = 'Error parsing markdown: ' + (e.message || 'Unknown error')
-      htmlOutput = '<p>Error parsing markdown</p>'
+      htmlOutput = ''
     }
   }
 
   function debouncedProcess() {
-    if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(() => {
+    if (processTimeout) clearTimeout(processTimeout)
+    processTimeout = setTimeout(() => {
       process()
       saveState()
-    }, 300)
+    }, DEBOUNCE_DELAY)
   }
 
   function clear() {
@@ -288,7 +361,7 @@ This is a **bold** text and this is *italic*.
   </div>
 
   {#if error}
-    <div class="error-display">
+    <div class="error-display" role="alert" aria-live="polite">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="8" x2="12" y2="12"/>
@@ -310,6 +383,7 @@ This is a **bold** text and this is *italic*.
         placeholder="Type markdown here..." 
         class="editor-textarea" 
         spellcheck="false"
+        aria-label="Markdown input"
       ></textarea>
     </div>
 
@@ -322,7 +396,12 @@ This is a **bold** text and this is *italic*.
           {/if}
         </div>
       </div>
-      <div class="preview-display">
+      <div 
+        class="preview-display" 
+        role="region" 
+        aria-label="Preview"
+        aria-live="polite"
+      >
         {#if htmlOutput}
           {@html htmlOutput}
         {:else}

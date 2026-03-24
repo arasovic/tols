@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   const CRON_PARTS = ['minute', 'hour', 'day', 'month', 'weekday']
   const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -17,7 +17,9 @@
     try {
       const savedInput = localStorage.getItem('devutils-cron-input')
       if (savedInput) input = savedInput
-    } catch (e) {}
+    } catch (e) {
+      console.error('Failed to load state from localStorage:', e)
+    }
   }
 
   function saveState() {
@@ -26,12 +28,19 @@
       saveTimeout = setTimeout(() => {
         localStorage.setItem('devutils-cron-input', input)
       }, 500)
-    } catch (e) {}
+    } catch (e) {
+      console.error('Failed to save state to localStorage:', e)
+    }
   }
 
   onMount(() => {
     loadState()
     process()
+  })
+
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
   })
 
   function parseCronField(field, min, max) {
@@ -49,13 +58,33 @@
       if (part.includes('/')) {
         const [range, step] = part.split('/')
         const stepVal = parseInt(step)
-        const [start, end] = range.includes('-') ? range.split('-').map(Number) : [range === '*' ? min : parseInt(range), max]
+        if (isNaN(stepVal) || stepVal < 1) return null
+        let start, end
+        if (range === '*') {
+          start = min
+          end = max
+        } else if (range.includes('-')) {
+          const rangeParts = range.split('-').map(Number)
+          start = rangeParts[0]
+          end = rangeParts[1]
+          if (start > end) return null
+        } else {
+          start = parseInt(range)
+          end = max
+        }
+        if (start < min || end > max) return null
         for (let i = start; i <= end; i += stepVal) values.push(i)
       } else if (part.includes('-')) {
         const [start, end] = part.split('-').map(Number)
+        if (isNaN(start) || isNaN(end)) return null
+        if (start > end) return null
+        if (start < min || end > max) return null
         for (let i = start; i <= end; i++) values.push(i)
       } else {
-        values.push(parseInt(part))
+        const val = parseInt(part)
+        if (isNaN(val)) return null
+        if (val < min || val > max) return null
+        values.push(val)
       }
     }
 
@@ -75,29 +104,39 @@
     if (cron === '0 0 1 * *') return 'First day of every month at midnight'
     if (cron === '0 0 1 1 *') return 'First day of every year at midnight'
 
-    let desc = 'Runs '
+    const segments = []
 
     if (minute !== '*') {
-      desc += `at minute ${minute}`
+      segments.push(`at minute ${minute}`)
     }
     if (hour !== '*') {
-      desc += minute !== '*' ? ` past hour ${hour}` : `every hour at minute ${minute}`
+      if (minute !== '*') {
+        segments.push(`past hour ${hour}`)
+      } else {
+        segments.push(`every hour at minute ${minute}`)
+      }
     }
     if (day !== '*' && day !== '?') {
-      desc += ` on day ${day}`
+      segments.push(`on day ${day}`)
     }
     if (month !== '*') {
-      const monthNames = parseCronField(month, 1, 12).map(m => MONTH_NAMES[m - 1]).join(', ')
-      desc += ` in ${monthNames}`
+      const monthNames = parseCronField(month, 1, 12)
+      if (monthNames) {
+        const monthStr = monthNames.map(m => MONTH_NAMES[m - 1]).join(', ')
+        segments.push(`in ${monthStr}`)
+      }
     }
     if (weekday !== '*' && weekday !== '?') {
-      const dayNames = parseCronField(weekday, 0, 6).map(d => WEEKDAY_NAMES[d]).join(', ')
-      desc += ` on ${dayNames}`
+      const dayNames = parseCronField(weekday, 0, 6)
+      if (dayNames) {
+        const dayStr = dayNames.map(d => WEEKDAY_NAMES[d]).join(', ')
+        segments.push(`on ${dayStr}`)
+      }
     }
 
-    if (desc === 'Runs ') desc = 'Custom schedule'
+    if (segments.length === 0) return 'Custom schedule'
 
-    return desc
+    return 'Runs ' + segments.join(', ')
   }
 
   function getNextRuns(cron, count = 5) {
@@ -109,6 +148,8 @@
     const days = parseCronField(parts[2], 1, 31)
     const months = parseCronField(parts[3], 1, 12)
     const weekdays = parseCronField(parts[4], 0, 6)
+
+    if (!minutes || !hours || !days || !months || !weekdays) return []
 
     const runs = []
     let date = new Date()
@@ -129,7 +170,7 @@
       const weekdayMatch = weekdays.includes(date.getDay())
 
       if (parts[2] !== '?' && parts[4] !== '?') {
-        if (!dayMatch || !weekdayMatch) continue
+        if (!dayMatch && !weekdayMatch) continue
       } else if (parts[2] !== '?') {
         if (!dayMatch) continue
       } else if (parts[4] !== '?') {
@@ -143,7 +184,12 @@
   }
 
   function validateCron(cron) {
-    const parts = cron.trim().split(/\s+/)
+    if (!cron || cron.length === 0) return 'Please enter a cron expression'
+
+    const trimmed = cron.trim()
+    if (trimmed.length === 0) return 'Cron expression cannot be whitespace only'
+
+    const parts = trimmed.split(/\s+/)
     if (parts.length !== 5) return 'Cron expression must have exactly 5 parts'
 
     const ranges = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 6]]
@@ -156,15 +202,32 @@
       for (const sub of subParts) {
         if (sub.includes('/')) {
           const [range, step] = sub.split('/')
-          if (!/^\d+$/.test(step) || parseInt(step) < 1) return `Invalid step value in part ${i + 1}`
-          if (range !== '*' && !/^\d+$/.test(range) && !/^\d+-\d+$/.test(range)) {
-            return `Invalid range in part ${i + 1}`
+          if (!/^\d+$/.test(step)) return `Invalid step value in part ${i + 1}`
+          const stepVal = parseInt(step)
+          if (isNaN(stepVal) || stepVal < 1) return `Step value must be at least 1 in part ${i + 1}`
+          if (range !== '*') {
+            if (range.includes('-')) {
+              if (range.startsWith('-') || range.endsWith('-')) return `Invalid range in part ${i + 1}`
+              const [start, end] = range.split('-').map(Number)
+              if (isNaN(start) || isNaN(end)) return `Invalid range in part ${i + 1}`
+              if (start > end) return `Range start cannot be greater than end in part ${i + 1}`
+              if (start < ranges[i][0] || end > ranges[i][1]) return `Value out of range in part ${i + 1}`
+            } else if (!/^\d+$/.test(range)) {
+              return `Invalid value in part ${i + 1}`
+            } else {
+              const rangeVal = parseInt(range)
+              if (isNaN(rangeVal)) return `Invalid value in part ${i + 1}`
+              if (rangeVal < ranges[i][0] || rangeVal > ranges[i][1]) return `Value out of range in part ${i + 1}`
+            }
           }
         } else if (sub.includes('-')) {
+          if (sub.startsWith('-') || sub.endsWith('-')) return `Invalid range in part ${i + 1}`
           const [start, end] = sub.split('-').map(Number)
           if (isNaN(start) || isNaN(end)) return `Invalid range in part ${i + 1}`
+          if (start > end) return `Range start cannot be greater than end in part ${i + 1}`
           if (start < ranges[i][0] || end > ranges[i][1]) return `Value out of range in part ${i + 1}`
         } else {
+          if (!/^\d+$/.test(sub)) return `Invalid value in part ${i + 1}`
           const val = parseInt(sub)
           if (isNaN(val)) return `Invalid value in part ${i + 1}`
           if (val < ranges[i][0] || val > ranges[i][1]) return `Value out of range in part ${i + 1}`
@@ -216,11 +279,13 @@
     error = ''
     try {
       localStorage.removeItem('devutils-cron-input')
-    } catch (e) {}
+    } catch (e) {
+      console.error('Failed to clear state from localStorage:', e)
+    }
   }
 
   function formatDate(date) {
-    return date.toLocaleString('en-US', {
+    return date.toLocaleString(undefined, {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -251,11 +316,20 @@
         </div>
       {/each}
     </div>
-    <input type="text" bind:value={input} on:input={debouncedProcess} class="cron-input" placeholder="* * * * *" />
+    <input
+      type="text"
+      bind:value={input}
+      on:input={debouncedProcess}
+      class="cron-input"
+      class:invalid={error}
+      placeholder="* * * * *"
+      aria-invalid={error ? 'true' : 'false'}
+      aria-describedby={error ? 'cron-error' : undefined}
+    />
   </div>
 
   {#if error}
-    <div class="error-display">
+    <div class="error-display" role="alert" aria-live="polite" id="cron-error">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span>{error}</span>
     </div>
@@ -314,6 +388,7 @@
   .cron-part-value { font-family: var(--font-mono); font-size: var(--text-lg); font-weight: var(--font-semibold); color: var(--text-primary); }
   .cron-input { width: 100%; padding: var(--space-3); font-family: var(--font-mono); font-size: var(--text-lg); text-align: center; color: var(--text-primary); background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius); outline: none; }
   .cron-input:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }
+  .cron-input.invalid { border-color: var(--error); background: var(--error-soft); }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
   .description-panel { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .description-panel h3 { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text-tertiary); margin: 0 0 var(--space-2) 0; text-transform: uppercase; letter-spacing: var(--tracking-wide); }

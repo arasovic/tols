@@ -1,8 +1,13 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
-  const EXAMPLE_TIMESTAMP = Math.floor(Date.now() / 1000).toString()
+  const DEBOUNCE_MS = 150
+  const SAVE_DEBOUNCE_MS = 500
+
+  function getExampleTimestamp() {
+    return Math.floor(Date.now() / 1000).toString()
+  }
 
   let input = ''
   let output = ''
@@ -11,6 +16,7 @@
   let error = ''
   let timeout
   let saveTimeout
+  let stateLoaded = false
 
   const timezones = [
     { value: 'UTC', label: 'UTC' },
@@ -31,75 +37,99 @@
       if (savedInput) {
         input = savedInput
       } else {
-        input = EXAMPLE_TIMESTAMP
-        process()
+        input = getExampleTimestamp()
       }
       if (savedMode) mode = savedMode
       if (savedTimezone && timezones.find(tz => tz.value === savedTimezone)) {
         fromTimezone = savedTimezone
       }
+      stateLoaded = true
     } catch (e) {
-      input = EXAMPLE_TIMESTAMP
+      input = getExampleTimestamp()
+      stateLoaded = true
       console.warn('Failed to load from localStorage:', e)
     }
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-timestamp-input', input)
         localStorage.setItem('devutils-timestamp-mode', mode)
         localStorage.setItem('devutils-timestamp-timezone', fromTimezone)
-      }, 500)
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
-    }
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, SAVE_DEBOUNCE_MS)
   }
 
   onMount(() => {
     loadState()
-    if (input) process()
+    if (stateLoaded && input) process()
+  })
+
+  onDestroy(() => {
+    clearTimeout(timeout)
+    clearTimeout(saveTimeout)
   })
 
   function formatDate(date, tz) {
     if (tz === 'Local') {
       return date.toLocaleString()
     }
-    return new Intl.DateTimeFormat(undefined, {
-      timeZone: tz,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    }).format(date)
+    try {
+      return new Intl.DateTimeFormat(undefined, {
+        timeZone: tz,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).format(date)
+    } catch (e) {
+      return date.toISOString() + ' (UTC - timezone error)'
+    }
   }
 
   function process() {
     error = ''
     output = ''
 
-    if (!input.trim()) {
+    if (!input || !input.trim()) {
+      error = ''
       return
     }
+
+    const trimmedInput = input.trim()
 
     try {
       if (mode === 'toHuman') {
         let timestamp
+        // Allow optional minus sign for negative timestamps
+        const isAllDigits = /^-?\d+$/.test(trimmedInput)
+        const isReasonableLength = trimmedInput.length >= 1 && trimmedInput.length <= 16
 
-        if (input.length <= 13 && /^\d+$/.test(input)) {
-          timestamp = parseInt(input)
-          if (timestamp > 1e12) {
+        if (isAllDigits && isReasonableLength) {
+          timestamp = parseInt(trimmedInput, 10)
+          // Detect milliseconds: values between 1e10 and 1e16 are likely milliseconds
+          // Unix seconds are ~1.7e9 (2024), so anything > 1e10 is definitely milliseconds
+          const isMilliseconds = timestamp > 1e10 && timestamp < 1e16
+          if (isMilliseconds) {
             timestamp = timestamp / 1000
           }
         } else {
-          timestamp = new Date(input).getTime() / 1000
+          const parsedDate = new Date(trimmedInput)
+          if (!isNaN(parsedDate.getTime())) {
+            timestamp = parsedDate.getTime() / 1000
+          } else {
+            timestamp = NaN
+          }
         }
 
-        if (isNaN(timestamp)) {
+        if (isNaN(timestamp) || !isFinite(timestamp)) {
           error = 'Invalid timestamp format'
           return
         }
@@ -121,7 +151,7 @@
           utc: date.toUTCString()
         }, null, 2)
       } else {
-        const date = new Date(input)
+        const date = new Date(trimmedInput)
         if (isNaN(date.getTime())) {
           error = 'Invalid date format'
           return
@@ -145,10 +175,11 @@
     timeout = setTimeout(() => {
       process()
       saveState()
-    }, 150)
+    }, DEBOUNCE_MS)
   }
 
   function clear() {
+    clearTimeout(saveTimeout)
     input = ''
     output = ''
     error = ''
@@ -162,7 +193,7 @@
   }
 
   function loadExample() {
-    input = EXAMPLE_TIMESTAMP
+    input = getExampleTimestamp()
     process()
     saveState()
   }
@@ -194,13 +225,13 @@
     </div>
     
     <div class="tool-actions">
-      <button class="btn-ghost" on:click={loadExample} title="Load Example">
+      <button class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear">
+      <button class="btn-ghost" on:click={clear} title="Clear" aria-label="Clear">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -215,6 +246,7 @@
         class="mode-btn" 
         class:active={mode === 'toHuman'}
         on:click={() => setMode('toHuman')}
+        aria-pressed={mode === 'toHuman'}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
           <circle cx="12" cy="12" r="10"></circle>
@@ -226,6 +258,7 @@
         class="mode-btn" 
         class:active={mode === 'toUnix'}
         on:click={() => setMode('toUnix')}
+        aria-pressed={mode === 'toUnix'}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
           <polyline points="17 1 21 5 17 9"></polyline>
@@ -249,6 +282,7 @@
             class="tz-btn" 
             class:active={fromTimezone === tz.value}
             on:click={() => { fromTimezone = tz.value; process(); }}
+            aria-pressed={fromTimezone === tz.value}
           >
             {tz.label}
           </button>
@@ -273,17 +307,19 @@
       </div>
     </div>
     <input
+      id="timestamp-input"
       type="text"
       bind:value={input}
       on:input={debouncedProcess}
       on:keydown={(e) => e.key === 'Enter' && process()}
       placeholder={mode === 'toHuman' ? 'Enter Unix timestamp (e.g., 1704067200)...' : 'Enter date (e.g., 2024-01-01 00:00:00)...'}
       class="input-field mono"
+      aria-describedby="timestamp-error"
     />
   </div>
 
   {#if error}
-    <div class="error-state">
+    <div id="timestamp-error" class="error-state" role="alert" aria-live="polite">
       <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"></circle>
         <line x1="12" y1="8" x2="12" y2="12"></line>
