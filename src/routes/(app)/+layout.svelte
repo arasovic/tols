@@ -63,7 +63,8 @@
   .layout {
     display: grid;
     grid-template-columns: 1fr;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background: var(--bg-base);
   }
 
@@ -76,8 +77,8 @@
   .main {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden;
   }
 
   .header {
@@ -176,7 +177,6 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: var(--space-4);
-    overflow-y: auto;
     width: 100%;
   }
 

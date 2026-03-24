@@ -397,6 +397,8 @@
       position: static;
       transform: none;
       transition: none;
+      height: 100vh;
+      overflow-y: auto;
     }
 
     .sidebar-overlay {
