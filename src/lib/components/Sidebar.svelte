@@ -201,13 +201,7 @@
     transform: translateX(0);
   }
 
-  @media (min-width: 768px) {
-    .sidebar {
-      position: static;
-      transform: none;
-      transition: none;
-    }
-  }
+
 
   .sidebar-header {
     display: flex;
@@ -398,7 +392,6 @@
       transform: none;
       transition: none;
       height: 100vh;
-      overflow-y: auto;
     }
 
     .sidebar-overlay {
@@ -406,15 +399,19 @@
     }
   }
 
-  .sidebar::-webkit-scrollbar {
+  .sidebar {
+    overflow: hidden;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
     width: 4px;
   }
 
-  .sidebar::-webkit-scrollbar-track {
+  .sidebar-nav::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .sidebar::-webkit-scrollbar-thumb {
+  .sidebar-nav::-webkit-scrollbar-thumb {
     background: var(--border-default);
     border-radius: var(--radius-full);
   }

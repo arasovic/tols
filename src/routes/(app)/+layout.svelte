@@ -178,6 +178,7 @@
     margin: 0 auto;
     padding: var(--space-4);
     width: 100%;
+    overflow-y: auto;
   }
 
   @media (min-width: 768px) {
