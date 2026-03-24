@@ -2,7 +2,10 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { onMount, onDestroy } from 'svelte'
 
-  let qrText = 'https://github.com/arasovic/dev-utilities'
+  const DEFAULT_URL = 'https://github.com/arasovic/dev-utilities'
+  const OLD_DEFAULT_URL = 'https://devutils.tools'
+
+  let qrText = DEFAULT_URL
   let qrSize = 200
   let qrCanvas
   let error = ''
@@ -14,11 +17,17 @@
     try {
       const savedText = localStorage.getItem('devutils-qr-text')
       const savedSize = localStorage.getItem('devutils-qr-size')
-      if (savedText) qrText = savedText
+
+      // Use saved value only if it exists and is not the old default URL
+      if (savedText && savedText !== OLD_DEFAULT_URL) {
+        qrText = savedText
+      }
+      // Otherwise keep the new default (already set in variable declaration)
+
       if (savedSize) qrSize = parseInt(savedSize)
     } catch (e) {
       // Fallback to defaults if localStorage fails
-      qrText = 'https://github.com/arasovic/dev-utilities'
+      qrText = DEFAULT_URL
       qrSize = 200
     }
   }

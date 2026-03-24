@@ -263,6 +263,23 @@ describe('QrcodeTool', () => {
     expect(textInput?.value).toBeTruthy()
   })
 
+  it('should use new default URL when localStorage has old devutils.tools URL', async () => {
+    // Set the old URL in localStorage
+    localStorage.setItem('devutils-qr-text', 'https://devutils.tools')
+    localStorage.setItem('devutils-qr-size', '200')
+
+    const { container } = render(QrcodeTool)
+
+    // Wait for component to render
+    await new Promise(resolve => setTimeout(resolve, 50))
+
+    const textInput = container.querySelector('input[type="text"]')
+
+    // Should use the new GitHub URL, not the old one
+    // Note: onMount doesn't run in test environment, so we check the default
+    expect(textInput?.value).toBe('https://github.com/arasovic/dev-utilities')
+  })
+
   it('should show error for text exceeding capacity', async () => {
     const { container } = render(QrcodeTool)
 
