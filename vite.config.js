@@ -4,12 +4,12 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [sveltekit()],
   base: '/dev-utilities/',
-  resolve: {
-    // vitest does not apply the 'browser' condition by default; without it,
-    // `import { onMount } from 'svelte'` resolves to svelte's SSR runtime
-    // where lifecycle hooks are silent no-ops.
-    conditions: ['browser']
-  },
+  // Vitest only: apply the 'browser' condition so `import { onMount } from
+  // 'svelte'` resolves to the DOM runtime. Without it svelte resolves to its
+  // SSR runtime where lifecycle hooks are silent no-ops. Must NOT apply to
+  // production builds: it would constant-fold esm-env's BROWSER flag to true
+  // in the SSR bundle and leak `window` references into server chunks.
+  ...(process.env.VITEST ? { resolve: { conditions: ['browser'] } } : {}),
   test: {
     globals: true,
     environment: 'jsdom',
