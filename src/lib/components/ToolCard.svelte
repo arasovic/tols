@@ -6,6 +6,7 @@
   import { base } from '$app/paths'
   import { createEventDispatcher } from 'svelte'
   import { ChevronRight, Star } from 'lucide-svelte'
+  import { escapeHtml } from '$lib/utils/html.js'
 
   /** @type {{ path: string, name: string, desc: string, icon: any }} */
   export let tool
@@ -26,11 +27,17 @@
    * @returns {string}
    */
   function highlightMatch(text, searchQuery) {
-    if (!searchQuery) return text
+    if (!searchQuery) return escapeHtml(text)
     const escaped = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    if (!escaped) return text
-    const regex = new RegExp(`(${escaped})`, 'gi')
-    return text.replace(regex, '<mark>$1</mark>')
+    if (!escaped) return escapeHtml(text)
+    const regex = new RegExp(escaped, 'gi')
+    let result = ''
+    let last = 0
+    for (const m of text.matchAll(regex)) {
+      result += escapeHtml(text.slice(last, m.index)) + '<mark>' + escapeHtml(m[0]) + '</mark>'
+      last = m.index + m[0].length
+    }
+    return result + escapeHtml(text.slice(last))
   }
 </script>
 

@@ -6,6 +6,7 @@
   import { Search, Command, ArrowRight, Clock, X } from 'lucide-svelte'
   import { searchTools, searchToolsFuzzy } from '$lib/config/searchConfig.js'
   import { recentTools, addRecent } from '$lib/stores/recentTools.js'
+  import { escapeHtml } from '$lib/utils/html.js'
 
   let isOpen = false
   let isOpening = false
@@ -213,29 +214,50 @@
    * @returns {string}
    */
   function highlightMatch(text, queryText) {
-    if (!queryText.trim()) return text
-    const normalizedQuery = queryText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    const normalizedText = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    if (!queryText.trim()) return escapeHtml(text)
+    const normalizedQuery = queryText.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    if (!normalizedQuery) return escapeHtml(text)
 
-    let result = ''
-    let textIndex = 0
-    let queryIndex = 0
-
-    while (textIndex < text.length && queryIndex < normalizedQuery.length) {
-      const textChar = normalizedText[textIndex]
-      const queryChar = normalizedQuery[queryIndex]
-
-      if (textChar === queryChar) {
-        result += `<mark>${text[textIndex]}</mark>`
-        queryIndex++
-        textIndex++
-      } else {
-        result += text[textIndex]
-        textIndex++
+    // Normalize char-by-char so each normalized position maps back to its
+    // original character. Decompositions can span multiple normalized chars
+    // (e.g. ǆ → dz), so indexes would drift without this map.
+    const normalizedChars = []
+    const indexMap = []
+    for (let i = 0; i < text.length; i++) {
+      const decomposed = text[i].toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+      for (const char of decomposed) {
+        normalizedChars.push(char)
+        indexMap.push(i)
       }
     }
 
-    result += text.slice(textIndex)
+    let result = ''
+    let normalizedIndex = 0
+    let queryIndex = 0
+    let lastOriginalIndex = -1
+
+    while (normalizedIndex < normalizedChars.length && queryIndex < normalizedQuery.length) {
+      const textChar = normalizedChars[normalizedIndex]
+      const queryChar = normalizedQuery[queryIndex]
+      const originalIndex = indexMap[normalizedIndex]
+
+      if (textChar === queryChar) {
+        if (originalIndex !== lastOriginalIndex) {
+          result += `<mark>${escapeHtml(text[originalIndex])}</mark>`
+          lastOriginalIndex = originalIndex
+        }
+        queryIndex++
+        normalizedIndex++
+      } else {
+        if (originalIndex !== lastOriginalIndex) {
+          result += escapeHtml(text[originalIndex])
+          lastOriginalIndex = originalIndex
+        }
+        normalizedIndex++
+      }
+    }
+
+    result += escapeHtml(text.slice(lastOriginalIndex + 1))
     return result
   }
 
