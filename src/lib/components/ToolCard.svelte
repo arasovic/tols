@@ -4,7 +4,8 @@
    * same anchor card in both the popular strip and the main grid.
    */
   import { base } from '$app/paths'
-  import { ChevronRight } from 'lucide-svelte'
+  import { createEventDispatcher } from 'svelte'
+  import { ChevronRight, Star } from 'lucide-svelte'
 
   /** @type {{ path: string, name: string, desc: string, icon: any }} */
   export let tool
@@ -14,6 +15,10 @@
   export let popular = false
   /** Category label shown in the meta footer (grid variant only). */
   export let categoryLabel = ''
+  /** Whether the tool is in the user's favorites. */
+  export let favorite = false
+
+  const dispatch = createEventDispatcher()
 
   /**
    * @param {string} text
@@ -30,6 +35,19 @@
 </script>
 
 <a href="{base}/{tool.path}" class="tool-card" class:popular>
+  <span
+    class="favorite-star"
+    class:active={favorite}
+    role="button"
+    tabindex="0"
+    aria-pressed={favorite}
+    aria-label={favorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`}
+    title={favorite ? 'Remove from favorites' : 'Add to favorites'}
+    on:click|preventDefault|stopPropagation={() => dispatch('togglefavorite')}
+    on:keydown|preventDefault|stopPropagation={(e) => { if (e.key === 'Enter' || e.key === ' ') dispatch('togglefavorite') }}
+  >
+    <Star size={14} />
+  </span>
   <div class="tool-card-content">
     <div class="tool-icon">
       <svelte:component this={tool.icon} size={20} />
@@ -59,6 +77,7 @@
 
 <style>
   .tool-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -84,6 +103,44 @@
 
   .tool-card.popular:hover {
     border-color: var(--accent);
+  }
+
+  .favorite-star {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: all var(--transition-fast);
+  }
+
+  .favorite-star :global(svg) {
+    fill: none;
+  }
+
+  .tool-card:hover .favorite-star,
+  .favorite-star:focus-visible {
+    opacity: 1;
+  }
+
+  .favorite-star:hover {
+    color: var(--warning);
+  }
+
+  .favorite-star.active {
+    opacity: 1;
+    color: var(--warning);
+  }
+
+  .favorite-star.active :global(svg) {
+    fill: currentColor;
   }
 
   .tool-card-content {

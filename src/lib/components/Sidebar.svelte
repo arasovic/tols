@@ -4,8 +4,9 @@
   import { theme } from '$lib/stores/theme'
   import { browser } from '$app/environment'
   import { tools as toolRegistry } from '$lib/config/registry.js'
+  import { favorites } from '$lib/stores/favorites.js'
   import { onMount } from 'svelte'
-  import { Braces, Sun, Moon } from 'lucide-svelte'
+  import { Braces, Sun, Moon, Star } from 'lucide-svelte'
 
   export let isOpen = false
 
@@ -91,9 +92,14 @@
             </span>
             <span class="nav-item-text">{tool.label}</span>
           </div>
-          {#if currentTool === tool.id}
-            <span class="nav-item-indicator"></span>
-          {/if}
+          <span class="nav-item-badges">
+            {#if $favorites.includes(tool.id)}
+              <Star size={11} class="nav-fav" />
+            {/if}
+            {#if currentTool === tool.id}
+              <span class="nav-item-indicator"></span>
+            {/if}
+          </span>
         </a>
       {/each}
     </div>
@@ -288,11 +294,23 @@
     z-index: 1;
   }
 
+  .nav-item-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
   .nav-item-indicator {
     width: 4px;
     height: 4px;
     border-radius: 50%;
     background: var(--accent);
+  }
+
+  .nav-fav {
+    color: var(--warning);
+    fill: var(--warning);
+    flex-shrink: 0;
   }
 
   .sidebar-footer {

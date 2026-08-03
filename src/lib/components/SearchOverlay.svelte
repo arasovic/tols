@@ -2,9 +2,10 @@
   import { goto } from '$app/navigation'
   import { base } from '$app/paths'
   import { browser } from '$app/environment'
-  import { onMount, tick } from 'svelte'
+  import { tick } from 'svelte'
   import { Search, Command, ArrowRight, Clock, X } from 'lucide-svelte'
   import { searchTools, searchToolsFuzzy } from '$lib/config/searchConfig.js'
+  import { recentTools, addRecent } from '$lib/stores/recentTools.js'
 
   let isOpen = false
   let isOpening = false
@@ -15,20 +16,13 @@
   let resultsContainer = undefined
   /** @type {HTMLDivElement | undefined} */
   let overlayContainer = undefined
-  /** @type {string[]} */
-  let recentTools = []
   let selectedIndex = 0
   let query = ''
   /** @type {Element | null} */
   let previouslyFocused = null
 
-
-
-  const MAX_RECENT = 5
-  const STORAGE_KEY = 'devutils_recent_tools'
-
   $: filteredTools = searchToolsFuzzy(query)
-  $: recentToolsData = recentTools
+  $: recentToolsData = $recentTools
     .map(id => searchTools.find(t => t.id === id))
     .filter(Boolean)
   $: hasResults = filteredTools.length > 0
@@ -45,39 +39,6 @@
 
   // Flatten for keyboard navigation
   $: flatResults = groupedResults.flatMap(g => g.tools)
-
-  onMount(() => {
-    if (browser) {
-      loadRecentTools()
-    }
-  })
-
-  function loadRecentTools() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        recentTools = JSON.parse(stored)
-      }
-    } catch {
-      recentTools = []
-    }
-  }
-
-  function saveRecentTools() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(recentTools))
-    } catch {
-      // Ignore storage errors
-    }
-  }
-
-  /**
-   * @param {string} toolId
-   */
-  function addToRecent(toolId) {
-    recentTools = [toolId, ...recentTools.filter(id => id !== toolId)].slice(0, MAX_RECENT)
-    saveRecentTools()
-  }
 
   function openOverlay() {
     if (browser) {
@@ -166,7 +127,7 @@
    */
   function selectTool(tool) {
     if (!tool) return
-    addToRecent(tool.id)
+    addRecent(tool.id)
     closeOverlay()
     const targetPath = tool.path.startsWith('/') ? tool.path : `/${tool.path}`
     const finalPath = targetPath.startsWith(base)

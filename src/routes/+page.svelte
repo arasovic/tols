@@ -8,12 +8,14 @@
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
   import { tools as registryTools, categories, getCategoryLabel } from '$lib/config/registry.js'
+  import { favorites, toggleFavorite } from '$lib/stores/favorites.js'
+  import { recentTools } from '$lib/stores/recentTools.js'
   import HomeHero from '$lib/components/HomeHero.svelte'
   import HomeSearch from '$lib/components/HomeSearch.svelte'
   import PrivacyBanner from '$lib/components/PrivacyBanner.svelte'
   import ToolCard from '$lib/components/ToolCard.svelte'
   import HomeFooter from '$lib/components/HomeFooter.svelte'
-  import { Braces, Sun, Moon, Sparkles, SearchX } from 'lucide-svelte'
+  import { Braces, Sun, Moon, Sparkles, SearchX, Star, Clock } from 'lucide-svelte'
 
   const pageTitle = 'DevUtils - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
@@ -30,6 +32,11 @@
   }))
 
   const popularTools = tools.filter(tool => tool.popular)
+
+  $: favoriteTools = tools.filter(tool => $favorites.includes(tool.path))
+  $: recentList = $recentTools
+    .map(id => tools.find(tool => tool.path === id))
+    .filter(Boolean)
 
   const heroStats = [
     { value: String(tools.length), label: 'Tools' },
@@ -123,6 +130,44 @@
     <PrivacyBanner />
 
     <section class="tools-section" aria-live="polite" aria-atomic="true">
+      {#if showPopular && favoriteTools.length > 0}
+        <div class="favorites-section">
+          <div class="section-header">
+            <div class="section-title">
+              <Star size={16} />
+              <span>Favorites</span>
+            </div>
+          </div>
+          <div class="tools-grid">
+            {#each favoriteTools as tool (tool.path)}
+              <ToolCard
+                {tool}
+                query={searchQuery}
+                favorite
+                categoryLabel={getCategoryLabel(tool.category)}
+                on:togglefavorite={() => toggleFavorite(tool.path)}
+              />
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      {#if showPopular && recentList.length > 0}
+        <div class="recent-section">
+          <div class="section-header">
+            <div class="section-title">
+              <Clock size={16} />
+              <span>Recent</span>
+            </div>
+          </div>
+          <div class="recent-chips">
+            {#each recentList as tool (tool.path)}
+              <a href="{base}/{tool.path}" class="recent-chip">{tool.name}</a>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
       {#if showPopular}
         <div class="popular-section">
           <div class="section-header">
@@ -133,7 +178,13 @@
           </div>
           <div class="tools-grid compact">
             {#each popularTools as tool (tool.path)}
-              <ToolCard {tool} query={searchQuery} popular />
+              <ToolCard
+                {tool}
+                query={searchQuery}
+                popular
+                favorite={$favorites.includes(tool.path)}
+                on:togglefavorite={() => toggleFavorite(tool.path)}
+              />
             {/each}
           </div>
         </div>
@@ -152,7 +203,9 @@
               <ToolCard
                 {tool}
                 query={searchQuery}
+                favorite={$favorites.includes(tool.path)}
                 categoryLabel={getCategoryLabel(tool.category)}
+                on:togglefavorite={() => toggleFavorite(tool.path)}
               />
             {/each}
           </div>
@@ -254,6 +307,35 @@
 
   .popular-section {
     margin-bottom: var(--space-8);
+  }
+
+  .favorites-section,
+  .recent-section {
+    margin-bottom: var(--space-8);
+  }
+
+  .recent-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .recent-chip {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+  }
+
+  .recent-chip:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
   }
 
   .section-header {

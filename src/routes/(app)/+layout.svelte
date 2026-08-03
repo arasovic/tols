@@ -3,6 +3,9 @@
   import Sidebar from '$lib/components/Sidebar.svelte'
   import SearchOverlay from '$lib/components/SearchOverlay.svelte'
   import { toolTitles } from '$lib/config/tools.js'
+  import { getTool } from '$lib/config/registry.js'
+  import { addRecent } from '$lib/stores/recentTools.js'
+  import { browser } from '$app/environment'
   import { Menu, Search } from 'lucide-svelte'
   import '../../app.css'
 
@@ -20,6 +23,11 @@
 
   $: currentPath = $page.url.pathname.replace(/^\/\(app\)\/?/, '').slice(1) || ''
   $: title = toolTitles[currentPath] || 'DevUtils'
+
+  // Visiting a tool page counts as recent usage, no matter how the user got there
+  $: if (browser && currentPath && getTool(currentPath)) {
+    addRecent(currentPath)
+  }
 </script>
 
 <svelte:window on:keydown={(e) => {
