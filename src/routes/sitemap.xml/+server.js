@@ -8,7 +8,7 @@ const siteUrl = process.env.PUBLIC_SITE_URL || 'https://arasovic.github.io'
 // Home + every tool route, derived from the registry so the sitemap can
 // never drift from the tool list again.
 const routes = [
-  { path: '', priority: '1.0', changefreq: 'weekly' },
+  { path: '/', priority: '1.0', changefreq: 'weekly' },
   ...tools.map(tool => ({ path: `/${tool.id}`, priority: '0.8', changefreq: 'monthly' }))
 ]
 
