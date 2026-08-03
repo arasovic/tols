@@ -4,12 +4,22 @@ import { writable } from 'svelte/store'
 import { page } from '$app/stores'
 import Sidebar from '$lib/components/Sidebar.svelte'
 
-const { baseMock } = vi.hoisted(() => ({
-  baseMock: { base: '' }
+const { baseMock, favoritesMock } = vi.hoisted(() => ({
+  baseMock: { base: '' },
+  favoritesMock: { value: [] }
 }))
 
 vi.mock('$app/stores', () => ({
   page: writable({ url: { pathname: '/json' } })
+}))
+
+vi.mock('$lib/stores/favorites', () => ({
+  favorites: {
+    subscribe: vi.fn((cb) => {
+      cb(favoritesMock.value)
+      return () => {}
+    })
+  }
 }))
 
 vi.mock('$app/paths', () => ({
@@ -37,6 +47,7 @@ describe('Sidebar', () => {
   // breaks @testing-library/svelte's render. matchMedia is polyfilled in setup.js.
   beforeEach(() => {
     baseMock.base = ''
+    favoritesMock.value = []
     page.set({ url: { pathname: '/json' } })
   })
 
@@ -116,5 +127,15 @@ describe('Sidebar', () => {
 
     const sidebar = container.querySelector('.sidebar')
     expect(sidebar).not.toHaveClass('open')
+  })
+
+  it('wraps the favorites star in a nav-fav element for the scoped CSS hook', () => {
+    favoritesMock.value = ['json']
+    const { container } = render(Sidebar)
+    const favStar = container.querySelector('.nav-fav')
+    expect(favStar).not.toBeNull()
+    expect(favStar.tagName).toBe('SPAN')
+    expect(favStar.querySelector('svg')).not.toBeNull()
+    expect(container.querySelectorAll('.nav-fav')).toHaveLength(1)
   })
 })

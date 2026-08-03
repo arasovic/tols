@@ -85,7 +85,9 @@
           </div>
           <span class="nav-item-badges">
             {#if $favorites.includes(tool.id)}
-              <Star size={11} class="nav-fav" />
+              <span class="nav-fav">
+                <Star size={11} />
+              </span>
             {/if}
             {#if currentTool === tool.id}
               <span class="nav-item-indicator"></span>
@@ -299,9 +301,14 @@
   }
 
   .nav-fav {
+    display: flex;
+    align-items: center;
     color: var(--warning);
-    fill: var(--warning);
     flex-shrink: 0;
+  }
+
+  .nav-fav :global(svg) {
+    fill: currentColor;
   }
 
   .sidebar-footer {
