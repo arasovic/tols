@@ -460,7 +460,7 @@ describe('MarkdownTool', () => {
     it('escapes raw HTML in the markdown source', async () => {
       const { container } = render(MarkdownTool)
 
-      const textarea = container.querySelector('.editor-textarea')
+      const textarea = /** @type {HTMLTextAreaElement} */ (container.querySelector('.editor-textarea'))
       await fireEvent.input(textarea, { target: { value: '<img src=x onerror=alert(1)>' } })
 
       await waitFor(() => {
@@ -474,14 +474,14 @@ describe('MarkdownTool', () => {
     it('neutralizes javascript: links', async () => {
       const { container } = render(MarkdownTool)
 
-      const textarea = container.querySelector('.editor-textarea')
+      const textarea = /** @type {HTMLTextAreaElement} */ (container.querySelector('.editor-textarea'))
       await fireEvent.input(textarea, { target: { value: '[click me](javascript:alert(1))' } })
 
       await waitFor(() => {
         const preview = container.querySelector('.preview-display')
-        const link = preview?.querySelector('a')
+        const link = /** @type {HTMLAnchorElement | null} */ (preview?.querySelector('a'))
         expect(link).toBeTruthy()
-        expect(link.getAttribute('href')).not.toContain('javascript:')
+        expect(link?.getAttribute('href')).not.toContain('javascript:')
       }, { timeout: 1000 })
     })
   })
@@ -490,7 +490,7 @@ describe('MarkdownTool', () => {
     it('rejects input larger than 1MB', async () => {
       const { container } = render(MarkdownTool)
 
-      const textarea = container.querySelector('.editor-textarea')
+      const textarea = /** @type {HTMLTextAreaElement} */ (container.querySelector('.editor-textarea'))
       await fireEvent.input(textarea, { target: { value: 'a'.repeat(1024 * 1024 + 1) } })
 
       await waitFor(() => {

@@ -131,7 +131,7 @@ describe('CssTool', () => {
   it('rejects input larger than 1MB', async () => {
     const { container } = render(CssTool)
 
-    const textarea = container.querySelector('.editor-textarea')
+    const textarea = /** @type {HTMLTextAreaElement} */ (container.querySelector('.editor-textarea'))
     await fireEvent.input(textarea, { target: { value: '.x{' + 'a'.repeat(1024 * 1024) + '}' } })
 
     await waitFor(() => {

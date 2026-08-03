@@ -340,7 +340,7 @@ describe('PasswordTool', () => {
       throw new Error('QuotaExceededError')
     })
 
-    const lengthInput = document.querySelector('input[type="range"]')
+    const lengthInput = /** @type {HTMLInputElement | null} */ (document.querySelector('input[type="range"]'))
     if (lengthInput) {
       await fireEvent.input(lengthInput, { target: { value: '20' } })
     }
