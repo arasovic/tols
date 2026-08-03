@@ -43,14 +43,6 @@
 
 <svelte:window on:keydown={(e) => {
   if (!browser) return
-  // Cmd+B / Ctrl+B toggles sidebar on desktop
-  if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-    e.preventDefault()
-    // Only on desktop (min-width: 768px)
-    if (window.innerWidth >= 768) {
-      isOpen = !isOpen
-    }
-  }
   // Escape closes drawer on mobile
   if (e.key === 'Escape' && isOpen) {
     closeDrawer()
