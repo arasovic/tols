@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/svelte'
 import { writable } from 'svelte/store'
 import Sidebar from '$lib/components/Sidebar.svelte'
@@ -22,16 +22,10 @@ vi.mock('$app/environment', () => ({
 }))
 
 describe('Sidebar', () => {
-  beforeEach(() => {
-    vi.stubGlobal('window', {
-      matchMedia: vi.fn().mockReturnValue({ matches: false })
-    })
-    vi.stubGlobal('document', {
-      documentElement: {
-        setAttribute: vi.fn(),
-        getAttribute: vi.fn()
-      }
-    })
+  // window/document must not be stubbed here: replacing the real DOM globals
+  // breaks @testing-library/svelte's render. matchMedia is polyfilled in setup.js.
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   it('should render correctly', () => {

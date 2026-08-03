@@ -7,9 +7,9 @@ describe('theme store', () => {
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.removeAttribute('data-theme')
-    vi.stubGlobal('window', {
-      matchMedia: vi.fn().mockReturnValue({ matches: false })
-    })
+    // Fresh module per test: the theme store reads localStorage at import time,
+    // so a cached module would keep the initial value of the first import.
+    vi.resetModules()
     vi.resetAllMocks()
   })
 
@@ -71,9 +71,7 @@ describe('theme store', () => {
   })
 
   it('should use system preference when no saved theme', async () => {
-    vi.stubGlobal('window', {
-      matchMedia: vi.fn().mockReturnValue({ matches: true })
-    })
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }))
     const { theme: freshTheme } = await import('$lib/stores/theme')
     const value = get(freshTheme)
     expect(value).toBe('light')

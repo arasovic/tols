@@ -1,4 +1,8 @@
 // Test utilities for DevTools business logic
+// Note: `export { ... } from` re-exports do NOT create local bindings,
+// so processJwt needs an explicit import of decodeJWT.
+import { decodeJWT } from '../src/lib/utils/crypto.js'
+
 export function validateUuidCount(count) {
   if (count < 1 || count > 100) {
     return 'Count must be between 1 and 100'

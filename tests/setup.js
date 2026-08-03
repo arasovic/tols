@@ -1,5 +1,23 @@
 import '@testing-library/jest-dom'
 
+// jsdom does not implement matchMedia; components that read media queries
+// (e.g. prefers-reduced-motion) would crash in tests without this polyfill.
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: (query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false
+    })
+  })
+}
+
 // Note: Svelte lifecycle functions should not be mocked globally.
 // They are imported from 'svelte' and should be properly handled by the test environment.
 // If tests fail due to lifecycle issues, consider using @testing-library/svelte helpers
