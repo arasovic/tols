@@ -141,18 +141,20 @@ describe('Toast', () => {
     }, { timeout: 500 })
   })
 
-  it('should support different positions', () => {
+  it('should support different positions', async () => {
     const positions = ['bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'bottom-center']
 
-    positions.forEach(pos => {
+    for (const pos of positions) {
       // Clean up between iterations
       document.body.innerHTML = ''
 
       const { component, container } = render(Toast, { props: { position: pos } })
       component.show('Test', 'success')
 
-      const toast = container.querySelector(`.toast-${pos}`)
-      expect(toast).toBeTruthy()
-    })
+      await waitFor(() => {
+        const toast = container.querySelector(`.toast-${pos}`)
+        expect(toast).toBeTruthy()
+      }, { timeout: 500 })
+    }
   })
 })

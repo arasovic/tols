@@ -27,12 +27,14 @@ describe('TimezoneTool', () => {
   })
 
   it('should have common time zones in dropdown', () => {
-    render(TimezoneTool)
+    const { container } = render(TimezoneTool)
 
-    expect(screen.getByText('UTC')).toBeInTheDocument()
-    expect(screen.getByText('New York')).toBeInTheDocument()
-    expect(screen.getByText('London')).toBeInTheDocument()
-    expect(screen.getByText('Tokyo')).toBeInTheDocument()
+    // Both selects share the same zone list, so query the options directly
+    const optionTexts = [...container.querySelectorAll('select option')].map(o => o.textContent)
+    expect(optionTexts).toContain('UTC')
+    expect(optionTexts).toContain('New York')
+    expect(optionTexts).toContain('London')
+    expect(optionTexts).toContain('Tokyo')
   })
 
   it('should show conversion result', async () => {
@@ -73,10 +75,12 @@ describe('TimezoneTool', () => {
     const clearButton = container.querySelector('[title="Clear"]')
     await fireEvent.click(clearButton)
 
+    // Clear resets to defaults: target zone back to UTC, result recomputed.
+    // (The "from" select falls back to the local IANA zone, which may or may
+    // not be in the dropdown list depending on the runner's timezone.)
     const selects = container.querySelectorAll('select')
-    // Verify selects are cleared, not just truthy
-    expect(selects[0]?.value).toBe('')
-    expect(selects[1]?.value).toBe('')
+    expect(selects[1]?.value).toBe('UTC')
+    expect(container.querySelector('.result-display')).toBeInTheDocument()
   })
 
   it('should change result when timezone changed', async () => {

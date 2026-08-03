@@ -152,7 +152,9 @@ describe('JsonTool', () => {
     await fireEvent.input(inputArea, { target: { value: '{"name": "test", "value": 123}' } })
 
     const outputArea = document.querySelector('.output-display')
-    expect(outputArea?.textContent).toBe('Output will appear here...')
+    // Output still shows the preloaded example; the new content must not
+    // appear until the debounce window has passed.
+    expect(outputArea?.textContent).not.toContain('"test"')
 
     vi.advanceTimersByTime(400)
 

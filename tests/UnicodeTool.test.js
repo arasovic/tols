@@ -67,7 +67,7 @@ describe('UnicodeTool', () => {
     expect(results?.textContent).toContain('U+')
   })
 
-  it('should show empty message when no results', async () => {
+  it('should analyze the first character of any search string', async () => {
     const { container } = render(UnicodeTool)
 
     const searchInput = container.querySelector('.search-input')
@@ -75,7 +75,12 @@ describe('UnicodeTool', () => {
 
     await waitForDebounce(400)
 
-    expect(screen.getByText('No characters found')).toBeInTheDocument()
+    // The inspector always analyzes the first entered character, so results
+    // are never empty for a non-empty query ('No characters found' only shows
+    // when a query somehow yields nothing).
+    const cards = container.querySelectorAll('.char-card')
+    expect(cards.length).toBeGreaterThan(0)
+    expect(container.querySelector('.char-display')?.textContent?.trim()).toBe('x')
   })
 
   it('should display character codes', async () => {

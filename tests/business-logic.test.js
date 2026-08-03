@@ -277,7 +277,8 @@ describe('Business Logic Tests', () => {
     it('should show error for malformed JWT encoding', async () => {
       const result = await processJwt('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid_payload.signature')
       expect(result.valid).toBe(false)
-      expect(result.error).toBe('Invalid JWT header: unable to decode Base64 or parse JSON')
+      // The header decodes fine; the payload is the malformed part
+      expect(result.error).toBe('Invalid JWT payload: unable to decode Base64 or parse JSON')
     })
   })
 })

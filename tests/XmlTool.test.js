@@ -444,12 +444,14 @@ describe('XmlTool', () => {
 
   it('should render CopyButton when output exists and hide when empty', async () => {
     const { container } = render(XmlTool)
+    const textarea = container.querySelector('.editor-textarea')
 
-    // Initially no output - CopyButton should not be present
+    // The tool preloads an example; clear it to reach the empty state first
+    await fireEvent.input(textarea, { target: { value: '' } })
+    await waitForDebounce()
     expect(container.querySelector('.copy-btn')).not.toBeInTheDocument()
 
     // Enter valid XML to generate output
-    const textarea = container.querySelector('.editor-textarea')
     await fireEvent.input(textarea, { target: { value: '<root>test</root>' } })
     await waitForDebounce()
 

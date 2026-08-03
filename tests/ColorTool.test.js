@@ -133,7 +133,9 @@ describe('ColorTool', () => {
       await fireEvent.input(rgbInput, { target: { value: 'rgb(300, 0, 0)' } })
       await waitForDebounce(100)
 
-      expect(hexInput.value).toBe('#')
+      // Invalid input keeps the last valid color and shows an error
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(hexInput.value).toMatch(/#3b82f6/i)
     })
 
     it('should reject negative RGB values', async () => {
@@ -143,7 +145,8 @@ describe('ColorTool', () => {
       await fireEvent.input(rgbInput, { target: { value: 'rgb(-10, 0, 0)' } })
       await waitForDebounce(100)
 
-      expect(hexInput.value).toBe('#')
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(hexInput.value).toMatch(/#3b82f6/i)
     })
   })
 
@@ -189,7 +192,8 @@ describe('ColorTool', () => {
       await fireEvent.input(hslInput, { target: { value: 'hsl(0, 150%, 50%)' } })
       await waitForDebounce(100)
 
-      expect(hexInput.value).toBe('#')
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(hexInput.value).toMatch(/#3b82f6/i)
     })
 
     it('should reject HSL lightness < 0', async () => {
@@ -199,7 +203,8 @@ describe('ColorTool', () => {
       await fireEvent.input(hslInput, { target: { value: 'hsl(0, 50%, -10%)' } })
       await waitForDebounce(100)
 
-      expect(hexInput.value).toBe('#')
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(hexInput.value).toMatch(/#3b82f6/i)
     })
 
     it('should reject HSL hue > 360', async () => {
@@ -209,7 +214,8 @@ describe('ColorTool', () => {
       await fireEvent.input(hslInput, { target: { value: 'hsl(400, 50%, 50%)' } })
       await waitForDebounce(100)
 
-      expect(hexInput.value).toBe('#')
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(hexInput.value).toMatch(/#3b82f6/i)
     })
   })
 
@@ -271,31 +277,24 @@ describe('ColorTool', () => {
     it('should handle invalid RGB input gracefully', async () => {
       const hexInput = /** @type {HTMLInputElement} */ (screen.getByPlaceholderText('#000000'))
       const rgbInput = /** @type {HTMLInputElement} */ (screen.getByPlaceholderText('rgb(0, 0, 0)'))
-      const hslInput = /** @type {HTMLInputElement} */ (screen.getByPlaceholderText('hsl(0, 0%, 0%)'))
 
       await fireEvent.input(rgbInput, { target: { value: 'notanrgb' } })
       await waitForDebounce(100)
 
-      expect(hexInput.value).toBe('#')
-      expect(hslInput.value).toBe('')
-
-      const colorPreview = /** @type {HTMLElement} */ (document.querySelector('.color-swatch'))
-      expect(colorPreview.style.backgroundColor).toBe('rgb(10, 10, 12)')
+      // Invalid input keeps the last valid color and shows an error
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(hexInput.value).toMatch(/#3b82f6/i)
     })
 
     it('should handle invalid HSL input gracefully', async () => {
       const hexInput = /** @type {HTMLInputElement} */ (screen.getByPlaceholderText('#000000'))
-      const rgbInput = /** @type {HTMLInputElement} */ (screen.getByPlaceholderText('rgb(0, 0, 0)'))
       const hslInput = /** @type {HTMLInputElement} */ (screen.getByPlaceholderText('hsl(0, 0%, 0%)'))
 
       await fireEvent.input(hslInput, { target: { value: 'notanhsl' } })
       await waitForDebounce(100)
 
-      expect(hexInput.value).toBe('#')
-      expect(rgbInput.value).toBe('')
-
-      const colorPreview = /** @type {HTMLElement} */ (document.querySelector('.color-swatch'))
-      expect(colorPreview.style.backgroundColor).toBe('rgb(10, 10, 12)')
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(hexInput.value).toMatch(/#3b82f6/i)
     })
 
     it('should handle empty string input', async () => {

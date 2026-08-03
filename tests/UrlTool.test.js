@@ -313,9 +313,17 @@ describe('UrlTool', () => {
       })
     })
 
-    it('should not show CopyButton when there is no output', () => {
-      const copyButton = document.querySelector('.copy-btn')
-      expect(copyButton).not.toBeInTheDocument()
+    it('should not show CopyButton when there is no output', async () => {
+      // The tool preloads an example; clear the input to reach the empty state
+      const inputArea = screen.getByLabelText(/Text to encode/i)
+      await fireEvent.input(inputArea, { target: { value: '' } })
+
+      vi.advanceTimersByTime(200)
+
+      await waitFor(() => {
+        const copyButton = document.querySelector('.copy-btn')
+        expect(copyButton).not.toBeInTheDocument()
+      })
     })
   })
 
@@ -350,8 +358,12 @@ describe('UrlTool', () => {
 
       vi.advanceTimersByTime(200)
 
-      const emptyState = document.querySelector('.empty-state')
-      expect(emptyState).toBeInTheDocument()
+      // Svelte flushes the update on a microtask after the debounced timer;
+      // waitFor yields so the DOM is up to date before asserting.
+      await waitFor(() => {
+        const emptyState = document.querySelector('.empty-state')
+        expect(emptyState).toBeInTheDocument()
+      })
     })
   })
 

@@ -336,18 +336,19 @@ describe('TimestampTool', () => {
   })
 
   it('has aria-pressed on mode buttons', () => {
-    const toHumanButton = screen.getByText('Unix → Human').closest('button')
-    const toUnixButton = screen.getByText('Human → Unix').closest('button')
+    const toHumanButton = screen.getByRole('button', { name: /Unix → Human/ })
+    const toUnixButton = screen.getByRole('button', { name: /Human → Unix/ })
 
     expect(toHumanButton).toHaveAttribute('aria-pressed', 'true')
     expect(toUnixButton).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('has aria-pressed on timezone buttons', async () => {
-    const utcButton = screen.getByText('UTC').closest('button')
+    const utcButtons = screen.getAllByText('UTC')
+    const utcButton = /** @type {HTMLButtonElement} */ (utcButtons[0].closest('button'))
     expect(utcButton).toHaveAttribute('aria-pressed', 'true')
 
-    const localButton = screen.getByText('Local Time').closest('button')
+    const localButton = screen.getByRole('button', { name: /Local Time/ })
     expect(localButton).toHaveAttribute('aria-pressed', 'false')
   })
 

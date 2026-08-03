@@ -16,9 +16,16 @@ describe('RegexTool', () => {
     expect(textInput).toBeInTheDocument()
   })
 
-  it('should show placeholder for initial state', () => {
+  it('should show placeholder for initial state', async () => {
     render(RegexTool)
-    const emptyState = screen.getByText(/Enter a regex pattern/i)
+    const patternInput = document.getElementById('regex-pattern')
+    const textInput = document.getElementById('regex-input-text')
+
+    // The tool preloads an example; clear both inputs to reach the empty state
+    await fireEvent.input(patternInput, { target: { value: '' } })
+    await fireEvent.input(textInput, { target: { value: '' } })
+
+    const emptyState = await screen.findByText(/Enter a regex pattern/i)
     expect(emptyState).toBeInTheDocument()
   })
 

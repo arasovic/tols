@@ -116,10 +116,12 @@ describe('JwtTool', () => {
     })
   })
 
-  it('should show placeholder when no token is entered', () => {
+  it('should preload example token on first visit', () => {
     component = render(JwtTool)
     const inputArea = screen.getByPlaceholderText(/Paste JWT token/i)
-    expect(inputArea).toHaveValue('')
+    // First visit (empty localStorage) starts with the example token,
+    // consistent with the other tools.
+    expect(inputArea).toHaveValue(EXAMPLE_JWT)
   })
 
   it('should clear all fields when clear button is clicked', async () => {
@@ -198,6 +200,13 @@ describe('JwtTool', () => {
   it('should debounce decode calls during rapid typing', async () => {
     component = render(JwtTool)
     const inputArea = screen.getByPlaceholderText(/Paste JWT token/i)
+
+    // Clear the preloaded example so the decode state starts empty
+    await fireEvent.input(inputArea, { target: { value: '' } })
+    await vi.runAllTimersAsync()
+    await waitFor(() => {
+      expect(screen.queryByText('Header')).not.toBeInTheDocument()
+    })
 
     // Type rapidly
     await fireEvent.input(inputArea, { target: { value: 'eyJhbGci' } })
