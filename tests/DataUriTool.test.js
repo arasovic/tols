@@ -9,6 +9,7 @@ describe('DataUriTool', () => {
   let fileReaderInstances = []
 
   beforeEach(() => {
+    localStorage.clear()
     // Track FileReader instances for cleanup verification
     fileReaderInstances = []
 

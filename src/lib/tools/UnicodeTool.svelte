@@ -2,6 +2,8 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { onMount } from 'svelte'
 
+  const STORAGE_KEY = 'devutils-unicode-search'
+
   let searchChar = ''
   let results = []
   let timeout = null
@@ -105,8 +107,27 @@
 
   function debouncedSearch() {
     if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(search, 300)
+    timeout = setTimeout(() => {
+      search()
+      try {
+        localStorage.setItem(STORAGE_KEY, searchChar)
+      } catch (e) {
+        console.warn('Failed to save search to localStorage:', e)
+      }
+    }, 300)
   }
+
+  onMount(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        searchChar = saved
+        search()
+      }
+    } catch (e) {
+      console.warn('Failed to load search from localStorage:', e)
+    }
+  })
 
   function copyCodepoint(char) {
     const code = char.codePointAt(0)

@@ -5,6 +5,9 @@
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
   const MAX_FILE_SIZE_MB = 10
   const DATA_URL_TRUNCATE_LIMIT = 200
+  const STORAGE_KEY = 'devutils:data-uri:result'
+  // Keep the persisted result small enough to fit typical storage quotas
+  const MAX_PERSIST_LENGTH = 2 * 1024 * 1024
   const FILE_SIZE_UNITS = ['Bytes', 'KB', 'MB', 'GB', 'TB']
 
   let dataUrl = ''
@@ -40,6 +43,44 @@
     return mimeMap[ext] || 'application/octet-stream'
   }
 
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (parsed && typeof parsed.dataUrl === 'string') {
+        dataUrl = parsed.dataUrl
+        truncatedDataUrl = typeof parsed.truncatedDataUrl === 'string'
+          ? parsed.truncatedDataUrl
+          : getTruncatedDataUrl(dataUrl)
+        mimeType = typeof parsed.mimeType === 'string' ? parsed.mimeType : ''
+        fileSize = typeof parsed.fileSize === 'string' ? parsed.fileSize : ''
+        fileName = typeof parsed.fileName === 'string' ? parsed.fileName : ''
+      }
+    } catch (e) {
+      console.warn('Failed to load saved data URI:', e)
+    }
+  }
+
+  function saveState() {
+    try {
+      if (dataUrl.length > MAX_PERSIST_LENGTH) {
+        localStorage.removeItem(STORAGE_KEY)
+        return
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        dataUrl, truncatedDataUrl, mimeType, fileSize, fileName
+      }))
+    } catch (e) {
+      // Quota exceeded: the result stays in memory for this visit
+      console.warn('Failed to save data URI:', e)
+    }
+  }
+
+  onMount(() => {
+    loadState()
+  })
+
   function handleFileSelect(event) {
     const file = event.target.files[0]
     if (!file) return
@@ -70,6 +111,7 @@
       fileSize = formatFileSize(file.size)
       isLoading = false
       currentReader = null
+      saveState()
     }
 
     reader.onerror = () => {
@@ -115,6 +157,11 @@
     error = ''
     isLoading = false
     fileName = ''
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch (e) {
+      console.warn('Failed to clear saved data URI:', e)
+    }
     if (fileInput) {
       fileInput.value = ''
       fileInput.focus()
