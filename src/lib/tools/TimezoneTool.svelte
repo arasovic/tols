@@ -36,13 +36,15 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-tz-from', fromZone)
         localStorage.setItem('devutils-tz-to', toZone)
-      }, 500)
-    } catch (e) {}
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, 500)
   }
 
   onMount(() => {

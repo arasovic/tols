@@ -19,6 +19,8 @@
 </body>
 </html>`
 
+  const MAX_INPUT_SIZE = 1024 * 1024 // 1MB
+
   let input = ''
   let output = ''
   let error = ''
@@ -266,6 +268,11 @@
 
     if (!input.trim()) {
       error = 'Please enter HTML input'
+      return
+    }
+
+    if (input.length > MAX_INPUT_SIZE) {
+      error = `Input exceeds maximum size of ${MAX_INPUT_SIZE / 1024 / 1024}MB. Large files may cause performance issues.`
       return
     }
 

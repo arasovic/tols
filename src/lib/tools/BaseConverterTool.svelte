@@ -86,16 +86,18 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         if (decimal !== '') {
           localStorage.setItem(STORAGE_KEY, decimal)
         } else {
           localStorage.removeItem(STORAGE_KEY)
         }
-      }, SAVE_DEBOUNCE_MS)
-    } catch (e) {}
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, SAVE_DEBOUNCE_MS)
   }
 
   onMount(() => {

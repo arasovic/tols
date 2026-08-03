@@ -60,20 +60,20 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-placeholder-width', width.toString())
         localStorage.setItem('devutils-placeholder-height', height.toString())
         localStorage.setItem('devutils-placeholder-bg', bgColor)
         localStorage.setItem('devutils-placeholder-textcolor', textColor)
         localStorage.setItem('devutils-placeholder-text', placeholderText)
-      }, 500)
-    } catch (e) {
-      console.error('Failed to save placeholder state to localStorage:', e)
-      errorMessage = 'Failed to save settings'
-      setTimeout(() => { errorMessage = '' }, 3000)
-    }
+      } catch (e) {
+        console.error('Failed to save placeholder state to localStorage:', e)
+        errorMessage = 'Failed to save settings'
+        setTimeout(() => { errorMessage = '' }, 3000)
+      }
+    }, 500)
   }
 
   onMount(() => {

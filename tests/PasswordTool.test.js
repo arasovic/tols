@@ -331,4 +331,24 @@ describe('PasswordTool', () => {
     expect(clearTimeoutSpy).toHaveBeenCalled()
     clearTimeoutSpy.mockRestore()
   })
+
+  it('survives localStorage failures during debounced save', async () => {
+    render(PasswordTool)
+
+    // Private-browsing/quota scenario: setItem throws
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError')
+    })
+
+    const lengthInput = document.querySelector('input[type="range"]')
+    if (lengthInput) {
+      await fireEvent.input(lengthInput, { target: { value: '20' } })
+    }
+
+    // The debounced save (500ms) must not throw an unhandled error
+    await new Promise(resolve => setTimeout(resolve, 700))
+    expect(document.querySelector('.tool')).toBeTruthy()
+
+    setItemSpy.mockRestore()
+  })
 })

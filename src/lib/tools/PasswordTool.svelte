@@ -39,18 +39,18 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-password-length', length.toString())
         localStorage.setItem('devutils-password-upper', includeUppercase.toString())
         localStorage.setItem('devutils-password-lower', includeLowercase.toString())
         localStorage.setItem('devutils-password-numbers', includeNumbers.toString())
         localStorage.setItem('devutils-password-symbols', includeSymbols.toString())
-      }, 500)
-    } catch (e) {
-      console.error('Failed to save password generator state:', e)
-    }
+      } catch (e) {
+        console.error('Failed to save password generator state:', e)
+      }
+    }, 500)
   }
 
   function getSecureRandomIndex(max) {

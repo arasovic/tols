@@ -1,5 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import { base } from '$app/paths'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_PAYLOAD = JSON.stringify({
@@ -191,6 +192,7 @@
     <div class="tool-meta">
       <h1 class="tool-name">JWT Encoder</h1>
       <p class="tool-desc">Create and sign JWT tokens with HS256</p>
+      <a class="tool-crosslink" href="{base}/jwt">Need to decode a token? JWT Decoder →</a>
     </div>
     <div class="tool-actions">
       <button class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example">
@@ -263,6 +265,8 @@
   .tool-meta { display: flex; flex-direction: column; gap: var(--space-1); }
   .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
   .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
+  .tool-crosslink { font-size: var(--text-xs); color: var(--accent); text-decoration: none; margin-top: var(--space-1); }
+  .tool-crosslink:hover { text-decoration: underline; }
   .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
   .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }

@@ -322,4 +322,15 @@ describe('HtmlTool', () => {
     const endTime = performance.now()
     expect(endTime - startTime).toBeLessThan(5000) // Should complete within 5 seconds
   })
+
+  it('rejects input larger than 1MB', async () => {
+    const { container } = render(HtmlTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: '<div>' + 'a'.repeat(1024 * 1024) + '</div>' } })
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('exceeds maximum size')
+    }, { timeout: 1500 })
+  })
 })

@@ -48,15 +48,15 @@ config:
   }
 
   function saveState() {
-    try {
-      if (saveTimeout) clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    if (saveTimeout) clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-yaml-input', input)
         localStorage.setItem('devutils-yaml-mode', mode)
-      }, SAVE_DEBOUNCE_MS)
-    } catch (e) {
-      console.error('Failed to save to localStorage:', e.message || 'Unknown error')
-    }
+      } catch (e) {
+        console.error('Failed to save to localStorage:', e.message || 'Unknown error')
+      }
+    }, SAVE_DEBOUNCE_MS)
   }
 
   onMount(() => {

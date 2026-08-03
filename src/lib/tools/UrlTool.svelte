@@ -28,15 +28,15 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-url-input', input)
         localStorage.setItem('devutils-url-mode', mode)
-      }, SAVE_DEBOUNCE_DELAY_MS)
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
-    }
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, SAVE_DEBOUNCE_DELAY_MS)
   }
 
   onMount(() => {

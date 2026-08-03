@@ -24,6 +24,7 @@ This is a **bold** text and this is *italic*.
 
   const DEBOUNCE_DELAY = 300
   const SAVE_DELAY = 500
+  const MAX_INPUT_SIZE = 1024 * 1024 // 1MB
 
   const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:', 'tel:']
 
@@ -74,14 +75,14 @@ This is a **bold** text and this is *italic*.
   }
 
   function saveState() {
-    try {
-      if (saveTimeout) clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    if (saveTimeout) clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-markdown-input', input)
-      }, SAVE_DELAY)
-    } catch (e) {
-      error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
-    }
+      } catch (e) {
+        error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
+      }
+    }, SAVE_DELAY)
   }
 
   onMount(() => {
@@ -301,6 +302,12 @@ This is a **bold** text and this is *italic*.
     error = ''
 
     if (!input.trim()) {
+      htmlOutput = ''
+      return
+    }
+
+    if (input.length > MAX_INPUT_SIZE) {
+      error = `Input exceeds maximum size of ${MAX_INPUT_SIZE / 1024 / 1024}MB. Large files may cause performance issues.`
       htmlOutput = ''
       return
     }

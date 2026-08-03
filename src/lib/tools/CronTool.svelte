@@ -23,14 +23,14 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-cron-input', input)
-      }, 500)
-    } catch (e) {
-      console.error('Failed to save state to localStorage:', e)
-    }
+      } catch (e) {
+        console.error('Failed to save state to localStorage:', e)
+      }
+    }, 500)
   }
 
   onMount(() => {

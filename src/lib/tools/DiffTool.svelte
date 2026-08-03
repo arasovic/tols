@@ -49,15 +49,15 @@ console.log(greet(user));`
 
   function saveState() {
     if (!isInitialized) return
-    try {
-      if (saveTimeout) clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    if (saveTimeout) clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-diff-left', leftInput)
         localStorage.setItem('devutils-diff-right', rightInput)
-      }, 500)
-    } catch (e) {
-      console.warn('Failed to save state to localStorage:', e)
-    }
+      } catch (e) {
+        console.warn('Failed to save state to localStorage:', e)
+      }
+    }, 500)
   }
 
   onMount(() => {

@@ -41,16 +41,16 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-lorem-paragraphs', paragraphs.toString())
         localStorage.setItem('devutils-lorem-words', words.toString())
         localStorage.setItem('devutils-lorem-startwith', startWithLorem.toString())
-      }, 500)
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
-    }
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, 500)
   }
 
   onMount(() => {

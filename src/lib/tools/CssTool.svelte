@@ -44,8 +44,11 @@
   }
 }`
 
+  const MAX_INPUT_SIZE = 1024 * 1024 // 1MB
+
   let input = ''
   let output = ''
+  let error = ''
   let mode = 'beautify'
   let timeout
   let saveTimeout
@@ -61,13 +64,15 @@
   }
 
   function saveState() {
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-css-input', input)
         localStorage.setItem('devutils-css-mode', mode)
-      }, 500)
-    } catch (e) {}
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, 500)
   }
 
   onMount(() => {
@@ -361,8 +366,14 @@
 
   function process() {
     output = ''
+    error = ''
 
     if (!input.trim()) {
+      return
+    }
+
+    if (input.length > MAX_INPUT_SIZE) {
+      error = `Input exceeds maximum size of ${MAX_INPUT_SIZE / 1024 / 1024}MB. Large files may cause performance issues.`
       return
     }
 
@@ -446,6 +457,9 @@
           {/if}
         </div>
       </div>
+      {#if error}
+        <div class="error-bar" role="alert">{error}</div>
+      {/if}
       <pre class="output-display">{output || 'Output will appear here...'}</pre>
     </div>
   </div>
@@ -474,6 +488,7 @@
   .editor-textarea { flex: 1; padding: var(--space-3); border: none; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); resize: none; outline: none; }
   .editor-textarea::placeholder { color: var(--text-muted); }
   .output-display { flex: 1; margin: 0; padding: var(--space-3); background: var(--bg-surface); color: var(--text-secondary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); white-space: pre-wrap; word-wrap: break-word; overflow: auto; }
+  .error-bar { padding: var(--space-3); margin-bottom: var(--space-2); background: var(--error-soft, rgba(239, 68, 68, 0.1)); border: 1px solid var(--error, #ef4444); border-radius: var(--radius-md); color: var(--error, #ef4444); font-size: var(--text-sm); }
   .output-display:not(:empty):not(:only-child) { color: var(--text-primary); }
   @media (max-width: 768px) { .workspace { grid-template-columns: 1fr; } .tool-header { flex-direction: column; align-items: flex-start; } .tool-actions { width: 100%; justify-content: flex-end; } }
 </style>

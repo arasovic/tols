@@ -1,6 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { decodeJWT } from '$lib/utils/crypto.js'
+  import { base } from '$app/paths'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
@@ -37,14 +38,14 @@
 
   function saveState() {
     if (!storageEnabled) return
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-jwt-token', token)
-      }, 500)
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
-    }
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, 500)
   }
 
   function dismissStorageWarning() {
@@ -149,8 +150,8 @@
         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
       </svg>
       <h1 class="tool-title-text">JWT Decoder</h1>
+      <a class="tool-crosslink" href="{base}/jwt-encoder">Need to sign a token? JWT Encoder →</a>
     </div>
-    
     <div class="tool-actions">
       <button class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load example JWT token">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -337,6 +338,18 @@
     font-weight: var(--font-semibold);
     margin: 0;
     color: inherit;
+  }
+
+  .tool-crosslink {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: var(--accent);
+    text-decoration: none;
+    margin-left: var(--space-3);
+  }
+
+  .tool-crosslink:hover {
+    text-decoration: underline;
   }
 
   .tool-icon {

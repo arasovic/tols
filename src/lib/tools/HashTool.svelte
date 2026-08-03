@@ -55,15 +55,15 @@
   function saveState() {
     if (typeof window === 'undefined') return
 
-    try {
-      clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(() => {
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      try {
         localStorage.setItem('devutils-hash-input', input)
         localStorage.setItem('devutils-hash-algorithm', algorithm)
-      }, SAVE_DEBOUNCE_DELAY_MS)
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e)
-    }
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e)
+      }
+    }, SAVE_DEBOUNCE_DELAY_MS)
   }
 
   onMount(() => {

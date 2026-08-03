@@ -127,4 +127,15 @@ describe('CssTool', () => {
       expect(text).toContain('.cl')
     }, { timeout: 500 })
   })
+
+  it('rejects input larger than 1MB', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: '.x{' + 'a'.repeat(1024 * 1024) + '}' } })
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('exceeds maximum size')
+    }, { timeout: 1500 })
+  })
 })
