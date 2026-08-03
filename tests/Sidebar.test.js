@@ -1,10 +1,21 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/svelte'
 import { writable } from 'svelte/store'
+import { page } from '$app/stores'
 import Sidebar from '$lib/components/Sidebar.svelte'
+
+const { baseMock } = vi.hoisted(() => ({
+  baseMock: { base: '' }
+}))
 
 vi.mock('$app/stores', () => ({
   page: writable({ url: { pathname: '/json' } })
+}))
+
+vi.mock('$app/paths', () => ({
+  get base() {
+    return baseMock.base
+  }
 }))
 
 vi.mock('$lib/stores/theme', () => ({
@@ -24,6 +35,11 @@ vi.mock('$app/environment', () => ({
 describe('Sidebar', () => {
   // window/document must not be stubbed here: replacing the real DOM globals
   // breaks @testing-library/svelte's render. matchMedia is polyfilled in setup.js.
+  beforeEach(() => {
+    baseMock.base = ''
+    page.set({ url: { pathname: '/json' } })
+  })
+
   afterEach(() => {
     vi.unstubAllGlobals()
   })
@@ -44,6 +60,15 @@ describe('Sidebar', () => {
     const { container } = render(Sidebar)
     const activeLink = container.querySelector('.nav-item.active')
     expect(activeLink).toBeInTheDocument()
+  })
+
+  it('highlights exactly the JSON tool when base is relative (prerender)', () => {
+    baseMock.base = '.'
+    page.set({ url: { pathname: '/dev-utilities/json' } })
+    const { container } = render(Sidebar)
+    const activeLinks = container.querySelectorAll('.nav-item.active')
+    expect(activeLinks).toHaveLength(1)
+    expect(activeLinks[0].textContent).toContain('JSON')
   })
 
   it('should have theme toggle button', () => {

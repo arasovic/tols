@@ -5,6 +5,7 @@
   import { browser } from '$app/environment'
   import { tools as toolRegistry } from '$lib/config/registry.js'
   import { favorites } from '$lib/stores/favorites.js'
+  import { stripBase } from '$lib/utils/paths.js'
   import { onMount } from 'svelte'
   import { Braces, Sun, Moon, Star } from 'lucide-svelte'
 
@@ -34,9 +35,7 @@
     isOpen = false
   }
 
-  $: pathWithoutBase = $page.url.pathname.startsWith(base)
-    ? $page.url.pathname.slice(base.length)
-    : $page.url.pathname
+  $: pathWithoutBase = stripBase(base, $page.url.pathname)
   $: currentTool = pathWithoutBase.length > 1
     ? pathWithoutBase.slice(1)
     : 'json'

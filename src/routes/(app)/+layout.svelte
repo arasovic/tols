@@ -1,10 +1,12 @@
 <script>
   import { page } from '$app/stores'
+  import { base } from '$app/paths'
   import Sidebar from '$lib/components/Sidebar.svelte'
   import SearchOverlay from '$lib/components/SearchOverlay.svelte'
   import { toolTitles } from '$lib/config/tools.js'
   import { getTool } from '$lib/config/registry.js'
   import { addRecent } from '$lib/stores/recentTools.js'
+  import { stripBase } from '$lib/utils/paths.js'
   import { browser } from '$app/environment'
   import { Menu, Search } from 'lucide-svelte'
   import '../../app.css'
@@ -21,7 +23,11 @@
     searchOverlay?.open()
   }
 
-  $: currentPath = $page.url.pathname.replace(/^\/\(app\)\/?/, '').slice(1) || ''
+  // `base` is absolute in dev and on the client, but relative ('.' or '..')
+  // during prerendering. stripBase resolves it against the current page so the
+  // tool segment can be stripped in every environment.
+  $: pathWithoutBase = stripBase(base, $page.url.pathname)
+  $: currentPath = pathWithoutBase.slice(1) || ''
   $: title = toolTitles[currentPath] || 'DevUtils'
 
   // Visiting a tool page counts as recent usage, no matter how the user got there
