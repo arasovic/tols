@@ -20,3 +20,9 @@ npm-debug.log*
 
 # Testing
 coverage
+
+# Local planning docs (never commit)
+docs/
+
+# Legacy build output (deploy uses build/)
+dist
