@@ -57,7 +57,7 @@
     />
     <div class="search-actions">
       {#if query}
-        <button class="search-clear" on:click={clear} aria-label="Clear search">
+        <button type="button" class="search-clear" on:click={clear} aria-label="Clear search">
           <X size={16} />
         </button>
       {/if}
@@ -66,7 +66,7 @@
 
   <div class="category-filters" role="group" aria-label="Filter by category">
     {#each chips as chip}
-      <button
+      <button type="button"
         class="category-chip"
         class:active={selected === chip.id}
         on:click={() => selected = chip.id}

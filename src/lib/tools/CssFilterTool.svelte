@@ -175,7 +175,7 @@
       <p class="tool-desc">Visual controls for CSS image filters</p>
     </div>
     <div class="tool-actions">
-      <button
+      <button type="button"
         class="icon-btn"
         on:click={reset}
         title="Reset"

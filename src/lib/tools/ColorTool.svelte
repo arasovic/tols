@@ -263,7 +263,7 @@
     <div class="tool-actions">
       <ShareButton getState={() => ({ hex })} />
       <PasteButton on:text={(e) => handleHexInput({ target: { value: e.detail.text } })} />
-      <button
+      <button type="button"
         class="btn-ghost"
         on:click={loadExample}
         title="Load Example"
@@ -274,7 +274,7 @@
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button
+      <button type="button"
         class="btn-ghost"
         on:click={clear}
         title="Clear"

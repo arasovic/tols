@@ -182,7 +182,7 @@
     <h3>Common Characters</h3>
     <div class="char-grid">
       {#each COMMON_CHARS.slice(0, 24) as char}
-        <button class="char-btn" on:click={() => { searchChar = char.char; search(); }} title="{char.name}">
+        <button type="button" class="char-btn" on:click={() => { searchChar = char.char; search(); }} title="{char.name}">
           {char.char}
         </button>
       {/each}

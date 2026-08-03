@@ -230,7 +230,7 @@
       <p class="tool-desc">Generate colored placeholder images</p>
     </div>
     <div class="tool-actions">
-      <button class="icon-btn" on:click={clear} title="Clear" data-testid="clear-button" aria-label="Clear all settings">
+      <button type="button" class="icon-btn" on:click={clear} title="Clear" data-testid="clear-button" aria-label="Clear all settings">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
@@ -308,7 +308,7 @@
 
   <div class="preview">
     <canvas bind:this={canvas} width={width} height={height} data-testid="preview-canvas" aria-label="Preview of placeholder image"></canvas>
-    <button class="download-btn" on:click={downloadPNG} data-testid="download-button" aria-label="Download placeholder image as PNG">
+    <button type="button" class="download-btn" on:click={downloadPNG} data-testid="download-button" aria-label="Download placeholder image as PNG">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Download PNG
     </button>

@@ -169,10 +169,10 @@
       <p class="tool-desc">Generate secure random passwords</p>
     </div>
     <div class="tool-actions">
-      <button class="icon-btn" on:click={handleRegenerate} aria-label="Regenerate password" title="Regenerate">
+      <button type="button" class="icon-btn" on:click={handleRegenerate} aria-label="Regenerate password" title="Regenerate">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       </button>
-      <button class="icon-btn" on:click={handleClear} aria-label="Clear password" title="Clear">
+      <button type="button" class="icon-btn" on:click={handleClear} aria-label="Clear password" title="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>

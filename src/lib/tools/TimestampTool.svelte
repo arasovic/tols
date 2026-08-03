@@ -227,13 +227,13 @@
     </div>
     
     <div class="tool-actions">
-      <button class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load Example">
+      <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear" aria-label="Clear">
+      <button type="button" class="btn-ghost" on:click={clear} title="Clear" aria-label="Clear">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -244,7 +244,7 @@
 
   <div class="controls-card">
     <div class="mode-selector">
-      <button 
+      <button type="button" 
         class="mode-btn" 
         class:active={mode === 'toHuman'}
         on:click={() => setMode('toHuman')}
@@ -256,7 +256,7 @@
         </svg>
         Unix → Human
       </button>
-      <button 
+      <button type="button" 
         class="mode-btn" 
         class:active={mode === 'toUnix'}
         on:click={() => setMode('toUnix')}
@@ -280,7 +280,7 @@
       </div>
       <div class="timezone-grid">
         {#each timezones as tz}
-          <button 
+          <button type="button" 
             class="tz-btn" 
             class:active={fromTimezone === tz.value}
             on:click={() => { fromTimezone = tz.value; process(); }}
@@ -298,7 +298,7 @@
       <span class="panel-title">{mode === 'toHuman' ? 'Unix Timestamp' : 'Date & Time'}</span>
       <div class="header-actions">
         {#if mode === 'toHuman'}
-          <button class="btn-now" on:click={now}>
+          <button type="button" class="btn-now" on:click={now}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>

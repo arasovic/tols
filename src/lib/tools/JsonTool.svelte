@@ -170,7 +170,7 @@
       <ShareButton getState={() => ({ input, compact: String(compact) })} />
       <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
       <div class="segmented" role="tablist" aria-label="JSON formatting options">
-        <button
+        <button type="button"
           class="segment"
           class:active={!compact}
           on:click={prettify}
@@ -180,7 +180,7 @@
         >
           Prettify
         </button>
-        <button
+        <button type="button"
           class="segment"
           class:active={compact}
           on:click={minify}
@@ -191,13 +191,13 @@
           Minify
         </button>
       </div>
-      <button class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example JSON">
+      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example JSON">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="icon-btn" on:click={clear} title="Clear" aria-label="Clear input and output">
+      <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear input and output">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>

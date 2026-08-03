@@ -345,7 +345,7 @@
       <p class="tool-desc">Generate Code128 barcodes</p>
     </div>
     <div class="tool-actions">
-      <button
+      <button type="button"
         class="icon-btn"
         on:click={loadExample}
         title="Load Example"
@@ -355,7 +355,7 @@
           <path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button
+      <button type="button"
         class="icon-btn"
         on:click={clear}
         title="Clear"
@@ -405,7 +405,7 @@
       aria-label={barcodeText ? `Barcode representing: ${barcodeText}` : 'Barcode preview area'}
     ></canvas>
     {#if barcodeText}
-      <button class="download-btn" on:click={downloadPNG}>
+      <button type="button" class="download-btn" on:click={downloadPNG}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>

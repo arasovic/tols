@@ -44,12 +44,12 @@
 
   <div class="main">
     <header class="header">
-      <button class="menu-btn" on:click={toggleSidebar} aria-label="Toggle menu">
+      <button type="button" class="menu-btn" on:click={toggleSidebar} aria-label="Toggle menu">
         <Menu size={20} class="menu-icon" />
       </button>
       <span class="page-title">{title}</span>
       <div class="header-actions">
-        <button
+        <button type="button"
           class="search-trigger"
           on:click={() => openSearch()}
           aria-label="Open search (Cmd+K)"

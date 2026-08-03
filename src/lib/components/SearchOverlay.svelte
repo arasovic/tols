@@ -288,6 +288,7 @@
         <div class="search-actions">
           {#if query}
             <button
+              type="button"
               class="search-clear"
               on:click={() => { query = ''; searchInput?.focus() }}
               aria-label="Clear search"
@@ -328,6 +329,7 @@
                   {@const shortcutNumber = resultIndex < 9 ? resultIndex + 1 : null}
 
                   <button
+                    type="button"
                     id="result-{tool.id}"
                     class="result-item"
                     class:selected={isSelected}
@@ -381,6 +383,7 @@
               <span class="suggestion-label">Popular:</span>
               {#each ['JSON', 'Base64', 'UUID', 'Hash', 'JWT'] as suggestion}
                 <button
+                  type="button"
                   class="suggestion-chip"
                   on:click={() => { query = suggestion.toLowerCase(); searchInput?.focus() }}
                 >

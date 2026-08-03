@@ -66,7 +66,7 @@
       </div>
       <span class="logo-title">DevUtils</span>
     </a>
-    <button class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
+    <button type="button" class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
       {#if $theme === 'dark'}
         <Sun size={18} />
       {:else}

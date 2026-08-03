@@ -162,7 +162,7 @@
       <p class="tool-desc">Calculate gzip compression size and analyze bandwidth savings</p>
     </div>
     <div class="tool-actions">
-      <button
+      <button type="button"
         class="icon-btn"
         on:click={clearInput}
         title="Clear"

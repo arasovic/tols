@@ -315,7 +315,7 @@
     <div class="tool-actions">
       <ShareButton getState={() => ({ input })} />
       <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
-      <button class="icon-btn" on:click={clear} title="Clear">
+      <button type="button" class="icon-btn" on:click={clear} title="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
@@ -376,12 +376,12 @@
   <div class="examples-section">
     <h3>Common Examples</h3>
     <div class="examples-grid">
-      <button class="example-btn" on:click={() => setExample('*/5 * * * *')}>Every 5 minutes</button>
-      <button class="example-btn" on:click={() => setExample('0 * * * *')}>Every hour</button>
-      <button class="example-btn" on:click={() => setExample('0 0 * * *')}>Daily at midnight</button>
-      <button class="example-btn" on:click={() => setExample('0 0 * * 0')}>Weekly on Sunday</button>
-      <button class="example-btn" on:click={() => setExample('0 0 1 * *')}>Monthly</button>
-      <button class="example-btn" on:click={() => setExample('0 9 * * 1-5')}>Weekdays at 9am</button>
+      <button type="button" class="example-btn" on:click={() => setExample('*/5 * * * *')}>Every 5 minutes</button>
+      <button type="button" class="example-btn" on:click={() => setExample('0 * * * *')}>Every hour</button>
+      <button type="button" class="example-btn" on:click={() => setExample('0 0 * * *')}>Daily at midnight</button>
+      <button type="button" class="example-btn" on:click={() => setExample('0 0 * * 0')}>Weekly on Sunday</button>
+      <button type="button" class="example-btn" on:click={() => setExample('0 0 1 * *')}>Monthly</button>
+      <button type="button" class="example-btn" on:click={() => setExample('0 9 * * 1-5')}>Weekdays at 9am</button>
     </div>
   </div>
 </div>

@@ -149,9 +149,9 @@
       </svg>
       <span class="warning-text">
         JWT tokens are stored in localStorage for convenience. 
-        <button class="warning-action" on:click={disableStorage}>Disable storage</button>
+        <button type="button" class="warning-action" on:click={disableStorage}>Disable storage</button>
         or 
-        <button class="warning-action" on:click={dismissStorageWarning}>dismiss</button>
+        <button type="button" class="warning-action" on:click={dismissStorageWarning}>dismiss</button>
       </span>
     </div>
   {/if}
@@ -168,13 +168,13 @@
     <div class="tool-actions">
       <ShareButton getState={() => ({ token })} />
       <PasteButton on:text={(e) => { token = e.detail.text; decode() }} />
-      <button class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load example JWT token">
+      <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load example JWT token">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear" aria-label="Clear JWT token">
+      <button type="button" class="btn-ghost" on:click={clear} title="Clear" aria-label="Clear JWT token">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>

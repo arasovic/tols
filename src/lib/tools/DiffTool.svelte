@@ -487,16 +487,16 @@ console.log(greet(user));`
     <div class="tool-actions">
       <ShareButton getState={() => ({ left: leftInput, right: rightInput, mode })} />
       <div class="segmented">
-        <button class="segment" class:active={mode === 'split'} on:click={() => mode = 'split'}>Split</button>
-        <button class="segment" class:active={mode === 'unified'} on:click={() => mode = 'unified'}>Unified</button>
+        <button type="button" class="segment" class:active={mode === 'split'} on:click={() => mode = 'split'}>Split</button>
+        <button type="button" class="segment" class:active={mode === 'unified'} on:click={() => mode = 'unified'}>Unified</button>
       </div>
-      <button class="icon-btn" on:click={swap} title="Swap Sides">
+      <button type="button" class="icon-btn" on:click={swap} title="Swap Sides">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0-12 4 4m-4-4-4 4"/></svg>
       </button>
-      <button class="icon-btn" on:click={loadExample} title="Load Example">
+      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
       </button>
-      <button class="icon-btn" on:click={clear} title="Clear">
+      <button type="button" class="icon-btn" on:click={clear} title="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>

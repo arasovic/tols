@@ -325,13 +325,13 @@
     <div class="tool-actions">
       <ShareButton getState={() => ({ pattern, input, flags })} />
       <PasteButton on:text={(e) => { input = e.detail.text; performMatch() }} />
-      <button class="btn-ghost" on:click={loadExample} title="Load Example">
+      <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <circle cx="12" cy="12" r="10"/>
           <path d="M12 6v6l4 2" fill="none"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} title="Clear">
+      <button type="button" class="btn-ghost" on:click={clear} title="Clear">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -348,7 +348,7 @@
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
       </svg>
       <span class="error-content">{persistentError}</span>
-      <button class="error-dismiss" on:click={dismissPersistentError} aria-label="Dismiss error">
+      <button type="button" class="error-dismiss" on:click={dismissPersistentError} aria-label="Dismiss error">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -376,7 +376,7 @@
     </div>
     <div class="flags-row">
       {#each flagOptions as flag}
-        <button
+        <button type="button"
           class="flag-btn"
           class:active={flags.includes(flag.value)}
           on:click={() => toggleFlag(flag.value)}

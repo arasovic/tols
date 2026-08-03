@@ -112,7 +112,7 @@
         </div>
         <span class="logo-title">DevUtils</span>
       </a>
-      <button class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
+      <button type="button" class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
         {#if $theme === 'dark'}
           <Sun size={16} />
         {:else}
@@ -217,7 +217,7 @@
           </div>
           <h3 class="no-results-title">No results found</h3>
           <p class="no-results-text">Try adjusting your search or category filter</p>
-          <button class="btn-secondary" on:click={clearFilters}>
+          <button type="button" class="btn-secondary" on:click={clearFilters}>
             Clear filters
           </button>
         </div>

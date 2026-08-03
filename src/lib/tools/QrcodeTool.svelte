@@ -642,7 +642,7 @@
       <p class="tool-desc">Generate QR codes from text or URLs</p>
     </div>
     <div class="tool-actions">
-      <button class="icon-btn" on:click={clear} title="Clear">
+      <button type="button" class="icon-btn" on:click={clear} title="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
@@ -669,7 +669,7 @@
   <div class="qr-preview">
     <canvas bind:this={qrCanvas} width={qrSize} height={qrSize} aria-label="Generated QR code"></canvas>
     {#if qrText}
-      <button class="download-btn" on:click={downloadPNG}>
+      <button type="button" class="download-btn" on:click={downloadPNG}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download PNG
       </button>
@@ -679,10 +679,10 @@
   <div class="examples-section">
     <h3>Quick Examples</h3>
     <div class="examples">
-      <button class="example-btn" on:click={() => setExample('https://github.com')}>GitHub</button>
-      <button class="example-btn" on:click={() => setExample('https://google.com')}>Google</button>
-      <button class="example-btn" on:click={() => setExample('mailto:hello@example.com')}>Email</button>
-      <button class="example-btn" on:click={() => setExample('tel:+1234567890')}>Phone</button>
+      <button type="button" class="example-btn" on:click={() => setExample('https://github.com')}>GitHub</button>
+      <button type="button" class="example-btn" on:click={() => setExample('https://google.com')}>Google</button>
+      <button type="button" class="example-btn" on:click={() => setExample('mailto:hello@example.com')}>Email</button>
+      <button type="button" class="example-btn" on:click={() => setExample('tel:+1234567890')}>Phone</button>
     </div>
   </div>
 </div>

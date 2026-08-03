@@ -157,20 +157,20 @@
     </div>
 
     <div class="tool-actions">
-      <button class="btn-primary" on:click={generate} aria-label="Generate UUIDs">
+      <button type="button" class="btn-primary" on:click={generate} aria-label="Generate UUIDs">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
           <polyline points="23 4 23 10 17 10"></polyline>
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
         </svg>
         Generate
       </button>
-      <button class="btn-ghost" on:click={loadExample} aria-label="Load example">
+      <button type="button" class="btn-ghost" on:click={loadExample} aria-label="Load example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
           <path d="M12 6v6l4 2"/>
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="btn-ghost" on:click={clear} aria-label="Clear output">
+      <button type="button" class="btn-ghost" on:click={clear} aria-label="Clear output">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -183,7 +183,7 @@
     <div class="count-control">
       <span class="control-label">Number of UUIDs</span>
       <div class="count-buttons">
-        <button
+        <button type="button"
           class="count-btn"
           on:click={decrementCount}
           disabled={count <= MIN_COUNT}
@@ -202,7 +202,7 @@
           class="count-input"
           aria-label="Number of UUIDs to generate"
         />
-        <button
+        <button type="button"
           class="count-btn"
           on:click={incrementCount}
           disabled={count >= MAX_COUNT}
