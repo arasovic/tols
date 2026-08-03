@@ -1,6 +1,6 @@
 # dev-utilities
 
-Offline-first developer toolkit. 26+ tools, file-based routing, dark mode, zero backend.
+Offline-first developer toolkit. 30 tools, file-based routing, dark mode, zero backend.
 
 Built with SvelteKit + adapter-static. No runtime APIs, no tracking. Everything runs in your browser with static site generation.
 
@@ -30,6 +30,8 @@ Live: [https://arasovic.github.io/dev-utilities/](https://arasovic.github.io/dev
 | `/jwt` | JWT Decoder | Decode and inspect JWT token payload and signatures |
 | `/jwt-encoder` | JWT Encoder | Create and sign JWT tokens with HS256 |
 | `/jsonp` | JSONP Tester | Simulate JSONP requests and parse responses |
+| `/gzip` | Gzip Calculator | Estimate compression size for Gzip |
+| `/data-uri` | Data URI Generator | Convert files to Data URIs |
 
 ### Generators
 
@@ -54,6 +56,7 @@ Live: [https://arasovic.github.io/dev-utilities/](https://arasovic.github.io/dev
 | `/cron` | Cron Parser | Validate cron expressions and see next execution times |
 | `/unicode` | Unicode Inspector | Explore Unicode characters and their properties |
 | `/css` | CSS Formatter | Beautify and minify CSS |
+| `/css-filter` | CSS Filter Generator | Apply visual CSS filters |
 
 ## Keyboard Shortcuts
 

@@ -1,21 +1,15 @@
 import { base } from '$app/paths'
+import { tools } from '$lib/config/registry.js'
 
 export const prerender = true
 
 const siteUrl = process.env.PUBLIC_SITE_URL || 'https://arasovic.github.io'
 
+// Home + every tool route, derived from the registry so the sitemap can
+// never drift from the tool list again.
 const routes = [
   { path: '', priority: '1.0', changefreq: 'weekly' },
-  { path: '/json', priority: '0.9', changefreq: 'monthly' },
-  { path: '/base64', priority: '0.9', changefreq: 'monthly' },
-  { path: '/url', priority: '0.9', changefreq: 'monthly' },
-  { path: '/uuid', priority: '0.9', changefreq: 'monthly' },
-  { path: '/hash', priority: '0.9', changefreq: 'monthly' },
-  { path: '/jwt', priority: '0.9', changefreq: 'monthly' },
-  { path: '/color', priority: '0.8', changefreq: 'monthly' },
-  { path: '/timestamp', priority: '0.8', changefreq: 'monthly' },
-  { path: '/regex', priority: '0.8', changefreq: 'monthly' },
-  { path: '/lorem', priority: '0.7', changefreq: 'monthly' }
+  ...tools.map(tool => ({ path: `/${tool.id}`, priority: '0.8', changefreq: 'monthly' }))
 ]
 
 export async function GET() {
