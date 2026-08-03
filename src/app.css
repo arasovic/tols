@@ -926,3 +926,9 @@ pre code {
   outline: none;
   box-shadow: var(--glow-focus);
 }
+
+/* Drag-and-drop file affordance (added by the fileDrop action) */
+.drag-over {
+  border-color: var(--accent) !important;
+  box-shadow: var(--glow-focus);
+}

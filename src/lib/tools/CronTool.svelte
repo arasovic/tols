@@ -1,7 +1,9 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
 
   const CRON_PARTS = ['minute', 'hour', 'day', 'month', 'weekday']
@@ -310,6 +312,7 @@
     </div>
     <div class="tool-actions">
       <ShareButton getState={() => ({ input })} />
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
       <button class="icon-btn" on:click={clear} title="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
@@ -329,6 +332,7 @@
       type="text"
       bind:value={input}
       on:input={debouncedProcess}
+      use:fileDrop={{ onText: (text) => { input = text.trim(); process() } }}
       class="cron-input"
       class:invalid={error}
       placeholder="* * * * *"

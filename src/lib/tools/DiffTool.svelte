@@ -2,6 +2,7 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_LEFT = `function greet(name) {
@@ -509,6 +510,7 @@ console.log(greet(user));`
         <textarea
           bind:value={leftInput}
           on:input={debouncedCompute}
+          use:fileDrop={{ onText: (text) => { leftInput = text } }}
           placeholder="Paste original text..."
           class="diff-textarea"
           aria-label="Original text input"
@@ -523,6 +525,7 @@ console.log(greet(user));`
         <textarea
           bind:value={rightInput}
           on:input={debouncedCompute}
+          use:fileDrop={{ onText: (text) => { rightInput = text } }}
           placeholder="Paste modified text..."
           class="diff-textarea"
           aria-label="Modified text input"
@@ -596,6 +599,7 @@ console.log(greet(user));`
         <textarea
           bind:value={leftInput}
           on:input={debouncedCompute}
+          use:fileDrop={{ onText: (text) => { leftInput = text } }}
           placeholder="Paste original text..."
           class="diff-textarea"
           aria-label="Original text input"
@@ -610,6 +614,7 @@ console.log(greet(user));`
         <textarea
           bind:value={rightInput}
           on:input={debouncedCompute}
+          use:fileDrop={{ onText: (text) => { rightInput = text } }}
           placeholder="Paste modified text..."
           class="diff-textarea"
           aria-label="Modified text input"

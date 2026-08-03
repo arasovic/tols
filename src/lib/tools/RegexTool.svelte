@@ -1,7 +1,9 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_REGEX = '\\d+'
@@ -320,6 +322,7 @@
 
     <div class="tool-actions">
       <ShareButton getState={() => ({ pattern, input, flags })} />
+      <PasteButton on:text={(e) => { input = e.detail.text; performMatch() }} />
       <button class="btn-ghost" on:click={loadExample} title="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <circle cx="12" cy="12" r="10"/>
@@ -411,6 +414,7 @@
         id="regex-input-text"
         bind:value={input}
         on:input={debouncedMatch}
+        use:fileDrop={{ onText: (text) => { input = text; performMatch() } }}
         placeholder="Enter text to test against the regex..."
         class="input-area"
         spellcheck="false"

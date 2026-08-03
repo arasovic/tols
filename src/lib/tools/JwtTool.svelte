@@ -1,8 +1,10 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { decodeJWT } from '$lib/utils/crypto.js'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
   import { base } from '$app/paths'
   import { onMount, onDestroy } from 'svelte'
 
@@ -163,6 +165,7 @@
     </div>
     <div class="tool-actions">
       <ShareButton getState={() => ({ token })} />
+      <PasteButton on:text={(e) => { token = e.detail.text; decode() }} />
       <button class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load example JWT token">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
@@ -186,6 +189,7 @@
     <textarea
       bind:value={token}
       on:input={debouncedDecode}
+      use:fileDrop={{ onText: (text) => { token = text; decode() } }}
       placeholder="Paste JWT token here (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...)"
       class="input-area mono"
       spellcheck="false"

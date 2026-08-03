@@ -8,7 +8,9 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
   import { hashMessage, hashMD5 } from '$lib/utils/crypto.js'
   import { onMount, onDestroy } from 'svelte'
 
@@ -194,6 +196,7 @@
 
     <div class="tool-actions">
       <ShareButton getState={() => ({ input, algorithm })} />
+      <PasteButton on:text={(e) => { input = e.detail.text; hash() }} />
       <button
         class="btn-ghost"
         on:click={loadExample}
@@ -251,6 +254,7 @@
     <textarea
       bind:value={input}
       on:input={debouncedHash}
+      use:fileDrop={{ onText: (text) => { input = text; hash() } }}
       placeholder="Enter text to hash..."
       class="input-area"
       spellcheck="false"

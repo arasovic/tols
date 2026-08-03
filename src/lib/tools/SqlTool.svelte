@@ -38,7 +38,9 @@ LIMIT 100;`
   let errorTimeout
 
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
 
   // A shared link takes precedence over locally saved state
   const sharedState = readShareFragment()
@@ -421,6 +423,7 @@ LIMIT 100;`
     </div>
     <div class="tool-actions">
       <ShareButton getState={() => ({ input, keywordCase })} />
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
       <div class="segmented">
         <button class="segment" class:active={keywordCase === 'uppercase'} on:click={() => setKeywordCase('uppercase')}>UPPER</button>
         <button class="segment" class:active={keywordCase === 'lowercase'} on:click={() => setKeywordCase('lowercase')}>lower</button>
@@ -449,6 +452,7 @@ LIMIT 100;`
       <textarea
         bind:value={input}
         on:input={debouncedProcess}
+        use:fileDrop={{ onText: (text) => { input = text; process() } }}
         placeholder="Paste SQL query here..."
         class="editor-textarea"
         spellcheck="false"

@@ -1,7 +1,9 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_URL = 'https://example.com/path?name=John&age=30'
@@ -193,6 +195,7 @@
 
     <div class="tool-actions">
       <ShareButton getState={() => ({ input, mode })} />
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
       <div class="mode-toggle" role="tablist" aria-label="Mode selection">
         <button
           type="button"
@@ -301,6 +304,7 @@
       <textarea
         bind:value={input}
         on:input={debouncedProcess}
+        use:fileDrop={{ onText: (text) => { input = text; process() } }}
         placeholder={getPlaceholderText()}
         class="input-area"
         spellcheck="false"

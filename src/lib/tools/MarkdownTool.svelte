@@ -1,7 +1,9 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_MARKDOWN = `# Markdown Example
@@ -363,6 +365,7 @@ This is a **bold** text and this is *italic*.
     </div>
     <div class="tool-actions">
       <ShareButton getState={() => ({ input })} />
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
       <button class="icon-btn" on:click={loadExample} title="Load Example">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M12 6v6l4 2"/>
@@ -397,6 +400,7 @@ This is a **bold** text and this is *italic*.
       <textarea 
         bind:value={input} 
         on:input={debouncedProcess} 
+        use:fileDrop={{ onText: (text) => { input = text; process() } }}
         placeholder="Type markdown here..." 
         class="editor-textarea" 
         spellcheck="false"

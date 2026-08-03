@@ -1,6 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
+  import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
@@ -260,6 +261,7 @@
 
     <div class="tool-actions">
       <ShareButton getState={() => ({ hex })} />
+      <PasteButton on:text={(e) => handleHexInput({ target: { value: e.detail.text } })} />
       <button
         class="btn-ghost"
         on:click={loadExample}
