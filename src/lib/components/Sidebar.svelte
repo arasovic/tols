@@ -3,79 +3,17 @@
   import { base } from '$app/paths'
   import { theme } from '$lib/stores/theme'
   import { browser } from '$app/environment'
+  import { tools as toolRegistry } from '$lib/config/registry.js'
   import { onMount } from 'svelte'
-  import {
-    Braces,
-    Code,
-    Binary,
-    Link,
-    Fingerprint,
-    Hash,
-    KeyRound,
-    Palette,
-    Clock,
-    ScanSearch,
-    FileText,
-    Sun,
-    Moon,
-    FileCode,
-    FileJson,
-    Timer,
-    FileStack,
-    GitCompare,
-    Database,
-    FileType,
-    Lock,
-    QrCode,
-    Image,
-    Languages,
-    Globe,
-    Calendar,
-    Barcode,
-    Shield,
-    Filter,
-    Paperclip,
-    Archive,
-    Calculator,
-    Zap,
-    FileDigit,
-    FileBarChart
-  } from 'lucide-svelte'
+  import { Braces, Sun, Moon } from 'lucide-svelte'
 
   export let isOpen = false
 
-  const tools = [
-    { id: 'json', label: 'JSON', icon: Code },
-    { id: 'base64', label: 'Base64', icon: Binary },
-    { id: 'url', label: 'URL', icon: Link },
-    { id: 'uuid', label: 'UUID', icon: Fingerprint },
-    { id: 'hash', label: 'Hash', icon: Hash },
-    { id: 'jwt', label: 'JWT', icon: KeyRound },
-    { id: 'gzip', label: 'Gzip', icon: Archive },
-    { id: 'data-uri', label: 'Data URI', icon: Paperclip },
-    { id: 'color', label: 'Color', icon: Palette },
-    { id: 'timestamp', label: 'Timestamp', icon: Clock },
-    { id: 'regex', label: 'Regex', icon: ScanSearch },
-    { id: 'lorem', label: 'Lorem', icon: FileText },
-    { id: 'yaml', label: 'YAML', icon: FileJson },
-    { id: 'html', label: 'HTML', icon: FileCode },
-    { id: 'cron', label: 'Cron', icon: Timer },
-    { id: 'xml', label: 'XML', icon: FileStack },
-    { id: 'diff', label: 'Diff', icon: GitCompare },
-    { id: 'sql', label: 'SQL', icon: Database },
-    { id: 'markdown', label: 'Markdown', icon: FileType },
-    { id: 'jwt-encoder', label: 'JWT Encoder', icon: Lock },
-    { id: 'qrcode', label: 'QR Code', icon: QrCode },
-    { id: 'placeholder', label: 'Placeholder', icon: Image },
-    { id: 'unicode', label: 'Unicode', icon: Languages },
-    { id: 'css', label: 'CSS', icon: Palette },
-    { id: 'css-filter', label: 'CSS Filter', icon: Filter },
-    { id: 'jsonp', label: 'JSONP', icon: Code },
-    { id: 'timezone', label: 'Timezone', icon: Globe },
-    { id: 'barcode', label: 'Barcode', icon: Barcode },
-    { id: 'password', label: 'Password', icon: Shield },
-    { id: 'base-converter', label: 'Base Conv', icon: Calculator }
-  ]
+  const tools = toolRegistry.map(tool => ({
+    id: tool.id,
+    label: tool.label,
+    icon: tool.icon
+  }))
 
   function setTheme() {
     if (browser) {
