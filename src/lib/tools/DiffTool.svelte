@@ -23,7 +23,9 @@ console.log(greet(user));`
   let rightInput = EXAMPLE_RIGHT
   let mode = 'split'
   let diff = []
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
   let isTruncated = false
   let isInitialized = false
@@ -45,7 +47,7 @@ console.log(greet(user));`
       } else {
         rightInput = EXAMPLE_RIGHT
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load state from localStorage:', e)
     }
   }
@@ -57,7 +59,7 @@ console.log(greet(user));`
       try {
         localStorage.setItem('devutils-diff-left', leftInput)
         localStorage.setItem('devutils-diff-right', rightInput)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save state to localStorage:', e)
       }
     }, 500)
@@ -448,7 +450,7 @@ console.log(greet(user));`
     try {
       localStorage.removeItem('devutils-diff-left')
       localStorage.removeItem('devutils-diff-right')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

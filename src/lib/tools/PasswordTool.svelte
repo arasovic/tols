@@ -18,6 +18,7 @@
   let includeSymbols = false
   let generatedPassword = ''
   let entropy = 0
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let errorMessage = ''
 
@@ -33,7 +34,7 @@
       if (savedLower) includeLowercase = savedLower === 'true'
       if (savedNumbers) includeNumbers = savedNumbers === 'true'
       if (savedSymbols) includeSymbols = savedSymbols === 'true'
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to load password generator state:', e)
     }
   }
@@ -47,7 +48,7 @@
         localStorage.setItem('devutils-password-lower', includeLowercase.toString())
         localStorage.setItem('devutils-password-numbers', includeNumbers.toString())
         localStorage.setItem('devutils-password-symbols', includeSymbols.toString())
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.error('Failed to save password generator state:', e)
       }
     }, 500)
@@ -114,7 +115,7 @@
       localStorage.removeItem('devutils-password-lower')
       localStorage.removeItem('devutils-password-numbers')
       localStorage.removeItem('devutils-password-symbols')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to clear password generator state:', e)
     }
   }

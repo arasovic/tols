@@ -6,7 +6,9 @@
   let words = 50
   let startWithLorem = true
   let output = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
   function getRandomWordIndex(max) {
@@ -35,7 +37,7 @@
       if (savedParagraphs) paragraphs = parseInt(savedParagraphs, 10) || 3
       if (savedWords) words = parseInt(savedWords, 10) || 50
       if (savedStartWithLorem) startWithLorem = savedStartWithLorem === 'true'
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load from localStorage:', e)
     }
   }
@@ -47,7 +49,7 @@
         localStorage.setItem('devutils-lorem-paragraphs', paragraphs.toString())
         localStorage.setItem('devutils-lorem-words', words.toString())
         localStorage.setItem('devutils-lorem-startwith', startWithLorem.toString())
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, 500)
@@ -103,7 +105,7 @@
       localStorage.removeItem('devutils-lorem-paragraphs')
       localStorage.removeItem('devutils-lorem-words')
       localStorage.removeItem('devutils-lorem-startwith')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

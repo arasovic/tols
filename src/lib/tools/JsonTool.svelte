@@ -22,7 +22,9 @@
   let output = ''
   let error = ''
   let compact = false
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let saveInProgress = false
 
@@ -37,7 +39,7 @@
         process()
       }
       if (savedCompact) compact = savedCompact === 'true'
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = EXAMPLE_JSON
       error = 'Failed to load from localStorage: ' + e.message
       console.warn('Failed to load from localStorage:', e)
@@ -59,7 +61,7 @@
       try {
         localStorage.setItem('devutils-json-input', input)
         localStorage.setItem('devutils-json-compact', compact.toString())
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         error = 'Failed to save to localStorage: ' + e.message
         console.warn('Failed to save to localStorage:', e)
       } finally {
@@ -110,7 +112,7 @@
     try {
       const parsed = JSON.parse(input)
       output = compact ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       const match = e.message.match(/position (\d+)/i)
       if (match) {
         const position = parseInt(match[1])
@@ -151,7 +153,7 @@
     try {
       localStorage.removeItem('devutils-json-input')
       localStorage.removeItem('devutils-json-compact')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Failed to clear localStorage: ' + e.message
       console.warn('Failed to clear localStorage:', e)
     }

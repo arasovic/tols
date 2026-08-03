@@ -32,9 +32,12 @@ LIMIT 100;`
   let output = ''
   let keywordCase = 'uppercase'
   let indentation = '  '
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let errorMessage = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let errorTimeout
 
   import ShareButton from '$lib/components/ShareButton.svelte'
@@ -66,7 +69,7 @@ LIMIT 100;`
         input = EXAMPLE_SQL
         process()
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       showError('Failed to load saved state')
     }
   }
@@ -77,7 +80,7 @@ LIMIT 100;`
       try {
         localStorage.setItem('devutils-sql-input', input)
         localStorage.setItem('devutils-sql-case', keywordCase)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         showError('Failed to save state')
       }
     }, SAVE_DELAY_MS)
@@ -376,7 +379,7 @@ LIMIT 100;`
 
     try {
       output = formatSQL(input)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       showError(e.message || 'Failed to format SQL')
       output = ''
     }
@@ -397,7 +400,7 @@ LIMIT 100;`
     try {
       localStorage.removeItem('devutils-sql-input')
       localStorage.removeItem('devutils-sql-case')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       showError('Failed to clear saved state')
     }
   }

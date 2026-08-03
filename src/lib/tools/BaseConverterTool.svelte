@@ -25,7 +25,9 @@
   let octal = ''
   let activeBase = 'decimal'
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
   const baseConverters = {
@@ -73,7 +75,7 @@
       } else {
         setDefaults()
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       setDefaults()
     }
   }
@@ -94,7 +96,7 @@
         } else {
           localStorage.removeItem(STORAGE_KEY)
         }
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, SAVE_DEBOUNCE_MS)
@@ -241,7 +243,7 @@
     activeBase = 'decimal'
     try {
       localStorage.removeItem(STORAGE_KEY)
-    } catch (e) {}
+    } catch (/** @type {any} */ e) {}
   }
 
   function loadExample() {

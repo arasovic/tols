@@ -5,6 +5,7 @@
   let barcodeType = 'CODE128'
   let canvas
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
   let debounceTimeout = null
   let isMounted = false
@@ -171,7 +172,7 @@
       const savedType = localStorage.getItem('devutils-barcode-type')
       if (savedText !== null) barcodeText = savedText
       if (savedType !== null) barcodeType = savedType
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to load saved state:', e)
     }
   }
@@ -187,7 +188,7 @@
           console.error('Failed to save state to localStorage:', storageError)
         }
       }, SAVE_DELAY)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to schedule state save:', e)
     }
   }
@@ -276,7 +277,7 @@
       ctx.fillText(barcodeText, canvas.width / 2, MODULE_HEIGHT + 25)
 
       error = ''
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Error generating barcode: ' + (e.message || 'Unknown error')
       console.error('Barcode generation error:', e)
     }
@@ -303,7 +304,7 @@
       link.download = 'barcode.png'
       link.href = canvas.toDataURL('image/png')
       link.click()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Failed to download barcode'
       console.error('Download error:', e)
     }
@@ -315,7 +316,7 @@
     try {
       localStorage.removeItem('devutils-barcode-text')
       localStorage.removeItem('devutils-barcode-type')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to clear saved state:', e)
     }
     if (canvas) {

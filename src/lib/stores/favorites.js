@@ -31,7 +31,7 @@ export function toggleFavorite(toolId) {
     if (browser) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save favorites to localStorage:', e)
       }
     }

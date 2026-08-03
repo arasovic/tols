@@ -20,7 +20,9 @@
   let error = ''
   let errorDetails = ''
   let highlightedInput = ''
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
   let currentWorker = null
   let persistentError = ''
@@ -86,7 +88,7 @@
       }
       error = ''
       errorDetails = ''
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = EXAMPLE_TEXT
       pattern = EXAMPLE_REGEX
       flags = 'g'
@@ -103,11 +105,11 @@
           localStorage.setItem('devutils-regex-pattern', pattern)
           localStorage.setItem('devutils-regex-flags', flags)
           persistentError = ''
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           persistentError = `Failed to save to localStorage: ${e.message || 'Unknown error'}`
         }
       }, SAVE_DELAY_MS)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       persistentError = `Failed to save to localStorage: ${e.message || 'Unknown error'}`
     }
   }
@@ -252,7 +254,7 @@
       highlighted += escapeHtml(input.substring(lastIndex))
 
       highlightedInput = highlighted || escapeHtml(input)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Invalid regex pattern'
       errorDetails = e.message || 'Unknown error'
       matches = []
@@ -280,7 +282,7 @@
       localStorage.removeItem('devutils-regex-input')
       localStorage.removeItem('devutils-regex-pattern')
       localStorage.removeItem('devutils-regex-flags')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       persistentError = `Failed to clear localStorage: ${e.message || 'Unknown error'}`
     }
   }

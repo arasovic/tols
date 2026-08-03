@@ -13,7 +13,9 @@
   let token = ''
   let decoded = null
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let showStorageWarning = true
   let storageEnabled = true
@@ -33,7 +35,7 @@
       } else {
         token = EXAMPLE_JWT
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       token = EXAMPLE_JWT
       storageEnabled = false
       console.warn('Failed to load from localStorage:', e)
@@ -46,7 +48,7 @@
     saveTimeout = setTimeout(() => {
       try {
         localStorage.setItem('devutils-jwt-token', token)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, 500)
@@ -61,7 +63,7 @@
     showStorageWarning = false
     try {
       localStorage.removeItem('devutils-jwt-token')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }
@@ -104,7 +106,7 @@
       } else {
         error = result.error
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Failed to decode JWT'
     }
   }
@@ -124,7 +126,7 @@
     if (storageEnabled) {
       try {
         localStorage.removeItem('devutils-jwt-token')
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to clear localStorage:', e)
       }
     }

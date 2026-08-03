@@ -9,7 +9,9 @@
   let input = ''
   let compressedBytes = null
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let processTimeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let isProcessing = false
   let prefersReducedMotion = false
@@ -25,7 +27,7 @@
       if (savedInput) {
         input = savedInput.slice(0, MAX_INPUT_LENGTH)
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load from localStorage:', e)
     }
   }
@@ -38,11 +40,11 @@
       saveTimeout = setTimeout(() => {
         try {
           localStorage.setItem('devutils-gzip-input', input)
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           console.warn('Failed to save to localStorage:', e)
         }
       }, SAVE_DELAY)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to schedule save to localStorage:', e)
     }
   }
@@ -85,7 +87,7 @@
 
     try {
       compressedBytes = await compressData(input)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Compression failed: ' + e.message
       compressedBytes = null
     } finally {

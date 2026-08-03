@@ -16,7 +16,7 @@ function createThemeStore() {
       if (saved === 'light' || saved === 'dark') {
         initialTheme = saved
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load theme from localStorage:', e)
     }
   }
@@ -30,7 +30,7 @@ function createThemeStore() {
       if (browser) {
         try {
           localStorage.setItem('devutils-theme', next)
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           console.warn('Failed to save theme to localStorage:', e)
         }
         document.documentElement.setAttribute('data-theme', next)
@@ -44,7 +44,7 @@ function createThemeStore() {
       if (browser) {
         try {
           localStorage.setItem('devutils-theme', theme)
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           console.warn('Failed to save theme to localStorage:', e)
         }
         document.documentElement.setAttribute('data-theme', theme)

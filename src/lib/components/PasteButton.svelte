@@ -9,6 +9,7 @@
   const dispatch = createEventDispatcher()
 
   let state = 'idle' // idle | done | error
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let resetTimer
 
   async function paste() {

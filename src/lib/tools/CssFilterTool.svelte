@@ -16,6 +16,7 @@
 
   let filterString = 'none'
   let updateTimeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let prefersReducedMotion = false
 
@@ -71,7 +72,7 @@
         localStorage.setItem('devutils-cssfilter-invert', invert.toString())
         localStorage.setItem('devutils-cssfilter-saturate', saturate.toString())
         localStorage.setItem('devutils-cssfilter-sepia', sepia.toString())
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, SAVE_DELAY)
@@ -87,7 +88,7 @@
       invert = validateValue('invert', localStorage.getItem('devutils-cssfilter-invert') || 0)
       saturate = validateValue('saturate', localStorage.getItem('devutils-cssfilter-saturate') || 100)
       sepia = validateValue('sepia', localStorage.getItem('devutils-cssfilter-sepia') || 0)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load from localStorage:', e)
     }
     updateFilter()

@@ -7,7 +7,9 @@
   let textColor = '#374151'
   let placeholderText = ''
   let canvas
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let canvasReady = false
   let errorMessage = ''
@@ -52,7 +54,7 @@
       if (savedText && typeof savedText === 'string') {
         placeholderText = savedText.slice(0, MAX_TEXT_LENGTH)
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to load placeholder state from localStorage:', e)
       errorMessage = 'Failed to load saved settings'
       setTimeout(() => { errorMessage = '' }, 3000)
@@ -68,7 +70,7 @@
         localStorage.setItem('devutils-placeholder-bg', bgColor)
         localStorage.setItem('devutils-placeholder-textcolor', textColor)
         localStorage.setItem('devutils-placeholder-text', placeholderText)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.error('Failed to save placeholder state to localStorage:', e)
         errorMessage = 'Failed to save settings'
         setTimeout(() => { errorMessage = '' }, 3000)
@@ -194,7 +196,7 @@
       link.download = `placeholder-${width}x${height}.png`
       link.href = canvas.toDataURL('image/png')
       link.click()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to download PNG:', e)
       errorMessage = 'Failed to download image'
       setTimeout(() => { errorMessage = '' }, 3000)
@@ -214,7 +216,7 @@
       localStorage.removeItem('devutils-placeholder-bg')
       localStorage.removeItem('devutils-placeholder-textcolor')
       localStorage.removeItem('devutils-placeholder-text')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to clear localStorage:', e)
     }
     drawPlaceholder()

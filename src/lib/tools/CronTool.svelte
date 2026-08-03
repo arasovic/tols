@@ -14,14 +14,16 @@
   let description = ''
   let nextRuns = []
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
   function loadState() {
     try {
       const savedInput = localStorage.getItem('devutils-cron-input')
       if (savedInput) input = savedInput
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to load state from localStorage:', e)
     }
   }
@@ -31,7 +33,7 @@
     saveTimeout = setTimeout(() => {
       try {
         localStorage.setItem('devutils-cron-input', input)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.error('Failed to save state to localStorage:', e)
       }
     }, 500)
@@ -289,7 +291,7 @@
     error = ''
     try {
       localStorage.removeItem('devutils-cron-input')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to clear state from localStorage:', e)
     }
   }

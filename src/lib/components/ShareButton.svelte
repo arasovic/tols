@@ -12,6 +12,7 @@
 
   let copied = false
   let tooLarge = false
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let resetTimer
 
   async function share() {

@@ -57,7 +57,7 @@
         fileSize = typeof parsed.fileSize === 'string' ? parsed.fileSize : ''
         fileName = typeof parsed.fileName === 'string' ? parsed.fileName : ''
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load saved data URI:', e)
     }
   }
@@ -71,7 +71,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         dataUrl, truncatedDataUrl, mimeType, fileSize, fileName
       }))
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       // Quota exceeded: the result stays in memory for this visit
       console.warn('Failed to save data URI:', e)
     }
@@ -159,7 +159,7 @@
     fileName = ''
     try {
       localStorage.removeItem(STORAGE_KEY)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear saved data URI:', e)
     }
     if (fileInput) {

@@ -15,7 +15,9 @@
   let output = ''
   let mode = 'encode'
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let processTimeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let isInputTooLong = false
 
@@ -43,7 +45,7 @@
         mode = 'encode'
       }
       process()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = EXAMPLE_TEXT
       mode = 'encode'
       console.warn('Failed to load from localStorage:', e)
@@ -59,11 +61,11 @@
         try {
           localStorage.setItem('devutils-base64-input', input)
           localStorage.setItem('devutils-base64-mode', mode)
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           console.warn('Failed to save to localStorage:', e)
         }
       }, SAVE_DELAY)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to schedule save to localStorage:', e)
     }
   }
@@ -161,7 +163,7 @@
       } else {
         output = base64ToUtf8(input)
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = getErrorMessage(e, mode)
     }
   }
@@ -185,7 +187,7 @@
     try {
       localStorage.removeItem('devutils-base64-input')
       localStorage.removeItem('devutils-base64-mode')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

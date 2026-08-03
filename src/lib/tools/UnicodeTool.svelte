@@ -6,6 +6,7 @@
 
   let searchChar = ''
   let results = []
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
 
   const COMMON_CHARS = [
@@ -111,7 +112,7 @@
       search()
       try {
         localStorage.setItem(STORAGE_KEY, searchChar)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save search to localStorage:', e)
       }
     }, 300)
@@ -124,7 +125,7 @@
         searchChar = saved
         search()
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load search from localStorage:', e)
     }
   })

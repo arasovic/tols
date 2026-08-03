@@ -11,7 +11,9 @@
   let count = 1
   let output = ''
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let localStorageError = ''
 
@@ -24,7 +26,7 @@
           count = parsed
         }
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       localStorageError = 'Failed to load saved settings'
       console.warn('Failed to load from localStorage:', e)
     }
@@ -36,7 +38,7 @@
       try {
         localStorage.setItem('devutils-uuid-count', count.toString())
         localStorageError = ''
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         localStorageError = 'Failed to save settings'
         console.warn('Failed to save to localStorage:', e)
       }
@@ -117,7 +119,7 @@
     localStorageError = ''
     try {
       localStorage.removeItem('devutils-uuid-count')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

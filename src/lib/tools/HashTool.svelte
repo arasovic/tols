@@ -18,7 +18,9 @@
   let algorithm = 'SHA-256'
   let output = ''
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let pendingHashId = 0
 
@@ -50,7 +52,7 @@
       if (savedAlgorithm && isValidAlgorithm(savedAlgorithm)) {
         algorithm = savedAlgorithm
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = EXAMPLE_HASH_TEXT
       console.warn('Failed to load from localStorage:', e)
     }
@@ -64,7 +66,7 @@
       try {
         localStorage.setItem('devutils-hash-input', input)
         localStorage.setItem('devutils-hash-algorithm', algorithm)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, SAVE_DEBOUNCE_DELAY_MS)
@@ -110,7 +112,7 @@
       if (currentHashId === pendingHashId) {
         output = result
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       if (currentHashId === pendingHashId) {
         output = ''
         error = 'Hash calculation failed. Please try again.'
@@ -135,7 +137,7 @@
     try {
       localStorage.removeItem('devutils-hash-input')
       localStorage.removeItem('devutils-hash-algorithm')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

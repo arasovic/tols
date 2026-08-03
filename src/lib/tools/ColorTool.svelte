@@ -12,6 +12,7 @@
   let rgb = ''
   let hsl = ''
   let colorPreview = '#0a0a0c'
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
   let isMounted = false
   let errorMessage = ''
@@ -112,11 +113,11 @@
       saveTimeout = setTimeout(() => {
         try {
           localStorage.setItem(STORAGE_KEY, hex)
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           console.warn('Failed to save to localStorage:', e)
         }
       }, 500)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to schedule save:', e)
     }
   }
@@ -131,7 +132,7 @@
         hex = EXAMPLE_HEX
         updateColor()
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       hex = EXAMPLE_HEX
       console.warn('Failed to load from localStorage:', e)
     }
@@ -145,7 +146,7 @@
     errorMessage = ''
     try {
       localStorage.removeItem(STORAGE_KEY)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

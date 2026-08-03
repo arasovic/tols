@@ -7,7 +7,9 @@
   let toZone = 'UTC'
   let convertedTime = null
   let commonZones = []
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
   const ZONES = [
@@ -32,7 +34,7 @@
       const savedTo = localStorage.getItem('devutils-tz-to')
       if (savedFrom) fromZone = savedFrom
       if (savedTo) toZone = savedTo
-    } catch (e) {}
+    } catch (/** @type {any} */ e) {}
   }
 
   function saveState() {
@@ -41,7 +43,7 @@
       try {
         localStorage.setItem('devutils-tz-from', fromZone)
         localStorage.setItem('devutils-tz-to', toZone)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, 500)
@@ -75,7 +77,7 @@
           second: '2-digit'
         })
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       convertedTime = null
     }
   }
@@ -115,7 +117,7 @@
     try {
       localStorage.removeItem('devutils-tz-from')
       localStorage.removeItem('devutils-tz-to')
-    } catch (e) {}
+    } catch (/** @type {any} */ e) {}
   }
 
   function setNow() {

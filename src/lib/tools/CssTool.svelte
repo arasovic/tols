@@ -54,7 +54,9 @@
   let output = ''
   let error = ''
   let mode = 'beautify'
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
   function loadState() {
@@ -64,7 +66,7 @@
       if (savedInput) input = savedInput
       else input = EXAMPLE_CSS
       if (savedMode) mode = savedMode
-    } catch (e) {}
+    } catch (/** @type {any} */ e) {}
   }
 
   function saveState() {
@@ -73,7 +75,7 @@
       try {
         localStorage.setItem('devutils-css-input', input)
         localStorage.setItem('devutils-css-mode', mode)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, 500)
@@ -395,7 +397,7 @@
       } else {
         output = minifyCSS(input)
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       output = input
     }
   }
@@ -420,7 +422,7 @@
     try {
       localStorage.removeItem('devutils-css-input')
       localStorage.removeItem('devutils-css-mode')
-    } catch (e) {}
+    } catch (/** @type {any} */ e) {}
   }
 
   function loadExample() {

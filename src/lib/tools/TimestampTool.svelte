@@ -14,7 +14,9 @@
   let mode = 'toHuman'
   let fromTimezone = 'UTC'
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let stateLoaded = false
 
@@ -44,7 +46,7 @@
         fromTimezone = savedTimezone
       }
       stateLoaded = true
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = getExampleTimestamp()
       stateLoaded = true
       console.warn('Failed to load from localStorage:', e)
@@ -58,7 +60,7 @@
         localStorage.setItem('devutils-timestamp-input', input)
         localStorage.setItem('devutils-timestamp-mode', mode)
         localStorage.setItem('devutils-timestamp-timezone', fromTimezone)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, SAVE_DEBOUNCE_MS)
@@ -89,7 +91,7 @@
         second: '2-digit',
         hour12: false
       }).format(date)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       return date.toISOString() + ' (UTC - timezone error)'
     }
   }
@@ -165,7 +167,7 @@
           iso: date.toISOString()
         }, null, 2)
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Conversion failed: ' + e.message
     }
   }
@@ -187,7 +189,7 @@
       localStorage.removeItem('devutils-timestamp-input')
       localStorage.removeItem('devutils-timestamp-mode')
       localStorage.removeItem('devutils-timestamp-timezone')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

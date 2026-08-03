@@ -32,7 +32,9 @@
   let output = ''
   let error = ''
   let mode = 'format'
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
   let modeTimeout = null
 
@@ -43,7 +45,7 @@
       if (savedInput) input = savedInput
       else input = EXAMPLE_XML
       if (savedMode) mode = savedMode
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = EXAMPLE_XML
       error = 'Failed to load from localStorage: ' + (e.message || 'Unknown error')
     }
@@ -55,7 +57,7 @@
       try {
         localStorage.setItem('devutils-xml-input', input)
         localStorage.setItem('devutils-xml-mode', mode)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         // Only show error if not already showing an error
         if (!error) {
           error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
@@ -310,7 +312,7 @@
       } else {
         output = minifyXML(input)
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Error processing XML: ' + (e.message || 'Unknown error')
     }
   }
@@ -339,7 +341,7 @@
     try {
       localStorage.removeItem('devutils-xml-input')
       localStorage.removeItem('devutils-xml-mode')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Failed to clear localStorage: ' + (e.message || 'Unknown error')
     }
   }

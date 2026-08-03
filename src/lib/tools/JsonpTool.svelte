@@ -12,7 +12,9 @@
   let response = '{"name": "John", "age": 30}'
   let generatedScript = `<script src="${EXAMPLE_URL}?callback=${EXAMPLE_CALLBACK}"><\/script>`
   let parsedResult = { status: 'success', data: { name: 'John', age: 30 } }
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let urlInputId = 'jsonp-url'
   let callbackInputId = 'jsonp-callback'
@@ -24,7 +26,7 @@
       localStorage.setItem(testKey, testKey)
       localStorage.removeItem(testKey)
       return true
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       return false
     }
   }
@@ -64,7 +66,7 @@
       if (savedCallback) callback = savedCallback
       if (savedResponse) response = savedResponse
       generateScript()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load state from localStorage:', e)
     }
   }
@@ -78,11 +80,11 @@
           localStorage.setItem('devutils-jsonp-url', url)
           localStorage.setItem('devutils-jsonp-callback', callback)
           localStorage.setItem('devutils-jsonp-response', response)
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           console.warn('Failed to save state to localStorage:', e)
         }
       }, SAVE_DEBOUNCE_DELAY)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to schedule state save:', e)
     }
   }
@@ -108,7 +110,7 @@
         status: 'success',
         data: data
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       parsedResult = {
         status: 'error',
         error: 'Invalid JSON response'
@@ -135,7 +137,7 @@
       localStorage.removeItem('devutils-jsonp-url')
       localStorage.removeItem('devutils-jsonp-callback')
       localStorage.removeItem('devutils-jsonp-response')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }

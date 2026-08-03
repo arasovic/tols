@@ -35,7 +35,9 @@ This is a **bold** text and this is *italic*.
   let input = ''
   let htmlOutput = ''
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let processTimeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
 
   function isSafeUrl(url) {
@@ -72,7 +74,7 @@ This is a **bold** text and this is *italic*.
       } else {
         input = EXAMPLE_MARKDOWN
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = EXAMPLE_MARKDOWN
       error = 'Failed to load from localStorage: ' + (e.message || 'Unknown error')
     }
@@ -83,7 +85,7 @@ This is a **bold** text and this is *italic*.
     saveTimeout = setTimeout(() => {
       try {
         localStorage.setItem('devutils-markdown-input', input)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         error = 'Failed to save to localStorage: ' + (e.message || 'Unknown error')
       }
     }, SAVE_DELAY)
@@ -325,7 +327,7 @@ This is a **bold** text and this is *italic*.
 
     try {
       htmlOutput = markdownToHTML(input)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Error parsing markdown: ' + (e.message || 'Unknown error')
       htmlOutput = ''
     }
@@ -345,7 +347,7 @@ This is a **bold** text and this is *italic*.
     error = ''
     try {
       localStorage.removeItem('devutils-markdown-input')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Failed to clear localStorage: ' + (e.message || 'Unknown error')
     }
   }

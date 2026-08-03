@@ -9,7 +9,9 @@
   let qrSize = 200
   let qrCanvas
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
   let canvasReady = false
 
@@ -25,7 +27,7 @@
       // Otherwise keep the new default (already set in variable declaration)
 
       if (savedSize) qrSize = parseInt(savedSize)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       // Fallback to defaults if localStorage fails
       qrText = DEFAULT_URL
       qrSize = 200
@@ -39,11 +41,11 @@
         try {
           localStorage.setItem('devutils-qr-text', qrText)
           localStorage.setItem('devutils-qr-size', qrSize.toString())
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           // Silent fail on localStorage error
         }
       }, 500)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       // Silent fail
     }
   }
@@ -559,7 +561,7 @@
       }
 
       error = ''
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Error generating QR code: ' + (e.message || 'Unknown error')
     }
   }
@@ -602,7 +604,7 @@
       link.href = qrCanvas.toDataURL('image/png')
       link.click()
       error = ''
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Failed to download QR code'
     }
   }
@@ -612,7 +614,7 @@
     try {
       localStorage.removeItem('devutils-qr-text')
       localStorage.removeItem('devutils-qr-size')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       // Silent fail
     }
     // Clear canvas and generate error

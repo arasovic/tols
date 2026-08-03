@@ -17,7 +17,9 @@
   let secret = 'your-256-bit-secret'
   let token = ''
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let showSecret = false
   let mounted = false
@@ -30,7 +32,7 @@
       if (savedHeader) header = savedHeader
       if (savedPayload) payload = savedPayload
       if (savedSecret) secret = savedSecret
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to load state:', e)
     }
   }
@@ -42,7 +44,7 @@
         localStorage.setItem('devutils-jwt-encoder-header', header)
         localStorage.setItem('devutils-jwt-encoder-payload', payload)
         localStorage.setItem('devutils-jwt-encoder-secret', secret)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.error('Failed to save state:', e)
       }
     }, 500)
@@ -95,7 +97,7 @@
       }
       const base64 = btoa(binary)
       return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       throw new Error(`HMAC signing failed: ${e.message}`)
     }
   }
@@ -119,7 +121,7 @@
 
     try {
       JSON.parse(trimmedHeader)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = `Invalid header JSON: ${e.message}`
       saveState()
       return
@@ -134,7 +136,7 @@
 
     try {
       JSON.parse(trimmedPayload)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = `Invalid payload JSON: ${e.message}`
       saveState()
       return
@@ -147,7 +149,7 @@
       const signature = await signHMAC(message, secret)
       token = `${message}.${signature}`
       saveState()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = `Error generating token: ${e.message}`
       saveState()
     }
@@ -170,7 +172,7 @@
       localStorage.removeItem('devutils-jwt-encoder-header')
       localStorage.removeItem('devutils-jwt-encoder-payload')
       localStorage.removeItem('devutils-jwt-encoder-secret')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to clear state:', e)
     }
   }

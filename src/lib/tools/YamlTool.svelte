@@ -31,7 +31,9 @@ config:
   let output = ''
   let error = ''
   let mode = 'yaml-to-json'
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
   let mounted = false
 
@@ -45,7 +47,7 @@ config:
         input = EXAMPLE_YAML
       }
       if (savedMode) mode = savedMode
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       input = EXAMPLE_YAML
       console.error('Failed to load from localStorage:', e.message || 'Unknown error')
     }
@@ -57,7 +59,7 @@ config:
       try {
         localStorage.setItem('devutils-yaml-input', input)
         localStorage.setItem('devutils-yaml-mode', mode)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.error('Failed to save to localStorage:', e.message || 'Unknown error')
       }
     }, SAVE_DEBOUNCE_MS)
@@ -463,7 +465,7 @@ config:
         const parsed = parseYAML(input)
         output = stringifyYAML(parsed).replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim()
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = e.message || 'Invalid format'
     }
   }
@@ -490,7 +492,7 @@ config:
     try {
       localStorage.removeItem('devutils-yaml-input')
       localStorage.removeItem('devutils-yaml-mode')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to clear localStorage:', e.message || 'Unknown error')
     }
   }

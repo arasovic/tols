@@ -15,7 +15,9 @@
   let output = ''
   let mode = 'encode'
   let error = ''
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
   function loadState() {
@@ -26,7 +28,7 @@
         input = savedInput
       }
       if (savedMode) mode = savedMode
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to load from localStorage:', e)
     }
   }
@@ -37,7 +39,7 @@
       try {
         localStorage.setItem('devutils-url-input', input)
         localStorage.setItem('devutils-url-mode', mode)
-      } catch (e) {
+      } catch (/** @type {any} */ e) {
         console.warn('Failed to save to localStorage:', e)
       }
     }, SAVE_DEBOUNCE_DELAY_MS)
@@ -84,7 +86,7 @@
       } else {
         output = decodeURIComponent(input)
       }
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = mode === 'encode'
         ? 'Invalid input for URL encoding'
         : 'Invalid input for URL decoding'
@@ -106,7 +108,7 @@
     try {
       localStorage.removeItem('devutils-url-input')
       localStorage.removeItem('devutils-url-mode')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.warn('Failed to clear localStorage:', e)
     }
   }
@@ -139,7 +141,7 @@
       mode = 'encode'
       error = ''
       debouncedSave()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Invalid URL format'
     }
   }
@@ -152,7 +154,7 @@
       mode = 'encode'
       error = ''
       debouncedSave()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Invalid URL format'
     }
   }
@@ -167,7 +169,7 @@
       mode = 'encode'
       error = ''
       debouncedSave()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Invalid URL format'
     }
   }

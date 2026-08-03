@@ -31,7 +31,9 @@
   let mode = 'beautify'
   let removeComments = false
   let removeWhitespace = false
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
 
   function loadState() {
@@ -41,7 +43,7 @@
       if (savedInput) input = savedInput
       else input = EXAMPLE_HTML
       if (savedMode) mode = savedMode
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to load from localStorage:', e)
       input = EXAMPLE_HTML
       error = 'Failed to load saved content. Using default example.'
@@ -55,11 +57,11 @@
         try {
           localStorage.setItem('devutils-html-input', input)
           localStorage.setItem('devutils-html-mode', mode)
-        } catch (e) {
+        } catch (/** @type {any} */ e) {
           console.error('Failed to save to localStorage:', e)
         }
       }, 500)
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to schedule save:', e)
     }
   }
@@ -295,7 +297,7 @@
         output = minifyHTML(input)
       }
       saveState()
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       error = 'Error processing HTML: ' + (e.message || 'Unknown error')
     }
   }
@@ -320,7 +322,7 @@
     try {
       localStorage.removeItem('devutils-html-input')
       localStorage.removeItem('devutils-html-mode')
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       console.error('Failed to clear localStorage:', e)
       error = 'Failed to clear saved content.'
     }
