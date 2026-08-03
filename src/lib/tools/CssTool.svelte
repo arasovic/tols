@@ -196,6 +196,10 @@
           result += '\n'
           lastTokenWasNewline = true
           needsIndent = true
+        } else if (blockDepth === 0 && selectorBuffer.length > 0) {
+          // Whitespace inside a selector is meaningful: descendant combinator
+          // (`.parent .child`) or spacing after a comma in a selector list.
+          result += ' '
         }
         continue
       }
@@ -234,7 +238,9 @@
             needsIndent = true
           }
         } else if (token.value === ':') {
-          result += ': '
+          // Inside a block a colon separates property and value (`color: blue`);
+          // at the top level it is part of a pseudo-class (`a:hover`).
+          result += blockDepth > 0 ? ': ' : ':'
         }
         continue
       }
@@ -259,8 +265,11 @@
             result += '\n'
             lastTokenWasNewline = true
           }
-          if (selectorBuffer.length > 0) {
-            result += ',\n' + indent.repeat(indentLevel)
+          if (result.trimEnd().endsWith(',')) {
+            // Selector list: `h1, h2` → one selector per line
+            result = result.trimEnd() + '\n' + indent.repeat(indentLevel)
+          } else if (result.endsWith(' ')) {
+            // Continuation of the same selector (e.g. `.parent .child`)
           } else if (lastTokenWasNewline || needsIndent) {
             result += indent.repeat(indentLevel)
             needsIndent = false

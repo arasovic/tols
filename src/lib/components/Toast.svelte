@@ -73,7 +73,7 @@
       </span>
       <span class="toast-message">{message}</span>
     </div>
-    <button class="toast-close" on:click={hide} aria-label="Dismiss notification">
+    <button type="button" class="toast-close" on:click={hide} aria-label="Dismiss notification">
       <X size={14} />
     </button>
     <div class="toast-progress">

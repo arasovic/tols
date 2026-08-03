@@ -48,6 +48,7 @@
 <div class="copy-wrapper">
   <Toast bind:this={toast} />
   <button
+    type="button"
     class="copy-btn"
     class:copied
     class:disabled

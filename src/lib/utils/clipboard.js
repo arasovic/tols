@@ -7,6 +7,11 @@ export async function copyToClipboard(text) {
     await navigator.clipboard.writeText(text)
     return { success: true }
   } catch (/** @type {any} */ err) {
-    return { success: false, error: err.message }
+    // Rejections are not always Error instances (e.g. DOMException, strings);
+    // always surface a usable message.
+    const message = err && typeof err.message === 'string' && err.message
+      ? err.message
+      : 'Failed to copy to clipboard'
+    return { success: false, error: message }
   }
 }
