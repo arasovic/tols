@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_REGEX = '\\d+'
@@ -109,8 +111,17 @@
   }
 
   onMount(() => {
-    loadState()
-    performMatch()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && (typeof shared.pattern === 'string' || typeof shared.input === 'string')) {
+      if (typeof shared.pattern === 'string') pattern = shared.pattern
+      if (typeof shared.input === 'string') input = shared.input
+      if (typeof shared.flags === 'string') flags = shared.flags
+      performMatch()
+    } else {
+      loadState()
+      performMatch()
+    }
   })
 
   onDestroy(() => {
@@ -308,6 +319,7 @@
     </div>
 
     <div class="tool-actions">
+      <ShareButton getState={() => ({ pattern, input, flags })} />
       <button class="btn-ghost" on:click={loadExample} title="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <circle cx="12" cy="12" r="10"/>

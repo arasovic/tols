@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_HTML = `<!DOCTYPE html>
@@ -61,8 +63,16 @@
   }
 
   onMount(() => {
-    loadState()
-    if (input) process()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      if (shared.mode === 'beautify' || shared.mode === 'minify') mode = shared.mode
+      process()
+    } else {
+      loadState()
+      if (input) process()
+    }
   })
 
   onDestroy(() => {
@@ -328,6 +338,7 @@
       <p class="tool-desc">Beautify, minify, and clean HTML</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, mode })} />
       <div class="segmented">
         <button class="segment" class:active={mode === 'beautify'} on:click={() => setMode('beautify')}>Beautify</button>
         <button class="segment" class:active={mode === 'minify'} on:click={() => setMode('minify')}>Minify</button>

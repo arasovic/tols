@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount } from 'svelte'
 
   const EXAMPLE_TEXT = 'Hello, World!'
@@ -65,7 +67,15 @@
   }
 
   onMount(() => {
-    loadState()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      if (shared.mode === 'encode' || shared.mode === 'decode') mode = shared.mode
+      process()
+    } else {
+      loadState()
+    }
 
     return () => {
       if (processTimeout) clearTimeout(processTimeout)
@@ -205,6 +215,7 @@
       <p class="tool-desc">Encode and decode Base64 strings</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, mode })} />
       <div class="segmented">
         <button
           type="button"

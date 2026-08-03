@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_LEFT = `function greet(name) {
@@ -61,7 +63,15 @@ console.log(greet(user));`
   }
 
   onMount(() => {
-    loadState()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && (typeof shared.left === 'string' || typeof shared.right === 'string')) {
+      if (typeof shared.left === 'string') leftInput = shared.left
+      if (typeof shared.right === 'string') rightInput = shared.right
+      if (shared.mode === 'split' || shared.mode === 'unified') mode = shared.mode
+    } else {
+      loadState()
+    }
     // Mark as initialized - reactive block will trigger initial computeDiff
     isInitialized = true
   })
@@ -472,6 +482,7 @@ console.log(greet(user));`
       <p class="tool-desc">Compare two texts with word-level precision</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ left: leftInput, right: rightInput, mode })} />
       <div class="segmented">
         <button class="segment" class:active={mode === 'split'} on:click={() => mode = 'split'}>Split</button>
         <button class="segment" class:active={mode === 'unified'} on:click={() => mode = 'unified'}>Unified</button>

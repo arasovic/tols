@@ -7,6 +7,8 @@
 
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { hashMessage, hashMD5 } from '$lib/utils/crypto.js'
   import { onMount, onDestroy } from 'svelte'
 
@@ -67,8 +69,18 @@
   }
 
   onMount(() => {
-    loadState()
-    if (input) hash()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      if (shared.algorithm && algorithms.some(a => a.value === shared.algorithm)) {
+        algorithm = shared.algorithm
+      }
+      hash()
+    } else {
+      loadState()
+      if (input) hash()
+    }
   })
 
   onDestroy(() => {
@@ -181,6 +193,7 @@
     </div>
 
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, algorithm })} />
       <button
         class="btn-ghost"
         on:click={loadExample}

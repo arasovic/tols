@@ -1,6 +1,8 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
   import { decodeJWT } from '$lib/utils/crypto.js'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { base } from '$app/paths'
   import { onMount, onDestroy } from 'svelte'
 
@@ -63,8 +65,15 @@
   }
 
   onMount(async () => {
-    loadState()
-    if (token) await decode()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.token === 'string') {
+      token = shared.token
+      await decode()
+    } else {
+      loadState()
+      if (token) await decode()
+    }
   })
 
   onDestroy(() => {
@@ -153,6 +162,7 @@
       <a class="tool-crosslink" href="{base}/jwt-encoder">Need to sign a token? JWT Encoder →</a>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ token })} />
       <button class="btn-ghost" on:click={loadExample} title="Load Example" aria-label="Load example JWT token">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>

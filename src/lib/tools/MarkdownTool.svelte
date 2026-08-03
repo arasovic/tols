@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_MARKDOWN = `# Markdown Example
@@ -86,8 +88,15 @@ This is a **bold** text and this is *italic*.
   }
 
   onMount(() => {
-    loadState()
-    if (input) process()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      process()
+    } else {
+      loadState()
+      if (input) process()
+    }
   })
 
   onDestroy(() => {
@@ -353,6 +362,7 @@ This is a **bold** text and this is *italic*.
       <p class="tool-desc">Live preview and convert Markdown to HTML</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input })} />
       <button class="icon-btn" on:click={loadExample} title="Load Example">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M12 6v6l4 2"/>

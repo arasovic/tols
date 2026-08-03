@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_JSON = `{
@@ -65,8 +67,16 @@
   }
 
   onMount(() => {
-    loadState()
-    if (input) process()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      if (shared.compact === 'true') compact = true
+      process()
+    } else {
+      loadState()
+      if (input) process()
+    }
   })
 
   onDestroy(() => {
@@ -153,6 +163,7 @@
       <p class="tool-desc">Format, validate, and minify JSON data</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, compact: String(compact) })} />
       <div class="segmented" role="tablist" aria-label="JSON formatting options">
         <button
           class="segment"

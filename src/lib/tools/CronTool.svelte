@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const CRON_PARTS = ['minute', 'hour', 'day', 'month', 'weekday']
@@ -34,7 +36,13 @@
   }
 
   onMount(() => {
-    loadState()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+    } else {
+      loadState()
+    }
     process()
   })
 
@@ -301,6 +309,7 @@
       <p class="tool-desc">Validate, parse, and get next execution times for cron expressions</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input })} />
       <button class="icon-btn" on:click={clear} title="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>

@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_URL = 'https://example.com/path?name=John&age=30'
@@ -40,6 +42,15 @@
   }
 
   onMount(() => {
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      if (shared.mode === 'encode' || shared.mode === 'decode') mode = shared.mode
+      process()
+      return
+    }
+
     loadState()
     if (input.trim()) {
       process()
@@ -181,6 +192,7 @@
     </div>
 
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, mode })} />
       <div class="mode-toggle" role="tablist" aria-label="Mode selection">
         <button
           type="button"

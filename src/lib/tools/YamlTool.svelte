@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_YAML = `name: DevUtils
@@ -60,10 +62,18 @@ config:
   }
 
   onMount(() => {
-    loadState()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      if (shared.mode === 'json-to-yaml' || shared.mode === 'yaml-to-json') mode = shared.mode
+      process()
+    } else {
+      loadState()
+    }
     mounted = true
     // Process immediately since loadState is synchronous
-    if (input) process()
+    if (input && !shared) process()
 
     return () => {
       if (timeout) clearTimeout(timeout)
@@ -502,6 +512,7 @@ config:
       <p class="tool-desc">Format, validate, and convert YAML to JSON</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, mode })} />
       <div class="segmented" role="tablist" aria-label="Conversion mode">
         <button
           class="segment"

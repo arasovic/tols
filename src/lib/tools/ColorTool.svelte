@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
   const STORAGE_KEY = 'devutils:color-tool:hex'
@@ -222,7 +224,14 @@
 
   onMount(() => {
     isMounted = true
-    loadState()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.hex === 'string') {
+      hex = shared.hex.replace(/^#/, '').replace(/[^0-9A-Fa-f]/g, '').substring(0, 6)
+      updateColor()
+    } else {
+      loadState()
+    }
   })
 
   onDestroy(() => {
@@ -250,6 +259,7 @@
     </div>
 
     <div class="tool-actions">
+      <ShareButton getState={() => ({ hex })} />
       <button
         class="btn-ghost"
         on:click={loadExample}

@@ -1,5 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
   import { onMount } from 'svelte'
 
   const EXAMPLE_CSS = `/* Main container styles */
@@ -76,8 +78,16 @@
   }
 
   onMount(() => {
-    loadState()
-    if (input) process()
+    // A shared link takes precedence over locally saved state
+    const shared = readShareFragment()
+    if (shared && typeof shared.input === 'string') {
+      input = shared.input
+      if (shared.mode === 'beautify' || shared.mode === 'minify') mode = shared.mode
+      process()
+    } else {
+      loadState()
+      if (input) process()
+    }
   })
 
   function tokenizeCSS(css) {
@@ -425,6 +435,7 @@
       <p class="tool-desc">Beautify and minify CSS</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, mode })} />
       <div class="segmented">
         <button class="segment" class:active={mode === 'beautify'} on:click={() => setMode('beautify')}>Beautify</button>
         <button class="segment" class:active={mode === 'minify'} on:click={() => setMode('minify')}>Minify</button>

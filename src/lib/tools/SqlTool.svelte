@@ -37,7 +37,20 @@ LIMIT 100;`
   let errorMessage = ''
   let errorTimeout
 
-  loadState()
+  import ShareButton from '$lib/components/ShareButton.svelte'
+  import { readShareFragment } from '$lib/utils/share.js'
+
+  // A shared link takes precedence over locally saved state
+  const sharedState = readShareFragment()
+  if (sharedState && typeof sharedState.input === 'string') {
+    input = sharedState.input
+    if (sharedState.keywordCase === 'uppercase' || sharedState.keywordCase === 'lowercase') {
+      keywordCase = sharedState.keywordCase
+    }
+    process()
+  } else {
+    loadState()
+  }
 
   function loadState() {
     try {
@@ -407,6 +420,7 @@ LIMIT 100;`
       <p class="tool-desc">Format and beautify SQL queries</p>
     </div>
     <div class="tool-actions">
+      <ShareButton getState={() => ({ input, keywordCase })} />
       <div class="segmented">
         <button class="segment" class:active={keywordCase === 'uppercase'} on:click={() => setKeywordCase('uppercase')}>UPPER</button>
         <button class="segment" class:active={keywordCase === 'lowercase'} on:click={() => setKeywordCase('lowercase')}>lower</button>
