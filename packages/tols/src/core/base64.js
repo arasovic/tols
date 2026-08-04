@@ -1,11 +1,18 @@
 /**
  * Base64 core — behavior ported from apps/web Base64Tool.svelte.
  * Decode strips all whitespace first (matches web UX).
+ * Uses btoa/atob + TextEncoder (global in browsers and Node >= 16) so the
+ * module works in both the CLI and the browser bundle.
  */
 
 /** @param {string} text */
 export function encode(text) {
-  return Buffer.from(String(text), 'utf8').toString('base64');
+  const bytes = new TextEncoder().encode(String(text));
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 /** @param {string} b64 */
@@ -14,7 +21,12 @@ export function decode(b64) {
   if (!isValid(cleaned)) {
     throw new Error('Invalid Base64 string');
   }
-  return Buffer.from(cleaned, 'base64').toString('utf8');
+  const binString = atob(cleaned);
+  const bytes = new Uint8Array(binString.length);
+  for (let i = 0; i < binString.length; i++) {
+    bytes[i] = binString.charCodeAt(i);
+  }
+  return new TextDecoder('utf-8').decode(bytes);
 }
 
 /** @param {string} s */

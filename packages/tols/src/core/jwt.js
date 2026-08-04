@@ -1,11 +1,40 @@
 /**
  * JWT core — decode ported from apps/web utils/crypto.js (decodeJWT),
  * HS256 encode ported from JwtEncoderTool.svelte.
+ * Browser-safe: btoa/atob + TextEncoder only (no Buffer).
  */
 
 /** @param {string} str */
 export function base64UrlEncode(str) {
-  return Buffer.from(String(str), 'utf8').toString('base64url');
+  const bytes = new TextEncoder().encode(String(str));
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+/** @param {string} str */
+function base64urlToBase64(str) {
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+  return base64;
+}
+
+/**
+ * Decode a base64url JWT segment into a UTF-8 object.
+ * atob yields a binary string; TextDecoder is required so multi-byte UTF-8
+ * payloads survive (plain JSON.parse(atob(x)) corrupts them).
+ * @param {string} segment
+ * @returns {Record<string, unknown>}
+ */
+function decodeSegment(segment) {
+  const binString = atob(base64urlToBase64(segment));
+  const bytes = new Uint8Array(binString.length);
+  for (let i = 0; i < binString.length; i++) {
+    bytes[i] = binString.charCodeAt(i);
+  }
+  return JSON.parse(new TextDecoder('utf-8').decode(bytes));
 }
 
 /**
@@ -24,7 +53,12 @@ export async function signHS256(message, secret) {
       ['sign']
     );
     const signature = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(message));
-    return Buffer.from(new Uint8Array(signature)).toString('base64url');
+    const bytes = new Uint8Array(signature);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
   } catch (/** @type {any} */ e) {
     throw new Error(`HMAC signing failed: ${e.message}`);
   }
@@ -48,12 +82,12 @@ export function decode(token) {
   let header;
   let payload;
   try {
-    header = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
+    header = decodeSegment(parts[0]);
   } catch {
     throw new Error('Invalid JWT header: unable to decode Base64 or parse JSON');
   }
   try {
-    payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    payload = decodeSegment(parts[1]);
   } catch {
     throw new Error('Invalid JWT payload: unable to decode Base64 or parse JSON');
   }
