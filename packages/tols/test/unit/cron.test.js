@@ -19,6 +19,11 @@ describe('cron core', () => {
     expect(getDescription('*/5 * * * *')).toContain('*/5');
   });
 
+  it('describes month and weekday lists with names', () => {
+    expect(getDescription('0 0 1 1,6 *')).toContain('in Jan, Jun');
+    expect(getDescription('0 0 * * 1,3')).toContain('on Mon, Wed');
+  });
+
   it('computes deterministic next runs from fixed clock', () => {
     // weekly: single run (cap of 10000 minute-steps cannot reach 2 weeks)
     const weekly = getNextRuns('0 12 * * 1', 1, new Date('2026-08-04T00:00:00Z'));

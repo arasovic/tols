@@ -2,6 +2,9 @@
  * Cron core — parser/validator/next-run ported verbatim from apps/web CronTool.svelte.
  */
 
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
 export function parseCronField(field, min, max) {
   /** @type {number[]} */
   const values = []

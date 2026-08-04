@@ -8,6 +8,12 @@ describe('tols cron', () => {
     expect(r.out).toContain('*/5');
   });
 
+  it('parse covers month/weekday name path', async () => {
+    const r = await tols(['cr', 'parse', '0 0 1 1,6 *']);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('Jan');
+  });
+
   it('next prints ISO runs', async () => {
     const r = await tols(['cron', 'next', '30 9 * * *', '--count=2']);
     expect(r.code).toBe(0);
