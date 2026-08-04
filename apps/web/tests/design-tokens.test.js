@@ -72,11 +72,25 @@ describe('design tokens', () => {
     expect(missing).toEqual({})
   })
 
-  it('overrides every colour token in the light theme that the dark theme defines', () => {
-    const colourish = /(bg|border|text|accent|success|error|warning|info|diff|glass|glow|shadow|neutral)/
-    const darkColours = [...rootTokens].filter((t) => colourish.test(t))
-    const notOverridden = darkColours.filter((t) => !lightTokens.has(t))
+  it('overrides every literal colour the dark theme defines', () => {
+    // Detect colours by value, not by name: a name-based regex substring-matches
+    // --text-xs and --shadow-md and would force dead redeclarations into the
+    // light block. Alias tokens (var(--x)) and non-colours are correctly skipped.
+    const dark = blockFor(':root')
+    const hasColourValue = (token) => {
+      const m = dark.match(new RegExp(`${token}\\s*:\\s*([^;]+);`))
+      return m ? /#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\(/.test(m[1]) : false
+    }
+    const notOverridden = [...rootTokens].filter((t) => hasColourValue(t) && !lightTokens.has(t))
     expect(notOverridden).toEqual([])
+  })
+
+  it('keeps toasts stacked above the search overlay', () => {
+    // Toast.svelte uses --z-popover, SearchOverlay.svelte uses --z-modal.
+    // A copy toast fired from the command palette must not hide behind it.
+    const dark = blockFor(':root')
+    const z = (token) => Number(dark.match(new RegExp(`${token}\\s*:\\s*(\\d+)`))[1])
+    expect(z('--z-popover')).toBeGreaterThan(z('--z-modal'))
   })
 
   it('keeps body text readable in both themes', () => {

@@ -159,13 +159,16 @@
   --header-height: 40px;
   --command-height: 44px;
 
+  /* Ramp order is load-bearing: Toast uses --z-popover and SearchOverlay uses
+     --z-modal, so popover must stay above modal or copy toasts fired from the
+     command palette render behind it. */
   --z-base: 0;
   --z-elevated: 10;
   --z-sticky: 20;
   --z-dropdown: 30;
   --z-overlay: 40;
-  --z-popover: 50;
-  --z-modal: 60;
+  --z-modal: 50;
+  --z-popover: 60;
 }
 
 /* ========================================
@@ -241,25 +244,7 @@
   --diff-word-remove-bg: rgba(192, 43, 48, 0.24);
   --diff-word-add-bg: rgba(47, 125, 70, 0.24);
 
-  /* Font-size and no-op shadow tokens are theme-invariant; redeclared here so every
-     colour-adjacent token name (per the design-token contract) resolves in this block too. */
-  --text-xs: 11px;
-  --text-sm: 12px;
-  --text-base: 13px;
-  --text-md: 14px;
-  --text-lg: 16px;
-  --text-xl: 20px;
-  --text-2xl: 24px;
-  --text-3xl: 32px;
-  --text-4xl: 44px;
-
-  --shadow-xs: none;
-  --shadow-sm: none;
-  --shadow: none;
-  --shadow-md: none;
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
-  --shadow-accent-sm: none;
-  --shadow-accent: none;
 
   --glow-accent: 0 0 0 1px var(--accent);
   --glow-focus: 0 0 0 1px var(--accent);
