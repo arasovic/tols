@@ -3,31 +3,48 @@
  * Error messages carry line/column computed from V8's position hint.
  */
 
+/**
+ * @param {string} text
+ * @returns {unknown}
+ */
 export function parse(text) {
   try {
     return JSON.parse(text);
   } catch (e) {
-    throw new Error(describeError(e, text));
+    throw new Error(describeError(/** @type {Error} */ (e), text));
   }
 }
 
+/**
+ * @param {string} text
+ * @param {number} [indent]
+ */
 export function format(text, indent = 2) {
   return JSON.stringify(parse(text), null, indent);
 }
 
+/** @param {string} text */
 export function minify(text) {
   return JSON.stringify(parse(text));
 }
 
+/**
+ * @param {string} text
+ * @returns {{ valid: boolean, error?: string }}
+ */
 export function validate(text) {
   try {
     parse(text);
     return { valid: true };
   } catch (e) {
-    return { valid: false, error: e.message };
+    return { valid: false, error: /** @type {Error} */ (e).message };
   }
 }
 
+/**
+ * @param {Error} e
+ * @param {string} input
+ */
 function describeError(e, input) {
   const match = e.message.match(/position (\d+)/i);
   if (match) {

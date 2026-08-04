@@ -128,10 +128,6 @@ console.log(greet(user));`
     debouncedCompute()
   }
 
-  /**
-   * @param {string} oldLine
-   * @param {string} newLine
-   */
   function computeDiff() {
     resetCache()
     isTruncated = false

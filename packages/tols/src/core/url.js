@@ -2,10 +2,12 @@
  * URL encoding core — behavior ported from apps/web UrlTool.svelte.
  */
 
+/** @param {string} text */
 export function encode(text) {
   return encodeURIComponent(String(text));
 }
 
+/** @param {string} text */
 export function decode(text) {
   try {
     return decodeURIComponent(String(text));
@@ -14,6 +16,15 @@ export function decode(text) {
   }
 }
 
+/**
+ * @typedef {{ key: string, value: string }} UrlParam
+ * @typedef {{ href: string, protocol: string, host: string, pathname: string, params: UrlParam[], hash: string }} UrlParts
+ */
+
+/**
+ * @param {string} raw
+ * @returns {UrlParts}
+ */
 export function analyze(raw) {
   let url;
   try {

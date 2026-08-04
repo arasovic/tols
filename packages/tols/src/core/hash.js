@@ -5,19 +5,34 @@
 
 export const ALGORITHMS = ['md5', 'sha1', 'sha256', 'sha512'];
 
+/**
+ * @param {string} text
+ * @param {string} algo one of ALGORITHMS
+ * @returns {Promise<string>}
+ */
 export async function hash(text, algo) {
   if (algo === 'md5') return hashMD5(text);
-  const subtleAlgo = { sha1: 'SHA-1', sha256: 'SHA-256', sha512: 'SHA-512' }[algo];
-  if (!subtleAlgo) throw new Error(`unknown algorithm: ${algo} (valid: ${ALGORITHMS.join(', ')})`);
+  /** @type {Record<string, string>} */
+  const subtleAlgo = { sha1: 'SHA-1', sha256: 'SHA-256', sha512: 'SHA-512' };
+  const name = subtleAlgo[algo];
+  if (!name) throw new Error(`unknown algorithm: ${algo} (valid: ${ALGORITHMS.join(', ')})`);
   const data = new TextEncoder().encode(String(text));
-  const hashBuffer = await crypto.subtle.digest(subtleAlgo, data);
+  const hashBuffer = await crypto.subtle.digest(name, data);
   return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * @param {number} value
+ * @param {number} shift
+ */
 function leftRotate(value, shift) {
   return (value << shift) | (value >>> (32 - shift));
 }
 
+/**
+ * @param {string} message
+ * @returns {Promise<string>}
+ */
 export async function hashMD5(message) {
   const encoder = new TextEncoder();
   const data = encoder.encode(message);

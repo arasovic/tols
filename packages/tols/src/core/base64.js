@@ -3,10 +3,12 @@
  * Decode strips all whitespace first (matches web UX).
  */
 
+/** @param {string} text */
 export function encode(text) {
   return Buffer.from(String(text), 'utf8').toString('base64');
 }
 
+/** @param {string} b64 */
 export function decode(b64) {
   const cleaned = String(b64).replace(/\s/g, '');
   if (!isValid(cleaned)) {
@@ -15,6 +17,7 @@ export function decode(b64) {
   return Buffer.from(cleaned, 'base64').toString('utf8');
 }
 
+/** @param {string} s */
 export function isValid(s) {
   const str = String(s);
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(str)) return false;

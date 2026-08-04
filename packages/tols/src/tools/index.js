@@ -11,6 +11,7 @@ import timestamp from './timestamp.js';
 import cron from './cron.js';
 import uuid from './uuid.js';
 import hash from './hash.js';
+import jwt from './jwt.js';
 
 register(base64);
 register(url);
@@ -21,3 +22,4 @@ register(timestamp);
 register(cron);
 register(uuid);
 register(hash);
+register(jwt);

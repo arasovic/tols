@@ -3,6 +3,10 @@
  * tz handling: 'local' uses the system locale; anything else is an IANA zone.
  */
 
+/**
+ * @param {Date} date
+ * @param {string} tz 'local' uses the system locale; anything else is an IANA zone
+ */
 export function formatDate(date, tz) {
   if (!tz || tz === 'local' || tz === 'Local') {
     return date.toLocaleString();
@@ -26,6 +30,9 @@ export function formatDate(date, tz) {
 /**
  * Convert a unix timestamp (seconds or milliseconds autodetected) or a date
  * string into human-readable forms.
+ * @param {string} input
+ * @param {string} [tz]
+ * @returns {{ formatted: string, iso: string, relative: string, utc: string }}
  */
 export function toHuman(input, tz = 'UTC') {
   const trimmed = String(input).trim();
@@ -65,7 +72,11 @@ export function toHuman(input, tz = 'UTC') {
   };
 }
 
-/** Convert a date string into unix seconds/milliseconds/ISO. */
+/**
+ * Convert a date string into unix seconds/milliseconds/ISO.
+ * @param {string} input
+ * @returns {{ unix: number, unixMs: number, iso: string }}
+ */
 export function toUnix(input) {
   const date = new Date(String(input).trim());
   if (isNaN(date.getTime())) {
@@ -78,6 +89,7 @@ export function toUnix(input) {
   };
 }
 
+/** @returns {{ unix: number, unixMs: number, iso: string }} */
 export function now() {
   const ms = Date.now();
   return { unix: Math.floor(ms / 1000), unixMs: ms, iso: new Date(ms).toISOString() };

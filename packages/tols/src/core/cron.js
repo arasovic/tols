@@ -5,6 +5,12 @@
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+/**
+ * @param {string} field
+ * @param {number} min
+ * @param {number} max
+ * @returns {number[] | null}
+ */
 export function parseCronField(field, min, max) {
   /** @type {number[]} */
   const values = []
@@ -54,6 +60,10 @@ export function parseCronField(field, min, max) {
   return values.sort((a, b) => a - b)
 }
 
+/**
+ * @param {string} cron
+ * @returns {string}
+ */
 /**
  * @param {string} cron
  * @returns {string}
@@ -111,6 +121,12 @@ export function getDescription(cron) {
  * @param {number} count
  * @returns {Date[]}
  */
+/**
+ * @param {string} cron
+ * @param {number} [count]
+ * @param {Date} [from]
+ * @returns {Date[]}
+ */
 export function getNextRuns(cron, count = 5, from = new Date()) {
   const parts = cron.trim().split(/\s+/)
   if (parts.length !== 5) return []
@@ -160,6 +176,10 @@ export function getNextRuns(cron, count = 5, from = new Date()) {
   return runs
 }
 
+/**
+ * @param {string} cron
+ * @returns {string | null}
+ */
 /**
  * @param {string} cron
  * @returns {string | null}

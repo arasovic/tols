@@ -2,10 +2,48 @@
  * Diff core — Myers diff + word diff ported verbatim from apps/web DiffTool.svelte.
  */
 
+/**
+ * @typedef {{
+ *   type: 'equal' | 'delete' | 'insert',
+ *   text: string
+ * }} WordDiffItem
+ */
+
+/**
+ * @typedef {{
+ *   type: 'same' | 'modified' | 'removed' | 'added',
+ *   left: string,
+ *   right: string,
+ *   oldLineNum: number | null,
+ *   newLineNum: number | null
+ * }} DiffLineItem
+ */
+
+/**
+ * @typedef {(
+ *   | { type: 'equal', oldIndex: number, newIndex: number, oldLine: string, newLine: string }
+ *   | { type: 'delete', oldIndex: number, newIndex: null, oldLine: string, newLine: null }
+ *   | { type: 'insert', oldIndex: null, newIndex: number, oldLine: null, newLine: string }
+ * )} MyersOp
+ */
+
+/**
+ * @typedef {(
+ *   | { type: 'equal', oldWord: string, newWord: string }
+ *   | { type: 'delete', oldWord: string, newWord?: undefined }
+ *   | { type: 'insert', oldWord?: undefined, newWord: string }
+ * )} LcsOp
+ */
+
+/** @type {Map<string, WordDiffItem[]>} */
 const diffCache = new Map()
 
 export function resetCache() { diffCache.clear() }
 
+/**
+ * @param {string} oldLine
+ * @param {string} newLine
+ */
 export function getCacheKey(oldLine, newLine) {
   return `${oldLine}\x00${newLine}`
 }
@@ -199,8 +237,9 @@ export function computeWordDiff(oldLine, newLine) {
   }
 
   const cacheKey = getCacheKey(oldLine, newLine)
-  if (diffCache.has(cacheKey)) {
-    return diffCache.get(cacheKey)
+  const cached = diffCache.get(cacheKey)
+  if (cached) {
+    return cached
   }
 
   const oldTokens = tokenize(oldLine)
@@ -273,14 +312,16 @@ export function similarityScore(str1, str2) {
 
 /**
  * Compute a line diff between two texts.
- * Returns { differ, items } where items match the web component shape:
- * { type: 'same'|'modified'|'removed'|'added', left, right, oldLineNum, newLineNum, wordDiff }
+ * @param {string} oldText
+ * @param {string} newText
+ * @returns {{ differ: boolean, items: DiffLineItem[] }}
  */
 export function diffLines(oldText, newText) {
   const oldLines = (oldText ? oldText.split('\n') : ['']).map((l) => l || '')
   const newLines = (newText ? newText.split('\n') : ['']).map((l) => l || '')
 
   const edits = myersDiff(oldLines, newLines)
+  /** @type {DiffLineItem[]} */
   const items = []
   let oldLineNum = 1
   let newLineNum = 1
@@ -322,6 +363,7 @@ export function diffLines(oldText, newText) {
 
 /**
  * Git-like plain text rendering: '  ' same, '- ' removed/old, '+ ' added/new.
+ * @param {{ differ: boolean, items: DiffLineItem[] }} result
  */
 export function toPlainText(result) {
   const lines = []

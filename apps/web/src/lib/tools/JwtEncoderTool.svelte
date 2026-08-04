@@ -2,6 +2,7 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { base } from '$app/paths'
   import { onMount, onDestroy } from 'svelte'
+  import { base64UrlEncode, signHS256 as signHMAC } from 'tols/core/jwt'
 
   const EXAMPLE_PAYLOAD = JSON.stringify({
     sub: "1234567890",
@@ -64,50 +65,6 @@
     clearTimeout(timeout)
     clearTimeout(saveTimeout)
   })
-
-  /**
-   * @param {string} str
-   */
-  function base64UrlEncode(str) {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(str)
-    let binary = ''
-    const bytes = new Uint8Array(data)
-    const len = bytes.byteLength
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i])
-    }
-    const base64 = btoa(binary)
-    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  }
-
-  /**
-   * @param {string} message
-   * @param {string} key
-   */
-  async function signHMAC(message, key) {
-    try {
-      const encoder = new TextEncoder()
-      const cryptoKey = await crypto.subtle.importKey(
-        'raw',
-        encoder.encode(key),
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
-      )
-      const signature = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(message))
-      let binary = ''
-      const bytes = new Uint8Array(signature)
-      const len = bytes.byteLength
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i])
-      }
-      const base64 = btoa(binary)
-      return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-    } catch (/** @type {any} */ e) {
-      throw new Error(`HMAC signing failed: ${e.message}`)
-    }
-  }
 
   async function generateToken() {
     error = ''

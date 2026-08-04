@@ -2,7 +2,7 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
-  import { decodeJWT } from '$lib/utils/crypto.js'
+  import { decodeJWT } from 'tols/core/jwt'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { base } from '$app/paths'
