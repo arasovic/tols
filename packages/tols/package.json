@@ -1,0 +1,16 @@
+{
+  "name": "tols",
+  "version": "0.1.0",
+  "description": "Dev utilities in one zero-dep CLI. Format, encode, hash, generate, convert. Pipe-friendly, --json everywhere.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "tols": "bin/tols.js" },
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./core/*": "./src/core/*.js"
+  },
+  "engines": { "node": ">=20" },
+  "files": ["bin", "src"],
+  "scripts": { "test": "vitest --run" }
+}
