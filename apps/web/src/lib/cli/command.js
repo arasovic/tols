@@ -6,6 +6,15 @@ export const INLINE_LIMIT = 120
 const SAFE = /^[A-Za-z0-9_@%+=:,./-]+$/
 
 /**
+ * Wraps a value in single quotes unconditionally, escaping embedded quotes.
+ * @param {string} value
+ * @returns {string}
+ */
+function quoteLiteral(value) {
+  return `'${value.replace(/'/g, `'\\''`)}'`
+}
+
+/**
  * Shell-quotes a value the way a POSIX shell needs it.
  * @param {string} value
  * @returns {string}
@@ -13,7 +22,24 @@ const SAFE = /^[A-Za-z0-9_@%+=:,./-]+$/
 function quote(value) {
   if (value === '') return "''"
   if (SAFE.test(value)) return value
-  return `'${value.replace(/'/g, `'\\''`)}'`
+  return quoteLiteral(value)
+}
+
+/**
+ * Quotes a flag value. A value carrying control characters uses ANSI-C
+ * quoting so the command stays on one line and remains paste-friendly.
+ * @param {string} value
+ * @returns {string}
+ */
+function quoteFlagValue(value) {
+  if (!/[\n\r\t]/.test(value)) return quote(value)
+  const escaped = value
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+  return `$'${escaped}'`
 }
 
 /**
@@ -26,7 +52,7 @@ function renderFlags(flags) {
   return Object.entries(flags).flatMap(([key, value]) => {
     if (value === false || value === null || value === undefined) return []
     if (value === true) return [`--${key}`]
-    return [`--${key}=${quote(String(value))}`]
+    return [`--${key}=${quoteFlagValue(String(value))}`]
   })
 }
 
@@ -42,12 +68,21 @@ function renderFlags(flags) {
  * @returns {string} Command line without a leading prompt character
  */
 export function buildCommand({ tool, action, input = '', flags = {}, inputName = 'input.txt' }) {
-  const parts = ['tols', tool, action]
+  const command = ['tols', tool, action]
+  const flagArgs = renderFlags(flags)
 
-  if (input.length > 0) {
-    const needsFile = input.includes('\n') || input.length > INLINE_LIMIT
-    parts.push(needsFile ? `@${inputName}` : quote(input))
+  if (input.length === 0) return [...command, ...flagArgs].join(' ')
+
+  if (input.includes('\n') || input.length > INLINE_LIMIT) {
+    return [...command, `@${inputName}`, ...flagArgs].join(' ')
   }
 
-  return [...parts, ...renderFlags(flags)].join(' ')
+  // The CLI resolves a leading `@` as a file path and a leading `--` as a flag,
+  // so a literal input starting with either would silently mean something else.
+  // Piping it as stdin is unambiguous and needs no CLI-side change.
+  if (/^(@|--)/.test(input)) {
+    return `printf '%s' ${quoteLiteral(input)} | ${[...command, ...flagArgs].join(' ')}`
+  }
+
+  return [...command, quote(input), ...flagArgs].join(' ')
 }

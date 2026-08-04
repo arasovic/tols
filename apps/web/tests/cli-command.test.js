@@ -55,6 +55,43 @@ describe('buildCommand', () => {
     expect(buildCommand({ tool: 'jwt', action: 'enc', input: '{}', flags: { secret: 'my secret' } }))
       .toBe(`tols jwt enc '{}' --secret='my secret'`)
   })
+
+  it('keeps input of exactly the inline limit inline', () => {
+    const exact = 'x'.repeat(INLINE_LIMIT)
+    expect(buildCommand({ tool: 'yaml', action: 'fmt', input: exact }))
+      .toBe(`tols yaml fmt ${exact}`)
+  })
+
+  it('pipes input that starts with @ so the CLI cannot read it as a file path', () => {
+    expect(buildCommand({ tool: 'lorem', action: 'gen', input: '@types/node' }))
+      .toBe(`printf '%s' '@types/node' | tols lorem gen`)
+  })
+
+  it('pipes input that starts with -- so the CLI cannot read it as a flag', () => {
+    expect(buildCommand({ tool: 'base64', action: 'enc', input: '--verbose' }))
+      .toBe(`printf '%s' '--verbose' | tols base64 enc`)
+  })
+
+  it('places flags after the command in the piped form', () => {
+    expect(buildCommand({ tool: 'lorem', action: 'gen', input: '@x', flags: { count: 3 } }))
+      .toBe(`printf '%s' '@x' | tols lorem gen --count=3`)
+  })
+
+  it('prefers the @file form over piping when the input is also too long', () => {
+    const long = '@' + 'x'.repeat(INLINE_LIMIT)
+    expect(buildCommand({ tool: 'yaml', action: 'fmt', input: long, inputName: 'input.yaml' }))
+      .toBe('tols yaml fmt @input.yaml')
+  })
+
+  it('keeps a newline-bearing flag value on one line with ANSI-C quoting', () => {
+    expect(buildCommand({ tool: 'jwt', action: 'enc', input: '{}', flags: { secret: 'a\nb' } }))
+      .toBe(`tols jwt enc '{}' --secret=$'a\\nb'`)
+  })
+
+  it('pipes input that is exactly "--" itself', () => {
+    expect(buildCommand({ tool: 'base64', action: 'enc', input: '--' }))
+      .toBe(`printf '%s' '--' | tols base64 enc`)
+  })
 })
 
 describe('templateFor', () => {
