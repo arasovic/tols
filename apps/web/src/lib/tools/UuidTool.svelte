@@ -1,6 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
-  import { generateUUID, generateUUIDs } from '$lib/utils/crypto.js'
+  import { validateCount, sanitizeCount, generate as coreGenerate } from 'tols/core/uuid'
   import { onMount, onDestroy } from 'svelte'
 
   const DEBOUNCE_TIME = 150
@@ -97,9 +97,9 @@
     count = validated
 
     if (count === 1) {
-      output = generateUUID()
+      output = coreGenerate(1)[0]
     } else {
-      output = generateUUIDs(count).join('\n')
+      output = coreGenerate(count).join('\n')
     }
     saveState()
   }

@@ -11,7 +11,7 @@
   import PasteButton from '$lib/components/PasteButton.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
-  import { hashMessage, hashMD5 } from '$lib/utils/crypto.js'
+  import { hash as coreHash } from 'tols/core/hash'
   import { onMount, onDestroy } from 'svelte'
 
   let input = ''
@@ -106,11 +106,7 @@
 
     try {
       let result
-      if (algorithm === 'MD5') {
-        result = await hashMD5(input)
-      } else {
-        result = await hashMessage(input, algorithm)
-      }
+      result = await coreHash(input, algorithm.replace('-', '').toLowerCase())
 
       if (currentHashId === pendingHashId) {
         output = result

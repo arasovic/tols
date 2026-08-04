@@ -9,6 +9,8 @@ import yaml from './yaml.js';
 import diff from './diff.js';
 import timestamp from './timestamp.js';
 import cron from './cron.js';
+import uuid from './uuid.js';
+import hash from './hash.js';
 
 register(base64);
 register(url);
@@ -17,3 +19,5 @@ register(yaml);
 register(diff);
 register(timestamp);
 register(cron);
+register(uuid);
+register(hash);
