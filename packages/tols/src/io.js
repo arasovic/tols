@@ -3,32 +3,35 @@ import { readFile } from 'node:fs/promises';
 export class UsageError extends Error {}
 
 /**
+ * Expand a single input argument: `@<path>` reads a file (one trailing
+ * newline stripped, same as piped stdin); anything else passes through.
+ */
+export async function expandArg(a) {
+  if (!a.startsWith('@')) return a;
+  let text;
+  try {
+    text = await readFile(a.slice(1), 'utf8');
+  } catch {
+    throw new UsageError(`cannot read file: ${a.slice(1)}`);
+  }
+  return text.replace(/\r?\n$/, '');
+}
+
+export async function readStdin(stdin) {
+  const data = await readAll(stdin);
+  return data.replace(/\r?\n$/, '');
+}
+
+/**
  * Resolve tool input: positional args joined by spaces, `@<path>` expands a
  * file, piped stdin is used when no args are given. Throws UsageError when
  * nothing is available.
  */
 export async function resolveInput(args, { stdin, isTTY }) {
   const parts = [];
-  for (const a of args) {
-    if (a.startsWith('@')) {
-      let text;
-      try {
-        text = await readFile(a.slice(1), 'utf8');
-      } catch {
-        throw new UsageError(`cannot read file: ${a.slice(1)}`);
-      }
-      // same convention as piped stdin: text files usually end with a newline
-      parts.push(text.replace(/\r?\n$/, ''));
-    } else {
-      parts.push(a);
-    }
-  }
+  for (const a of args) parts.push(await expandArg(a));
   if (parts.length > 0) return parts.join(' ');
-  if (!isTTY) {
-    // pipes conventionally end with a newline; strip one trailing \n (or \r\n)
-    const data = await readAll(stdin);
-    return data.replace(/\r?\n$/, '');
-  }
+  if (!isTTY) return readStdin(stdin);
   throw new UsageError('no input: pass an argument, pipe stdin, or use @<file>');
 }
 

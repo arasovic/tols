@@ -67,8 +67,13 @@ export async function run(argv, { stdin = process.stdin, stdout = process.stdout
 
   const action = tool.actions[actionName];
   try {
-    const input = action.needsInput === false ? '' : await resolveInput(inputArgs, { stdin, isTTY: stdin.isTTY });
-    const result = await action.run(input, flags);
+    let result;
+    if (action.rawArgs) {
+      result = await action.run({ args: inputArgs, stdin }, flags);
+    } else {
+      const input = action.needsInput === false ? '' : await resolveInput(inputArgs, { stdin, isTTY: stdin.isTTY });
+      result = await action.run(input, flags);
+    }
     emit(stdout, result, { json });
     return 0;
   } catch (e) {
