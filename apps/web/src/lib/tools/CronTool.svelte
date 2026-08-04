@@ -55,12 +55,6 @@
     clearTimeout(saveTimeout)
   })
 
-  /**
-   * @param {string} field
-   * @param {number} min
-   * @param {number} max
-   * @returns {number[] | null}
-   */
   function process() {
     error = ''
     description = ''
