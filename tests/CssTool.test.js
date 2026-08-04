@@ -113,6 +113,127 @@ describe('CssTool', () => {
     expect(output?.textContent).toContain('.parent .child')
   })
 
+  it('should not add space after pseudo-classes inside @media blocks', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: '@media (max-width: 768px) { a:hover { color: red; } }' } })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('a:hover')
+    expect(text).not.toContain('a: hover')
+    expect(text).toContain('color: red')
+  })
+
+  it('should not add space after pseudo-classes inside @supports blocks', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: '@supports (display: grid) { a:focus { color: blue; } }' } })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('a:focus')
+    expect(text).not.toContain('a: focus')
+    expect(text).toContain('color: blue')
+  })
+
+  it('should keep property spacing inside @keyframes blocks', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }' } })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('from')
+    expect(text).toContain('opacity: 0')
+    expect(text).toContain('opacity: 1')
+  })
+
+  it('should not add space after pseudo-classes at top level', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: 'a:hover { color: red; }' } })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('a:hover')
+    expect(text).not.toContain('a: hover')
+  })
+
+  it('should preserve single spaces between box-shadow value tokens', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: '.shadow { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }' } })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)')
+    expect(text).not.toContain('02px')
+  })
+
+  it('should keep the space between url() and format() in @font-face src', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, {
+      target: { value: '@font-face { font-family: "Test"; src: url("https://example.com/font.woff2") format("woff2"); }' },
+    })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('src: url("https://example.com/font.woff2") format("woff2")')
+  })
+
+  it('should preserve calc() operator spacing and multi-function values', async () => {
+    const { container } = render(CssTool)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, {
+      target: { value: '.calc { width: calc(100% - 20px); filter: blur(4px) saturate(150%); }' },
+    })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('width: calc(100% - 20px)')
+    expect(text).toContain('filter: blur(4px) saturate(150%)')
+  })
+
+  it('should keep required spaces between minified value tokens', async () => {
+    const { container } = render(CssTool)
+
+    const minifyButton = screen.getByText('Minify')
+    await fireEvent.click(minifyButton)
+
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: '.shadow { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }' } })
+
+    await waitForDebounce(400)
+
+    const output = container.querySelector('.output-display')
+    const text = output?.textContent || ''
+    expect(text).toContain('box-shadow:0 2px 4px')
+    expect(text).not.toContain('02px')
+  })
+
   it('should debounce input processing', async () => {
     const { container } = render(CssTool)
 

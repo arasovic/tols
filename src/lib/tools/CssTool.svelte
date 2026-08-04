@@ -186,6 +186,16 @@
     return tokens
   }
 
+  /**
+   * @param {string} atRule
+   * @returns {'rules' | 'declarations'}
+   */
+  function atRuleBlockKind(atRule) {
+    const name = atRule.split(/[\s(]/)[0]
+    const ruleContainers = ['@media', '@supports', '@container', '@layer', '@document', '@keyframes']
+    return ruleContainers.includes(name) ? 'rules' : 'declarations'
+  }
+
   function formatCSS(css) {
     const tokens = tokenizeCSS(css)
     let result = ''
@@ -195,6 +205,8 @@
     let lastTokenWasNewline = false
     let selectorBuffer = []
     let needsIndent = true
+    /** @type {Array<'declarations' | 'rules'>} */
+    const blockStack = []
 
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
@@ -215,6 +227,20 @@
           result += '\n'
           lastTokenWasNewline = true
           needsIndent = true
+        } else if (
+          blockDepth > 0 &&
+          blockStack[blockStack.length - 1] === 'declarations' &&
+          prevToken &&
+          (prevToken.type === 'text' || prevToken.type === 'paren' || prevToken.type === 'string') &&
+          nextToken &&
+          (nextToken.type === 'text' || nextToken.type === 'paren' || nextToken.type === 'string')
+        ) {
+          // Whitespace inside a declaration value is meaningful: `0 2px 4px`
+          // keeps a single space between value tokens. The colon handler
+          // already emits the space after `:`, and the whitespace before `;`
+          // or `}` is dropped by the value-token guard above.
+          result += ' '
+          lastTokenWasNewline = false
         } else if (blockDepth === 0 && selectorBuffer.length > 0) {
           // Whitespace inside a selector is meaningful: descendant combinator
           // (`.parent .child`) or spacing after a comma in a selector list.
@@ -226,18 +252,24 @@
       if (token.type === 'punctuation') {
         if (token.value === '{') {
           blockDepth++
-          result = result.trimEnd()
-          if (selectorBuffer.length > 0) {
-            result += ' ' + token.value + '\n'
-            selectorBuffer = []
-          } else {
-            result += ' ' + token.value + '\n'
+          /** @type {'declarations' | 'rules'} */
+          let blockKind = 'declarations'
+          for (let j = i - 1; j >= 0; j--) {
+            const prev = tokens[j]
+            if (prev.type === 'whitespace' || prev.type === 'comment') continue
+            if (prev.type === 'atrule') blockKind = atRuleBlockKind(prev.value)
+            break
           }
+          blockStack.push(blockKind)
+          result = result.trimEnd()
+          result += ' ' + token.value + '\n'
+          selectorBuffer = []
           indentLevel++
           lastTokenWasNewline = true
           needsIndent = true
         } else if (token.value === '}') {
           if (blockDepth > 0) blockDepth--
+          if (blockStack.length > 0) blockStack.pop()
           indentLevel = Math.max(0, indentLevel - 1)
           if (!lastTokenWasNewline) {
             result += '\n'
@@ -257,9 +289,12 @@
             needsIndent = true
           }
         } else if (token.value === ':') {
-          // Inside a block a colon separates property and value (`color: blue`);
-          // at the top level it is part of a pseudo-class (`a:hover`).
-          result += blockDepth > 0 ? ': ' : ':'
+          // A colon separates property and value only inside a declaration
+          // block (`.class { color: blue }`). In a selector (`a:hover`) or
+          // inside a rule-container at-rule block (`@media { a:hover { ... } }`)
+          // it is a pseudo-class and must not be space-padded.
+          const inDeclarationBlock = blockStack.length > 0 && blockStack[blockStack.length - 1] === 'declarations'
+          result += inDeclarationBlock ? ': ' : ':'
         }
         continue
       }
