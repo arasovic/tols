@@ -7,7 +7,8 @@ export const BIN = join(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 't
 
 export function tols(args, { stdin = '' } = {}) {
   return new Promise((resolve) => {
-    const p = spawn('node', [BIN, ...args]);
+    // TZ pinned so assertions about formatted dates are host-independent
+    const p = spawn('node', [BIN, ...args], { env: { ...process.env, TZ: 'UTC' } });
     let out = '';
     let err = '';
     p.stdout.setEncoding('utf8');
