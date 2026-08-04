@@ -1,6 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import { onMount, onDestroy } from 'svelte'
+  import { toHuman, toUnix } from 'tols/core/timestamp'
 
   const DEBOUNCE_MS = 150
   const SAVE_DEBOUNCE_MS = 500
@@ -76,29 +77,6 @@
     clearTimeout(saveTimeout)
   })
 
-  /**
-   * @param {Date} date
-   * @param {string} tz
-   */
-  function formatDate(date, tz) {
-    if (tz === 'Local') {
-      return date.toLocaleString()
-    }
-    try {
-      return new Intl.DateTimeFormat(undefined, {
-        timeZone: tz,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      }).format(date)
-    } catch (/** @type {any} */ e) {
-      return date.toISOString() + ' (UTC - timezone error)'
-    }
-  }
 
   function process() {
     error = ''
@@ -113,66 +91,12 @@
 
     try {
       if (mode === 'toHuman') {
-        let timestamp
-        // Allow optional minus sign for negative timestamps
-        const isAllDigits = /^-?\d+$/.test(trimmedInput)
-        const isReasonableLength = trimmedInput.length >= 1 && trimmedInput.length <= 16
-
-        if (isAllDigits && isReasonableLength) {
-          timestamp = parseInt(trimmedInput, 10)
-          // Detect milliseconds: values between 1e10 and 1e16 are likely milliseconds
-          // Unix seconds are ~1.7e9 (2024), so anything > 1e10 is definitely milliseconds
-          const isMilliseconds = timestamp > 1e10 && timestamp < 1e16
-          if (isMilliseconds) {
-            timestamp = timestamp / 1000
-          }
-        } else {
-          const parsedDate = new Date(trimmedInput)
-          if (!isNaN(parsedDate.getTime())) {
-            timestamp = parsedDate.getTime() / 1000
-          } else {
-            timestamp = NaN
-          }
-        }
-
-        if (isNaN(timestamp) || !isFinite(timestamp)) {
-          error = 'Invalid timestamp format'
-          return
-        }
-
-        const date = new Date(timestamp * 1000)
-        if (isNaN(date.getTime())) {
-          error = 'Invalid date from timestamp'
-          return
-        }
-        
-        const formatted = formatDate(date, fromTimezone)
-        const iso = date.toISOString()
-        const relative = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-        
-        output = JSON.stringify({
-          formatted,
-          iso,
-          relative,
-          utc: date.toUTCString()
-        }, null, 2)
+        output = JSON.stringify(toHuman(trimmedInput, fromTimezone), null, 2)
       } else {
-        const date = new Date(trimmedInput)
-        if (isNaN(date.getTime())) {
-          error = 'Invalid date format'
-          return
-        }
-        const unix = Math.floor(date.getTime() / 1000)
-        const unixMs = date.getTime()
-        
-        output = JSON.stringify({
-          unix,
-          unixMs,
-          iso: date.toISOString()
-        }, null, 2)
+        output = JSON.stringify(toUnix(trimmedInput), null, 2)
       }
     } catch (/** @type {any} */ e) {
-      error = 'Conversion failed: ' + e.message
+      error = e.message
     }
   }
 

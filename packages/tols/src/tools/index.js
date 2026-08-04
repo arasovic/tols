@@ -7,9 +7,11 @@ import url from './url.js';
 import json from './json.js';
 import yaml from './yaml.js';
 import diff from './diff.js';
+import timestamp from './timestamp.js';
 
 register(base64);
 register(url);
 register(json);
 register(yaml);
 register(diff);
+register(timestamp);
