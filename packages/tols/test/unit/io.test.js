@@ -28,6 +28,17 @@ describe('resolveInput', () => {
     expect(await resolveInput([`@${p}`], { stdin: stdinOf(''), isTTY: true })).toBe('from file');
   });
 
+  it('strips one trailing newline from @file content (same as stdin)', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'tols-'));
+    const p = join(dir, 'in.txt');
+    writeFileSync(p, 'line\n');
+    expect(await resolveInput([`@${p}`], { stdin: stdinOf(''), isTTY: true })).toBe('line');
+  });
+
+  it('missing @file -> UsageError', async () => {
+    await expect(resolveInput(['@/nope/missing.txt'], { stdin: stdinOf(''), isTTY: true })).rejects.toThrow(UsageError);
+  });
+
   it('throws UsageError when no input at all', async () => {
     await expect(resolveInput([], { stdin: stdinOf(''), isTTY: true })).rejects.toThrow(UsageError);
   });

@@ -4,13 +4,25 @@
   "description": "Dev utilities in one zero-dep CLI. Format, encode, hash, generate, convert. Pipe-friendly, --json everywhere.",
   "license": "MIT",
   "type": "module",
-  "bin": { "tols": "bin/tols.js" },
+  "bin": {
+    "tols": "bin/tols.js"
+  },
   "main": "src/index.js",
   "exports": {
     ".": "./src/index.js",
     "./core/*": "./src/core/*.js"
   },
-  "engines": { "node": ">=20" },
-  "files": ["bin", "src"],
-  "scripts": { "test": "vitest --run" }
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest --run"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.9"
+  }
 }

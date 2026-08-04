@@ -19,11 +19,9 @@ describe('registry', () => {
     expect(list()).toHaveLength(2);
   });
 
-  it('does not overwrite existing tool name with an alias', () => {
-    const a = fake('diff');
-    const b = fake('other', ['diff']);
-    register(a);
-    register(b);
-    expect(find('diff')).toBe(a);
+  it('throws on duplicate name or alias', () => {
+    register(fake('diff'));
+    expect(() => register(fake('diff'))).toThrow(/duplicate tool name/);
+    expect(() => register(fake('other', ['diff']))).toThrow(/duplicate tool alias/);
   });
 });

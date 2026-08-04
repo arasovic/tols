@@ -11,11 +11,14 @@ export async function resolveInput(args, { stdin, isTTY }) {
   const parts = [];
   for (const a of args) {
     if (a.startsWith('@')) {
+      let text;
       try {
-        parts.push(await readFile(a.slice(1), 'utf8'));
+        text = await readFile(a.slice(1), 'utf8');
       } catch {
         throw new UsageError(`cannot read file: ${a.slice(1)}`);
       }
+      // same convention as piped stdin: text files usually end with a newline
+      parts.push(text.replace(/\r?\n$/, ''));
     } else {
       parts.push(a);
     }

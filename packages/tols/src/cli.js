@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import './tools/index.js';
 import { resolveInput, UsageError } from './io.js';
 import { emit, fail } from './output.js';
 import { find, list } from './registry.js';
@@ -55,7 +56,7 @@ export async function run(argv, { stdin = process.stdin, stdout = process.stdout
     return 0;
   }
 
-  const hasAction = second !== undefined && tool.actions[second] !== undefined;
+  const hasAction = second !== undefined && Object.hasOwn(tool.actions, second);
   const actionName = hasAction ? second : tool.defaultAction;
   const inputArgs = hasAction ? tail : rest.slice(1);
 
