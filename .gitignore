@@ -26,3 +26,6 @@ docs/
 
 # Legacy build output (deploy uses build/)
 dist
+
+# Local worktrees
+.worktrees/
