@@ -5,6 +5,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
+  import { format as formatJson, minify as minifyJson } from 'tols/core/json'
 
   const EXAMPLE_JSON = `{
   "name": "DevUtils",
@@ -110,19 +111,9 @@
     }
 
     try {
-      const parsed = JSON.parse(input)
-      output = compact ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2)
+      output = compact ? minifyJson(input) : formatJson(input)
     } catch (/** @type {any} */ e) {
-      const match = e.message.match(/position (\d+)/i)
-      if (match) {
-        const position = parseInt(match[1])
-        const lines = input.substring(0, position).split('\n')
-        const line = lines.length
-        const column = lines[lines.length - 1].length + 1
-        error = `Invalid JSON at line ${line}, column ${column}`
-      } else {
-        error = 'Invalid JSON: ' + e.message
-      }
+      error = e.message
     }
   }
 
