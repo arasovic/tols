@@ -4,7 +4,7 @@ import LoremTool from '$lib/tools/LoremTool.svelte'
 
 describe('LoremTool', () => {
   beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.useFakeTimers()
     vi.stubGlobal('crypto', {
       getRandomValues: (/** @type {Uint32Array} */ array) => {
         for (let i = 0; i < array.length; i++) {
@@ -214,12 +214,10 @@ describe('LoremTool', () => {
 
     await fireEvent.click(loadExampleButton)
 
-    await waitFor(() => {
-      const outputBox = document.querySelector('.output-content')
-      expect(outputBox).toBeInTheDocument()
-      expect(outputBox?.textContent).toBeTruthy()
-      expect(outputBox?.textContent?.toLowerCase()).toContain('lorem')
-    }, { timeout: 400 })
+    const outputBox = document.querySelector('.output-content')
+    expect(outputBox).toBeInTheDocument()
+    expect(outputBox?.textContent).toBeTruthy()
+    expect(outputBox?.textContent?.toLowerCase()).toContain('lorem')
   })
 
   it('should have CopyButton when output exists', async () => {
@@ -242,6 +240,7 @@ describe('LoremTool', () => {
 
     await fireEvent.input(paragraphsInput, { target: { value: '5' } })
     vi.advanceTimersByTime(200)
+    vi.advanceTimersByTime(500)
 
     await waitFor(() => {
       expect(setItemSpy).toHaveBeenCalledWith('devutils-lorem-paragraphs', '5')
