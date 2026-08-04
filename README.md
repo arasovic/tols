@@ -1,69 +1,39 @@
-# dev-utilities
+# DevUtils
 
-Offline-first developer toolkit. 30 tools, file-based routing, dark mode, zero backend.
+DevUtils is a collection of 30 developer tools that run entirely in your browser — no backend, no accounts, no tracking.
 
-Built with SvelteKit + adapter-static. No runtime APIs, no tracking. Everything runs in your browser with static site generation.
+**Live:** https://arasovic.github.io/dev-utilities/
 
-Live: [https://arasovic.github.io/dev-utilities/](https://arasovic.github.io/dev-utilities/)
+## Features
+
+- Shareable links for 15 of the tools — tool state lives in the URL
+- Favorites and recent tools, persisted in your browser
+- `⌘K` / `Ctrl+K` to search, `⌘B` / `Ctrl+B` to toggle the sidebar
+- Dark mode
 
 ## Tools
 
 ### Data
 
-| Route | Tool | Description |
-|-------|------|-------------|
-| `/json` | JSON Formatter | Format, validate & beautify JSON with syntax highlighting |
-| `/yaml` | YAML Formatter | Format, validate, and convert YAML to JSON |
-| `/xml` | XML Formatter | Format, validate, and minify XML data |
-| `/html` | HTML Formatter | Beautify, minify, and clean HTML |
-| `/markdown` | Markdown Previewer | Live preview and convert Markdown to HTML |
-| `/regex` | Regex Tester | Test & validate regular expressions with real-time matching |
-| `/diff` | Diff Checker | Compare two texts and find differences |
-| `/sql` | SQL Formatter | Format and beautify SQL queries |
+[JSON Formatter](https://arasovic.github.io/dev-utilities/json) · [YAML Formatter](https://arasovic.github.io/dev-utilities/yaml) · [XML Formatter](https://arasovic.github.io/dev-utilities/xml) · [HTML Formatter](https://arasovic.github.io/dev-utilities/html)
+[Markdown Previewer](https://arasovic.github.io/dev-utilities/markdown) · [Regex Tester](https://arasovic.github.io/dev-utilities/regex) · [Diff Checker](https://arasovic.github.io/dev-utilities/diff) · [SQL Formatter](https://arasovic.github.io/dev-utilities/sql)
 
 ### Encoding
 
-| Route | Tool | Description |
-|-------|------|-------------|
-| `/base64` | Base64 | Encode & decode Base64 strings |
-| `/url` | URL Encoder | Encode & decode URLs and query parameters |
-| `/jwt` | JWT Decoder | Decode and inspect JWT token payload and signatures |
-| `/jwt-encoder` | JWT Encoder | Create and sign JWT tokens with HS256 |
-| `/jsonp` | JSONP Tester | Simulate JSONP requests and parse responses |
-| `/gzip` | Gzip Calculator | Estimate compression size for Gzip |
-| `/data-uri` | Data URI Generator | Convert files to Data URIs |
+[Base64](https://arasovic.github.io/dev-utilities/base64) · [URL Encoder](https://arasovic.github.io/dev-utilities/url) · [JWT Decoder](https://arasovic.github.io/dev-utilities/jwt) · [JWT Encoder](https://arasovic.github.io/dev-utilities/jwt-encoder)
+[JSONP Tester](https://arasovic.github.io/dev-utilities/jsonp) · [Gzip Calculator](https://arasovic.github.io/dev-utilities/gzip) · [Data URI Generator](https://arasovic.github.io/dev-utilities/data-uri)
 
 ### Generators
 
-| Route | Tool | Description |
-|-------|------|-------------|
-| `/uuid` | UUID Generator | Generate UUID v4 identifiers |
-| `/hash` | Hash Calculator | Calculate MD5, SHA-1, SHA-256, SHA-512 hashes |
-| `/lorem` | Lorem Ipsum | Generate placeholder text for mockups |
-| `/qrcode` | QR Code | Generate QR codes from text or URLs |
-| `/barcode` | Barcode | Generate Code128 barcodes |
-| `/password` | Password Generator | Generate secure random passwords |
-| `/placeholder` | Image Placeholder | Generate colored placeholder images |
+[UUID Generator](https://arasovic.github.io/dev-utilities/uuid) · [Hash Calculator](https://arasovic.github.io/dev-utilities/hash) · [Lorem Ipsum](https://arasovic.github.io/dev-utilities/lorem) · [QR Code](https://arasovic.github.io/dev-utilities/qrcode)
+[Barcode](https://arasovic.github.io/dev-utilities/barcode) · [Password Generator](https://arasovic.github.io/dev-utilities/password) · [Image Placeholder](https://arasovic.github.io/dev-utilities/placeholder)
 
 ### Converters
 
-| Route | Tool | Description |
-|-------|------|-------------|
-| `/color` | Color Converter | Convert between HEX, RGB, HSL color formats |
-| `/timestamp` | Timestamp | Convert Unix timestamps to readable dates |
-| `/timezone` | Time Zone | Convert times between different time zones |
-| `/base-converter` | Number Base Converter | Convert between decimal, binary, hex, octal |
-| `/cron` | Cron Parser | Validate cron expressions and see next execution times |
-| `/unicode` | Unicode Inspector | Explore Unicode characters and their properties |
-| `/css` | CSS Formatter | Beautify and minify CSS |
-| `/css-filter` | CSS Filter Generator | Apply visual CSS filters |
+[Color Converter](https://arasovic.github.io/dev-utilities/color) · [Timestamp](https://arasovic.github.io/dev-utilities/timestamp) · [Time Zone](https://arasovic.github.io/dev-utilities/timezone) · [Number Base Converter](https://arasovic.github.io/dev-utilities/base-converter)
+[Cron Parser](https://arasovic.github.io/dev-utilities/cron) · [Unicode Inspector](https://arasovic.github.io/dev-utilities/unicode) · [CSS Formatter](https://arasovic.github.io/dev-utilities/css) · [CSS Filter Generator](https://arasovic.github.io/dev-utilities/css-filter)
 
-## Keyboard Shortcuts
-
-- **Cmd/Ctrl + K** — Open global search
-- **Cmd/Ctrl + B** — Toggle sidebar
-
-## Run locally
+## Development
 
 ```bash
 git clone https://github.com/arasovic/dev-utilities.git
@@ -72,27 +42,5 @@ npm install
 npm run dev
 ```
 
-## Build
-
-Generate static site for production:
-
-```bash
-npm run build
-```
-
-Output is in `build/` directory, ready for static hosting.
-
-## Test
-
-```bash
-npm run test        # Run tests once
-npm run test:watch  # Run tests in watch mode
-```
-
-## Stack
-
-SvelteKit, adapter-static, Lucide Svelte, Vitest, plain CSS, Web Crypto API. Static site generation with SEO features (meta tags, sitemap, robots.txt, structured data).
-
-## License
-
-MIT
+- `npm test` — run the test suite
+- `npm run build` — static production build, output in `build/`
