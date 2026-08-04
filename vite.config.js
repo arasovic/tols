@@ -1,6 +1,12 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vitest/config'
 
+// Vitest only: pin the timezone in the main process BEFORE workers spawn.
+// Worker threads resolve their timezone from the host at thread creation and
+// ignore runtime process.env.TZ changes, so the vitest `env` option alone is
+// insufficient. Must NOT apply to builds or dev servers.
+if (process.env.VITEST) process.env.TZ = 'UTC'
+
 export default defineConfig({
   plugins: [sveltekit()],
   base: '/dev-utilities/',
@@ -11,6 +17,7 @@ export default defineConfig({
   // in the SSR bundle and leak `window` references into server chunks.
   ...(process.env.VITEST ? { resolve: { conditions: ['browser'] } } : {}),
   test: {
+    env: { TZ: 'UTC' },
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.js'],

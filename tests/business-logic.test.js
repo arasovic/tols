@@ -182,8 +182,10 @@ describe('Business Logic Tests', () => {
     })
 
     it('should convert human readable to Unix timestamp', () => {
+      // Input is parsed as local time by `new Date` and the suite runs with
+      // TZ pinned to UTC (vite.config), so 2024-01-15 14:30:00 = 14:30 UTC = 1705329000.
       const result = processTimestamp('2024-01-15 14:30:00', 'toUnix', '')
-      expect(result.output).toBe('1705318200')
+      expect(result.output).toBe('1705329000')
       expect(result.error).toBe('')
     })
 
