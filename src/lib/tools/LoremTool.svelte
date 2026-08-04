@@ -11,6 +11,9 @@
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
+  /**
+   * @param {number} max
+   */
   function getRandomWordIndex(max) {
     const array = new Uint32Array(1)
     crypto.getRandomValues(array)

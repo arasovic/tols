@@ -76,6 +76,10 @@
     clearTimeout(saveTimeout)
   })
 
+  /**
+   * @param {Date} date
+   * @param {string} tz
+   */
   function formatDate(date, tz) {
     if (tz === 'Local') {
       return date.toLocaleString()
@@ -207,6 +211,9 @@
     saveState()
   }
 
+  /**
+   * @param {string} newMode
+   */
   function setMode(newMode) {
     mode = newMode
     input = ''

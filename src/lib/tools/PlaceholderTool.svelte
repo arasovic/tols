@@ -6,6 +6,7 @@
   let bgColor = '#E5E7EB'
   let textColor = '#374151'
   let placeholderText = ''
+  /** @type {HTMLCanvasElement | undefined} */
   let canvas
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
@@ -17,10 +18,19 @@
   const MIN_DIMENSION = 50
   const MAX_DIMENSION = 2000
 
+  /**
+   * @param {number} value
+   * @param {number} min
+   * @param {number} max
+   * @returns {number}
+   */
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max)
   }
 
+  /**
+   * @param {number} value
+   */
   function isValidInteger(value) {
     return typeof value === 'number' && !isNaN(value) && isFinite(value)
   }
@@ -91,14 +101,22 @@
     clearTimeout(saveTimeout)
   })
 
+  /**
+   * @param {string} hexColor
+   */
   function getLuminance(hexColor) {
     const r = parseInt(hexColor.slice(1, 3), 16) / 255
     const g = parseInt(hexColor.slice(3, 5), 16) / 255
     const b = parseInt(hexColor.slice(5, 7), 16) / 255
+    /** @param {number} c */
     const gammaCorrect = (c) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
     return 0.2126 * gammaCorrect(r) + 0.7152 * gammaCorrect(g) + 0.0722 * gammaCorrect(b)
   }
 
+  /**
+   * @param {string} color1
+   * @param {string} color2
+   */
   function getContrastRatio(color1, color2) {
     const lum1 = getLuminance(color1)
     const lum2 = getLuminance(color2)

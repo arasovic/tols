@@ -5,7 +5,9 @@
   let baseDate = new Date()
   let fromZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   let toZone = 'UTC'
+  /** @type {{ result: Date, offset: string, formatted: string } | null} */
   let convertedTime = null
+  /** @type {{ name: string, time: string, date: string }[]} */
   let commonZones = []
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
@@ -145,16 +147,16 @@
   <div class="converter-section">
     <div class="time-inputs">
       <div class="input-group">
-        <label>From Time Zone</label>
-        <select bind:value={fromZone} on:change={debouncedConvert}>
+        <label for="from-zone">From Time Zone</label>
+        <select id="from-zone" bind:value={fromZone} on:change={debouncedConvert}>
           {#each ZONES as zone}
             <option value={zone.name}>{zone.label || zone.name}</option>
           {/each}
         </select>
       </div>
       <div class="input-group">
-        <label>To Time Zone</label>
-        <select bind:value={toZone} on:change={debouncedConvert}>
+        <label for="to-zone">To Time Zone</label>
+        <select id="to-zone" bind:value={toZone} on:change={debouncedConvert}>
           {#each ZONES as zone}
             <option value={zone.name}>{zone.label || zone.name}</option>
           {/each}

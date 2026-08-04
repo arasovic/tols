@@ -12,6 +12,7 @@
 
   let input = '* * * * *'
   let description = ''
+  /** @type {Date[]} */
   let nextRuns = []
   let error = ''
   /** @type {ReturnType<typeof setTimeout> | undefined} */
@@ -55,7 +56,14 @@
     clearTimeout(saveTimeout)
   })
 
+  /**
+   * @param {string} field
+   * @param {number} min
+   * @param {number} max
+   * @returns {number[] | null}
+   */
   function parseCronField(field, min, max) {
+    /** @type {number[]} */
     const values = []
 
     if (field === '*') {
@@ -103,6 +111,10 @@
     return values.sort((a, b) => a - b)
   }
 
+  /**
+   * @param {string} cron
+   * @returns {string}
+   */
   function getDescription(cron) {
     const parts = cron.trim().split(/\s+/)
     if (parts.length !== 5) return 'Invalid cron expression'
@@ -151,6 +163,11 @@
     return 'Runs ' + segments.join(', ')
   }
 
+  /**
+   * @param {string} cron
+   * @param {number} count
+   * @returns {Date[]}
+   */
   function getNextRuns(cron, count = 5) {
     const parts = cron.trim().split(/\s+/)
     if (parts.length !== 5) return []
@@ -195,6 +212,10 @@
     return runs
   }
 
+  /**
+   * @param {string} cron
+   * @returns {string | null}
+   */
   function validateCron(cron) {
     if (!cron || cron.length === 0) return 'Please enter a cron expression'
 
@@ -278,6 +299,9 @@
     }, 300)
   }
 
+  /**
+   * @param {string} cron
+   */
   function setExample(cron) {
     input = cron
     process()
@@ -296,6 +320,9 @@
     }
   }
 
+  /**
+   * @param {Date} date
+   */
   function formatDate(date) {
     return date.toLocaleString(undefined, {
       month: 'short',

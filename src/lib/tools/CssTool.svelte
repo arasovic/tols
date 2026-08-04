@@ -94,6 +94,9 @@
     }
   })
 
+  /**
+   * @param {string} css
+   */
   function tokenizeCSS(css) {
     const tokens = []
     let i = 0
@@ -196,6 +199,9 @@
     return ruleContainers.includes(name) ? 'rules' : 'declarations'
   }
 
+  /**
+   * @param {string} css
+   */
   function formatCSS(css) {
     const tokens = tokenizeCSS(css)
     let result = ''
@@ -348,6 +354,9 @@
     return result.trim()
   }
 
+  /**
+   * @param {string} css
+   */
   function minifyCSS(css) {
     const tokens = tokenizeCSS(css)
     let result = ''
@@ -445,6 +454,9 @@
     }, 300)
   }
 
+  /**
+   * @param {string} newMode
+   */
   function setMode(newMode) {
     mode = newMode
     process()

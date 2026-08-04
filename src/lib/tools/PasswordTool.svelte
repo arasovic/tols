@@ -54,6 +54,9 @@
     }, 500)
   }
 
+  /**
+   * @param {number} max
+   */
   function getSecureRandomIndex(max) {
     const randomBytes = new Uint32Array(1)
     const maxValid = Math.floor((2 ** 32) / max) * max
@@ -120,8 +123,11 @@
     }
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleLengthInput(event) {
-    length = parseInt(event.target.value, 10)
+    length = parseInt(event.currentTarget.value, 10)
     generate()
     saveState()
   }

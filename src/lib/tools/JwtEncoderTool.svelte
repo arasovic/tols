@@ -65,6 +65,9 @@
     clearTimeout(saveTimeout)
   })
 
+  /**
+   * @param {string} str
+   */
   function base64UrlEncode(str) {
     const encoder = new TextEncoder()
     const data = encoder.encode(str)
@@ -78,6 +81,10 @@
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
   }
 
+  /**
+   * @param {string} message
+   * @param {string} key
+   */
   async function signHMAC(message, key) {
     try {
       const encoder = new TextEncoder()

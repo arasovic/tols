@@ -119,6 +119,9 @@
     saveState()
   }
 
+  /**
+   * @param {string} newMode
+   */
   function setMode(newMode) {
     mode = newMode
     process()

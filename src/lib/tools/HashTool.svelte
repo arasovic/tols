@@ -33,6 +33,9 @@
 
   const validAlgorithmValues = algorithms.map(a => a.value)
 
+  /**
+   * @param {string} algo
+   */
   function isValidAlgorithm(algo) {
     return validAlgorithmValues.includes(algo)
   }
@@ -148,6 +151,9 @@
     saveState()
   }
 
+  /**
+   * @param {string} algo
+   */
   function selectAlgorithm(algo) {
     algorithm = algo
     hash()
@@ -159,6 +165,10 @@
     return algo ? algo.bits : 0
   }
 
+  /**
+   * @param {KeyboardEvent} event
+   * @param {{ value: string, name: string, bits: number }} algo
+   */
   function handleAlgoKeyDown(event, algo) {
     const currentIndex = algorithms.findIndex(a => a.value === algorithm)
     const algoIndex = algorithms.findIndex(a => a.value === algo.value)
@@ -171,14 +181,14 @@
       const prevIndex = algoIndex > 0 ? algoIndex - 1 : algorithms.length - 1
       const prevAlgo = algorithms[prevIndex]
       selectAlgorithm(prevAlgo.value)
-      const prevButton = document.querySelector(`[data-algo="${prevAlgo.value}"]`)
+      const prevButton = /** @type {HTMLElement | null} */ (document.querySelector(`[data-algo="${prevAlgo.value}"]`))
       if (prevButton) prevButton.focus()
     } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       event.preventDefault()
       const nextIndex = algoIndex < algorithms.length - 1 ? algoIndex + 1 : 0
       const nextAlgo = algorithms[nextIndex]
       selectAlgorithm(nextAlgo.value)
-      const nextButton = document.querySelector(`[data-algo="${nextAlgo.value}"]`)
+      const nextButton = /** @type {HTMLElement | null} */ (document.querySelector(`[data-algo="${nextAlgo.value}"]`))
       if (nextButton) nextButton.focus()
     }
   }

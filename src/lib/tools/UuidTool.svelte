@@ -55,6 +55,10 @@
     clearTimeout(saveTimeout)
   })
 
+  /**
+   * @param {string | number} value
+   * @returns {number | false}
+   */
   function validateCount(value) {
     if (value === '' || value === null || value === undefined) return false
     const num = typeof value === 'string' ? parseInt(value, 10) : value
@@ -63,6 +67,10 @@
     return num
   }
 
+  /**
+   * @param {string | number} value
+   * @returns {number}
+   */
   function sanitizeCount(value) {
     let num = validateCount(value)
     if (num === false) return MIN_COUNT
@@ -101,8 +109,11 @@
     timeout = setTimeout(generate, DEBOUNCE_TIME)
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleInput(event) {
-    const value = event.target.value
+    const value = event.currentTarget.value
     const num = validateCount(value)
     if (num !== false) {
       count = num

@@ -7,6 +7,7 @@
 
   let qrText = DEFAULT_URL
   let qrSize = 200
+  /** @type {HTMLCanvasElement | undefined} */
   let qrCanvas
   let error = ''
   /** @type {ReturnType<typeof setTimeout> | null} */
@@ -110,11 +111,23 @@
   }
   initGF()
 
+  /**
+   * @typedef {(number | null)[][]} QrMatrix
+   */
+
+  /**
+   * @param {number} a
+   * @param {number} b
+   */
   function gfMul(a, b) {
     if (a === 0 || b === 0) return 0
     return GF_EXP[GF_LOG[a] + GF_LOG[b]]
   }
 
+  /**
+   * @param {number} a
+   * @param {number} n
+   */
   function gfPow(a, n) {
     if (n === 0) return 1
     if (a === 0) return 0
@@ -122,6 +135,10 @@
   }
 
   // Generator polynomial for Reed-Solomon
+  /**
+   * @param {number} degree
+   * @returns {number[]}
+   */
   function generatorPoly(degree) {
     let g = [1]
     for (let i = 0; i < degree; i++) {
@@ -136,6 +153,11 @@
   }
 
   // Reed-Solomon error correction
+  /**
+   * @param {number[]} data
+   * @param {number} ecCodewords
+   * @returns {number[]}
+   */
   function reedSolomon(data, ecCodewords) {
     const g = generatorPoly(ecCodewords)
     const remainder = new Array(ecCodewords).fill(0)
@@ -154,6 +176,9 @@
   }
 
   // Get mode for text
+  /**
+   * @param {string} text
+   */
   function getMode(text) {
     if (!text) return MODE_BYTE
     if (/^[0-9]*$/.test(text)) return MODE_NUMERIC
@@ -162,6 +187,10 @@
   }
 
   // Character count bits
+  /**
+   * @param {number} version
+   * @param {number} mode
+   */
   function getCharCountBits(version, mode) {
     if (mode === MODE_NUMERIC) {
       return version < 10 ? 10 : 12
@@ -173,6 +202,10 @@
   }
 
   // Mode indicator bits
+  /**
+   * @param {number} mode
+   * @returns {number[]}
+   */
   function getModeIndicator(mode) {
     if (mode === MODE_NUMERIC) return [0, 0, 0, 1]
     if (mode === MODE_ALPHANUMERIC) return [0, 0, 1, 0]
@@ -180,6 +213,11 @@
   }
 
   // Convert text to data bits
+  /**
+   * @param {string} text
+   * @param {number} mode
+   * @returns {number[]}
+   */
   function textToBits(text, mode) {
     const bits = []
 
@@ -193,6 +231,7 @@
         }
       }
     } else if (mode === MODE_ALPHANUMERIC) {
+      /** @type {Record<string, number>} */
       const charMap = {}
       const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:'
       for (let i = 0; i < chars.length; i++) {
@@ -225,6 +264,11 @@
   }
 
   // Calculate QR version needed
+  /**
+   * @param {string} text
+   * @param {number} mode
+   * @param {string} ecLevel
+   */
   function getVersion(text, mode, ecLevel) {
     if (!text) return 1
 
@@ -242,6 +286,10 @@
   }
 
   // Convert bits to bytes
+  /**
+   * @param {number[]} bits
+   * @returns {number[]}
+   */
   function bitsToBytes(bits) {
     const bytes = []
     for (let i = 0; i < bits.length; i += 8) {
@@ -255,6 +303,10 @@
   }
 
   // Convert bytes to bits
+  /**
+   * @param {number[]} bytes
+   * @returns {number[]}
+   */
   function bytesToBits(bytes) {
     const bits = []
     for (const byte of bytes) {
@@ -266,6 +318,13 @@
   }
 
   // Generate QR code data with ECC
+  /**
+   * @param {string} text
+   * @param {number} version
+   * @param {number} mode
+   * @param {string} ecLevel
+   * @returns {number[]}
+   */
   function generateQRData(text, version, mode, ecLevel = 'M') {
     const dataBits = []
 
@@ -326,6 +385,9 @@
   }
 
   // Get QR code matrix size
+  /**
+   * @param {number} version
+   */
   function getMatrixSize(version) {
     return 17 + version * 4
   }
@@ -342,6 +404,10 @@
   ]
 
   // Timing pattern
+  /**
+   * @param {QrMatrix} matrix
+   * @param {number} size
+   */
   function drawTimingPattern(matrix, size) {
     for (let i = 8; i < size - 8; i++) {
       matrix[6][i] = i % 2 === 0 ? 1 : 0
@@ -350,6 +416,10 @@
   }
 
   // Finder patterns
+  /**
+   * @param {QrMatrix} matrix
+   * @param {number} size
+   */
   function drawFinderPatterns(matrix, size) {
     // Top-left
     for (let y = 0; y < 7; y++) {
@@ -384,6 +454,10 @@
   }
 
   // Dark module (always at position (4*version+9, 8))
+  /**
+   * @param {QrMatrix} matrix
+   * @param {number} version
+   */
   function drawDarkModule(matrix, version) {
     const pos = 4 * version + 9
     if (pos < matrix.length) {
@@ -392,6 +466,12 @@
   }
 
   // Check if position is reserved (finder patterns, timing patterns, etc.)
+  /**
+   * @param {number} size
+   * @param {number} row
+   * @param {number} col
+   * @param {number} version
+   */
   function isReserved(size, row, col, version) {
     // Finder patterns with separators
     if (row < 9 && col < 9) return true // Top-left
@@ -415,6 +495,12 @@
   }
 
   // Place data bits with proper zigzag pattern
+  /**
+   * @param {QrMatrix} matrix
+   * @param {number} size
+   * @param {number[]} data
+   * @param {number} version
+   */
   function placeData(matrix, size, data, version) {
     let bitIndex = 0
     let direction = -1 // Start going upward
@@ -448,25 +534,36 @@
   }
 
   // Apply mask pattern (mask 0: (row + col) % 2 === 0)
+  /**
+   * @param {QrMatrix} matrix
+   * @param {number} size
+   */
   function applyMask(matrix, size) {
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
-        if (matrix[y][x] !== null && matrix[y][x] !== undefined && (y + x) % 2 === 0) {
-          matrix[y][x] ^= 1
+        const cell = matrix[y][x]
+        if (cell !== null && cell !== undefined && (y + x) % 2 === 0) {
+          matrix[y][x] = cell ^ 1
         }
       }
     }
   }
 
   // Format info lookup table for mask 0
-  const FORMAT_INFO_TABLE = {
+  const FORMAT_INFO_TABLE = /** @type {Record<number, number>} */ ({
     0: 0x77c4, // L
     1: 0x5412, // M
     2: 0x5e7c, // Q
     3: 0x5b4f  // H
-  }
+  })
 
   // Draw format info around finder patterns
+  /**
+   * @param {QrMatrix} matrix
+   * @param {number} size
+   * @param {number} ecLevel
+   * @param {number} maskPattern
+   */
   function drawFormatInfo(matrix, size, ecLevel, maskPattern) {
     const formatInfo = FORMAT_INFO_TABLE[ecLevel] || FORMAT_INFO_TABLE[1]
 
@@ -589,7 +686,7 @@
       }
 
       const imageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height)
-      const hasContent = imageData.data.some((pixel, index) => {
+      const hasContent = imageData.data.some((/** @type {number} */ pixel, /** @type {number} */ index) => {
         // Check alpha channel or if pixel is not white
         return index % 4 === 3 ? pixel > 0 : pixel < 255
       })
@@ -629,6 +726,9 @@
     error = 'Please enter text'
   }
 
+  /**
+   * @param {string} url
+   */
   function setExample(url) {
     qrText = url
     debouncedGenerate()

@@ -91,18 +91,31 @@ config:
   })
 
   // Get indentation level (number of spaces)
+  /**
+   * @param {string} line
+   */
   function getIndent(line) {
     return line.length - line.trimStart().length
   }
 
+  /**
+   * @typedef {{ obj: any, indent: number, key: string | null, isArray: boolean }} YamlStackItem
+   */
+
   // Parse YAML with improved array handling
+  /**
+   * @param {string} yaml
+   * @returns {Record<string, unknown>}
+   */
   function parseYAML(yaml) {
     if (!yaml.trim()) return {}
 
     const lines = yaml.split('\n')
+    /** @type {Record<string, unknown>} */
     const result = {}
 
     // Stack of { obj: object, indent: number, key: string, isArray: boolean }
+    /** @type {YamlStackItem[]} */
     const stack = [{ obj: result, indent: -1, key: null, isArray: false }]
 
     let i = 0
@@ -153,7 +166,7 @@ config:
           const colonIndex = value.indexOf(':')
           const key = value.slice(0, colonIndex).trim()
           const val = value.slice(colonIndex + 1).trim()
-          const parsedObj = { [key]: parseValue(val) }
+          const parsedObj = /** @type {Record<string, unknown>} */ ({ [key]: parseValue(val) })
           current.obj.push(parsedObj)
 
           // Check if next lines are nested properties of this object
@@ -195,6 +208,7 @@ config:
               if (nestedVal === '' && nextNextTrimmed && !nextNextTrimmed.startsWith('#')) {
                 if (nextNextTrimmed.startsWith('- ') && nextNextIndent > nextIndent) {
                   // Nested array
+                  /** @type {unknown[]} */
                   const arr = []
                   parsedObj[nestedKey] = arr
                   stack.push({ obj: arr, indent: nextIndent, key: nestedKey, isArray: true })
@@ -202,6 +216,7 @@ config:
                   break
                 } else if (nextNextIndent > nextIndent) {
                   // Nested object
+                  /** @type {Record<string, unknown>} */
                   const obj = {}
                   parsedObj[nestedKey] = obj
                   stack.push({ obj, indent: nextIndent, key: nestedKey, isArray: false })
@@ -252,11 +267,13 @@ config:
           // Empty value means nested object or array
           if (nextTrimmed.startsWith('- ')) {
             // This is an array
+            /** @type {unknown[]} */
             const arr = []
             current.obj[key] = arr
             stack.push({ obj: arr, indent, key, isArray: true })
           } else if (nextIndent > indent) {
             // This is a nested object
+            /** @type {Record<string, unknown>} */
             const obj = {}
             current.obj[key] = obj
             stack.push({ obj, indent, key, isArray: false })
@@ -299,6 +316,10 @@ config:
   }
 
   // Parse a line with key: value format
+  /**
+   * @param {string} line
+   * @param {number} lineNum
+   */
   function parseLine(line, lineNum) {
     const colonIndex = line.indexOf(':')
     if (colonIndex === -1) {
@@ -309,6 +330,10 @@ config:
     return { [key]: parseValue(value) }
   }
 
+  /**
+   * @param {string} value
+   * @returns {string | number | boolean | null}
+   */
   function parseValue(value) {
     if (!value) return ''
     if (value === 'true') return true
@@ -323,15 +348,24 @@ config:
     return value
   }
 
+  /**
+   * @param {string} str
+   * @returns {unknown[]}
+   */
   function parseArray(str) {
     const content = str.slice(1, -1)
     if (!content.trim()) return []
-    return content.split(',').map(v => parseValue(v.trim()))
+    return content.split(',').map(/** @param {string} v */ v => parseValue(v.trim()))
   }
 
+  /**
+   * @param {string} str
+   * @returns {Record<string, unknown>}
+   */
   function parseInlineObject(str) {
     const content = str.slice(1, -1)
     if (!content.trim()) return {}
+    /** @type {Record<string, unknown>} */
     const result = {}
     const pairs = splitInlinePairs(content)
     for (const pair of pairs) {
@@ -345,6 +379,10 @@ config:
     return result
   }
 
+  /**
+   * @param {string} content
+   * @returns {string[]}
+   */
   function splitInlinePairs(content) {
     const pairs = []
     let depth = 0
@@ -369,6 +407,9 @@ config:
     return pairs
   }
 
+  /**
+   * @param {string} str
+   */
   function needsQuoting(str) {
     if (!str) return false
     if (str.length === 0) return true
@@ -382,6 +423,10 @@ config:
     return false
   }
 
+  /**
+   * @param {object} obj
+   * @param {number} indent
+   */
   function stringifyYAML(obj, indent = 0) {
     const spaces = '  '.repeat(indent)
     let result = ''
@@ -478,6 +523,9 @@ config:
     }, DEBOUNCE_MS)
   }
 
+  /**
+   * @param {string} newMode
+   */
   function setMode(newMode) {
     mode = newMode
     error = ''

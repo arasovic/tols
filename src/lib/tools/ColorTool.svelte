@@ -12,15 +12,22 @@
   let rgb = ''
   let hsl = ''
   let colorPreview = '#0a0a0c'
-  /** @type {ReturnType<typeof setTimeout> | null} */
-  let saveTimeout = null
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let saveTimeout
   let isMounted = false
   let errorMessage = ''
 
+  /**
+   * @param {number} ms
+   */
   function waitForDebounce(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
+  /**
+   * @param {string} hexInput
+   * @returns {{ r: number, g: number, b: number } | null}
+   */
   function hexToRgb(hexInput) {
     let clean = hexInput.replace(/[^0-9A-Fa-f]/g, '')
     if (clean.length === 3) {
@@ -37,6 +44,12 @@
     return { r, g, b }
   }
 
+  /**
+   * @param {number} r
+   * @param {number} g
+   * @param {number} b
+   * @returns {{ h: number, s: number, l: number }}
+   */
   function rgbToHsl(r, g, b) {
     r /= 255
     g /= 255
@@ -68,11 +81,19 @@
     }
   }
 
+  /**
+   * @param {number} h
+   * @param {number} s
+   * @param {number} l
+   * @returns {{ r: number, g: number, b: number }}
+   */
   function hslToRgb(h, s, l) {
     s /= 100
     l /= 100
+    /** @param {number} n */
     const k = n => (n + h / 30) % 12
     const a = s * Math.min(l, 1 - l)
+    /** @param {number} n */
     const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
     const r = Math.round(255 * f(0))
     const g = Math.round(255 * f(8))
@@ -157,13 +178,20 @@
     saveState()
   }
 
+  /**
+   * @param {{ currentTarget: { value: string } }} e
+   */
   function handleHexInput(e) {
-    let value = e.target.value.replace(/^#/, '').replace(/[^0-9A-Fa-f]/g, '').substring(0, 6)
+    let value = e.currentTarget.value.replace(/^#/, '').replace(/[^0-9A-Fa-f]/g, '').substring(0, 6)
     hex = value
     updateColor()
     saveState()
   }
 
+  /**
+   * @param {string} value
+   * @returns {{ r: number, g: number, b: number } | null}
+   */
   function parseRgbInput(value) {
     const rgbaMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/)
     if (rgbaMatch) {
@@ -177,8 +205,11 @@
     return null
   }
 
+  /**
+   * @param {{ currentTarget: { value: string } }} e
+   */
   function handleRgbInput(e) {
-    const value = e.target.value.trim()
+    const value = e.currentTarget.value.trim()
     if (!value) {
       errorMessage = ''
       return
@@ -193,6 +224,10 @@
     }
   }
 
+  /**
+   * @param {string} value
+   * @returns {{ h: number, s: number, l: number } | null}
+   */
   function parseHslInput(value) {
     const hslaMatch = value.match(/^hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)$/)
     if (hslaMatch) {
@@ -207,8 +242,11 @@
     return null
   }
 
+  /**
+   * @param {{ currentTarget: { value: string } }} e
+   */
   function handleHslInput(e) {
-    const value = e.target.value.trim()
+    const value = e.currentTarget.value.trim()
     if (!value) {
       errorMessage = ''
       return
@@ -240,7 +278,7 @@
     isMounted = false
     if (saveTimeout) {
       clearTimeout(saveTimeout)
-      saveTimeout = null
+      saveTimeout = undefined
     }
   })
 </script>
@@ -262,7 +300,7 @@
 
     <div class="tool-actions">
       <ShareButton getState={() => ({ hex })} />
-      <PasteButton on:text={(e) => handleHexInput({ target: { value: e.detail.text } })} />
+      <PasteButton on:text={(e) => handleHexInput({ currentTarget: { value: e.detail.text } })} />
       <button type="button"
         class="btn-ghost"
         on:click={loadExample}

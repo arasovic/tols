@@ -3,10 +3,12 @@
 
   let barcodeText = 'CODE128'
   let barcodeType = 'CODE128'
+  /** @type {HTMLCanvasElement | undefined} */
   let canvas
   let error = ''
   /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let debounceTimeout = null
   let isMounted = false
 
@@ -55,6 +57,10 @@
     ]
   }
 
+  /**
+   * @param {string} char
+   * @param {string} set
+   */
   function getCode128Value(char, set) {
     const code = char.charCodeAt(0)
 
@@ -76,6 +82,9 @@
     return -1
   }
 
+  /**
+   * @param {string} text
+   */
   function determineSet(text) {
     if (!text || text.length === 0) {
       return 'B'
@@ -102,6 +111,9 @@
     return 'B'
   }
 
+  /**
+   * @param {string} text
+   */
   function validateInput(text) {
     if (!text || text.trim().length === 0) {
       return { valid: false, message: EMPTY_INPUT_MESSAGE }
@@ -121,6 +133,9 @@
     return { valid: true, message: '' }
   }
 
+  /**
+   * @param {string} text
+   */
   function findInvalidCharacters(text) {
     const invalid = []
     for (let i = 0; i < text.length; i++) {
@@ -132,6 +147,9 @@
     return invalid
   }
 
+  /**
+   * @param {string} text
+   */
   function encodeCode128(text) {
     const set = determineSet(text)
     const values = []

@@ -40,6 +40,10 @@ This is a **bold** text and this is *italic*.
   /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
 
+  /**
+   * @param {string} url
+   * @returns {boolean}
+   */
   function isSafeUrl(url) {
     if (!url || url.startsWith('#') || url.startsWith('/')) {
       return true
@@ -52,6 +56,10 @@ This is a **bold** text and this is *italic*.
     }
   }
 
+  /**
+   * @param {string} url
+   * @returns {string}
+   */
   function sanitizeUrl(url) {
     if (!url || url.startsWith('#') || url.startsWith('/')) {
       return url
@@ -108,6 +116,9 @@ This is a **bold** text and this is *italic*.
     if (saveTimeout) clearTimeout(saveTimeout)
   })
 
+  /**
+   * @param {string} text
+   */
   function escapeHtml(text) {
     return text
       .replace(/&/g, '&amp;')
@@ -116,6 +127,9 @@ This is a **bold** text and this is *italic*.
       .replace(/"/g, '&quot;')
   }
 
+  /**
+   * @param {string} md
+   */
   function markdownToHTML(md) {
     let html = md
     const lines = html.split('\n')
@@ -206,9 +220,10 @@ This is a **bold** text and this is *italic*.
       const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/)
       
       if (ulMatch || olMatch) {
+        const lineMatch = /** @type {RegExpMatchArray} */ (ulMatch || olMatch)
         const isOrdered = !!olMatch
         const newListType = isOrdered ? 'ol' : 'ul'
-        const content = parseInline((ulMatch || olMatch)[2])
+        const content = parseInline(lineMatch[2])
         
         if (!inList || listType !== newListType) {
           if (inList) {
@@ -283,6 +298,9 @@ This is a **bold** text and this is *italic*.
     return result.join('\n')
   }
 
+  /**
+   * @param {string} text
+   */
   function parseInline(text) {
     let html = escapeHtml(text)
 
@@ -296,12 +314,12 @@ This is a **bold** text and this is *italic*.
 
     html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>')
 
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (/** @type {string} */ match, /** @type {string} */ alt, /** @type {string} */ src) => {
       const safeSrc = sanitizeUrl(src)
       return `<img src="${safeSrc}" alt="${alt}">`
     })
 
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (/** @type {string} */ match, /** @type {string} */ label, /** @type {string} */ url) => {
       const safeUrl = sanitizeUrl(url)
       return `<a href="${safeUrl}">${label}</a>`
     })

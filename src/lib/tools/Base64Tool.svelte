@@ -23,6 +23,9 @@
 
   const VALID_MODES = ['encode', 'decode']
 
+  /**
+   * @param {string} m
+   */
   function isValidMode(m) {
     return VALID_MODES.includes(m)
   }
@@ -87,6 +90,9 @@
     }
   })
 
+  /**
+   * @param {string} str
+   */
   function utf8ToBase64(str) {
     const encoder = new TextEncoder()
     const bytes = encoder.encode(str)
@@ -99,6 +105,9 @@
     return btoa(binary)
   }
 
+  /**
+   * @param {string} str
+   */
   function base64ToUtf8(str) {
     const cleaned = str.replace(/\s/g, '')
 
@@ -116,6 +125,9 @@
     return decoder.decode(bytes)
   }
 
+  /**
+   * @param {string} str
+   */
   function isValidBase64(str) {
     // Check if string contains only valid Base64 characters
     if (!str || !/^[A-Za-z0-9+/]*={0,2}$/.test(str)) {
@@ -129,6 +141,10 @@
     return padding === 0 || str.length % 4 === 0
   }
 
+  /**
+   * @param {Error} err
+   * @param {string} currentMode
+   */
   function getErrorMessage(err, currentMode) {
     // Use instanceof DOMException for cross-browser compatibility
     if (err instanceof DOMException || /InvalidCharacterError/.test(err.message)) {
@@ -200,6 +216,9 @@
     saveState()
   }
 
+  /**
+   * @param {string} newMode
+   */
   function setMode(newMode) {
     if (processTimeout) {
       clearTimeout(processTimeout)

@@ -15,14 +15,20 @@
   let fileSize = ''
   let error = ''
   let isLoading = false
+  /** @type {HTMLInputElement | undefined} */
   let fileInput
   let fileName = ''
+  /** @type {FileReader | null} */
   let currentReader = null
   let truncatedDataUrl = ''
 
+  /**
+   * @param {string} filename
+   * @returns {string}
+   */
   function inferMimeTypeFromExtension(filename) {
-    const ext = filename.split('.').pop().toLowerCase()
-    const mimeMap = {
+    const ext = (filename.split('.').pop() || '').toLowerCase()
+    const mimeMap = /** @type {Record<string, string>} */ ({
       'png': 'image/png',
       'jpg': 'image/jpeg',
       'jpeg': 'image/jpeg',
@@ -39,7 +45,7 @@
       'html': 'text/html',
       'css': 'text/css',
       'js': 'application/javascript'
-    }
+    })
     return mimeMap[ext] || 'application/octet-stream'
   }
 
@@ -81,8 +87,11 @@
     loadState()
   })
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleFileSelect(event) {
-    const file = event.target.files[0]
+    const file = event.currentTarget.files?.[0]
     if (!file) return
 
     // Clear any previous error and reader
@@ -105,7 +114,9 @@
     currentReader = reader
 
     reader.onload = (e) => {
-      dataUrl = e.target.result
+      const result = e.target?.result
+      if (typeof result !== 'string') return
+      dataUrl = result
       truncatedDataUrl = getTruncatedDataUrl(dataUrl)
       mimeType = file.type || inferMimeTypeFromExtension(file.name)
       fileSize = formatFileSize(file.size)
@@ -128,6 +139,9 @@
     reader.readAsDataURL(file)
   }
 
+  /**
+   * @param {number} bytes
+   */
   function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes'
     const k = 1024
@@ -136,6 +150,9 @@
     return parseFloat((bytes / Math.pow(k, unitIndex)).toFixed(2)) + ' ' + FILE_SIZE_UNITS[unitIndex]
   }
 
+  /**
+   * @param {string} url
+   */
   function getTruncatedDataUrl(url) {
     if (url.length <= DATA_URL_TRUNCATE_LIMIT) return url
     return url.substring(0, DATA_URL_TRUNCATE_LIMIT) + '...'

@@ -93,12 +93,24 @@
   // Elements where whitespace is significant
   const PRESERVE_WHITESPACE = new Set(['pre', 'code', 'textarea', 'script', 'style'])
 
+  /**
+   * @typedef {(
+   *   | { type: 'comment' | 'doctype' | 'text', content: string }
+   *   | { type: 'close', name: string }
+   *   | { type: 'open' | 'self-closing', name: string, content: string }
+   * )} HtmlToken
+   */
+
+  /**
+   * @param {string} html
+   */
   function formatHTML(html) {
     let formatted = ''
     let indent = 0
     const tab = '  '
     
     // Tokenize HTML
+    /** @type {HtmlToken[]} */
     const tokens = []
     let i = 0
     
@@ -230,6 +242,9 @@
     return formatted.trim() || escapeHtml(html)
   }
 
+  /**
+   * @param {string} str
+   */
   function escapeHtml(str) {
     return str
       .replace(/&/g, '&amp;')
@@ -237,13 +252,18 @@
       .replace(/>/g, '&gt;')
   }
 
+  /**
+   * @param {string} html
+   */
   function minifyHTML(html) {
     // Protect whitespace-sensitive elements during minification
+    /** @type {{ placeholder: string, content: string }[]} */
     const protectedBlocks = []
     let protectedIndex = 0
     
     // Replace whitespace-sensitive content with placeholders
     const WHITESPACE_SENSITIVE = /<(pre|code|textarea|script|style)[^>]*>[\s\S]*?<\/\1>/gi
+    /** @param {string} match */
     let protectedHtml = html.replace(WHITESPACE_SENSITIVE, (match) => {
       const placeholder = `___PROTECTED_${protectedIndex}___`
       protectedBlocks.push({ placeholder, content: match })
@@ -309,6 +329,9 @@
     }, 300)
   }
 
+  /**
+   * @param {string} newMode
+   */
   function setMode(newMode) {
     mode = newMode
     process()

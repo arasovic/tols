@@ -7,10 +7,19 @@
   const DEBOUNCE_DELAY = 300
   const SAVE_DEBOUNCE_DELAY = 500
 
+  /**
+   * @typedef {{
+   *   status: 'success' | 'error',
+   *   data?: object,
+   *   error?: string
+   * }} JsonpResult
+   */
+
   let url = EXAMPLE_URL
   let callback = EXAMPLE_CALLBACK
   let response = '{"name": "John", "age": 30}'
   let generatedScript = `<script src="${EXAMPLE_URL}?callback=${EXAMPLE_CALLBACK}"><\/script>`
+  /** @type {JsonpResult | null} */
   let parsedResult = { status: 'success', data: { name: 'John', age: 30 } }
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timeout
@@ -31,6 +40,9 @@
     }
   }
 
+  /**
+   * @param {string} str
+   */
   function sanitizeForHtml(str) {
     if (!str) return ''
     return str
@@ -41,6 +53,9 @@
       .replace(/'/g, '&#x27;')
   }
 
+  /**
+   * @param {string} value
+   */
   function validateUrl(value) {
     if (!value) return true
     try {
@@ -51,6 +66,9 @@
     }
   }
 
+  /**
+   * @param {string} value
+   */
   function validateCallbackName(value) {
     if (!value) return true
     return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)
@@ -181,7 +199,7 @@
 
     <div class="input-group">
       <label for={responseTextareaId}>Simulated Response (JSON)</label>
-      <textarea id={responseTextareaId} bind:value={response} on:input={debouncedGenerate} placeholder='{{"key": "value"}}' class="response-textarea"></textarea>
+      <textarea id={responseTextareaId} bind:value={response} on:input={debouncedGenerate} placeholder='{"{\"key\": \"value\"}"}' class="response-textarea"></textarea>
     </div>
   </div>
 

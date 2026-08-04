@@ -36,6 +36,7 @@
   let timeout = null
   /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
+  /** @type {ReturnType<typeof setTimeout> | null} */
   let modeTimeout = null
 
   function loadState() {
@@ -85,14 +86,27 @@
     if (modeTimeout) clearTimeout(modeTimeout)
   })
 
+  /**
+   * @typedef {(
+   *   | { type: 'comment' | 'cdata' | 'pi' | 'doctype' | 'text', content: string }
+   *   | { type: 'close', name: string }
+   *   | { type: 'open' | 'self-closing', name: string, attrs: string, full: string }
+   * )} XmlToken
+   */
+
+  /**
+   * @param {string} xml
+   */
   function formatXML(xml) {
     let formatted = ''
     let indent = 0
     const tab = '  '
+    /** @type {string[]} */
     const tagStack = []
     const mismatches = []
     
     // Tokenize XML - handle tags, text, CDATA, comments, and processing instructions
+    /** @type {XmlToken[]} */
     const tokens = []
     let i = 0
     const xmlLength = xml.length
@@ -240,6 +254,9 @@
     return formatted.trim() || xml
   }
 
+  /**
+   * @param {string} str
+   */
   function escapeXml(str) {
     return str
       .replace(/&/g, '&amp;')
@@ -249,6 +266,9 @@
       .replace(/'/g, '&apos;')
   }
 
+  /**
+   * @param {string} xml
+   */
   function minifyXML(xml) {
     return xml
       .replace(/>[\t\n\r ]+</g, '><')
@@ -256,6 +276,10 @@
       .trim()
   }
 
+  /**
+   * @param {string} xml
+   * @returns {string | null}
+   */
   function validateXML(xml) {
     // Check max input size
     if (xml.length > MAX_INPUT_SIZE) {
@@ -325,6 +349,9 @@
     }, 400)
   }
 
+  /**
+   * @param {string} newMode
+   */
   function setMode(newMode) {
     if (modeTimeout) clearTimeout(modeTimeout)
     modeTimeout = setTimeout(() => {

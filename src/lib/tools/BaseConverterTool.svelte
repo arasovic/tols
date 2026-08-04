@@ -37,6 +37,14 @@
     octal: { convert: convertFromOctal, validate: validateOctal }
   }
 
+  /**
+   * @typedef {'decimal' | 'binary' | 'hex' | 'octal'} BaseField
+   */
+
+  /**
+   * @param {string} value
+   * @returns {{ valid: boolean, error: string }}
+   */
   function validateDecimal(value) {
     if (!value || value === '-') return { valid: true, error: '' }
     const num = parseInt(value, 10)
@@ -45,18 +53,30 @@
     return { valid: true, error: '' }
   }
 
+  /**
+   * @param {string} value
+   * @returns {{ valid: boolean, error: string }}
+   */
   function validateBinary(value) {
     if (!value) return { valid: true, error: '' }
     if (!/^[01]*-?[01]*$/.test(value)) return { valid: false, error: 'Binary can only contain 0 and 1' }
     return { valid: true, error: '' }
   }
 
+  /**
+   * @param {string} value
+   * @returns {{ valid: boolean, error: string }}
+   */
   function validateHex(value) {
     if (!value) return { valid: true, error: '' }
     if (!/^[0-9A-Fa-f]*-?[0-9A-Fa-f]*$/.test(value)) return { valid: false, error: 'Hex can only contain 0-9 and A-F' }
     return { valid: true, error: '' }
   }
 
+  /**
+   * @param {string} value
+   * @returns {{ valid: boolean, error: string }}
+   */
   function validateOctal(value) {
     if (!value) return { valid: true, error: '' }
     if (!/^[0-7]*-?[0-7]*$/.test(value)) return { valid: false, error: 'Octal can only contain 0-7' }
@@ -197,6 +217,9 @@
     hex = oct.toString(16).toUpperCase()
   }
 
+  /**
+   * @param {BaseField} sourceField
+   */
   function clearOtherFields(sourceField) {
     error = ''
     if (sourceField !== 'decimal') decimal = ''
@@ -205,6 +228,9 @@
     if (sourceField !== 'octal') octal = ''
   }
 
+  /**
+   * @param {BaseField} field
+   */
   function updateFrom(field) {
     activeBase = field
     error = ''
@@ -224,6 +250,9 @@
     }, DEBOUNCE_MS)
   }
 
+  /**
+   * @param {BaseField} field
+   */
   function getFieldValue(field) {
     switch (field) {
       case 'decimal': return decimal
@@ -252,6 +281,9 @@
     saveState()
   }
 
+  /**
+   * @param {string} value
+   */
   function loadQuickConversion(value) {
     decimal = value
     convertFromDecimal()

@@ -4,7 +4,22 @@
 
   const STORAGE_KEY = 'devutils-unicode-search'
 
+  /**
+   * @typedef {{
+   *   char: string,
+   *   name: string,
+   *   category: string,
+   *   codepoint: string,
+   *   decimal?: number,
+   *   hex?: string,
+   *   html?: string,
+   *   css?: string,
+   *   js?: string
+   * }} UnicodeResult
+   */
+
   let searchChar = ''
+  /** @type {UnicodeResult[]} */
   let results = []
   /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
@@ -54,6 +69,10 @@
     { char: '‡', name: 'Double Dagger', category: 'Symbol', codepoint: 'U+2021' },
   ]
 
+  /**
+   * @param {string} char
+   * @returns {UnicodeResult | null}
+   */
   function analyzeChar(char) {
     if (!char) return null
     const code = char.codePointAt(0)
@@ -71,6 +90,9 @@
     }
   }
 
+  /**
+   * @param {string} char
+   */
   function getCharName(char) {
     try {
       return char.toUpperCase() + ' Character'
@@ -79,6 +101,9 @@
     }
   }
 
+  /**
+   * @param {string} text
+   */
   function escapeHtml(text) {
     if (!text) return ''
     return text
@@ -130,8 +155,12 @@
     }
   })
 
+  /**
+   * @param {string} char
+   */
   function copyCodepoint(char) {
     const code = char.codePointAt(0)
+    if (code === undefined) return ''
     return 'U+' + code.toString(16).toUpperCase().padStart(4, '0')
   }
 </script>
@@ -159,7 +188,7 @@
               <span class="category">{char.category}</span>
               <span class="codepoint">{char.codepoint}</span>
             </div>
-            {#if char.decimal}
+            {#if char.decimal && char.html && char.js}
               <div class="char-codes">
                 <span>Dec: {char.decimal}</span>
                 <span>HTML: {escapeHtml(char.html)}</span>

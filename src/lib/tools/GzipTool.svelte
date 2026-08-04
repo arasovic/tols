@@ -7,6 +7,7 @@
   const MAX_INPUT_LENGTH = 1048576 // 1MB
 
   let input = ''
+  /** @type {Uint8Array | null} */
   let compressedBytes = null
   let error = ''
   /** @type {ReturnType<typeof setTimeout> | undefined} */
@@ -19,7 +20,7 @@
   $: originalSize = new Blob([input]).size
   $: compressedSize = compressedBytes ? compressedBytes.length : 0
   $: compressionRatio = originalSize > 0 ? ((originalSize - compressedSize) / originalSize * 100).toFixed(1) : 0
-  $: savingsPercent = originalSize > 0 ? Math.max(0, compressionRatio) : 0
+  $: savingsPercent = originalSize > 0 ? Math.max(0, Number(compressionRatio)) : 0
 
   function loadState() {
     try {
@@ -49,6 +50,10 @@
     }
   }
 
+  /**
+   * @param {string} text
+   * @returns {Promise<Uint8Array>}
+   */
   async function compressData(text) {
     const encoder = new TextEncoder()
     const data = encoder.encode(text)
@@ -58,6 +63,7 @@
     writer.close()
 
     const reader = stream.readable.getReader()
+    /** @type {Uint8Array[]} */
     const chunks = []
     while (true) {
       const { done, value } = await reader.read()
@@ -105,6 +111,9 @@
     }, DEBOUNCE_WAIT)
   }
 
+  /**
+   * @param {number} bytes
+   */
   function formatBytes(bytes) {
     if (bytes === 0) return '0 B'
     const k = 1024
@@ -113,8 +122,11 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLTextAreaElement }} event
+   */
   function handleInput(event) {
-    const value = event.target.value
+    const value = event.currentTarget.value
     if (value.length > MAX_INPUT_LENGTH) {
       input = value.slice(0, MAX_INPUT_LENGTH)
       error = 'Input truncated to 1MB limit'
@@ -139,6 +151,7 @@
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     prefersReducedMotion = mediaQuery.matches
 
+    /** @param {MediaQueryListEvent} e */
     const handleChange = (e) => {
       prefersReducedMotion = e.matches
     }
@@ -196,7 +209,7 @@
     </div>
 
     <div class="output-section">
-      <label class="section-label">Compression Results</label>
+      <span class="section-label">Compression Results</span>
       <div class="results-card">
         {#if isProcessing}
           <div class="loading" aria-live="polite">Compressing...</div>

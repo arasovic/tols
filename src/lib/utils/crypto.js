@@ -133,7 +133,7 @@ export function generateUUIDs(count) {
 
 /**
  * @param {string} token
- * @returns {Promise<{valid: boolean, header?: object, payload?: object, signature?: string, error?: string}>}
+ * @returns {Promise<{valid: boolean, header?: Record<string, unknown>, payload?: Record<string, unknown>, signature?: string, error?: string}>}
  */
 export async function decodeJWT(token) {
   if (!token || typeof token !== 'string') {

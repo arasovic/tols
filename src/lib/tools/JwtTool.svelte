@@ -10,7 +10,19 @@
 
   const EXAMPLE_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
 
+  /**
+   * @typedef {{
+   *   valid: boolean,
+   *   header?: Record<string, unknown>,
+   *   payload?: Record<string, unknown>,
+   *   signature?: string,
+   *   error?: string,
+   *   signatureBase64?: string
+   * }} DecodedJwt
+   */
+
   let token = ''
+  /** @type {DecodedJwt | null} */
   let decoded = null
   let error = ''
   /** @type {ReturnType<typeof setTimeout> | undefined} */
@@ -20,6 +32,9 @@
   let showStorageWarning = true
   let storageEnabled = true
 
+  /**
+   * @param {unknown} timestamp
+   */
   function formatDate(timestamp) {
     if (!timestamp || typeof timestamp !== 'number') return 'Invalid date'
     const date = new Date(timestamp * 1000)
@@ -104,7 +119,7 @@
           decoded.signatureBase64 = parts[2]
         }
       } else {
-        error = result.error
+        error = result.error || ''
       }
     } catch (/** @type {any} */ e) {
       error = 'Failed to decode JWT'

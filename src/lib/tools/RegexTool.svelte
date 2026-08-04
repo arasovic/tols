@@ -16,6 +16,7 @@
   let input = ''
   let pattern = ''
   let flags = 'g'
+  /** @type {RegExpMatchArray[]} */
   let matches = []
   let error = ''
   let errorDetails = ''
@@ -24,6 +25,7 @@
   let timeout = null
   /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
+  /** @type {Worker | null} */
   let currentWorker = null
   let persistentError = ''
 
@@ -134,6 +136,9 @@
     terminateWorker()
   })
 
+  /**
+   * @param {string} text
+   */
   function escapeHtml(text) {
     if (!text) return ''
     return text
@@ -146,6 +151,10 @@
       .replace(/\0/g, '&#0;')
   }
 
+  /**
+   * @param {string} flagString
+   * @returns {string}
+   */
   function validateFlags(flagString) {
     if (!flagString) return ''
     const uniqueFlags = [...new Set(flagString.split(''))]
@@ -153,6 +162,12 @@
     return validOnly.join('')
   }
 
+  /**
+   * @param {string} pattern
+   * @param {string} flags
+   * @param {string} text
+   * @returns {Promise<RegExpMatchArray | RegExpMatchArray[] | null>}
+   */
   async function performMatchWithTimeout(pattern, flags, text) {
     // Check if Web Workers are available (not available in test environments like jsdom)
     const workersAvailable = typeof Worker !== 'undefined' && typeof Blob !== 'undefined' && typeof URL !== 'undefined' && URL.createObjectURL
@@ -169,7 +184,7 @@
             result = Array.from(text.matchAll(regex))
           }
           resolve(result)
-        } catch (err) {
+        } catch (/** @type {any} */ err) {
           reject(new Error(err.message))
         }
       })
@@ -231,10 +246,10 @@
 
       if (!isGlobal) {
         if (matchResult) {
-          matches = [matchResult]
+          matches = [/** @type {RegExpMatchArray} */ (matchResult)]
         }
       } else {
-        matches = matchResult || []
+        matches = /** @type {RegExpMatchArray[]} */ (matchResult || [])
       }
 
       let highlighted = ''
@@ -296,6 +311,9 @@
     saveState()
   }
 
+  /**
+   * @param {string} flag
+   */
   function toggleFlag(flag) {
     if (!VALID_FLAGS.has(flag)) return
     if (flags.includes(flag)) {

@@ -22,6 +22,44 @@ console.log(greet(user));`
   let leftInput = EXAMPLE_LEFT
   let rightInput = EXAMPLE_RIGHT
   let mode = 'split'
+
+  /**
+   * @typedef {{
+   *   type: 'equal' | 'delete' | 'insert',
+   *   text: string
+   * }} WordDiffItem
+   */
+
+  /**
+   * @typedef {{
+   *   type: 'same' | 'modified' | 'removed' | 'added',
+   *   left: string,
+   *   right: string,
+   *   oldLineNum: number | null,
+   *   newLineNum: number | null,
+   *   wordDiff: WordDiffItem[],
+   *   oldWordDiff: WordDiffItem[] | null,
+   *   newWordDiff: WordDiffItem[] | null
+   * }} DiffItem
+   */
+
+  /**
+   * @typedef {(
+   *   | { type: 'equal', oldIndex: number, newIndex: number, oldLine: string, newLine: string }
+   *   | { type: 'delete', oldIndex: number, newIndex: null, oldLine: string, newLine: null }
+   *   | { type: 'insert', oldIndex: null, newIndex: number, oldLine: null, newLine: string }
+   * )} MyersOp
+   */
+
+  /**
+   * @typedef {(
+   *   | { type: 'equal', oldWord: string, newWord: string }
+   *   | { type: 'delete', oldWord: string, newWord?: undefined }
+   *   | { type: 'insert', oldWord?: undefined, newWord: string }
+   * )} LcsOp
+   */
+
+  /** @type {DiffItem[]} */
   let diff = []
   /** @type {ReturnType<typeof setTimeout> | null} */
   let timeout = null
@@ -91,6 +129,10 @@ console.log(greet(user));`
 
   const diffCache = new Map()
 
+  /**
+   * @param {string} oldLine
+   * @param {string} newLine
+   */
   function getCacheKey(oldLine, newLine) {
     return `${oldLine}\x00${newLine}`
   }
@@ -98,6 +140,9 @@ console.log(greet(user));`
   /**
    * Myers diff algorithm - finds shortest edit script
    * Returns an array of operations: { type: 'equal'|'insert'|'delete', oldIndex, newIndex, line }
+   * @param {string[]} oldLines
+   * @param {string[]} newLines
+   * @returns {MyersOp[]}
    */
   function myersDiff(oldLines, newLines) {
     const n = oldLines.length
@@ -139,7 +184,17 @@ console.log(greet(user));`
     return backtrack(trace, oldLines, newLines, max, n, m)
   }
 
+  /**
+   * @param {Array<Map<number, number>>} trace
+   * @param {string[]} oldLines
+   * @param {string[]} newLines
+   * @param {number} d
+   * @param {number} n
+   * @param {number} m
+   * @returns {MyersOp[]}
+   */
   function backtrack(trace, oldLines, newLines, d, n, m) {
+    /** @type {MyersOp[]} */
     const edits = []
     let x = n
     let y = m
@@ -151,13 +206,13 @@ console.log(greet(user));`
       let prevK
       const prevV = trace[d_idx - 1]
 
-      if (k === -d_idx || (k !== d_idx && prevV.get(k - 1) < prevV.get(k + 1))) {
+      if (k === -d_idx || (k !== d_idx && (prevV.get(k - 1) ?? 0) < (prevV.get(k + 1) ?? 0))) {
         prevK = k + 1
       } else {
         prevK = k - 1
       }
 
-      const prevX = prevV.get(prevK)
+      const prevX = prevV.get(prevK) ?? 0
       const prevY = prevX - prevK
 
       while (x > prevX && y > prevY) {
@@ -186,6 +241,9 @@ console.log(greet(user));`
 
   /**
    * Compute longest common subsequence for word-level diff
+   * @param {string[]} oldWords
+   * @param {string[]} newWords
+   * @returns {LcsOp[]}
    */
   function computeLCS(oldWords, newWords) {
     const n = oldWords.length
@@ -213,7 +271,7 @@ console.log(greet(user));`
       }
     }
 
-    const result = []
+    const result = /** @type {LcsOp[]} */ ([])
     let i = n
     let j = m
 
@@ -237,6 +295,8 @@ console.log(greet(user));`
   /**
    * Tokenize text into words and separators for word-level diff
    * Supports Unicode characters including Turkish (ğ, ü, ş, ı, ö, ç)
+   * @param {string} text
+   * @returns {string[]}
    */
   function tokenize(text) {
     if (!text || text.length === 0) return []
@@ -254,6 +314,9 @@ console.log(greet(user));`
 
   /**
    * Compute word-level diff between two lines with caching
+   * @param {string} oldLine
+   * @param {string} newLine
+   * @returns {WordDiffItem[]}
    */
   function computeWordDiff(oldLine, newLine) {
     if (oldLine === newLine) {
@@ -295,6 +358,7 @@ console.log(greet(user));`
 
     if (currentGroup) groups.push(currentGroup)
 
+    /** @type {WordDiffItem[]} */
     const result = []
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i]
@@ -313,6 +377,9 @@ console.log(greet(user));`
 
   /**
    * Calculate similarity ratio between two strings (0-1)
+   * @param {string} str1
+   * @param {string} str2
+   * @returns {number}
    */
   function similarityScore(str1, str2) {
     if (!str1 || !str2) return 0
@@ -363,6 +430,7 @@ console.log(greet(user));`
     const normalizedNewLines = newLines.map(line => line || '')
 
     const edits = myersDiff(normalizedOldLines, normalizedNewLines)
+    /** @type {DiffItem[]} */
     const result = []
 
     let oldLineNum = 1
@@ -390,7 +458,7 @@ console.log(greet(user));`
           nextEdit.type === 'insert' &&
           similarityScore(edit.oldLine, nextEdit.newLine) >= MODIFIED_THRESHOLD
 
-        if (isModified) {
+        if (nextEdit && nextEdit.type === 'insert' && isModified) {
           const wordDiff = computeWordDiff(edit.oldLine, nextEdit.newLine)
           result.push({
             type: 'modified',
@@ -404,6 +472,7 @@ console.log(greet(user));`
           })
           i++
         } else {
+          /** @type {WordDiffItem[]} */
           const wordDiff = [{ type: 'delete', text: edit.oldLine }]
           result.push({
             type: 'removed',
@@ -417,6 +486,7 @@ console.log(greet(user));`
           })
         }
       } else if (edit.type === 'insert') {
+        /** @type {WordDiffItem[]} */
         const wordDiff = [{ type: 'insert', text: edit.newLine }]
         result.push({
           type: 'added',

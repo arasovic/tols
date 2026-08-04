@@ -15,10 +15,15 @@
   let sepia = 0
 
   let filterString = 'none'
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let updateTimeout
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let prefersReducedMotion = false
+
+  /**
+   * @typedef {'blur' | 'brightness' | 'contrast' | 'grayscale' | 'hueRotate' | 'invert' | 'saturate' | 'sepia'} FilterName
+   */
 
   const FILTER_LIMITS = {
     blur: { min: 0, max: 20 },
@@ -31,9 +36,14 @@
     sepia: { min: 0, max: 100 }
   }
 
+  /**
+   * @param {FilterName} name
+   * @param {string | number} value
+   * @returns {number}
+   */
   function validateValue(name, value) {
     const limits = FILTER_LIMITS[name]
-    if (!limits) return value
+    if (!limits) return Number(value)
     return Math.max(limits.min, Math.min(limits.max, Number(value) || 0))
   }
 
@@ -106,43 +116,67 @@
     updateFilter()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleBlurInput(event) {
-    blur = validateValue('blur', event.target.value)
+    blur = validateValue('blur', event.currentTarget.value)
     debouncedUpdate()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleBrightnessInput(event) {
-    brightness = validateValue('brightness', event.target.value)
+    brightness = validateValue('brightness', event.currentTarget.value)
     debouncedUpdate()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleContrastInput(event) {
-    contrast = validateValue('contrast', event.target.value)
+    contrast = validateValue('contrast', event.currentTarget.value)
     debouncedUpdate()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleGrayscaleInput(event) {
-    grayscale = validateValue('grayscale', event.target.value)
+    grayscale = validateValue('grayscale', event.currentTarget.value)
     debouncedUpdate()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleHueRotateInput(event) {
-    hueRotate = validateValue('hueRotate', event.target.value)
+    hueRotate = validateValue('hueRotate', event.currentTarget.value)
     debouncedUpdate()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleInvertInput(event) {
-    invert = validateValue('invert', event.target.value)
+    invert = validateValue('invert', event.currentTarget.value)
     debouncedUpdate()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleSaturateInput(event) {
-    saturate = validateValue('saturate', event.target.value)
+    saturate = validateValue('saturate', event.currentTarget.value)
     debouncedUpdate()
   }
 
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} event
+   */
   function handleSepiaInput(event) {
-    sepia = validateValue('sepia', event.target.value)
+    sepia = validateValue('sepia', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -152,6 +186,7 @@
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     prefersReducedMotion = mediaQuery.matches
 
+    /** @param {MediaQueryListEvent} e */
     const handleChange = (e) => {
       prefersReducedMotion = e.matches
     }

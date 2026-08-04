@@ -36,7 +36,7 @@
   $: favoriteTools = tools.filter(tool => $favorites.includes(tool.path))
   $: recentList = $recentTools
     .map(id => tools.find(tool => tool.path === id))
-    .filter(Boolean)
+    .filter(/** @returns {tool is typeof tools[number]} */ (tool) => tool !== undefined)
 
   const heroStats = [
     { value: String(tools.length), label: 'Tools' },

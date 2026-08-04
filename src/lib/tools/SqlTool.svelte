@@ -86,6 +86,13 @@ LIMIT 100;`
     }, SAVE_DELAY_MS)
   }
 
+  /**
+   * @typedef {{ type: string, value: string, line: number, col: number }} SqlToken
+   */
+
+  /**
+   * @param {string} message
+   */
   function showError(message) {
     errorMessage = message
     clearTimeout(errorTimeout)
@@ -103,6 +110,10 @@ LIMIT 100;`
     clearTimeout(errorTimeout)
   })
 
+  /**
+   * @param {string} sql
+   * @returns {SqlToken[]}
+   */
   function tokenize(sql) {
     const tokens = []
     let i = 0
@@ -232,6 +243,10 @@ LIMIT 100;`
     return tokens
   }
 
+  /**
+   * @param {SqlToken[]} tokens
+   * @returns {string}
+   */
   function formatWithNewlines(tokens) {
     const result = []
     let indentLevel = 0
@@ -327,6 +342,9 @@ LIMIT 100;`
     return result.join('\n')
   }
 
+  /**
+   * @param {string} sql
+   */
   function formatSQL(sql) {
     if (!sql.trim()) return ''
 
@@ -340,6 +358,9 @@ LIMIT 100;`
     return formatted.trim()
   }
 
+  /**
+   * @param {string} sql
+   */
   function minifySQL(sql) {
     if (!sql.trim()) return ''
 
@@ -364,6 +385,9 @@ LIMIT 100;`
       .trim()
   }
 
+  /**
+   * @param {string} string
+   */
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   }
@@ -411,6 +435,9 @@ LIMIT 100;`
     saveState()
   }
 
+  /**
+   * @param {string} case_
+   */
   function setKeywordCase(case_) {
     keywordCase = case_
     process()
