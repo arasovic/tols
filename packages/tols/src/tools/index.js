@@ -3,5 +3,7 @@
 // the register call here.
 import { register } from '../registry.js';
 import base64 from './base64.js';
+import url from './url.js';
 
 register(base64);
+register(url);

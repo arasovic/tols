@@ -5,6 +5,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
+  import { encode, decode } from 'tols/core/url'
 
   const EXAMPLE_URL = 'https://example.com/path?name=John&age=30'
   const DEBOUNCE_DELAY_MS = 150
@@ -82,9 +83,9 @@
 
     try {
       if (mode === 'encode') {
-        output = encodeURIComponent(input)
+        output = encode(input)
       } else {
-        output = decodeURIComponent(input)
+        output = decode(input)
       }
     } catch (/** @type {any} */ e) {
       error = mode === 'encode'
