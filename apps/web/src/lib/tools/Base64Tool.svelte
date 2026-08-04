@@ -5,6 +5,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount } from 'svelte'
+  import { encode as utf8ToBase64, decode as base64ToUtf8 } from 'tols/core/base64'
 
   const EXAMPLE_TEXT = 'Hello, World!'
   const DEBOUNCE_WAIT = 150
@@ -89,57 +90,6 @@
       if (saveTimeout) clearTimeout(saveTimeout)
     }
   })
-
-  /**
-   * @param {string} str
-   */
-  function utf8ToBase64(str) {
-    const encoder = new TextEncoder()
-    const bytes = encoder.encode(str)
-    // Use Uint8Array directly for better performance
-    let binary = ''
-    const len = bytes.byteLength
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i])
-    }
-    return btoa(binary)
-  }
-
-  /**
-   * @param {string} str
-   */
-  function base64ToUtf8(str) {
-    const cleaned = str.replace(/\s/g, '')
-
-    // Validate Base64 before decoding
-    if (!isValidBase64(cleaned)) {
-      throw new Error('Invalid Base64 string')
-    }
-
-    const binString = atob(cleaned)
-    const bytes = new Uint8Array(binString.length)
-    for (let i = 0; i < binString.length; i++) {
-      bytes[i] = binString.charCodeAt(i)
-    }
-    const decoder = new TextDecoder('utf-8')
-    return decoder.decode(bytes)
-  }
-
-  /**
-   * @param {string} str
-   */
-  function isValidBase64(str) {
-    // Check if string contains only valid Base64 characters
-    if (!str || !/^[A-Za-z0-9+/]*={0,2}$/.test(str)) {
-      return false
-    }
-    // Base64 length without padding should be valid
-    // Unpadded Base64 can be any length, padded must be divisible by 4
-    const withoutPadding = str.replace(/=+$/, '')
-    const padding = str.length - withoutPadding.length
-    // Valid lengths: unpadded (any), padded (divisible by 4)
-    return padding === 0 || str.length % 4 === 0
-  }
 
   /**
    * @param {Error} err

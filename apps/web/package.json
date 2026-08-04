@@ -27,6 +27,7 @@
     "vitest": "^2.0.0"
   },
   "dependencies": {
-    "lucide-svelte": "^0.577.0"
+    "lucide-svelte": "^0.577.0",
+    "tols": "*"
   }
 }
