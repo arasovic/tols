@@ -7,17 +7,26 @@
   /** Optional keyboard hint rendered inside the button */
   export let kbd = ''
   export let disabled = false
-  export let title = ''
 </script>
 
+<!--
+  `$$restProps` carries aria-label, title, data-* and the like straight through.
+  An icon-only action needs an accessible name, and 28 tool components will
+  consume this primitive — a closed attribute surface would force every one of
+  them to wrap it. `title` is deliberately NOT a declared prop: declaring it
+  with a '' default would emit an empty title attribute on every button.
+-->
 <button
   type="button"
   class="btn"
   class:btn-primary={variant === 'primary'}
   class:btn-ghost={variant === 'ghost'}
   {disabled}
-  {title}
+  {...$$restProps}
   on:click
+  on:keydown
+  on:focus
+  on:blur
 >
   <slot />
   {#if kbd}<Kbd keys={kbd} />{/if}

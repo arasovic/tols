@@ -11,4 +11,7 @@
     <Button variant="primary">format</Button>
     <Button variant="ghost">minify</Button>
   </svelte:fragment>
+  <svelte:fragment slot="rail-end">
+    <Button variant="ghost">copy</Button>
+  </svelte:fragment>
 </Workbench>

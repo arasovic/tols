@@ -6,7 +6,13 @@
   export let meta = ''
 </script>
 
-<section class="panel" aria-label={label}>
+<!--
+  `label` is effectively required: an empty aria-label is not an accessible
+  name, so the <section> would silently lose its implicit `region` role. Falling
+  back to `undefined` keeps the DOM honest — no empty attribute pretending to
+  be a label — but a consumer that omits `label` still gets an unnamed pane.
+-->
+<section class="panel" aria-label={label || undefined}>
   <header class="panel-head">
     <span class="panel-label">{label}</span>
     {#if meta}<span class="panel-meta">{meta}</span>{/if}
