@@ -27,7 +27,6 @@
     name: tool.name,
     desc: tool.description,
     category: tool.category,
-    icon: tool.icon,
     popular: tool.popular === true
   }))
 

@@ -30,6 +30,10 @@ describe('TerminalDemo', () => {
     await waitFor(() => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('npm i -g tols')
     })
+    // The clipboard call alone does not prove the user saw anything happen.
+    await waitFor(() => {
+      expect(getByText('copied')).toBeInTheDocument()
+    })
   })
 
   it('leaves the copy button in its default state when the clipboard write fails', async () => {

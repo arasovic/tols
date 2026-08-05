@@ -9,7 +9,7 @@
   import { escapeHtml } from '$lib/utils/html.js'
   import { templateFor } from '$lib/cli/templates.js'
 
-  /** @type {{ path: string, name: string, desc: string, icon: any }} */
+  /** @type {{ path: string, name: string, desc: string }} */
   export let tool
   /** Current search query; matched fragments are wrapped in <mark>. */
   export let query = ''
