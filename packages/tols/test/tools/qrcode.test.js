@@ -26,13 +26,30 @@ describe('tols qrcode', () => {
     expect(r.err).toBe('');
   });
 
-  it('--json reports version and mode', async () => {
+  it('--json reports version, mode, mask, ecLevel', async () => {
     const r = await tols(['qr', 'gen', '12345', '--json']);
     expect(r.code).toBe(0);
     const p = JSON.parse(r.out);
     expect(p.ok).toBe(true);
     expect(p.result.version).toBe(1);
     expect(p.result.mode).toBe('numeric');
+    expect(p.result.ecLevel).toBe('M');
+    expect(p.result.mask).toBeGreaterThanOrEqual(0);
+  });
+
+  it('--ec changes error correction level', async () => {
+    const base = await tols(['qr', 'gen', 'x'.repeat(100), '--json']);
+    const high = await tols(['qr', 'gen', 'x'.repeat(100), '--ec=H', '--json']);
+    expect(base.code).toBe(0);
+    expect(high.code).toBe(0);
+    expect(JSON.parse(high.out).result.version).toBeGreaterThan(JSON.parse(base.out).result.version);
+    expect(JSON.parse(high.out).result.ecLevel).toBe('H');
+  });
+
+  it('invalid --ec -> exit 1', async () => {
+    const r = await tols(['qr', 'gen', 'hi', '--ec=X']);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain('unknown --ec');
   });
 
   it('too long input -> exit 1', async () => {

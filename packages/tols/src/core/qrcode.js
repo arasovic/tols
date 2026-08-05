@@ -1,39 +1,46 @@
 /**
- * QR code core — encoder ported from apps/web QrcodeTool.svelte.
+ * QR code core — spec-complete Model 2 encoder (versions 1-40, EC levels
+ * L/M/Q/H, all 8 mask patterns with automatic selection).
  *
- * Web-parity behavior kept: EC level M, mask pattern 0, single-block
- * Reed-Solomon, no alignment patterns (so versions >= 2 follow the same
- * simplified encoding as the web tool). Known limitation: codes above
- * version 2 may not scan with strict readers; upgrading the encoder is a
- * separate task.
+ * History: Phase 2 ported the hand-rolled encoder from apps/web
+ * QrcodeTool.svelte and fixed its structural bugs (mask corrupting function
+ * patterns, wrong capacity table, mis-placed format info, UTF-16 byte
+ * mode). This revision completes the encoder: multi-block Reed-Solomon
+ * with proper interleaving, penalty-based mask selection, version
+ * information bits, and per-level capacities.
  *
- * One deliberate fix: byte mode encodes UTF-8 bytes (TextEncoder) instead
- * of raw UTF-16 code units, so non-Latin text no longer corrupts — same
- * class of bug as the Phase 1 JWT unicode fix.
+ * EC/block tables and the penalty algorithm follow ISO 18004, adapted from
+ * Project Nayuki's QR Code generator (MIT license, github.com/nayuki/
+ * QR-Code-generator). Byte mode encodes UTF-8.
  */
 
 export const MODE_NUMERIC = 1;
 export const MODE_ALPHANUMERIC = 2;
 export const MODE_BYTE = 4;
 
-export const EC_LEVELS = {
-  L: { value: 0, blocks: [7, 1, 0], capacity: [19, 34, 55, 80, 108, 136] },
-  M: { value: 1, blocks: [10, 1, 0], capacity: [16, 28, 44, 64, 86, 108] },
-  Q: { value: 2, blocks: [13, 1, 0], capacity: [13, 22, 34, 48, 62, 76] },
-  H: { value: 3, blocks: [17, 1, 0], capacity: [9, 16, 26, 36, 46, 60] },
-};
+export const EC_LEVELS = ['L', 'M', 'Q', 'H'];
 
-// Data codewords per version at EC level M.
-export const VERSION_CAPACITY_M = [16, 28, 44, 64, 86, 108, 124, 154, 182, 216, 240, 278, 318, 358, 400, 438, 504, 532, 588, 650, 700, 732, 788, 860, 914, 1000, 1062, 1128, 1193, 1267, 1377, 1458, 1548, 1628, 1722, 1809, 1911, 1989, 2099, 2213, 2331];
+// EC level indicator bits used inside the format info (ISO 18004 7.9).
+const EC_FORMAT_ORDER = { L: 1, M: 0, Q: 3, H: 2 };
 
-// Total data bits per version.
-export const VERSION_TOTAL_BITS = [
-  152, 272, 440, 640, 864, 1088, 1248, 1552, 1856, 2192,
-  2496, 2800, 3112, 3568, 4000, 4288, 4928, 5312, 5728, 6256,
-  6736, 7216, 7744, 8352, 8832, 9600, 10208, 10816, 11408, 12128,
-  13056, 13808, 14560, 15424, 16288, 17136, 18048, 18960, 19904, 20928,
-  21952,
+// Error correction codewords per block, [level][version] (index 0 unused).
+// Source: ISO 18004 Table 9, via Nayuki (MIT).
+export const ECC_CODEWORDS_PER_BLOCK = [
+  [-1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30], // L
+  [-1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28], // M
+  [-1, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30], // Q
+  [-1, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30], // H
 ];
+
+// Number of Reed-Solomon blocks, [level][version] (index 0 unused).
+export const NUM_ERROR_CORRECTION_BLOCKS = [
+  [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25], // L
+  [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49], // M
+  [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68], // Q
+  [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81], // H
+];
+
+/* ---- Galois field + Reed-Solomon ---- */
 
 const GF_LOG = new Array(256);
 const GF_EXP = new Array(512);
@@ -76,19 +83,50 @@ export function generatorPoly(degree) {
   return g;
 }
 
-export function reedSolomon(data, ecCodewords) {
-  const g = generatorPoly(ecCodewords);
-  const remainder = new Array(ecCodewords).fill(0);
+/** RS remainder of `data` divided by the generator polynomial of degree ecLen. */
+export function reedSolomon(data, ecLen) {
+  const g = generatorPoly(ecLen);
+  const remainder = new Array(ecLen).fill(0);
   for (let i = 0; i < data.length; i++) {
     const factor = data[i] ^ remainder[0];
     remainder.shift();
     remainder.push(0);
-    for (let j = 0; j < ecCodewords; j++) {
+    for (let j = 0; j < ecLen; j++) {
       remainder[j] ^= gfMul(g[j + 1] || 0, factor);
     }
   }
   return remainder;
 }
+
+/* ---- Capacity ---- */
+
+export function getMatrixSize(version) {
+  return 17 + version * 4;
+}
+
+/** Total modules excluding function patterns (includes remainder bits). */
+export function rawModuleCount(version) {
+  let result = (16 * version + 128) * version + 64;
+  if (version >= 2) {
+    const numAlign = Math.floor(version / 7) + 2;
+    result -= (25 * numAlign - 10) * numAlign - 55;
+    if (version >= 7) result -= 36;
+  }
+  return result;
+}
+
+export function totalCodewords(version) {
+  return Math.floor(rawModuleCount(version) / 8);
+}
+
+/** Data codewords available at a version/EC level (rest is ECC). */
+export function dataCodewords(version, ecLevel) {
+  const e = EC_LEVELS.indexOf(ecLevel);
+  if (e === -1) throw new Error(`unknown EC level: ${ecLevel}`);
+  return totalCodewords(version) - ECC_CODEWORDS_PER_BLOCK[e][version] * NUM_ERROR_CORRECTION_BLOCKS[e][version];
+}
+
+/* ---- Data encoding ---- */
 
 /** @param {string} text */
 export function getMode(text) {
@@ -99,8 +137,8 @@ export function getMode(text) {
 }
 
 export function getCharCountBits(version, mode) {
-  if (mode === MODE_NUMERIC) return version < 10 ? 10 : 12;
-  if (mode === MODE_ALPHANUMERIC) return version < 10 ? 9 : 11;
+  if (mode === MODE_NUMERIC) return version < 10 ? 10 : version < 27 ? 12 : 14;
+  if (mode === MODE_ALPHANUMERIC) return version < 10 ? 9 : version < 27 ? 11 : 13;
   return version < 10 ? 8 : 16;
 }
 
@@ -115,60 +153,50 @@ export function utf8Bytes(text) {
   return new TextEncoder().encode(text);
 }
 
-/** Number of units placed in the character-count field (bytes in byte mode). */
+/** Units stored in the character-count field (bytes in byte mode). */
 export function dataUnitCount(text, mode) {
   return mode === MODE_BYTE ? utf8Bytes(text).length : text.length;
 }
 
 export function textToBits(text, mode) {
   const bits = [];
-
   if (mode === MODE_NUMERIC) {
     for (let i = 0; i < text.length; i += 3) {
       const chunk = text.substring(i, i + 3);
       const num = parseInt(chunk, 10);
       const bitLen = chunk.length === 3 ? 10 : chunk.length === 2 ? 7 : 4;
-      for (let j = bitLen - 1; j >= 0; j--) {
-        bits.push((num >> j) & 1);
-      }
+      for (let j = bitLen - 1; j >= 0; j--) bits.push((num >> j) & 1);
     }
   } else if (mode === MODE_ALPHANUMERIC) {
     const charMap = {};
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
-    for (let i = 0; i < chars.length; i++) {
-      charMap[chars[i]] = i;
-    }
+    for (let i = 0; i < chars.length; i++) charMap[chars[i]] = i;
     for (let i = 0; i < text.length; i += 2) {
       if (i + 1 < text.length) {
         const num = charMap[text[i]] * 45 + charMap[text[i + 1]];
-        for (let j = 10; j >= 0; j--) {
-          bits.push((num >> j) & 1);
-        }
+        for (let j = 10; j >= 0; j--) bits.push((num >> j) & 1);
       } else {
         const num = charMap[text[i]];
-        for (let j = 5; j >= 0; j--) {
-          bits.push((num >> j) & 1);
-        }
+        for (let j = 5; j >= 0; j--) bits.push((num >> j) & 1);
       }
     }
   } else {
-    // UTF-8 bytes (web used UTF-16 code units, corrupting non-Latin text)
-    const bytes = utf8Bytes(text);
-    for (const byte of bytes) {
-      for (let j = 7; j >= 0; j--) {
-        bits.push((byte >> j) & 1);
-      }
+    for (const byte of utf8Bytes(text)) {
+      for (let j = 7; j >= 0; j--) bits.push((byte >> j) & 1);
     }
   }
-
   return bits;
 }
 
-export function getVersion(text, mode) {
+/** Smallest version fitting the text at the EC level, or -1. */
+export function getVersion(text, mode, ecLevel = 'M') {
   if (!text) return 1;
-  const bitsNeeded = 4 + getCharCountBits(1, mode) + textToBits(text, mode).length + 4;
+  const dataBits = textToBits(text, mode).length;
   for (let v = 1; v <= 40; v++) {
-    if (bitsNeeded <= totalCodewords(v) * 8) return v;
+    // 4 mode bits + count field + payload; the up-to-4-bit terminator is
+    // truncatable, so it is not required for the fit check.
+    const bitsNeeded = 4 + getCharCountBits(v, mode) + dataBits;
+    if (bitsNeeded <= dataCodewords(v, ecLevel) * 8) return v;
   }
   return -1;
 }
@@ -188,98 +216,78 @@ export function bitsToBytes(bits) {
 export function bytesToBits(bytes) {
   const bits = [];
   for (const byte of bytes) {
-    for (let j = 7; j >= 0; j--) {
-      bits.push((byte >> j) & 1);
-    }
+    for (let j = 7; j >= 0; j--) bits.push((byte >> j) & 1);
   }
   return bits;
 }
 
-/**
- * Total codewords for a version, derived from module geometry (all
- * non-reserved modules). Replaces the web's VERSION_TOTAL_BITS, which
- * turned out to hold EC-L data capacities — the root of the wrong
- * padding/ECC counts there.
- * @param {number} version
- */
-export function totalCodewords(version) {
-  const size = getMatrixSize(version);
-  let modules = 0;
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (!isReserved(size, r, c, version)) modules++;
-    }
-  }
-  return Math.floor(modules / 8);
-}
-
-export function generateQRData(text, version, mode) {
-  const dataBits = [];
-
-  dataBits.push(...getModeIndicator(mode));
-
+/** Encode the payload into data codewords (mode, count, data, terminator, pad). */
+export function encodeDataCodewords(text, version, mode, ecLevel) {
+  const capacityBits = dataCodewords(version, ecLevel) * 8;
+  const bits = [];
+  bits.push(...getModeIndicator(mode));
   const countBits = getCharCountBits(version, mode);
   const unitCount = dataUnitCount(text, mode);
-  for (let i = countBits - 1; i >= 0; i--) {
-    dataBits.push((unitCount >> i) & 1);
+  for (let i = countBits - 1; i >= 0; i--) bits.push((unitCount >> i) & 1);
+  bits.push(...textToBits(text, mode));
+  const terminatorLen = Math.min(4, capacityBits - bits.length);
+  for (let i = 0; i < terminatorLen; i++) bits.push(0);
+  while (bits.length % 8 !== 0) bits.push(0);
+  let padByte = 0xec;
+  while (bits.length < capacityBits) {
+    for (let j = 7; j >= 0; j--) bits.push((padByte >> j) & 1);
+    padByte ^= 0xec ^ 0x11;
   }
+  return bitsToBytes(bits.slice(0, capacityBits));
+}
 
-  dataBits.push(...textToBits(text, mode));
+/**
+ * Split data into RS blocks, compute per-block ECC, and interleave both
+ * data and ECC codewords (ISO 18004 8.6) — required for versions whose
+ * EC structure has multiple blocks.
+ */
+export function addEccAndInterleave(dataBytes, version, ecLevel) {
+  const e = EC_LEVELS.indexOf(ecLevel);
+  const numBlocks = NUM_ERROR_CORRECTION_BLOCKS[e][version];
+  const blockEccLen = ECC_CODEWORDS_PER_BLOCK[e][version];
+  const rawCodewords = totalCodewords(version);
+  const dataLen = dataBytes.length;
+  const numShortBlocks = numBlocks - (rawCodewords % numBlocks);
+  const shortBlockDataLen = Math.floor(rawCodewords / numBlocks) - blockEccLen;
 
-  const totalBits = totalCodewords(version) * 8;
-  const terminatorLen = Math.min(4, totalBits - dataBits.length);
-  for (let i = 0; i < terminatorLen; i++) {
-    dataBits.push(0);
-  }
-
-  while (dataBits.length % 8 !== 0) {
-    dataBits.push(0);
-  }
-
-  const padBytes = [0b11101100, 0b00010001];
-  let padIndex = 0;
-  while (dataBits.length < totalBits) {
-    const byte = padBytes[padIndex % 2];
-    for (let j = 7; j >= 0; j--) {
-      dataBits.push((byte >> j) & 1);
+  const result = new Array(rawCodewords);
+  let offset = 0;
+  for (let i = 0; i < numBlocks; i++) {
+    const datLen = shortBlockDataLen + (i < numShortBlocks ? 0 : 1);
+    const dat = dataBytes.slice(offset, offset + datLen);
+    offset += datLen;
+    const ecc = reedSolomon(dat, blockEccLen);
+    for (let j = 0, k = i; j < datLen; j++, k += numBlocks) {
+      if (j === shortBlockDataLen) k -= numShortBlocks;
+      result[k] = dat[j];
     }
-    padIndex++;
-  }
-
-  const finalDataBits = dataBits.slice(0, totalBits);
-  const dataBytes = bitsToBytes(finalDataBits);
-
-  const dataCodewords = VERSION_CAPACITY_M[version - 1] || VERSION_CAPACITY_M[VERSION_CAPACITY_M.length - 1];
-  const ecCodewords = totalBits / 8 - dataCodewords;
-
-  const dataBlocks = dataBytes.slice(0, dataCodewords);
-  const eccBytes = reedSolomon(dataBlocks, ecCodewords);
-
-  return bytesToBits([...dataBlocks, ...eccBytes]);
-}
-
-export function getMatrixSize(version) {
-  return 17 + version * 4;
-}
-
-/** Alignment pattern center coordinates for a version (ISO 18004 Annex E). */
-export function alignmentPositions(version) {
-  if (version === 1) return [];
-  const size = getMatrixSize(version);
-  const numAlign = Math.floor(version / 7) + 2;
-  const step = version === 32 ? 26 : Math.ceil((size - 13) / (2 * numAlign - 2)) * 2;
-  const result = [6];
-  for (let pos = size - 7; result.length < numAlign; pos -= step) {
-    result.push(pos);
+    for (let j = 0, k = dataLen + i; j < blockEccLen; j++, k += numBlocks) {
+      result[k] = ecc[j];
+    }
   }
   return result;
 }
 
-/**
- * Real alignment pattern centers: every coordinate pair except the three
- * that would collide with finder patterns.
- * @returns {[number, number][]}
- */
+/* ---- Function patterns ---- */
+
+/** Alignment pattern center coordinates (ISO 18004 Annex E). */
+export function alignmentPositions(version) {
+  if (version === 1) return [];
+  const numAlign = Math.floor(version / 7) + 2;
+  const step = Math.floor((version * 8 + numAlign * 3 + 5) / (numAlign * 4 - 4)) * 2;
+  const result = new Array(numAlign);
+  result[0] = 6;
+  let pos = version * 4 + 10;
+  for (let i = numAlign - 1; i >= 1; i--, pos -= step) result[i] = pos;
+  return result;
+}
+
+/** Real alignment centers (coordinate pairs minus the three finder corners). */
 export function alignmentCenters(version) {
   const positions = alignmentPositions(version);
   const size = getMatrixSize(version);
@@ -287,16 +295,13 @@ export function alignmentCenters(version) {
   for (const r of positions) {
     for (const c of positions) {
       const onFinderCorner =
-        (r === 6 && c === 6) ||
-        (r === 6 && c === size - 7) ||
-        (r === size - 7 && c === 6);
+        (r === 6 && c === 6) || (r === 6 && c === size - 7) || (r === size - 7 && c === 6);
       if (!onFinderCorner) centers.push([r, c]);
     }
   }
   return centers;
 }
 
-/** Draw 5x5 alignment patterns at the real centers. */
 export function drawAlignmentPatterns(matrix, version) {
   for (const [row, col] of alignmentCenters(version)) {
     for (let dr = -2; dr <= 2; dr++) {
@@ -318,26 +323,11 @@ const POSITION_PATTERN = [
   [1, 1, 1, 1, 1, 1, 1],
 ];
 
-export function drawTimingPattern(matrix, size) {
-  for (let i = 8; i < size - 8; i++) {
-    matrix[6][i] = i % 2 === 0 ? 1 : 0;
-    matrix[i][6] = i % 2 === 0 ? 1 : 0;
-  }
-}
-
 export function drawFinderPatterns(matrix, size) {
   for (let y = 0; y < 7; y++) {
     for (let x = 0; x < 7; x++) {
       matrix[y][x] = POSITION_PATTERN[y][x];
-    }
-  }
-  for (let y = 0; y < 7; y++) {
-    for (let x = 0; x < 7; x++) {
       matrix[y][size - 7 + x] = POSITION_PATTERN[y][x];
-    }
-  }
-  for (let y = 0; y < 7; y++) {
-    for (let x = 0; x < 7; x++) {
       matrix[size - 7 + y][x] = POSITION_PATTERN[y][x];
     }
   }
@@ -351,15 +341,42 @@ export function drawFinderPatterns(matrix, size) {
   }
 }
 
+export function drawTimingPattern(matrix, size) {
+  for (let i = 8; i < size - 8; i++) {
+    matrix[6][i] = i % 2 === 0 ? 1 : 0;
+    matrix[i][6] = i % 2 === 0 ? 1 : 0;
+  }
+}
+
 export function drawDarkModule(matrix, version) {
   const pos = 4 * version + 9;
-  if (pos < matrix.length) {
-    matrix[pos][8] = 1;
+  if (pos < matrix.length) matrix[pos][8] = 1;
+}
+
+/** Version information bits, BCH(18,6) with generator 0x1F25. */
+export function versionInfoBits(version) {
+  let rem = version;
+  for (let i = 0; i < 12; i++) {
+    rem = (rem << 1) ^ ((rem >> 11) * 0x1f25);
+  }
+  return (version << 12) | rem;
+}
+
+/** Draw the two 6x3 version information blocks (version >= 7). */
+export function drawVersionInfo(matrix, version) {
+  if (version < 7) return;
+  const size = matrix.length;
+  const bits = versionInfoBits(version);
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 3; j++) {
+      const bit = (bits >> (i * 3 + j)) & 1;
+      matrix[i][size - 11 + j] = bit;
+      matrix[size - 11 + j][i] = bit;
+    }
   }
 }
 
 export function isReserved(size, row, col, version) {
-  // Alignment patterns (version >= 2)
   for (const [ar, ac] of alignmentCenters(version)) {
     if (Math.abs(row - ar) <= 2 && Math.abs(col - ac) <= 2) return true;
   }
@@ -373,20 +390,16 @@ export function isReserved(size, row, col, version) {
   if (row < 9 && col === 8) return true;
   if (row === 8 && col >= size - 8) return true;
   if (row >= size - 8 && col === 8) return true;
-
-  // Version information blocks (version >= 7): two 6x3 areas
   if (version >= 7) {
     if (row < 6 && col >= size - 11 && col <= size - 9) return true;
     if (col < 6 && row >= size - 11 && row <= size - 9) return true;
   }
-
   return false;
 }
 
 export function placeData(matrix, size, data, version) {
   let bitIndex = 0;
   let direction = -1;
-
   for (let col = size - 1; col > 0; col -= 2) {
     if (col === 6) col--;
     for (let rowPass = 0; rowPass < size; rowPass++) {
@@ -405,59 +418,166 @@ export function placeData(matrix, size, data, version) {
   }
 }
 
-// Mask 0: (row + col) % 2 === 0, applied to DATA modules only.
-// The web applied it to the whole matrix, corrupting finder patterns —
-// nothing it produced could scan.
-export function applyMask(matrix, size, version) {
+/* ---- Masking ---- */
+
+// Mask condition per ISO 18004 Table 10: (row, col) -> invert when true.
+export const MASK_FUNCTIONS = [
+  (r, c) => (r + c) % 2 === 0,
+  (r) => r % 2 === 0,
+  (_r, c) => c % 3 === 0,
+  (r, c) => (r + c) % 3 === 0,
+  (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+  (r, c) => ((r * c) % 2) + ((r * c) % 3) === 0,
+  (r, c) => (((r * c) % 2) + ((r * c) % 3)) % 2 === 0,
+  (r, c) => (((r + c) % 2) + ((r * c) % 3)) % 2 === 0,
+];
+
+/** XOR the mask over data modules only; applying twice undoes it. */
+export function applyMask(matrix, size, version, mask) {
+  const fn = MASK_FUNCTIONS[mask];
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       if (isReserved(size, y, x, version)) continue;
       const cell = matrix[y][x];
-      if (cell !== null && cell !== undefined && (y + x) % 2 === 0) {
+      if (cell !== null && cell !== undefined && fn(y, x)) {
         matrix[y][x] = cell ^ 1;
       }
     }
   }
 }
 
-// Format info (15-bit BCH) for mask 0.
-export const FORMAT_INFO_TABLE = {
-  0: 0x77c4, // L
-  1: 0x5412, // M
-  2: 0x5e7c, // Q
-  3: 0x5b4f, // H
-};
+/* ---- Format information ---- */
 
-// The web mis-placed several format bits (wrong order in the top-left
-// column and top-right row, and it overwrote the dark module). Placement
-// below follows ISO 18004 7.9. Only entry 1 (M, mask 0) of the table is
-// used, matching the encoder's fixed EC level/mask.
-export function drawFormatInfo(matrix, size, ecLevel, maskPattern) {
-  const formatInfo = FORMAT_INFO_TABLE[ecLevel] || FORMAT_INFO_TABLE[1];
-  const bit = (i) => (formatInfo >> i) & 1;
-
-  // Copy 1 around the top-left finder pattern
-  for (let i = 0; i <= 5; i++) matrix[8][i] = bit(i);
-  matrix[8][7] = bit(6);
-  matrix[8][8] = bit(7);
-  matrix[7][8] = bit(8);
-  for (let i = 9; i <= 14; i++) matrix[14 - i][8] = bit(i);
-
-  // Copy 2: bottom-left column (bits 0-6) + top-right row (bits 7-14).
-  // Row size-8 col 8 is the dark module and stays 1.
-  for (let i = 0; i <= 6; i++) matrix[size - 1 - i][8] = bit(i);
-  for (let i = 7; i <= 14; i++) matrix[8][size - 15 + i] = bit(i);
+/** 15-bit format info, BCH(15,5) with generator 0x537 and XOR mask 0x5412. */
+export function formatBits(ecLevel, mask) {
+  const data = (EC_FORMAT_ORDER[ecLevel] << 3) | mask;
+  let rem = data;
+  for (let i = 0; i < 10; i++) {
+    rem = (rem << 1) ^ ((rem >> 9) * 0x537);
+  }
+  return ((data << 10) | rem) ^ 0x5412;
 }
 
+/** Draw both format info copies (ISO 18004 7.9), dark module included. */
+export function drawFormatInfo(matrix, size, ecLevel, mask) {
+  const bits = formatBits(ecLevel, mask);
+  const bit = (i) => (bits >> i) & 1;
+
+  for (let i = 0; i < 15; i++) {
+    // Vertical: top-left column (bits 0-5 rows 0-5, bit 6 at (7,8),
+    // bit 7 at (8,8)) and bottom-left column (bits 8-14).
+    if (i < 6) matrix[i][8] = bit(i);
+    else if (i < 8) matrix[i + 1][8] = bit(i);
+    else matrix[size - 15 + i][8] = bit(i);
+
+    // Horizontal: top-right row (bits 0-7), bit 8 at (8,7),
+    // top-left row cols 5..0 (bits 9-14).
+    if (i < 8) matrix[8][size - i - 1] = bit(i);
+    else if (i === 8) matrix[8][7] = bit(i);
+    else matrix[8][14 - i] = bit(i);
+  }
+
+  matrix[size - 8][8] = 1; // dark module (always set)
+}
+
+/* ---- Mask penalty scoring (ISO 18004 7.8.3) ---- */
+
+const PENALTY_N1 = 3;
+const PENALTY_N2 = 3;
+const PENALTY_N3 = 40;
+const PENALTY_N4 = 10;
+
+function finderPenaltyAddHistory(currentRunLength, runHistory, qrsize) {
+  if (runHistory[0] === 0) currentRunLength += qrsize; // add light border to initial run
+  for (let i = 6; i >= 1; i--) runHistory[i] = runHistory[i - 1];
+  runHistory[0] = currentRunLength;
+}
+
+function finderPenaltyCountPatterns(runHistory) {
+  const n = runHistory[1];
+  const core = n > 0 && runHistory[2] === n && runHistory[3] === n * 3 && runHistory[4] === n && runHistory[5] === n;
+  return (
+    (core && runHistory[0] >= n * 4 && runHistory[6] >= n ? 1 : 0) +
+    (core && runHistory[6] >= n * 4 && runHistory[0] >= n ? 1 : 0)
+  );
+}
+
+function finderPenaltyTerminateAndCount(currentRunColor, currentRunLength, runHistory, qrsize) {
+  if (currentRunColor) {
+    finderPenaltyAddHistory(currentRunLength, runHistory, qrsize);
+    currentRunLength = 0;
+  }
+  currentRunLength += qrsize; // add light border to final run
+  finderPenaltyAddHistory(currentRunLength, runHistory, qrsize);
+  return finderPenaltyCountPatterns(runHistory);
+}
+
+/** Total mask penalty score; lower is better. */
+export function getPenaltyScore(matrix) {
+  const qrsize = matrix.length;
+  let result = 0;
+
+  const scanLine = (get) => {
+    let runColor = 0;
+    let runLen = 0;
+    const runHistory = [0, 0, 0, 0, 0, 0, 0];
+    for (let i = 0; i < qrsize; i++) {
+      const color = get(i);
+      if (color === runColor) {
+        runLen++;
+        if (runLen === 5) result += PENALTY_N1;
+        else if (runLen > 5) result++;
+      } else {
+        finderPenaltyAddHistory(runLen, runHistory, qrsize);
+        if (!runColor) result += finderPenaltyCountPatterns(runHistory) * PENALTY_N3;
+        runColor = color;
+        runLen = 1;
+      }
+    }
+    result += finderPenaltyTerminateAndCount(runColor, runLen, runHistory, qrsize) * PENALTY_N3;
+  };
+
+  for (let y = 0; y < qrsize; y++) scanLine((x) => matrix[y][x]);
+  for (let x = 0; x < qrsize; x++) scanLine((y) => matrix[y][x]);
+
+  // 2x2 same-color blocks
+  for (let y = 0; y < qrsize - 1; y++) {
+    for (let x = 0; x < qrsize - 1; x++) {
+      const color = matrix[y][x];
+      if (color === matrix[y][x + 1] && color === matrix[y + 1][x] && color === matrix[y + 1][x + 1]) {
+        result += PENALTY_N2;
+      }
+    }
+  }
+
+  // Dark/light balance
+  let dark = 0;
+  for (let y = 0; y < qrsize; y++) {
+    for (let x = 0; x < qrsize; x++) {
+      if (matrix[y][x]) dark++;
+    }
+  }
+  const total = qrsize * qrsize;
+  const k = Math.floor((Math.abs(dark * 20 - total * 10) + total - 1) / total) - 1;
+  result += k * PENALTY_N4;
+
+  return result;
+}
+
+/* ---- Top-level encode ---- */
+
 /**
- * Full encode: text -> module matrix (1 = dark).
+ * Full encode: text -> module matrix (1 = dark), choosing the best mask.
  * @param {string} text
- * @returns {{ matrix: (number | null)[][], size: number, version: number, mode: number }}
+ * @param {{ ecLevel?: 'L' | 'M' | 'Q' | 'H' }} [opts]
  */
-export function generateMatrix(text) {
+export function generateMatrix(text, opts = {}) {
   if (!text) throw new Error('no text to encode');
+  const ecLevel = opts.ecLevel ?? 'M';
+  if (!EC_LEVELS.includes(ecLevel)) throw new Error(`unknown EC level: ${ecLevel}`);
+
   const mode = getMode(text);
-  const version = getVersion(text, mode);
+  const version = getVersion(text, mode, ecLevel);
   if (version === -1) throw new Error('text too long for QR code');
 
   const size = getMatrixSize(version);
@@ -467,25 +587,44 @@ export function generateMatrix(text) {
   drawAlignmentPatterns(matrix, version);
   drawTimingPattern(matrix, size);
   drawDarkModule(matrix, version);
+  drawVersionInfo(matrix, version);
 
-  const data = generateQRData(text, version, mode);
-  placeData(matrix, size, data, version);
-  // Remainder modules (versions with non-multiple-of-8 data capacity) stay 0.
+  const dataBytes = encodeDataCodewords(text, version, mode, ecLevel);
+  const allBytes = addEccAndInterleave(dataBytes, version, ecLevel);
+  placeData(matrix, size, bytesToBits(allBytes), version);
+
+  // Remainder modules (non-multiple-of-8 capacities) are light.
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       if (matrix[r][c] === null || matrix[r][c] === undefined) matrix[r][c] = 0;
     }
   }
-  applyMask(matrix, size, version);
-  drawFormatInfo(matrix, size, 1, 0); // EC level M, mask 0
 
-  return { matrix, size, version, mode };
+  // Choose the mask with the lowest penalty score.
+  let bestMask = 0;
+  let bestPenalty = Infinity;
+  for (let m = 0; m < 8; m++) {
+    applyMask(matrix, size, version, m);
+    drawFormatInfo(matrix, size, ecLevel, m);
+    const penalty = getPenaltyScore(matrix);
+    if (penalty < bestPenalty) {
+      bestPenalty = penalty;
+      bestMask = m;
+    }
+    applyMask(matrix, size, version, m); // undo (XOR is self-inverse)
+  }
+  applyMask(matrix, size, version, bestMask);
+  drawFormatInfo(matrix, size, ecLevel, bestMask);
+
+  return { matrix, size, version, mode, ecLevel, mask: bestMask };
 }
 
+/* ---- Text rendering (CLI) ---- */
+
 /**
- * Render a matrix as text. Default uses unicode half blocks (two module
- * rows per character row); ascii=true uses two chars per module.
- * A 2-module quiet zone is added (terminal backgrounds vary).
+ * Render a matrix as text. Unicode half blocks by default (two module rows
+ * per character row); ascii=true uses two chars per module. A quiet zone
+ * is added around the code (terminal backgrounds vary).
  * @param {(number | null)[][]} matrix
  * @param {{ ascii?: boolean, quiet?: number }} opts
  */
