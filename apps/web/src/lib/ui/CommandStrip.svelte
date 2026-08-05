@@ -32,8 +32,13 @@
       })
     : ''
 
+  // Exported so a host tool can bind:this and wire ⌘⇧C to the *same* command
+  // string the strip displays, instead of rebuilding it from its own state.
+  // Rebuilding is how the strip and the shortcut drift apart, and it also loses
+  // the visible copied/failed feedback.
+  //
   // `copyToClipboard` resolves to { success, error? }, not a boolean.
-  async function copy() {
+  export async function copy() {
     const result = await copyToClipboard(command)
     clearTimeout(resetTimer)
     copied = result.success
