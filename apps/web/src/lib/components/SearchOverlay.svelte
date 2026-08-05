@@ -65,6 +65,11 @@
     openOverlay()
   }
 
+  export function toggle() {
+    if (isOpen) closeOverlay()
+    else openOverlay()
+  }
+
   function closeOverlay() {
     const elementToFocus = previouslyFocused
     isOpen = false
@@ -141,17 +146,6 @@
    * @param {KeyboardEvent} e
    */
   function handleKeydown(/** @type {KeyboardEvent} */ e) {
-    // Cmd+K / Ctrl+K to open/close - check isOpen FIRST
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault()
-      if (!isOpen) {
-        openOverlay()
-      } else {
-        closeOverlay()
-      }
-      return
-    }
-
     if (!isOpen) return
 
     // Handle Tab for focus trap

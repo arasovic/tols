@@ -38,7 +38,7 @@
 </script>
 
 <svelte:window on:keydown={(e) => dispatchShortcut(e, {
-  palette: () => openSearch(),
+  palette: () => searchOverlay?.toggle(),
   sidebar: toggleSidebar
 })} />
 
