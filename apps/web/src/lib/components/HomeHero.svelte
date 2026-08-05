@@ -1,26 +1,26 @@
 <script>
   /**
-   * Homepage hero block. Stats are derived from the registry by the page.
+   * Homepage hero block. Installing the CLI is the primary action; the
+   * terminal transcript below the sub is real captured CLI output, not a
+   * scripted animation (anti-slop rule 6). Stats are derived from the
+   * registry by the page.
    */
-  import { Zap } from 'lucide-svelte'
+  import TerminalDemo from '$lib/components/TerminalDemo.svelte'
 
   /** @type {Array<{ value: string, label: string }>} */
   export let stats
 </script>
 
 <section class="hero">
-  <div class="hero-badge">
-    <span class="hero-badge-pulse"></span>
-    <Zap size={14} />
-    <span>100% Browser-based • No Server Uploads</span>
-  </div>
-  <h1 class="hero-title">
-    Essential Tools for Every <span class="hero-title-highlight">Developer</span>
-  </h1>
+  <h1 class="hero-title">28 dev tools. One command.</h1>
   <p class="hero-subtitle">
-    Free, fast, and secure utilities for your daily workflow.
-    From <span class="hero-subtle">JSON formatting</span> to <span class="hero-subtle">Base64 encoding</span> and <span class="hero-subtle">UUID generation</span>.
+    Format, encode, hash, convert — in the browser or in your terminal. Nothing leaves your machine.
   </p>
+
+  <div class="hero-terminal">
+    <TerminalDemo />
+  </div>
+
   <div class="hero-stats">
     {#each stats as stat}
       <div class="hero-stat">
@@ -37,56 +37,14 @@
     margin-bottom: var(--space-8);
   }
 
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    margin-bottom: var(--space-5);
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-    color: var(--accent);
-    background: var(--accent-soft);
-    border: 1px solid var(--accent-dim);
-    border-radius: var(--radius-full);
-    position: relative;
-  }
-
-  .hero-badge-pulse {
-    position: absolute;
-    left: var(--space-3);
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.5;
-      transform: scale(1.2);
-    }
-  }
-
   .hero-title {
+    font-family: var(--font-display);
     font-size: var(--text-4xl);
     font-weight: var(--font-semibold);
     color: var(--text-primary);
     margin-bottom: var(--space-4);
     letter-spacing: var(--tracking-tight);
     line-height: var(--leading-tight);
-  }
-
-  .hero-title-highlight {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 
   .hero-subtitle {
@@ -97,8 +55,10 @@
     margin: 0 auto var(--space-6);
   }
 
-  .hero-subtle {
-    color: var(--text-tertiary);
+  .hero-terminal {
+    max-width: 600px;
+    margin: 0 auto var(--space-6);
+    text-align: left;
   }
 
   .hero-stats {

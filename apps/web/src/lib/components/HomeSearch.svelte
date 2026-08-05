@@ -4,30 +4,16 @@
    * Category chips are built from the registry; 'all' is prepended.
    */
   import { categories } from '$lib/config/registry.js'
-  import { Search, X, Grip, Code, Binary, Fingerprint, RefreshCw } from 'lucide-svelte'
+  import { Search, X } from 'lucide-svelte'
 
   /** Two-way: current search text. */
   export let query = ''
   /** Two-way: selected category id ('all' or a registry category id). */
   export let selected = 'all'
 
-  /** Chip icons are homepage-specific; tool icons come from the registry. */
-  /** @type {Record<string, any>} */
-  const chipIcons = {
-    all: Grip,
-    data: Code,
-    encoding: Binary,
-    generators: Fingerprint,
-    converters: RefreshCw
-  }
-
   const chips = [
-    { id: 'all', label: 'All', icon: chipIcons.all },
-    ...categories.map(category => ({
-      id: category.id,
-      label: category.label,
-      icon: chipIcons[category.id]
-    }))
+    { id: 'all', label: 'All' },
+    ...categories.map(category => ({ id: category.id, label: category.label }))
   ]
 
   /** @type {HTMLInputElement | undefined} */
@@ -72,7 +58,6 @@
         on:click={() => selected = chip.id}
         aria-pressed={selected === chip.id}
       >
-        <svelte:component this={chip.icon} size={14} />
         <span>{chip.label}</span>
       </button>
     {/each}

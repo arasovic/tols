@@ -15,7 +15,7 @@
   import PrivacyBanner from '$lib/components/PrivacyBanner.svelte'
   import ToolCard from '$lib/components/ToolCard.svelte'
   import HomeFooter from '$lib/components/HomeFooter.svelte'
-  import { Braces, Sun, Moon, Sparkles, SearchX, Star, Clock } from 'lucide-svelte'
+  import { Braces, Sun, Moon, SearchX } from 'lucide-svelte'
 
   const pageTitle = 'DevUtils - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
@@ -134,7 +134,6 @@
         <div class="favorites-section">
           <div class="section-header">
             <div class="section-title">
-              <Star size={16} />
               <span>Favorites</span>
             </div>
           </div>
@@ -156,7 +155,6 @@
         <div class="recent-section">
           <div class="section-header">
             <div class="section-title">
-              <Clock size={16} />
               <span>Recent</span>
             </div>
           </div>
@@ -172,7 +170,6 @@
         <div class="popular-section">
           <div class="section-header">
             <div class="section-title">
-              <Sparkles size={16} />
               <span>Popular Tools</span>
             </div>
           </div>
@@ -351,10 +348,6 @@
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: var(--tracking-wide);
-  }
-
-  .section-title :global(svg) {
-    color: var(--accent);
   }
 
   .tool-count {

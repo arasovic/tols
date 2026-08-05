@@ -1,12 +1,7 @@
-<script>
-  import { Github } from 'lucide-svelte'
-</script>
-
 <footer class="home-footer">
   <div class="footer-links">
     <a href="https://github.com/arasovic/dev-utilities" target="_blank" rel="noopener noreferrer" class="footer-link">
-      <Github size={16} />
-      <span>GitHub</span>
+      GitHub
     </a>
   </div>
   <p class="footer-copyright">© {new Date().getFullYear()} DevUtils. All rights reserved.</p>
