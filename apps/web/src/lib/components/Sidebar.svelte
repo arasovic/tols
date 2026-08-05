@@ -361,7 +361,14 @@
   }
 
   @media (min-width: 768px) {
-    .sidebar {
+    /*
+      Only the OPEN sidebar joins the flow. The layout grid is single-column
+      until `.sidebar-open` is set, so an unconditional `position: static` here
+      turns a closed sidebar into a full-height grid ROW — which pushed the
+      entire tool page below the fold at every desktop width. jsdom computes no
+      layout, so no unit test can see this; it has to be measured in a browser.
+    */
+    .sidebar.open {
       position: static;
       transform: none;
       transition: none;
