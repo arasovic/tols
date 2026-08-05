@@ -190,6 +190,7 @@
   --sidebar-width: 232px;
   --header-height: 40px;
   --command-height: 44px;
+  --control-height: 28px;   /* buttons, segments — every interactive control */
 
   /* Ramp order is load-bearing: Toast uses --z-popover and SearchOverlay uses
      --z-modal, so popover must stay above modal or copy toasts fired from the
