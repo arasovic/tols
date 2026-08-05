@@ -8,7 +8,7 @@
   import { stripBase } from '$lib/utils/paths.js'
   import { aliasFor } from '$lib/ui/aliases.js'
   import { onMount } from 'svelte'
-  import { Braces, Sun, Moon, Star } from 'lucide-svelte'
+  import { Sun, Moon, Star } from 'lucide-svelte'
 
   export let isOpen = false
 
@@ -53,7 +53,7 @@
   <div class="sidebar-header">
     <a href="{base}/" class="logo" on:click={closeDrawer}>
       <div class="logo-icon">
-        <Braces size={18} />
+        <span class="logo-glyph" aria-hidden="true">$</span>
       </div>
       <span class="logo-title">tols</span>
     </a>
@@ -173,11 +173,19 @@
     box-shadow: var(--shadow-sm);
   }
 
+  .logo-glyph {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    line-height: 1;
+  }
+
   .logo-title {
+    font-family: var(--font-display);
     font-size: var(--text-base);
     font-weight: var(--font-semibold);
     color: var(--text-primary);
-    letter-spacing: var(--tracking-tight);
+    letter-spacing: var(--tracking-wide);
   }
 
   .theme-toggle {

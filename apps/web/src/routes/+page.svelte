@@ -15,7 +15,7 @@
   import PrivacyBanner from '$lib/components/PrivacyBanner.svelte'
   import ToolCard from '$lib/components/ToolCard.svelte'
   import HomeFooter from '$lib/components/HomeFooter.svelte'
-  import { Braces, Sun, Moon, SearchX } from 'lucide-svelte'
+  import { Sun, Moon, SearchX } from 'lucide-svelte'
 
   const pageTitle = 'tols - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
@@ -107,7 +107,7 @@
     <div class="header-top">
       <a href="{base}/" class="logo">
         <div class="logo-icon">
-          <Braces size={20} />
+          <span class="logo-glyph" aria-hidden="true">$</span>
         </div>
         <span class="logo-title">tols</span>
       </a>
@@ -263,11 +263,19 @@
     color: white;
   }
 
+  .logo-glyph {
+    font-family: var(--font-mono);
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    line-height: 1;
+  }
+
   .logo-title {
+    font-family: var(--font-display);
     font-size: var(--text-xl);
     font-weight: var(--font-semibold);
     color: var(--text-primary);
-    letter-spacing: var(--tracking-tight);
+    letter-spacing: var(--tracking-wide);
   }
 
   .theme-toggle {
