@@ -32,7 +32,11 @@ describe('xml core', () => {
   });
 
   it('minify collapses inter-tag whitespace only', () => {
-    expect(xml.minify('<a>\n   <b> x  y </b>\n</a>')).toBe('<a><b> x y </b></a>');
+    expect(xml.minify('<a>\n   <b> x  y </b>\n</a>')).toBe('<a><b> x  y </b></a>');
+  });
+
+  it('minify never touches attribute values or text runs', () => {
+    expect(xml.minify('<a title="x  y">t  u</a>')).toBe('<a title="x  y">t  u</a>');
   });
 
   it('validate returns null for balanced xml', () => {

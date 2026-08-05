@@ -66,3 +66,10 @@ describe('sql unterminated constructs (review fixes)', () => {
     expect(sql.minify('SELECT a /* c */ FROM t')).toBe('SELECT a FROM t');
   });
 });
+
+describe('sql deep-review fixes', () => {
+  it('minify keeps $-patterns inside string literals intact', () => {
+    expect(sql.minify("SELECT '$&' AS x")).toBe("SELECT '$&' AS x");
+    expect(sql.minify("SELECT '$\'' ")).toContain("'$\''");
+  });
+});

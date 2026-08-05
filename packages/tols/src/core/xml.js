@@ -171,12 +171,14 @@ export function format(xml) {
   return formatted.trim() || xml;
 }
 
-/** @param {string} xml */
+/**
+ * Minify markup by dropping whitespace-only runs between tags. Whitespace
+ * inside text nodes and attribute values is left untouched (the previous
+ * blanket collapse rewrote attribute values and significant text).
+ * @param {string} xml
+ */
 export function minify(xml) {
-  return xml
-    .replace(/>[\t\n\r ]+</g, '><')
-    .replace(/[\t\n\r ]{2,}/g, ' ')
-    .trim();
+  return xml.replace(/>[\t\n\r ]+</g, '><').trim();
 }
 
 /**

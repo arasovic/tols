@@ -271,6 +271,8 @@ export function minify(css) {
   const tokens = tokenizeCSS(css);
   let result = '';
   let blockDepth = 0;
+  /** @type {Array<'declarations' | 'rules'>} */
+  const blockStack = [];
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
@@ -285,10 +287,20 @@ export function minify(css) {
       if (!result) continue;
       const prevVal = prevToken?.value || '';
       const nextVal = nextToken?.value || '';
-      if (prevToken && (prevVal === '{' || prevVal === ';' || prevVal === ',' || prevVal === ':')) {
+      // Whitespace around ':' is significant in selectors (`.a :hover` is a
+      // descendant combinator, not a pseudo-class) — only strip it inside
+      // declaration blocks.
+      const inDeclarations = blockStack[blockStack.length - 1] === 'declarations';
+      if (prevToken && (prevVal === '{' || prevVal === ';' || prevVal === ',')) {
         continue;
       }
-      if (nextToken && (nextVal === '}' || nextVal === '{' || nextVal === ';' || nextVal === ',' || nextVal === ':')) {
+      if (prevToken && prevVal === ':' && inDeclarations) {
+        continue;
+      }
+      if (nextToken && (nextVal === '}' || nextVal === '{' || nextVal === ';' || nextVal === ',')) {
+        continue;
+      }
+      if (nextToken && nextVal === ':' && inDeclarations) {
         continue;
       }
       if (prevToken?.type === 'whitespace') continue;
@@ -299,13 +311,22 @@ export function minify(css) {
     if (token.type === 'punctuation') {
       if (token.value === '{') {
         blockDepth++;
+        /** @type {'declarations' | 'rules'} */
+        let blockKind = 'declarations';
+        for (let j = i - 1; j >= 0; j--) {
+          const prev = tokens[j];
+          if (prev.type === 'whitespace' || prev.type === 'comment') continue;
+          if (prev.type === 'atrule') blockKind = atRuleBlockKind(prev.value);
+          break;
+        }
+        blockStack.push(blockKind);
         result = result.trimEnd();
         result += token.value;
       } else if (token.value === '}') {
         if (blockDepth > 0) blockDepth--;
-        // The web sliced unconditionally here, eating the last value char
-        // when `;}` were adjacent (the `;` handler already skipped it).
-        if (prevToken?.value === ';' && result.endsWith(';')) {
+        if (blockStack.length > 0) blockStack.pop();
+        // Drop a trailing ';' regardless of spacing (`red; }` -> `red}`).
+        if (result.endsWith(';')) {
           result = result.slice(0, -1);
         }
         result += token.value;
@@ -314,7 +335,11 @@ export function minify(css) {
           result += token.value;
         }
       } else if (token.value === ':') {
-        result = result.trimEnd();
+        // trimEnd only inside declarations; in selectors the space before
+        // ':' is the descendant combinator (`.a :hover`).
+        if (blockStack[blockStack.length - 1] === 'declarations') {
+          result = result.trimEnd();
+        }
         result += ':';
       } else if (token.value === ',') {
         result = result.trimEnd();

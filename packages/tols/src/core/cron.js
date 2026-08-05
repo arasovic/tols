@@ -64,10 +64,6 @@ export function parseCronField(field, min, max) {
  * @param {string} cron
  * @returns {string}
  */
-/**
- * @param {string} cron
- * @returns {string}
- */
 export function getDescription(cron) {
   const parts = cron.trim().split(/\s+/)
   if (parts.length !== 5) return 'Invalid cron expression'
@@ -104,9 +100,10 @@ export function getDescription(cron) {
     }
   }
   if (weekday !== '*' && weekday !== '?') {
-    const dayNames = parseCronField(weekday, 0, 6)
-    if (dayNames) {
-      const dayStr = dayNames.map(d => WEEKDAY_NAMES[d]).join(', ')
+    const dayValues = parseCronField(weekday, 0, 7)
+    if (dayValues) {
+      const normalized = [...new Set(dayValues.map((v) => (v === 7 ? 0 : v)))].sort((a, b) => a - b)
+      const dayStr = normalized.map(d => WEEKDAY_NAMES[d]).join(', ')
       segments.push(`on ${dayStr}`)
     }
   }
@@ -133,11 +130,18 @@ export function getNextRuns(cron, count = 5, from = new Date()) {
   const parts = cron.trim().split(/\s+/)
   if (parts.length !== 5) return []
 
-  const minutes = parseCronField(parts[0], 0, 59)
-  const hours = parseCronField(parts[1], 0, 23)
-  const days = parseCronField(parts[2], 1, 31)
-  const months = parseCronField(parts[3], 1, 12)
-  const weekdays = parseCronField(parts[4], 0, 6)
+  // '?' means unconstrained (Quartz-style); normalize it to '*' for the
+  // time/month fields so validation and scheduling stay consistent.
+  const field = (idx) => (parts[idx] === '?' ? '*' : parts[idx])
+  const minutes = parseCronField(field(0), 0, 59)
+  const hours = parseCronField(field(1), 0, 23)
+  const days = parseCronField(field(2), 1, 31)
+  const months = parseCronField(field(3), 1, 12)
+  // Some cron dialects accept 7 as Sunday; fold it onto 0.
+  let weekdays = parseCronField(field(4), 0, 7)
+  if (weekdays) {
+    weekdays = [...new Set(weekdays.map((v) => (v === 7 ? 0 : v)))].sort((a, b) => a - b)
+  }
 
   if (!minutes || !hours || !days || !months || !weekdays) return []
 
@@ -186,10 +190,6 @@ export function getNextRuns(cron, count = 5, from = new Date()) {
  * @param {string} cron
  * @returns {string | null}
  */
-/**
- * @param {string} cron
- * @returns {string | null}
- */
 export function validateCron(cron) {
   if (!cron || cron.length === 0) return 'Please enter a cron expression'
 
@@ -199,11 +199,18 @@ export function validateCron(cron) {
   const parts = trimmed.split(/\s+/)
   if (parts.length !== 5) return 'Cron expression must have exactly 5 parts'
 
-  const ranges = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 6]]
+  // Vixie/Quartz allow 7 as an alias for Sunday in the weekday field.
+  const ranges = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 7]]
 
   for (let i = 0; i < 5; i++) {
     const part = parts[i]
-    if (part === '*' || part === '?') continue
+    if (part === '*') continue
+    if (part === '?') {
+      if (i !== 2 && i !== 4) {
+        return `The '?' character is only allowed in the day-of-month and day-of-week fields (part ${i + 1})`
+      }
+      continue
+    }
 
     const subParts = part.split(',')
     for (const sub of subParts) {

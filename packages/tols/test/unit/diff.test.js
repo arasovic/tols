@@ -52,3 +52,10 @@ describe('diff core', () => {
     expect(r.items[1].type).toBe('modified');
   });
 });
+
+describe('diff deep-review fixes', () => {
+  it('rejects oversized inputs with a clear error', () => {
+    const big = Array.from({ length: 4000 }, (_, i) => 'line ' + i).join('\n');
+    expect(() => diffLines(big, big)).toThrow(/too large/);
+  });
+});

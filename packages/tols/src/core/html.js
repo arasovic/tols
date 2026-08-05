@@ -91,27 +91,40 @@ export function format(html) {
   }
 
   const tagStack = [];
+  // Count of currently open whitespace-sensitive elements; while > 0 every
+  // token is emitted raw so <pre>/<textarea>/... content is untouched.
+  let preserveOpen = 0;
   for (let j = 0; j < tokens.length; j++) {
     const token = tokens[j];
 
     switch (token.type) {
       case 'doctype':
-        formatted += token.content + '\n';
+        formatted += token.content + (preserveOpen > 0 ? '' : '\n');
         break;
       case 'comment':
-        formatted += tab.repeat(indent) + token.content + '\n';
+        formatted += (preserveOpen > 0 ? '' : tab.repeat(indent)) + token.content + (preserveOpen > 0 ? '' : '\n');
         break;
-      case 'open':
-        formatted += tab.repeat(indent) + token.content + '\n';
-        tagStack.push(token.name);
-        if (!PRESERVE_WHITESPACE.has(token.name)) {
+      case 'open': {
+        const isPreserve = PRESERVE_WHITESPACE.has(token.name);
+        if (preserveOpen > 0) {
+          formatted += token.content;
+        } else if (isPreserve) {
+          // Significant-whitespace element: no trailing newline, so the
+          // content starts exactly as written.
+          formatted += tab.repeat(indent) + token.content;
+        } else {
+          formatted += tab.repeat(indent) + token.content + '\n';
           indent++;
         }
+        if (isPreserve) preserveOpen++;
+        tagStack.push(token.name);
         break;
-      case 'close':
+      }
+      case 'close': {
+        const isPreserve = PRESERVE_WHITESPACE.has(token.name);
         if (tagStack.length > 0 && tagStack[tagStack.length - 1] === token.name) {
           tagStack.pop();
-          if (!PRESERVE_WHITESPACE.has(token.name)) {
+          if (!isPreserve) {
             indent = Math.max(0, indent - 1);
           }
         } else {
@@ -125,19 +138,28 @@ export function format(html) {
             tagStack.splice(stackIndex);
           }
         }
-        formatted += tab.repeat(Math.max(0, indent)) + '</' + token.name + '>\n';
+        if (preserveOpen > 0) {
+          formatted += '</' + token.name + '>';
+          if (isPreserve) {
+            preserveOpen--;
+            formatted += '\n';
+          }
+        } else {
+          formatted += tab.repeat(Math.max(0, indent)) + '</' + token.name + '>\n';
+        }
         break;
+      }
       case 'self-closing':
-        formatted += tab.repeat(indent) + token.content + '\n';
+        formatted += (preserveOpen > 0 ? '' : tab.repeat(indent)) + token.content + (preserveOpen > 0 ? '' : '\n');
         break;
       case 'text': {
+        if (preserveOpen > 0) {
+          formatted += token.content;
+          break;
+        }
         const trimmed = token.content.trim();
         if (trimmed) {
-          if (tagStack.length > 0 && PRESERVE_WHITESPACE.has(tagStack[tagStack.length - 1])) {
-            formatted += token.content;
-          } else {
-            formatted += tab.repeat(indent) + trimmed + '\n';
-          }
+          formatted += tab.repeat(indent) + trimmed + '\n';
         }
         break;
       }
@@ -184,9 +206,9 @@ export function minify(html, opts = {}) {
       .replace(/<\s*/g, '<');
   }
 
-  protectedBlocks.forEach(({ placeholder, content }) => {
-    minified = minified.replace(placeholder, content);
-  });
+  // Single-pass restore: a string replacement would interpret $ patterns
+  // ($&, $', ...) inside the protected content; a callback keeps it literal.
+  minified = minified.replace(/___PROTECTED_(\d+)___/g, (m, idx) => protectedBlocks[Number(idx)]?.content ?? m);
 
   return minified.trim();
 }

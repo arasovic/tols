@@ -284,8 +284,8 @@ export function minify(sql) {
     .replace(/\s*([(),])\s*/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
-  strings.forEach((value, idx) => {
-    out = out.replace(`___SQLSTR_${idx}___`, value);
-  });
+  // Single-pass restore: string replacement would interpret $ patterns
+  // ($&, $', ...) inside string literals; a callback keeps them literal.
+  out = out.replace(/___SQLSTR_(\d+)___/g, (m, idx) => strings[Number(idx)] ?? m);
   return out;
 }

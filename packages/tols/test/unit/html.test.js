@@ -56,3 +56,18 @@ describe('html core', () => {
     expect(out).toBe('<div><p class="x"> a </p></div>');
   });
 });
+
+describe('html deep-review fixes', () => {
+  it('format keeps pre/textarea content byte-exact', () => {
+    expect(html.format('<pre>abc</pre>')).toBe('<pre>abc</pre>');
+    expect(html.format('<textarea>abc</textarea>')).toBe('<textarea>abc</textarea>');
+    expect(html.format('<div><pre>  a\n  b  </pre></div>'))
+      .toBe('<div>\n  <pre>  a\n  b  </pre>\n</div>');
+    expect(html.format('<p><code>x</code></p>')).toBe('<p>\n  <code>x</code>\n</p>');
+  });
+
+  it('minify restores protected blocks literally ($ patterns)', () => {
+    expect(html.minify('<div><pre>price $& more</pre></div>')).toBe('<div><pre>price $& more</pre></div>');
+    expect(html.minify("<pre>$'x $$ \$1</pre>")).toBe("<pre>$'x $$ \$1</pre>");
+  });
+});

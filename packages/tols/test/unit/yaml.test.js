@@ -90,3 +90,39 @@ describe('yaml review fixes', () => {
     expect(parse('c:')).toEqual({ c: null });
   });
 });
+
+describe('yaml deep-review fixes', () => {
+  it('parses top-level sequences', () => {
+    expect(parse('- a\n- b')).toEqual(['a', 'b']);
+    expect(parse('# c\n- 1\n- 2')).toEqual([1, 2]);
+    expect(stringify(['x', { a: 1 }])).toBe('- x\n- a: 1\n');
+  });
+
+  it('parses nested sequences', () => {
+    expect(parse('- - a\n  - b\n- c')).toEqual([['a', 'b'], 'c']);
+    expect(parse('- - 1\n  - 2\n- - 3\n  - 4')).toEqual([[1, 2], [3, 4]]);
+    expect(parse('m:\n  - - a\n    - b\n  - - c')).toEqual({ m: [['a', 'b'], ['c']] });
+  });
+
+  it('unescapes quoted scalars', () => {
+    expect(parse('a: "x \\"y\\" z"')).toEqual({ a: 'x "y" z' });
+    expect(parse("a: 'it''s'")).toEqual({ a: "it's" });
+    expect(parse('a: "tab\\there"')).toEqual({ a: 'tab\there' });
+    expect(parse('a: "x # y"')).toEqual({ a: 'x # y' });
+    expect(parse('a: "x" # trailing')).toEqual({ a: 'x' });
+  });
+
+  it('honors block-scalar indicators', () => {
+    expect(parse('a: |\n  x\nb: 2')).toEqual({ a: 'x', b: 2 });
+    expect(parse('a: |-\n  x\n  y')).toEqual({ a: 'x\ny' });
+    expect(parse('a: |+\n  x\n\n')).toEqual({ a: 'x\n\n' });
+    expect(parse('a: >\n  one\n  two\n  three')).toEqual({ a: 'one two three' });
+    expect(parse('a: >\n  one\n\n  two')).toEqual({ a: 'one\ntwo' });
+  });
+
+  it('block scalars inside array items survive', () => {
+    const doc = parse('items:\n  - name: a\n    desc: |\n      line1\n      line2\n  - name: b');
+    expect(doc.items[0].desc).toBe('line1\nline2');
+    expect(doc.items[1]).toEqual({ name: 'b' });
+  });
+});

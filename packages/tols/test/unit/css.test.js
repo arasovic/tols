@@ -36,7 +36,7 @@ describe('css core', () => {
   });
 
   it('minify strips comments and whitespace', () => {
-    expect(css.minify('.a {\n  color : red ;\n}\n/* bye */')).toBe('.a{color:red;}');
+    expect(css.minify('.a {\n  color : red ;\n}\n/* bye */')).toBe('.a{color:red}');
   });
 
   it('minify drops the last ; before } (adjacent case)', () => {
@@ -77,5 +77,22 @@ describe('css review fixes', () => {
     const out = css.format('@import "a;b.css";a{color:red}');
     expect(out).toContain('@import "a;b.css";');
     expect(out).toContain('color: red');
+  });
+});
+
+describe('css deep-review fixes', () => {
+  it('minify keeps the descendant combinator before pseudo-classes', () => {
+    expect(css.minify('.parent :hover { color: red }')).toBe('.parent :hover{color:red}');
+    expect(css.minify('a > b { x: 1 }')).toBe('a > b{x:1}');
+  });
+
+  it('minify strips : whitespace only inside declaration blocks', () => {
+    expect(css.minify('@media (min-width: 1px) { .a :focus { color : red } }'))
+      .toBe('@media (min-width: 1px){.a :focus{color:red}}');
+  });
+
+  it('minify drops trailing ; before } even with whitespace', () => {
+    expect(css.minify('.a { color: red ; }')).toBe('.a{color:red}');
+    expect(css.minify('.a{x:1; y:2; }')).toBe('.a{x:1;y:2}');
   });
 });

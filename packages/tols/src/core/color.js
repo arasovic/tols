@@ -58,7 +58,7 @@ export function hslToRgb(h, s, l) {
 
 /** @param {string} value e.g. `rgb(255, 0, 0)` or `rgba(...,0.5)` */
 export function parseRgbInput(value) {
-  const m = String(value).match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/);
+  const m = String(value).match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/i);
   if (!m) return null;
   const r = parseInt(m[1], 10);
   const g = parseInt(m[2], 10);
@@ -69,7 +69,7 @@ export function parseRgbInput(value) {
 
 /** @param {string} value e.g. `hsl(120, 50%, 50%)` or `hsla(...,0.5)` */
 export function parseHslInput(value) {
-  const m = String(value).match(/^hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)$/);
+  const m = String(value).match(/^hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)$/i);
   if (!m) return null;
   let h = parseInt(m[1], 10);
   const s = parseInt(m[2], 10);

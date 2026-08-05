@@ -49,3 +49,10 @@ describe('color core', () => {
     expect(() => color.parse('zz')).toThrow('Invalid color format');
   });
 });
+
+describe('color deep-review fixes', () => {
+  it('parses RGB()/HSL() case-insensitively', () => {
+    expect(color.parse('RGB(255, 0, 0)').hex).toBe('ff0000');
+    expect(color.parse('HSL(120, 50%, 50%)').rgb).toEqual({ r: 64, g: 191, b: 64 });
+  });
+});

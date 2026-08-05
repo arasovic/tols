@@ -55,3 +55,24 @@ describe('cron review fixes', () => {
     expect(() => getNextRuns('0 0 29 2 *', 100, new Date('2026-08-06T00:00:00Z'))).toThrow(/found \d+ of 100/);
   });
 });
+
+describe('cron deep-review fixes', () => {
+  it('accepts 7 as Sunday', () => {
+    expect(validateCron('0 0 * * 7')).toBe(null);
+    expect(getDescription('0 0 * * 7')).toContain('Sun');
+    const runs = getNextRuns('0 0 * * 7', 2, new Date(Date.UTC(2026, 7, 1)));
+    expect(runs.every((d) => d.getDay() === 0)).toBe(true);
+  });
+
+  it('rejects ? outside day-of-month/day-of-week', () => {
+    expect(validateCron('? * * * *')).toMatch(/only allowed/);
+    expect(validateCron('* ? * * *')).toMatch(/only allowed/);
+    expect(validateCron('* * * ? *')).toMatch(/only allowed/);
+    expect(validateCron('0 0 ? * ?')).toBe(null);
+  });
+
+  it('schedules ? as unconstrained instead of never', () => {
+    const runs = getNextRuns('0 0 ? * 1', 1, new Date(Date.UTC(2026, 7, 1)));
+    expect(runs.length).toBe(1);
+  });
+});

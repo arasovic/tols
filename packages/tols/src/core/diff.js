@@ -320,6 +320,12 @@ export function diffLines(oldText, newText) {
   const oldLines = (oldText ? oldText.split('\n') : ['']).map((l) => l || '')
   const newLines = (newText ? newText.split('\n') : ['']).map((l) => l || '')
 
+  // Myers with a full trace is quadratic in the edit distance; cap input
+  // size with a clear error instead of letting huge diffs exhaust memory.
+  if ((oldLines.length + 1) * (newLines.length + 1) > 12_000_000) {
+    throw new Error(`inputs too large for diff (${oldLines.length} vs ${newLines.length} lines; keep each side under ~3500 lines)`)
+  }
+
   const edits = myersDiff(oldLines, newLines)
   /** @type {DiffLineItem[]} */
   const items = []

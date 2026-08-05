@@ -46,9 +46,16 @@ export function sanitizeUrl(url, base = 'http://localhost') {
 
 /** @param {string} text */
 export function parseInline(text) {
-  let html = escapeHtml(text);
+  let html = escapeHtml(text).replace(/\u0000/g, '');
 
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Code spans are literal: extract them first so emphasis/link rules never
+  // reach inside (CommonMark behavior).
+  /** @type {string[]} */
+  const codeSpans = [];
+  html = html.replace(/`([^`]+)`/g, (_match, code) => {
+    codeSpans.push(`<code>${code}</code>`);
+    return `\u0000C${codeSpans.length - 1}\u0000`;
+  });
 
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
@@ -69,6 +76,8 @@ export function parseInline(text) {
   });
 
   html = html.replace(/  $/gm, '<br>');
+
+  html = html.replace(/\u0000C(\d+)\u0000/g, (_match, idx) => codeSpans[Number(idx)] ?? _match);
 
   return html;
 }

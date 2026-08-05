@@ -17,7 +17,7 @@ describe('tols css', () => {
   it('min strips whitespace', async () => {
     const r = await tols(['css', 'min', '.a { color : red ; }']);
     expect(r.code).toBe(0);
-    expect(r.out).toBe('.a{color:red;}\n');
+    expect(r.out).toBe('.a{color:red}\n');
   });
 
   it('@file input', async () => {

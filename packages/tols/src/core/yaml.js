@@ -23,12 +23,24 @@ export function parse(yaml) {
   if (!yaml.trim()) return {}
 
   const lines = yaml.split('\n')
-  /** @type {Record<string, unknown>} */
-  const result = {}
+
+  // Top-level documents may be sequences: detect from the first meaningful
+  // line and make the root an array in that case.
+  let firstMeaningful = ''
+  for (const l of lines) {
+    const t = l.trim()
+    if (!t || t.startsWith('#')) continue
+    firstMeaningful = t
+    break
+  }
+  const rootIsArray = firstMeaningful.startsWith('- ') || firstMeaningful === '-'
+
+  /** @type {Record<string, unknown> | unknown[]} */
+  const result = rootIsArray ? [] : {}
 
   // Stack of { obj: object, indent: number, key: string, isArray: boolean }
   /** @type {YamlStackItem[]} */
-  const stack = [{ obj: result, indent: -1, key: null, isArray: false }]
+  const stack = [{ obj: result, indent: -1, key: null, isArray: rootIsArray }]
 
   let i = 0
   while (i < lines.length) {
@@ -57,7 +69,7 @@ export function parse(yaml) {
     while (stack.length > 1) {
       const top = stack[stack.length - 1]
       if (top.indent < indent) break
-      if (top.isArray && top.indent === indent && trimmed.startsWith('- ')) break
+      if (top.isArray && top.key !== null && top.indent === indent && trimmed.startsWith('- ')) break
       stack.pop()
     }
 
@@ -74,6 +86,36 @@ export function parse(yaml) {
           // This shouldn't happen with proper stack management
           throw new Error(`Line ${lineNum}: Array item outside of array context`)
         }
+      }
+
+      // Nested sequence: `- - a` (or bare `- -` for an empty child). The
+      // child array is pushed with key=null so a later dash at the same
+      // indent pops back to the parent (only key-anchored arrays tolerate
+      // flush items).
+      if (value === '-' || value.startsWith('- ')) {
+        /** @type {unknown[]} */
+        const child = []
+        current.obj.push(child)
+        stack.push({ obj: child, indent, key: null, isArray: true })
+        if (value.startsWith('- ')) {
+          const rest = value.slice(2).trim()
+          if (rest.startsWith('{') && rest.endsWith('}')) {
+            child.push(parseInlineObject(rest))
+          } else if (rest.startsWith('[') && rest.endsWith(']')) {
+            child.push(parseArray(rest))
+          } else if (rest.includes(':')) {
+            const colonIndex = rest.indexOf(':')
+            const k = rest.slice(0, colonIndex).trim()
+            const v = rest.slice(colonIndex + 1).trim()
+            const parsedObj = /** @type {Record<string, unknown>} */ ({ [k]: parseValue(v) })
+            child.push(parsedObj)
+            stack.push({ obj: parsedObj, indent, key: null, isArray: false })
+          } else if (rest !== '') {
+            child.push(parseValue(rest))
+          }
+        }
+        i++
+        continue
       }
 
       // Parse the array item value
@@ -119,7 +161,7 @@ export function parse(yaml) {
             const nestedKey = nextTrimmed.slice(0, nestedColonIndex).trim()
             let nestedVal = stripComment(nextTrimmed.slice(nestedColonIndex + 1).trim())
 
-            if (nestedVal === '' || nestedVal === '|' || nestedVal === '>') {
+            if (nestedVal === '' || BLOCK_HEADER.test(nestedVal)) {
               // Empty value or block scalar: hand the key line to the outer
               // loop. This item sits on the stack, so the outer loop attaches
               // the container (or block) to it and consumes the container's
@@ -188,23 +230,10 @@ export function parse(yaml) {
       } else if (value.startsWith('{') && value.endsWith('}')) {
         // Inline object
         current.obj[key] = parseInlineObject(value)
-      } else if (value === '|' || value === '>') {
-        // Multiline string
-        i++
-        const contentLines = []
-        const baseIndent = nextIndent
-        while (i < lines.length) {
-          const contentLine = lines[i]
-          const contentIndent = getIndent(contentLine)
-          if (contentLine.trim() === '' || contentIndent >= baseIndent) {
-            contentLines.push(contentLine.slice(baseIndent))
-            i++
-          } else {
-            break
-          }
-        }
-        i-- // Back up one line since the outer loop will increment
-        current.obj[key] = contentLines.join('\n')
+      } else if (BLOCK_HEADER.test(value)) {
+        const consumed = consumeBlockScalar(lines, i, indent, value)
+        current.obj[key] = consumed.text
+        i = consumed.next - 1 // outer loop increments
       } else {
         // Simple value
         current.obj[key] = parseValue(value)
@@ -215,21 +244,6 @@ export function parse(yaml) {
   }
 
   return result
-}
-
-// Parse a line with key: value format
-/**
- * @param {string} line
- * @param {number} lineNum
- */
-function parseLine(line, lineNum) {
-  const colonIndex = line.indexOf(':')
-  if (colonIndex === -1) {
-    throw new Error(`Line ${lineNum}: Invalid format, expected key: value`)
-  }
-  const key = line.slice(0, colonIndex).trim()
-  const value = line.slice(colonIndex + 1).trim()
-  return { [key]: parseValue(value) }
 }
 
 /**
@@ -245,11 +259,87 @@ function parseValue(value) {
   if (/^-?\d+$/.test(value)) return parseInt(value, 10)
   if (/^-?\d+\.?\d*(?:[eE][+-]?\d+)?$/.test(value)) return parseFloat(value)
   if (value.startsWith('"') || value.startsWith("'")) {
-    const quote = value[0]
-    const close = value.indexOf(quote, 1)
-    if (close !== -1) return value.slice(1, close)
+    return readQuoted(value).text
   }
   return value
+}
+
+const BLOCK_HEADER = /^([|>])([+-]?)$/
+
+/**
+ * Consume a block scalar whose header sits on lines[headerIndex] under a
+ * mapping key at `parentIndent`. Content must indent deeper than the
+ * parent; the first content line sets the block indent. `|` keeps newlines,
+ * `>` folds them (blank line -> newline). Chomping: '+' keeps trailing
+ * blank lines; default (clip) and '-' drop them (subset behavior).
+ * @param {string[]} lines
+ * @param {number} headerIndex
+ * @param {number} parentIndent
+ * @param {string} header
+ * @returns {{ text: string, next: number }}
+ */
+function consumeBlockScalar(lines, headerIndex, parentIndent, header) {
+  const style = header[0]
+  const chomp = header.slice(1)
+  let i = headerIndex + 1
+  /** @type {string[]} */
+  const contentLines = []
+  let baseIndent = -1
+  while (i < lines.length) {
+    const line = lines[i]
+    if (line.trim() === '') {
+      contentLines.push('')
+      i++
+      continue
+    }
+    const lineIndent = getIndent(line)
+    if (lineIndent <= parentIndent) break
+    if (baseIndent === -1) baseIndent = lineIndent
+    if (lineIndent < baseIndent) break
+    contentLines.push(line.slice(baseIndent))
+    i++
+  }
+  let trailingBlanks = 0
+  while (contentLines.length > 0 && contentLines[contentLines.length - 1] === '') {
+    contentLines.pop()
+    trailingBlanks++
+  }
+  let text = style === '>' ? foldBlock(contentLines) : contentLines.join('\n')
+  if (chomp === '+' && trailingBlanks > 0) text += '\n'.repeat(trailingBlanks)
+  return { text, next: i }
+}
+
+/**
+ * Fold block-scalar lines: consecutive lines join with a space, blank lines
+ * become newlines (subset of YAML folded semantics).
+ * @param {string[]} contentLines
+ */
+function foldBlock(contentLines) {
+  /** @type {string[]} */
+  const paragraphs = []
+  /** @type {string[]} */
+  let current = []
+  for (const line of contentLines) {
+    if (line === '') {
+      if (current.length) paragraphs.push(current.join(' '))
+      current = []
+      paragraphs.push('')
+    } else {
+      current.push(line)
+    }
+  }
+  if (current.length) paragraphs.push(current.join(' '))
+  let out = ''
+  for (const p of paragraphs) {
+    if (p === '') {
+      out += '\n'
+    } else if (out === '' || out.endsWith('\n')) {
+      out += p
+    } else {
+      out += '\n' + p
+    }
+  }
+  return out
 }
 
 /**
@@ -262,13 +352,70 @@ function stripComment(value) {
   if (!value) return value
   if (value.startsWith('#')) return ''
   if (value.startsWith('"') || value.startsWith("'")) {
-    const quote = value[0]
-    const close = value.indexOf(quote, 1)
-    if (close !== -1) return value.slice(0, close + 1)
-    return value
+    const { end } = scanQuoted(value)
+    return value.slice(0, end)
   }
   const idx = value.search(/\s#/)
   return idx === -1 ? value : value.slice(0, idx).trimEnd()
+}
+
+/**
+ * Scan a quoted scalar starting at value[0]. Returns the index just past
+ * the closing quote (value.length when unterminated). Escape-aware:
+ * backslash pairs inside double quotes, doubled '' inside single quotes.
+ * @param {string} value
+ */
+function scanQuoted(value) {
+  const quote = value[0]
+  let i = 1
+  while (i < value.length) {
+    const ch = value[i]
+    if (quote === '"' && ch === '\\' && i + 1 < value.length) {
+      i += 2
+      continue
+    }
+    if (quote === "'" && ch === "'" && value[i + 1] === "'") {
+      i += 2
+      continue
+    }
+    if (ch === quote) return { end: i + 1 }
+    i++
+  }
+  return { end: value.length }
+}
+
+/**
+ * Unquote and unescape a quoted scalar (value starts with the quote).
+ * Double quotes support the common backslash escapes; single quotes double
+ * '' to embed a quote.
+ * @param {string} value
+ */
+function readQuoted(value) {
+  const quote = value[0]
+  let text = ''
+  let i = 1
+  while (i < value.length) {
+    const ch = value[i]
+    if (quote === '"' && ch === '\\' && i + 1 < value.length) {
+      const next = value[i + 1]
+      if (next === 'n') text += '\n'
+      else if (next === 't') text += '\t'
+      else if (next === 'r') text += '\r'
+      else if (next === '"' || next === '\\') text += next
+      else text += '\\' + next
+      i += 2
+      continue
+    }
+    if (quote === "'" && ch === "'" && value[i + 1] === "'") {
+      text += "'"
+      i += 2
+      continue
+    }
+    if (ch === quote) break
+    text += ch
+    i++
+  }
+  return { text }
 }
 
 /**
@@ -360,7 +507,45 @@ function needsQuoting(str) {
  * @param {object} obj
  * @param {number} indent
  */
+/**
+ * Render sequence items at a given indent (shared by top-level arrays and
+ * nested array values).
+ * @param {unknown[]} arr
+ * @param {number} indent
+ */
+function stringifyItems(arr, indent) {
+  const spaces = '  '.repeat(indent)
+  let result = ''
+    for (const item of arr) {
+      if (item === null) {
+        result += `${spaces}- null\n`
+      } else if (typeof item === 'boolean') {
+        result += `${spaces}- ${item}\n`
+      } else if (typeof item === 'number') {
+        result += `${spaces}- ${item}\n`
+      } else if (typeof item === 'string') {
+        if (item.includes('\n')) {
+          result += `${spaces}- |\n${item.split('\n').map(l => spaces + '  ' + l).join('\n')}\n`
+        } else if (needsQuoting(item)) {
+          result += `${spaces}- "${item.replace(/"/g, '\\"')}"\n`
+        } else {
+          result += `${spaces}- ${item}\n`
+        }
+      } else if (typeof item === 'object') {
+        const lines = stringify(item, indent + 1).trim().split('\n')
+        if (lines.length > 0) {
+          result += `${spaces}- ${lines[0]}\n`
+          for (let i = 1; i < lines.length; i++) {
+            result += `${lines[i]}\n`
+          }
+        }
+      }
+    }
+  return result
+}
+
 export function stringify(obj, indent = 0) {
+  if (Array.isArray(obj)) return stringifyItems(obj, indent)
   const spaces = '  '.repeat(indent)
   let result = ''
 
@@ -384,31 +569,7 @@ export function stringify(obj, indent = 0) {
         result += `${spaces}${key}: []\n`
       } else {
         result += `${spaces}${key}:\n`
-        for (const item of value) {
-          if (item === null) {
-            result += `${spaces}- null\n`
-          } else if (typeof item === 'boolean') {
-            result += `${spaces}- ${item}\n`
-          } else if (typeof item === 'number') {
-            result += `${spaces}- ${item}\n`
-          } else if (typeof item === 'string') {
-            if (item.includes('\n')) {
-              result += `${spaces}- |\n${item.split('\n').map(l => spaces + '  ' + l).join('\n')}\n`
-            } else if (needsQuoting(item)) {
-              result += `${spaces}- "${item.replace(/"/g, '\\"')}"\n`
-            } else {
-              result += `${spaces}- ${item}\n`
-            }
-          } else if (typeof item === 'object') {
-            const lines = stringify(item, indent + 1).trim().split('\n')
-            if (lines.length > 0) {
-              result += `${spaces}- ${lines[0]}\n`
-              for (let i = 1; i < lines.length; i++) {
-                result += `${lines[i]}\n`
-              }
-            }
-          }
-        }
+        result += stringifyItems(value, indent)
       }
     } else if (typeof value === 'object') {
       result += `${spaces}${key}:\n`

@@ -83,3 +83,11 @@ describe('markdown review fixes', () => {
     expect(md.toHtml('[x](/\\evil.com)')).toContain('href="#"');
   });
 });
+
+describe('markdown deep-review fixes', () => {
+  it('code spans stay literal (no emphasis/links inside)', () => {
+    expect(md.toHtml('`**a**`')).toBe('<p><code>**a**</code></p>');
+    expect(md.toHtml('`[x](http://y)`')).toBe('<p><code>[x](http://y)</code></p>');
+    expect(md.toHtml('a `b` **c**')).toBe('<p>a <code>b</code> <strong>c</strong></p>');
+  });
+});
