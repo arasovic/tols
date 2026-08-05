@@ -71,7 +71,19 @@ export async function run(argv, { stdin = process.stdin, stdout = process.stdout
     if (action.rawArgs) {
       result = await action.run({ args: inputArgs, stdin }, flags);
     } else {
-      const input = action.needsInput === false ? '' : await resolveInput(inputArgs, { stdin, isTTY: stdin.isTTY });
+      let input;
+      if (action.needsInput === false) {
+        input = '';
+      } else if (action.optionalInput) {
+        try {
+          input = await resolveInput(inputArgs, { stdin, isTTY: stdin.isTTY });
+        } catch (e) {
+          if (!(e instanceof UsageError)) throw e;
+          input = '';
+        }
+      } else {
+        input = await resolveInput(inputArgs, { stdin, isTTY: stdin.isTTY });
+      }
       result = await action.run(input, flags);
     }
     emit(stdout, result, { json });

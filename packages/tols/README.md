@@ -1,0 +1,143 @@
+# tols
+
+Dev utilities in your terminal. 29 tools, one zero-dependency CLI — the same
+engines that power the [DevUtils](https://arasovic.github.io/dev-utilities/)
+web tools, extracted into a browser-safe core with a pipe-friendly CLI on top.
+
+```sh
+tols json fmt @config.json
+tols b64 enc "hello" | tols b64 dec
+tols qr gen "https://example.com"
+tols hash sha256 <<< "secret"
+```
+
+- **Zero runtime dependencies.** Node >= 20, ESM only.
+- **Pipe-friendly.** stdout carries only results; diagnostics go to stderr.
+- **Machine output.** `--json` everywhere: `{"ok":true,"result":...}`.
+- **Programmatic API.** Every core module is importable: `import { base64, json } from 'tols'`.
+
+## Install
+
+```sh
+npm install -g tols        # global CLI
+# or per project
+npm install tols
+```
+
+Run without installing: `npx tols <tool> <action> [input] [flags]`.
+
+## Usage
+
+```
+tols <tool> <action> [input] [flags]
+tols <tool> help
+tols help
+```
+
+Input comes from a positional argument, piped stdin, or `@<file>`
+(one trailing newline is stripped, so files and pipes behave the same).
+Exit codes: `0` success, `1` tool error, `2` usage error.
+
+## Tools
+
+| Tool | Actions (default in bold) |
+|---|---|
+| `base64` (b64) | **enc**, dec |
+| `url` | **enc**, dec, analyze |
+| `json` (js) | **fmt**, min, val |
+| `yaml` (yml) | **fmt**, json |
+| `diff` | **run** |
+| `timestamp` (ts) | now, **conv**, parse |
+| `cron` (cr) | **parse**, next, val |
+| `uuid` (id) | **gen** |
+| `hash` (hs) | md5, sha1, **sha256**, sha512 |
+| `jwt` | **dec**, enc |
+| `gzip` (gz) | **comp**, decomp |
+| `base` | **conv** |
+| `password` (pw) | **gen** |
+| `unicode` (uni) | **info**, search |
+| `timezone` (tz) | **conv**, zones |
+| `color` (clr) | **conv** |
+| `cssfilter` | **gen** |
+| `datauri` (duri) | **enc**, dec |
+| `placeholder` (ph) | **gen** |
+| `lorem` | **gen** |
+| `jsonp` | **wrap**, script |
+| `css` | **fmt**, min |
+| `html` | **fmt**, min |
+| `xml` | **fmt**, min, val |
+| `sql` | **fmt**, min |
+| `markdown` (md) | **html** |
+| `regex` (re) | **match**, replace |
+| `qrcode` (qr) | **gen** |
+| `barcode` (bc) | **gen** |
+
+Each tool documents its own flags: `tols <tool> help`.
+
+## Examples
+
+```sh
+# Formatting & validation
+tols json fmt @data.json
+tols sql fmt --keyword-case=lower @query.sql
+tols xml val @doc.xml || echo "broken xml"
+
+# Encoding round-trips
+tols gzip comp @app.js --json     # -> { base64, originalBytes, compressedBytes, ratio }
+tols gzip decomp H4sIA... | less
+tols duri enc ./logo.png          # -> data:image/png;base64,...
+tols duri dec "data:image/png;base64,..." > logo.png
+
+# Generators
+tols uuid gen
+tols pw gen --length=24 --symbols
+tols qr gen "https://example.com" --ascii
+tols bc gen "ABC-123" > barcode.svg
+tols ph gen --width=800 --height=400 --text="Coming soon" > placeholder.svg
+
+# Conversion
+tols base conv 0xff --to=bin      # 11111111
+tols color conv "#ff6b35"
+tols tz conv "2026-08-05 14:00" --from=Europe/Istanbul --to=America/New_York
+tols md html @notes.md > notes.html
+```
+
+## Programmatic API
+
+```js
+import { base64, color, cron } from 'tols';
+
+base64.encode('hello');            // 'aGVsbG8='
+color.parse('#ff6b35');            // { rgb, hsl, hex, rgbString, hslString }
+cron.parse('*/5 * * * *');         // field breakdown
+
+// Individual modules without the CLI registry:
+import { gzip } from 'tols/core/gzip.js';
+```
+
+All core modules are browser-safe (no Node-only APIs, no `Buffer`), so the
+same code runs in the CLI and in a browser bundle.
+
+## Notes & limitations
+
+- `qrcode`: encodes EC level M with mask 0; versions 1-2 scan reliably.
+  Higher versions follow a simplified encoding (single-block ECC) that
+  strict readers may reject — the encoder is being upgraded.
+- `xml val`: structural validation (tag balance, unclosed constructs).
+  The web tool uses DOMParser for full parse checking.
+- `regex`: runs synchronously; pathological patterns can block (the web
+  sandboxed them in a Worker with a 5s timeout).
+
+## Development
+
+```sh
+npm test            # vitest, unit + CLI contract tests
+```
+
+The core lives in `src/core/*.js` (pure, browser-safe), CLI adapters in
+`src/tools/*.js`, the dispatcher in `src/cli.js`. Tests: `test/unit`
+(core behavior) and `test/tools` (spawned-CLI contract).
+
+## License
+
+MIT
