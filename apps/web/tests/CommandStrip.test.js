@@ -132,4 +132,20 @@ describe('CommandStrip', () => {
     expect(block).toMatch(/height:\s*1em/)
     expect(block).toMatch(/font-family:\s*var\(--font-mono\)/)
   })
+
+  it('keeps the caret next to the command and the command out of the copy button', () => {
+    // jsdom computes no layout, so this pins the two declarations whose absence
+    // produced the real defects: `flex: 1` on .command-text stretched the box
+    // across the strip and stranded the caret at the far edge, and no overflow
+    // on a `white-space: pre` box let a long command paint over .command-copy.
+    const textBlock = componentSource.match(/\.command-text\s*{([^}]*)}/)
+    expect(textBlock).not.toBeNull()
+    expect(textBlock[1]).not.toMatch(/flex:\s*1\s*;/)
+    expect(textBlock[1]).toMatch(/flex:\s*0 1 auto/)
+    expect(textBlock[1]).toMatch(/overflow-x:\s*auto/)
+
+    const copyBlock = componentSource.match(/\.command-copy\s*{([^}]*)}/)
+    expect(copyBlock).not.toBeNull()
+    expect(copyBlock[1]).toMatch(/margin-left:\s*auto/)
+  })
 })

@@ -95,9 +95,16 @@
     user-select: none;
   }
 
+  /* Sizes to its own content, never to the free space: `flex: 1` stretched the
+     box across the whole strip, which stranded the caret ~800px away from the
+     last glyph at desktop width. `overflow-x` makes this element the scroll
+     container for a long command — without it, `white-space: pre` painted the
+     command straight over the copy button below ~600px. Neither is visible to
+     jsdom, which computes no layout. */
   .command-text {
-    flex: 1;
+    flex: 0 1 auto;
     min-width: 0;
+    overflow-x: auto;
     color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: var(--text-base);
@@ -145,6 +152,8 @@
     align-items: center;
     gap: var(--space-2);
     flex-shrink: 0;
+    /* Pinned right now that .command-text no longer grows to fill the strip. */
+    margin-left: auto;
     padding: var(--space-1) var(--space-2);
     color: var(--text-tertiary);
     font-family: var(--font-mono);
