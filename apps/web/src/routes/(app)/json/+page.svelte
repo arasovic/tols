@@ -1,7 +1,7 @@
 <script>
   import JsonTool from '$lib/tools/JsonTool.svelte'
 
-  const pageTitle = 'JSON Formatter - DevUtils | Online JSON Validator & Beautifier'
+  const pageTitle = 'JSON Formatter - tols | Online JSON Validator & Beautifier'
   const pageDescription = 'Free online JSON formatter, validator, and minifier. Format, validate, and beautify JSON data instantly with syntax error highlighting support included.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/json'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Copy formatted output"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

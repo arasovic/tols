@@ -1,7 +1,7 @@
 <script>
   import UrlTool from '$lib/tools/UrlTool.svelte'
 
-  const pageTitle = 'URL Encoder/Decoder - DevUtils | Online URL Converter'
+  const pageTitle = 'URL Encoder/Decoder - tols | Online URL Converter'
   const pageDescription = 'Free online URL encoder and decoder tool for web developers. Encode and decode URL components instantly with full character support for all development.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/url'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Copy to clipboard"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

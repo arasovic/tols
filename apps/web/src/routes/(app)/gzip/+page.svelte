@@ -1,7 +1,7 @@
 <script>
   import GzipTool from '$lib/tools/GzipTool.svelte'
 
-  const pageTitle = 'Gzip Calculator - DevUtils | Estimate Compression Size'
+  const pageTitle = 'Gzip Calculator - tols | Estimate Compression Size'
   const pageDescription = 'Free online Gzip compression calculator tool for web developers. Estimate gzip compression size and analyze bandwidth savings for content optimization.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/gzip'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Performance insights"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

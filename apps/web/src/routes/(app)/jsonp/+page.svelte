@@ -1,7 +1,7 @@
 <script>
   import JsonpTool from '$lib/tools/JsonpTool.svelte'
 
-  const pageTitle = 'JSONP Tester - DevUtils | JSONP Request Simulator'
+  const pageTitle = 'JSONP Tester - tols | JSONP Request Simulator'
   const pageDescription = 'Free online JSONP tester tool for developers. Simulate JSONP requests and parse responses instantly with full callback function support for cross-domain.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/jsonp'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Query parameter support"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

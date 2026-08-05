@@ -1,7 +1,7 @@
 <script>
   import HashTool from '$lib/tools/HashTool.svelte'
 
-  const pageTitle = 'Hash Calculator - DevUtils | Online MD5, SHA Generator'
+  const pageTitle = 'Hash Calculator - tols | Online MD5, SHA Generator'
   const pageDescription = 'Calculate cryptographic hashes online. Generate MD5, SHA-1, SHA-256, SHA-512 hashes instantly. Free hash calculator for developers and security professionals.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/hash'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Copy hash to clipboard"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

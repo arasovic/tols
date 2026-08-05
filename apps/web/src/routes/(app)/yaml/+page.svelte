@@ -1,7 +1,7 @@
 <script>
   import YamlTool from '$lib/tools/YamlTool.svelte'
 
-  const pageTitle = 'YAML Formatter - DevUtils | Online YAML Validator & Converter'
+  const pageTitle = 'YAML Formatter - tols | Online YAML Validator & Converter'
   const pageDescription = 'Free online YAML formatter and validator tool. Format, validate, and convert YAML to JSON instantly with full nested structure and array support included.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/yaml'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -17,7 +17,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -41,7 +41,7 @@
       "Error highlighting"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

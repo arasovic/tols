@@ -1,7 +1,7 @@
 <script>
   import DataUriTool from '$lib/tools/DataUriTool.svelte'
 
-  const pageTitle = 'Data URI Generator - DevUtils | Convert Files to Data URIs'
+  const pageTitle = 'Data URI Generator - tols | Convert Files to Data URIs'
   const pageDescription = 'Convert files to Data URIs for inline embedding in web projects instantly. Supports images, fonts, and other file types with automatic MIME type detection.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/data-uri'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

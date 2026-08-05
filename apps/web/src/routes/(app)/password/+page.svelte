@@ -1,7 +1,7 @@
 <script>
   import PasswordTool from '$lib/tools/PasswordTool.svelte'
 
-  const pageTitle = 'Password Generator - DevUtils | Secure Password Creator'
+  const pageTitle = 'Password Generator - tols | Secure Password Creator'
   const pageDescription = 'Generate secure, random passwords with customizable options. Includes strength analysis and entropy calculation for maximum security for your accounts.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/password'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

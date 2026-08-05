@@ -7,7 +7,7 @@
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_JSON = `{
-  "name": "DevUtils",
+  "name": "tols",
   "version": "1.0.0",
   "features": ["JSON", "Base64", "Hash"],
   "active": true

@@ -1,7 +1,7 @@
 <script>
   import LoremTool from '$lib/tools/LoremTool.svelte'
 
-  const pageTitle = 'Lorem Ipsum Generator - DevUtils | Free Placeholder Text'
+  const pageTitle = 'Lorem Ipsum Generator - tols | Free Placeholder Text'
   const pageDescription = 'Generate Lorem Ipsum placeholder text for your designs and mockups. Customize word count, paragraphs, and HTML output. Free online dummy text generator.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/lorem'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

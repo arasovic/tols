@@ -29,7 +29,7 @@
   // tool segment can be stripped in every environment.
   $: pathWithoutBase = stripBase(base, $page.url.pathname)
   $: currentPath = pathWithoutBase.slice(1) || ''
-  $: title = toolTitles[currentPath] || 'DevUtils'
+  $: title = toolTitles[currentPath] || 'tols'
 
   // Visiting a tool page counts as recent usage, no matter how the user got there
   $: if (browser && currentPath && getTool(currentPath)) {

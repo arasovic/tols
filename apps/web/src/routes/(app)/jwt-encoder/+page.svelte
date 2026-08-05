@@ -1,7 +1,7 @@
 <script>
   import JwtEncoderTool from '$lib/tools/JwtEncoderTool.svelte'
 
-  const pageTitle = 'JWT Encoder - DevUtils | Create and Sign JWT Tokens'
+  const pageTitle = 'JWT Encoder - tols | Create and Sign JWT Tokens'
   const pageDescription = 'Free online JWT encoder tool for web developers. Create and sign JSON Web Tokens instantly with HS256 algorithm for securely signing web app authentication.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/jwt-encoder'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Validation"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

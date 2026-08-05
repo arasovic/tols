@@ -1,7 +1,7 @@
 <script>
   import CronTool from '$lib/tools/CronTool.svelte'
 
-  const pageTitle = 'Cron Expression Parser - DevUtils | Validate & Parse Cron'
+  const pageTitle = 'Cron Expression Parser - tols | Validate & Parse Cron'
   const pageDescription = 'Free online cron expression parser tool for developers. Validate cron syntax instantly, get human descriptions, and calculate next execution times online.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/cron'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Real-time parsing"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

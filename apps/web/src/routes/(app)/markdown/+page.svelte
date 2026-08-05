@@ -1,7 +1,7 @@
 <script>
   import MarkdownTool from '$lib/tools/MarkdownTool.svelte'
 
-  const pageTitle = 'Markdown Previewer - DevUtils | Live Markdown Preview'
+  const pageTitle = 'Markdown Previewer - tols | Live Markdown Preview'
   const pageDescription = 'Free online Markdown previewer and converter tool for web developers. Live preview and convert Markdown to HTML with syntax highlighting support included.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/markdown'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "HTML output"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

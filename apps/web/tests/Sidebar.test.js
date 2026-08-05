@@ -57,7 +57,7 @@ describe('Sidebar', () => {
 
   it('should render correctly', () => {
     render(Sidebar)
-    expect(screen.getByText('DevUtils')).toBeInTheDocument()
+    expect(screen.getByText('tols')).toBeInTheDocument()
   })
 
   it('should show tools list', () => {
@@ -116,7 +116,7 @@ describe('Sidebar', () => {
 
   it('should show logo', () => {
     render(Sidebar)
-    expect(screen.getByText('DevUtils')).toBeInTheDocument()
+    expect(screen.getByText('tols')).toBeInTheDocument()
   })
 
   it('should close sidebar on link click when open', async () => {

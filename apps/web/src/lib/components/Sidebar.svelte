@@ -55,7 +55,7 @@
       <div class="logo-icon">
         <Braces size={18} />
       </div>
-      <span class="logo-title">DevUtils</span>
+      <span class="logo-title">tols</span>
     </a>
     <button type="button" class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
       {#if $theme === 'dark'}

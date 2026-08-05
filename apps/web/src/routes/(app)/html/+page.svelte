@@ -1,7 +1,7 @@
 <script>
   import HtmlTool from '$lib/tools/HtmlTool.svelte'
 
-  const pageTitle = 'HTML Formatter - DevUtils | HTML Beautifier & Minifier'
+  const pageTitle = 'HTML Formatter - tols | HTML Beautifier & Minifier'
   const pageDescription = 'Free online HTML formatter and optimizer tool for developers. Beautify and minify HTML code instantly with comment removal, attribute quoting, and formatting.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/html'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Auto-save"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

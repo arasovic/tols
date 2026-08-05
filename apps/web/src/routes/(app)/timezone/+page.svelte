@@ -1,7 +1,7 @@
 <script>
   import TimezoneTool from '$lib/tools/TimezoneTool.svelte'
 
-  const pageTitle = 'Time Zone Converter - DevUtils | Convert Time Zones'
+  const pageTitle = 'Time Zone Converter - tols | Convert Time Zones'
   const pageDescription = 'Free online time zone converter tool for scheduling. Convert times instantly between different time zones worldwide with automatic daylight saving support.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/timezone'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Multiple formats"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

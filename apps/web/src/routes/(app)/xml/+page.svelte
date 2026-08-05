@@ -1,7 +1,7 @@
 <script>
   import XmlTool from '$lib/tools/XmlTool.svelte'
 
-  const pageTitle = 'XML Formatter - DevUtils | XML Beautifier & Validator'
+  const pageTitle = 'XML Formatter - tols | XML Beautifier & Validator'
   const pageDescription = 'Free online XML formatter and validator tool for developers. Format, validate, and minify XML data instantly with CDATA, comment, and syntax support online.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/xml'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

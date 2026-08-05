@@ -1,7 +1,7 @@
 <script>
   import SqlTool from '$lib/tools/SqlTool.svelte'
 
-  const pageTitle = 'SQL Formatter - DevUtils | SQL Beautifier'
+  const pageTitle = 'SQL Formatter - tols | SQL Beautifier'
   const pageDescription = 'Free online SQL formatter and beautifier tool for developers. Format SQL queries instantly with proper indentation, keyword casing, and readable output.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/sql'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Auto-save"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

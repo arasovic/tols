@@ -1,7 +1,7 @@
 <script>
   import UuidTool from '$lib/tools/UuidTool.svelte'
 
-  const pageTitle = 'UUID Generator - DevUtils | Free UUID v4 Generator'
+  const pageTitle = 'UUID Generator - tols | Free UUID v4 Generator'
   const pageDescription = 'Free online UUID generator tool for web developers. Create version 4 UUIDs instantly for unique identifiers in databases and distributed software apps.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/uuid'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Auto-save preferences"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

@@ -1,7 +1,7 @@
 <script>
   import Base64Tool from '$lib/tools/Base64Tool.svelte'
 
-  const pageTitle = 'Base64 Encoder/Decoder - DevUtils | Online Base64 Converter'
+  const pageTitle = 'Base64 Encoder/Decoder - tols | Online Base64 Converter'
   const pageDescription = 'Free online Base64 encoder and decoder tool for developers. Encode and decode Base64 text instantly with full UTF-8 support for web development projects.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/base64'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Auto-save input"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

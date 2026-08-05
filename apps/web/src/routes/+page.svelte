@@ -17,7 +17,7 @@
   import HomeFooter from '$lib/components/HomeFooter.svelte'
   import { Braces, Sun, Moon, SearchX } from 'lucide-svelte'
 
-  const pageTitle = 'DevUtils - Free Developer Utilities & Online Tools'
+  const pageTitle = 'tols - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -94,7 +94,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -109,7 +109,7 @@
         <div class="logo-icon">
           <Braces size={20} />
         </div>
-        <span class="logo-title">DevUtils</span>
+        <span class="logo-title">tols</span>
       </a>
       <button type="button" class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
         {#if $theme === 'dark'}

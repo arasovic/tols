@@ -1,7 +1,7 @@
 <script>
   import JwtTool from '$lib/tools/JwtTool.svelte'
 
-  const pageTitle = 'JWT Decoder - DevUtils | Online JSON Web Token Inspector'
+  const pageTitle = 'JWT Decoder - tols | Online JSON Web Token Inspector'
   const pageDescription = 'Free online JWT decoder tool for web developers. Decode JSON Web Tokens instantly to view header, payload, and verify token signatures for debugging now.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/jwt'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Copy decoded parts"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

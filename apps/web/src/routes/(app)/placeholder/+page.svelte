@@ -1,7 +1,7 @@
 <script>
   import PlaceholderTool from '$lib/tools/PlaceholderTool.svelte'
 
-  const pageTitle = 'Image Placeholder - DevUtils | Generate Placeholder Images'
+  const pageTitle = 'Image Placeholder - tols | Generate Placeholder Images'
   const pageDescription = 'Free online placeholder image generator tool for designers. Create colored placeholder images instantly for mockups, prototypes, and website design projects.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/placeholder'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Copy URL"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

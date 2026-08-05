@@ -1,7 +1,7 @@
 <script>
   import DiffTool from '$lib/tools/DiffTool.svelte'
 
-  const pageTitle = 'Diff Checker - DevUtils | Compare Text Differences'
+  const pageTitle = 'Diff Checker - tols | Compare Text Differences'
   const pageDescription = 'Free online diff checker comparison tool for developers. Compare two texts side-by-side instantly, find differences, and see unified diff output online today.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/diff'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,7 +42,7 @@
       "Clear inputs"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 

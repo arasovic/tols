@@ -4,7 +4,7 @@
       GitHub
     </a>
   </div>
-  <p class="footer-copyright">© {new Date().getFullYear()} DevUtils. All rights reserved.</p>
+  <p class="footer-copyright">© {new Date().getFullYear()} tols. All rights reserved.</p>
 </footer>
 
 <style>
