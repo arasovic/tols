@@ -55,12 +55,11 @@
       <a class="wordmark" href="{base}/">tols</a>
       <span class="crumb-sep" aria-hidden="true">/</span>
       <!--
-        A heading, not a span: converting the tools onto the Workbench dropped
-        each component's own <h1>, and the breadcrumb is now the only thing
-        naming the page. All 28 tool routes inherit this one element, so the
-        heading belongs here rather than being re-added 28 times.
+        A span, not a heading: all 30 tool components still render their own
+        <h1>, so promoting the breadcrumb would give every tool page two.
+        Hoisting the heading here is a Phase B step, once no tool carries one.
       -->
-      <h1 class="page-title">{title}</h1>
+      <span class="page-title">{title}</span>
       <div class="header-actions">
         <button type="button" class="search-trigger" on:click={() => openSearch()} aria-label="Open search (Cmd+K)">
           <span class="search-text">search</span>
@@ -137,15 +136,11 @@
 
   .crumb-sep { color: var(--text-muted); font-family: var(--font-mono); }
 
-  /* margin and font-weight are reset because this is an <h1>: the UA defaults
-     would otherwise reflow the header bar and bold the breadcrumb. */
   .page-title {
     flex: 1;
     min-width: 0;
-    margin: 0;
     font-family: var(--font-mono);
     font-size: var(--text-sm);
-    font-weight: var(--font-normal);
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;

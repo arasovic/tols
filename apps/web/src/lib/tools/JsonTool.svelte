@@ -2,11 +2,8 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
-  import CommandStrip from '$lib/ui/CommandStrip.svelte'
   import Workbench from '$lib/ui/Workbench.svelte'
   import Button from '$lib/ui/Button.svelte'
-  import { dispatchShortcut } from '$lib/ui/shortcuts.js'
-  import { copyToClipboard } from '$lib/utils/clipboard.js'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -32,34 +29,12 @@
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let saveInProgress = false
-  /** @type {CommandStrip | undefined} */
-  let strip
 
   // Declared once so the visible command and the ⌘⇧C payload cannot drift:
   // writing `compact ? 'min' : 'fmt'` a second time is how a renamed action
   // ends up displayed in one place and copied in another.
   $: cliAction = compact ? 'min' : 'fmt'
   $: cliFlags = compact ? {} : { indent: 2 }
-
-  /**
-   * Human byte count for a pane header.
-   * @param {string} value
-   * @returns {string}
-   */
-  function byteLabel(value) {
-    const bytes = new TextEncoder().encode(value).length
-    if (bytes < 1024) return `${bytes} B`
-    return `${(bytes / 1024).toFixed(1)} KB`
-  }
-
-  /** @param {KeyboardEvent} event */
-  function onKeydown(event) {
-    dispatchShortcut(event, {
-      run: process,
-      copyCommand: () => strip?.copy(),
-      copyOutput: () => copyToClipboard(output)
-    })
-  }
 
   function loadState() {
     try {
@@ -193,12 +168,22 @@
   }
 </script>
 
-<svelte:window on:keydown={onKeydown} />
-
 <div class="tool">
-  <CommandStrip bind:this={strip} toolId="json" action={cliAction} {input} flags={cliFlags} />
+  <div class="tool-header">
+    <div class="tool-meta">
+      <h1 class="tool-name">JSON Formatter</h1>
+      <p class="tool-desc">Format, validate, and minify JSON data</p>
+    </div>
+  </div>
 
-  <Workbench inputMeta={byteLabel(input)} outputMeta={byteLabel(output)}>
+  <Workbench
+    toolId="json"
+    action={cliAction}
+    flags={cliFlags}
+    {input}
+    {output}
+    onRun={process}
+  >
     <textarea
       slot="input"
       bind:value={input}
@@ -240,6 +225,13 @@
           aria-label="Minify JSON to single line"
         >Minify</button>
       </div>
+      <!--
+        `icon-btn` carries no styling any more — no rule for it exists in
+        app.css or lib/ui/ — but JsonTool.test.js selects these two buttons as
+        `.icon-btn[aria-label="…"]`, and that spec is frozen. It is a test hook,
+        not a style hook: keep it here and on the tools Phase B converts, and
+        retire it only together with the selectors in the specs.
+      -->
       <Button class="icon-btn" aria-label="Load example JSON" title="Load Example" on:click={loadExample}>example</Button>
       <Button class="icon-btn" aria-label="Clear input and output" title="Clear" on:click={clear}>clear</Button>
     </svelte:fragment>
@@ -265,6 +257,36 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
+  }
+
+  /*
+    The page heading stays in the tool, matching the other 29 tool components.
+    The shell breadcrumb is a <span>: hoisting the <h1> into the shell is only
+    correct once every tool has been converted, which is a Phase B step.
+  */
+  .tool-header {
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .tool-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .tool-name {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .tool-desc {
+    margin: 0;
+    color: var(--text-tertiary);
+    font-size: var(--text-sm);
   }
 
   .segmented {
@@ -299,7 +321,7 @@
   .editor-textarea {
     width: 100%;
     height: 100%;
-    min-height: 320px;
+    min-height: var(--pane-min-height);
     padding: var(--space-3);
     color: var(--text-primary);
     font-family: var(--font-mono);
@@ -317,7 +339,7 @@
   .output-display {
     margin: 0;
     padding: var(--space-3);
-    min-height: 320px;
+    min-height: var(--pane-min-height);
     color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: var(--text-base);

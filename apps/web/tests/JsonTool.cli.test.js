@@ -97,6 +97,50 @@ describe('JsonTool command strip', () => {
     })
   })
 
+  it('reports the Cmd+Shift+O copy on the stdout pane', async () => {
+    const { container } = render(JsonTool)
+    const inputArea = screen.getByPlaceholderText(PLACEHOLDER)
+    await fireEvent.input(inputArea, { target: { value: '{"a":1}' } })
+    vi.advanceTimersByTime(400)
+
+    await waitFor(() => {
+      expect(container.querySelector('.output-display')?.textContent).toBe('{\n  "a": 1\n}')
+    })
+
+    await fireEvent.keyDown(window, { key: 'o', metaKey: true, shiftKey: true })
+    await waitFor(() => {
+      const metas = [...container.querySelectorAll('.panel-meta')].map((n) => n.textContent.trim())
+      expect(metas[1]).toBe('copied')
+    })
+  })
+
+  it('leaves the clipboard alone when Cmd+Shift+O fires with no output', async () => {
+    const { container } = render(JsonTool)
+    const clearButton = container.querySelector('.icon-btn[aria-label="Clear input and output"]')
+    await fireEvent.click(clearButton)
+
+    expect(container.querySelector('.output-display')?.textContent).toBe('Output will appear here...')
+
+    await fireEvent.keyDown(window, { key: 'o', metaKey: true, shiftKey: true })
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalled()
+  })
+
+  it('leaves the clipboard alone when Cmd+Shift+O fires in the error state', async () => {
+    const { container } = render(JsonTool)
+    const inputArea = screen.getByPlaceholderText(PLACEHOLDER)
+    await fireEvent.input(inputArea, { target: { value: '{ not json' } })
+    vi.advanceTimersByTime(400)
+
+    // The pane shows a message, but `output` is still '' — the state where an
+    // unguarded ⌘⇧O wipes the clipboard while looking like it copied something.
+    await waitFor(() => {
+      expect(container.querySelector('.error-display span')).toBeTruthy()
+    })
+
+    await fireEvent.keyDown(window, { key: 'o', metaKey: true, shiftKey: true })
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalled()
+  })
+
   it('reprocesses the input on Cmd+Enter without waiting for the debounce', async () => {
     const { container } = render(JsonTool)
     const inputArea = screen.getByPlaceholderText(PLACEHOLDER)

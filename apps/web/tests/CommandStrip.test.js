@@ -69,6 +69,15 @@ describe('CommandStrip', () => {
     expect(container.querySelector('.command-strip')).toBeNull()
   })
 
+  it('never writes an empty command to the clipboard', async () => {
+    // With an unknown tool id the whole markup is behind {#if template}, so
+    // there is no visible copy button — but copy() is exported and ⌘⇧C still
+    // reaches it. Unguarded, that silently replaced the user's clipboard with ''.
+    const { component } = render(CommandStrip, { props: { toolId: 'not-a-tool', input: 'x' } })
+    await component.copy()
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalled()
+  })
+
   it('freezes the caret solid under prefers-reduced-motion instead of leaving it dim', () => {
     // jsdom cannot evaluate media queries, so this asserts on the component's
     // own stylesheet the way tests/design-tokens.test.js asserts on app.css.

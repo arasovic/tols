@@ -2,7 +2,7 @@
 <script>
   import { buildCommand } from '$lib/cli/command.js'
   import { templateFor } from '$lib/cli/templates.js'
-  import { copyToClipboard } from '$lib/utils/clipboard.js'
+  import { createCopyFeedback } from './copyFeedback.js'
   import { onDestroy } from 'svelte'
   import Kbd from './Kbd.svelte'
 
@@ -18,8 +18,11 @@
 
   let copied = false
   let failed = false
-  /** @type {ReturnType<typeof setTimeout> | undefined} */
-  let resetTimer
+
+  const feedback = createCopyFeedback((status) => {
+    copied = status === 'copied'
+    failed = status === 'failed'
+  })
 
   $: template = templateFor(toolId)
   $: command = template
@@ -32,24 +35,19 @@
       })
     : ''
 
-  // Exported so a host tool can bind:this and wire ⌘⇧C to the *same* command
+  // Exported so Workbench can bind:this and wire ⌘⇧C to the *same* command
   // string the strip displays, instead of rebuilding it from its own state.
   // Rebuilding is how the strip and the shortcut drift apart, and it also loses
   // the visible copied/failed feedback.
   //
-  // `copyToClipboard` resolves to { success, error? }, not a boolean.
+  // With an unknown toolId nothing renders and `command` is '', so the shared
+  // guard is what stops a keystroke from wiping the clipboard with an empty
+  // string against a component that is not even on screen.
   export async function copy() {
-    const result = await copyToClipboard(command)
-    clearTimeout(resetTimer)
-    copied = result.success
-    failed = !result.success
-    resetTimer = setTimeout(() => {
-      copied = false
-      failed = false
-    }, 1200)
+    await feedback.copy(command)
   }
 
-  onDestroy(() => clearTimeout(resetTimer))
+  onDestroy(() => feedback.dispose())
 
   $: copyLabel = failed ? 'failed' : copied ? 'copied' : 'copy'
   $: copyAria = failed
