@@ -35,6 +35,19 @@ export function parse(yaml) {
   }
   const rootIsArray = firstMeaningful.startsWith('- ') || firstMeaningful === '-'
 
+  // Single-scalar documents (`'beta'`, `42`) parse to the scalar itself.
+  if (!rootIsArray && !firstMeaningful.includes(':')) {
+    let meaningfulCount = 0
+    for (const l of lines) {
+      const t = l.trim()
+      if (!t || t.startsWith('#')) continue
+      meaningfulCount++
+    }
+    if (meaningfulCount === 1) {
+      return /** @type {any} */ (parseValue(stripComment(firstMeaningful)))
+    }
+  }
+
   /** @type {Record<string, unknown> | unknown[]} */
   const result = rootIsArray ? [] : {}
 
@@ -68,6 +81,16 @@ export function parse(yaml) {
     // their own indent: YAML allows sequences flush with the parent key.
     while (stack.length > 1) {
       const top = stack[stack.length - 1]
+      // Dash lines pop past seqItemObj frames to reach their own array
+      // (nested sequences under `- key: value` items).
+      if (trimmed.startsWith('- ') && top.seqItemObj && top.indent < indent) {
+        stack.pop()
+        continue
+      }
+      if (trimmed.startsWith('- ') && top.isArray && top.dashCol !== undefined && top.dashCol > indent) {
+        stack.pop()
+        continue
+      }
       if (top.indent < indent) break
       if (top.isArray && top.key !== null && top.indent === indent && trimmed.startsWith('- ')) break
       stack.pop()
@@ -77,7 +100,8 @@ export function parse(yaml) {
 
     // Handle array items
     if (trimmed.startsWith('- ')) {
-      const value = stripComment(trimmed.slice(2).trim())
+      const rawRest = trimmed.slice(2).trim()
+      const value = stripComment(rawRest)
 
       // Ensure parent is an array
       if (!current.isArray) {
@@ -93,26 +117,46 @@ export function parse(yaml) {
       // indent pops back to the parent (only key-anchored arrays tolerate
       // flush items).
       if (value === '-' || value.startsWith('- ')) {
+        // Descend through chained openings (`- - - x`), creating one array
+        // per dash, then attach the remaining value to the deepest array.
+        // Each dash introduces a sequence whose entries sit at that dash's
+        // column; record it so later shallower dashes pop back correctly.
+        let dashCol = indent + 2
         /** @type {unknown[]} */
         const child = []
         current.obj.push(child)
-        stack.push({ obj: child, indent, key: null, isArray: true })
-        if (value.startsWith('- ')) {
-          const rest = value.slice(2).trim()
-          if (rest.startsWith('{') && rest.endsWith('}')) {
-            child.push(parseInlineObject(rest))
-          } else if (rest.startsWith('[') && rest.endsWith(']')) {
-            child.push(parseArray(rest))
-          } else if (rest.includes(':')) {
-            const colonIndex = rest.indexOf(':')
-            const k = rest.slice(0, colonIndex).trim()
-            const v = rest.slice(colonIndex + 1).trim()
-            const parsedObj = /** @type {Record<string, unknown>} */ ({ [k]: parseValue(v) })
-            child.push(parsedObj)
-            stack.push({ obj: parsedObj, indent, key: null, isArray: false })
-          } else if (rest !== '') {
-            child.push(parseValue(rest))
+        stack.push({ obj: child, indent, key: null, isArray: true, dashCol })
+        let target = child
+        let rest = value === '-' ? '' : value.slice(2).trim()
+        while (rest === '-' || rest.startsWith('- ')) {
+          dashCol += 2
+          /** @type {unknown[]} */
+          const next = []
+          target.push(next)
+          stack.push({ obj: next, indent, key: null, isArray: true, dashCol })
+          target = next
+          rest = rest === '-' ? '' : rest.slice(2).trim()
+        }
+        if (rest.startsWith('{') && rest.endsWith('}')) {
+          target.push(parseInlineObject(rest))
+        } else if (rest.startsWith('[') && rest.endsWith(']')) {
+          target.push(parseArray(rest))
+        } else if (rest.includes(':')) {
+          const colonIndex = rest.indexOf(':')
+          const k = rest.slice(0, colonIndex).trim()
+          const v = rest.slice(colonIndex + 1).trim()
+          if (v === '' || BLOCK_HEADER.test(v)) {
+            const parsedObj = /** @type {Record<string, unknown>} */ ({})
+            target.push(parsedObj)
+            stack.push({ obj: parsedObj, indent, key: null, isArray: false, seqItemObj: true })
+            lines[i] = ' '.repeat(indent + 2) + k + (v ? ': ' + v : ':')
+            continue
           }
+          const parsedObj = /** @type {Record<string, unknown>} */ ({ [k]: parseValue(v) })
+          target.push(parsedObj)
+          stack.push({ obj: parsedObj, indent, key: null, isArray: false, seqItemObj: true })
+        } else if (rest !== '') {
+          target.push(parseValue(rest))
         }
         i++
         continue
@@ -124,11 +168,21 @@ export function parse(yaml) {
         const colonIndex = value.indexOf(':')
         const key = value.slice(0, colonIndex).trim()
         const val = value.slice(colonIndex + 1).trim()
+        if (val === '' || BLOCK_HEADER.test(val)) {
+          // Container/block values live on the following lines: push the
+          // bare item object and re-feed this line as an indented key line
+          // so the outer key-value logic attaches the container correctly.
+          const parsedObj = /** @type {Record<string, unknown>} */ ({})
+          current.obj.push(parsedObj)
+          stack.push({ obj: parsedObj, indent, key: null, isArray: false, seqItemObj: true })
+          lines[i] = ' '.repeat(indent + 2) + key + (val ? ': ' + val : ':')
+          continue
+        }
         const parsedObj = /** @type {Record<string, unknown>} */ ({ [key]: parseValue(val) })
         current.obj.push(parsedObj)
         // Keep the item on the stack: lines after a nested container are
         // processed by the outer loop and must still attach to this item.
-        stack.push({ obj: parsedObj, indent, key: null, isArray: false })
+        stack.push({ obj: parsedObj, indent, key: null, isArray: false, seqItemObj: true })
 
         // Check if next lines are nested properties of this object
         const itemBaseIndent = indent
@@ -222,7 +276,7 @@ export function parse(yaml) {
           current.obj[key] = obj
           stack.push({ obj, indent, key, isArray: false })
         } else {
-          current.obj[key] = {}
+          current.obj[key] = null
         }
       } else if (value.startsWith('[') && value.endsWith(']')) {
         // Inline array
@@ -351,12 +405,35 @@ function foldBlock(contentLines) {
 function stripComment(value) {
   if (!value) return value
   if (value.startsWith('#')) return ''
-  if (value.startsWith('"') || value.startsWith("'")) {
-    const { end } = scanQuoted(value)
-    return value.slice(0, end)
+  // Walk the value; a hash starts a comment only outside quoted regions and
+  // only at the start or after whitespace.
+  /** @type {string | null} */
+  let quote = null
+  for (let i = 0; i < value.length; i++) {
+    const ch = value[i]
+    if (quote) {
+      if (quote === '"' && ch === '\\') {
+        i++
+        continue
+      }
+      if (ch === quote) {
+        if (quote === "'" && value[i + 1] === "'") {
+          i++
+          continue
+        }
+        quote = null
+      }
+      continue
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch
+      continue
+    }
+    if (ch === '#' && (i === 0 || /\s/.test(value[i - 1]))) {
+      return value.slice(0, i).trimEnd()
+    }
   }
-  const idx = value.search(/\s#/)
-  return idx === -1 ? value : value.slice(0, idx).trimEnd()
+  return value
 }
 
 /**
@@ -545,6 +622,10 @@ function stringifyItems(arr, indent) {
 }
 
 export function stringify(obj, indent = 0) {
+  if (obj === null || typeof obj !== 'object') {
+    if (typeof obj === 'string' && needsQuoting(obj)) return `"${obj.replace(/"/g, '\\"')}"\n`
+    return `${obj}\n`
+  }
   if (Array.isArray(obj)) return stringifyItems(obj, indent)
   const spaces = '  '.repeat(indent)
   let result = ''

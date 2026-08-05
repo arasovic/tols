@@ -105,6 +105,18 @@ export function decode(token) {
 export async function encode(header, payload, secret) {
   const headerStr = typeof header === 'string' ? header : JSON.stringify(header);
   const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  // String inputs must be valid JSON; an empty segment would produce a
+  // token that cannot be decoded.
+  try {
+    JSON.parse(headerStr);
+  } catch {
+    throw new Error('Invalid header JSON');
+  }
+  try {
+    JSON.parse(payloadStr);
+  } catch {
+    throw new Error('Invalid payload JSON');
+  }
   const encodedHeader = base64UrlEncode(headerStr);
   const encodedPayload = base64UrlEncode(payloadStr);
   const message = `${encodedHeader}.${encodedPayload}`;

@@ -126,3 +126,35 @@ describe('yaml deep-review fixes', () => {
     expect(doc.items[1]).toEqual({ name: 'b' });
   });
 });
+
+describe('yaml deep-pass fixes', () => {
+  it('chained dashes create nested sequences', () => {
+    expect(parse('- - - 792')).toEqual([[[792]]]);
+    expect(parse('- - - -792\n  - user: a')).toEqual([[[-792], { user: 'a' }]]);
+    expect(parse('- - - 64.8\n    - one\n  - - 97.37\n    - two\n  - port: x'))
+      .toEqual([[[64.8, 'one'], [97.37, 'two'], { port: 'x' }]]);
+  });
+
+  it('hash inside quoted values survives in array contexts', () => {
+    expect(parse('- key: "a # b"')).toEqual([{ key: 'a # b' }]);
+    expect(parse('tags:\n  - - "x # y"\n    - z')).toEqual({ tags: [['x # y', 'z']] });
+    expect(parse('- - "q # r"')).toEqual([['q # r']]);
+  });
+
+  it('block scalars work as first key of sequence items', () => {
+    expect(parse('- config: |-\n    one\n- next: v')).toEqual([{ config: 'one' }, { next: 'v' }]);
+    expect(parse('- - type: |-\n      beta\n  - other: 1'))
+      .toEqual([[{ type: 'beta' }, { other: 1 }]]);
+    expect(parse('- config:\n    a: 1\n- plain: v')).toEqual([{ config: { a: 1 } }, { plain: 'v' }]);
+  });
+
+  it('single-scalar documents parse to the scalar', () => {
+    expect(parse("'beta'")).toBe('beta');
+    expect(parse('42')).toBe(42);
+    expect(parse('true')).toBe(true);
+  });
+
+  it('empty value with shallower follower is null', () => {
+    expect(parse('a:\nb: 2')).toEqual({ a: null, b: 2 });
+  });
+});

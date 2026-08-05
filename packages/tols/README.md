@@ -130,10 +130,12 @@ same code runs in the CLI and in a browser bundle.
 - `html` / `xml`: hand-rolled tag scanner; a `>` inside a quoted
   attribute value ends the tag.
 - `yaml`: pragmatic subset parser. Anchors/aliases/tags are rejected
-  with an error. Top-level sequences, nested sequences, quoted-scalar
-  escapes (`\"`, `\\`, `''`), folded scalars (`>`) and chomping
-  indicators (`|-`, `|+`) are supported; default block-scalar chomping
-  drops the final trailing newline (pyyaml keeps one).
+  with an error. Top-level sequences and scalars, nested/chained
+  sequences (`- - x`), quoted-scalar escapes (`\"`, `\\`, `''`),
+  folded scalars (`>`) and chomping indicators (`|-`, `|+`) are
+  supported; default block-scalar chomping drops the final trailing
+  newline (pyyaml keeps one). Invalid YAML that pyyaml rejects (e.g.
+  `key: - item`) may parse leniently.
 - `cron`: 5-field expressions; `?` is accepted only in the
   day-of-month / day-of-week fields and `7` is an alias for Sunday.
 - `diff`: Myers with full trace is quadratic, so inputs above ~3500

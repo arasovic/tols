@@ -57,7 +57,8 @@ export function parseCronField(field, min, max) {
     }
   }
 
-  return values.sort((a, b) => a - b)
+  // Dedupe: `0,0` or overlapping ranges must not schedule duplicate runs.
+  return [...new Set(values)].sort((a, b) => a - b)
 }
 
 /**

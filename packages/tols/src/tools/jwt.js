@@ -29,6 +29,9 @@ export default {
           } catch {
             throw new UsageError('--header must be valid JSON');
           }
+          if (typeof header !== 'object' || header === null || Array.isArray(header)) {
+            throw new UsageError('--header must be a JSON object');
+          }
         }
         try {
           JSON.parse(input);
