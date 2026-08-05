@@ -102,11 +102,15 @@
   }
 
   /* A block caret is a character cell, so it is sized off the type scale
-     (ch/em), never the spacing grid. */
+     (ch/em), never the spacing grid. `ch` and `em` resolve against this
+     element's own font, so the mono face is declared here rather than
+     inherited — today `--font-sans` happens to alias `--font-mono`, and the
+     caret must not silently mis-size if that ever stops being true. */
   .command-caret {
     flex-shrink: 0;
     width: 1ch;
     height: 1em;
+    font-family: var(--font-mono);
     font-size: var(--text-base);
     background: var(--accent);
     opacity: 0.35;

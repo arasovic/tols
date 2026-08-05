@@ -112,10 +112,15 @@ describe('CommandStrip', () => {
   it('sizes the caret off the type scale, not raw px', () => {
     // jsdom cannot evaluate media queries or layout, so this asserts on the
     // component's own stylesheet, the same way the reduced-motion test does.
+    // Isolate the .command-caret block specifically so these assertions can't
+    // be satisfied by a declaration living in some other rule.
     const caretBlock = componentSource.match(/\.command-caret\s*{([^}]*)}/)
     expect(caretBlock).not.toBeNull()
     const block = caretBlock[1]
     expect(block).not.toMatch(/width:\s*\d+px/)
     expect(block).not.toMatch(/height:\s*\d+px/)
+    expect(block).toMatch(/width:\s*1ch/)
+    expect(block).toMatch(/height:\s*1em/)
+    expect(block).toMatch(/font-family:\s*var\(--font-mono\)/)
   })
 })
