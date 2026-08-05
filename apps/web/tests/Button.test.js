@@ -61,4 +61,31 @@ describe('Button', () => {
     const button = container.querySelector('.btn')
     expect(button.getAttribute('aria-label')).toBe('Format JSON')
   })
+
+  it('adds a consumer-passed class instead of substituting it', () => {
+    // Regression test: class must be a declared prop merged into the element's
+    // class attribute, not passed through $$restProps — a rest-prop class
+    // would wholesale replace className via set_attributes and silently erase
+    // 'btn' and all its base styling.
+    const { container } = render(Button, { props: { class: 'consumer-class' } })
+    const button = container.querySelector('button')
+    expect(button.classList.contains('btn')).toBe(true)
+    expect(button.classList.contains('consumer-class')).toBe(true)
+  })
+
+  it('composes the class prop with the variant', () => {
+    const { container } = render(Button, { props: { variant: 'primary', class: 'consumer-class' } })
+    const button = container.querySelector('button')
+    expect(button.classList.contains('btn')).toBe(true)
+    expect(button.classList.contains('btn-primary')).toBe(true)
+    expect(button.classList.contains('consumer-class')).toBe(true)
+  })
+
+  it('omitting class yields a clean class list with no stray empty token', () => {
+    const { container } = render(Button)
+    const button = container.querySelector('button')
+    const classes = button.className.trim().split(/\s+/)
+    expect(classes.every(Boolean)).toBe(true)
+    expect(classes).toContain('btn')
+  })
 })

@@ -7,6 +7,15 @@
   /** Optional keyboard hint rendered inside the button */
   export let kbd = ''
   export let disabled = false
+
+  // `class` must be a DECLARED prop, not part of $$restProps. Svelte merges a
+  // static class attribute and $$restProps into one attribute list applied via
+  // set_attributes, which assigns className wholesale on a last-key-wins basis
+  // — so a consumer-passed class in $$restProps would silently erase `btn` and
+  // every base style with it. Declaring it excludes it from $$restProps and
+  // lets us merge explicitly instead.
+  let className = ''
+  export { className as class }
 </script>
 
 <!--
@@ -18,7 +27,7 @@
 -->
 <button
   type="button"
-  class="btn"
+  class="btn {className}"
   class:btn-primary={variant === 'primary'}
   class:btn-ghost={variant === 'ghost'}
   {disabled}
