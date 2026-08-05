@@ -3,6 +3,7 @@
   import { buildCommand } from '$lib/cli/command.js'
   import { templateFor } from '$lib/cli/templates.js'
   import { copyToClipboard } from '$lib/utils/clipboard.js'
+  import { onDestroy } from 'svelte'
   import Kbd from './Kbd.svelte'
 
   /** Registry id of the current tool, e.g. 'json' */
@@ -16,6 +17,9 @@
   export let flags = {}
 
   let copied = false
+  let failed = false
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let resetTimer
 
   $: template = templateFor(toolId)
   $: command = template
@@ -28,12 +32,26 @@
       })
     : ''
 
+  // `copyToClipboard` resolves to { success, error? }, not a boolean.
   async function copy() {
     const result = await copyToClipboard(command)
-    if (!result.success) return
-    copied = true
-    setTimeout(() => (copied = false), 1200)
+    clearTimeout(resetTimer)
+    copied = result.success
+    failed = !result.success
+    resetTimer = setTimeout(() => {
+      copied = false
+      failed = false
+    }, 1200)
   }
+
+  onDestroy(() => clearTimeout(resetTimer))
+
+  $: copyLabel = failed ? 'failed' : copied ? 'copied' : 'copy'
+  $: copyAria = failed
+    ? 'Failed to copy command'
+    : copied
+      ? 'Command copied to clipboard'
+      : 'Copy command to clipboard'
 </script>
 
 {#if template}
@@ -41,8 +59,14 @@
     <span class="command-prompt" aria-hidden="true">$</span>
     <code class="command-text">{command}</code>
     <span class="command-caret" aria-hidden="true"></span>
-    <button type="button" class="command-copy" on:click={copy} title="Copy command">
-      {copied ? 'copied' : 'copy'}
+    <button
+      type="button"
+      class="command-copy"
+      class:is-failed={failed}
+      on:click={copy}
+      aria-label={copyAria}
+    >
+      {copyLabel}
       <Kbd keys="⌘⇧C" />
     </button>
   </div>
@@ -77,10 +101,13 @@
     white-space: pre;
   }
 
+  /* A block caret is a character cell, so it is sized off the type scale
+     (ch/em), never the spacing grid. */
   .command-caret {
     flex-shrink: 0;
-    width: 7px;
-    height: 15px;
+    width: 1ch;
+    height: 1em;
+    font-size: var(--text-base);
     background: var(--accent);
     opacity: 0.35;
   }
@@ -93,6 +120,17 @@
   @keyframes blink {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0; }
+  }
+
+  /* The global reduced-motion guard only clamps duration and iteration count;
+     with the default fill-mode the caret would settle at its dim base opacity
+     instead of the solid state the design calls for. */
+  @media (prefers-reduced-motion: reduce) {
+    .command-strip:hover .command-caret,
+    .command-strip:focus-within .command-caret {
+      animation: none;
+      opacity: 1;
+    }
   }
 
   .command-copy {
@@ -116,16 +154,13 @@
     border-color: var(--border-strong);
   }
 
+  .command-copy.is-failed {
+    color: var(--error);
+    border-color: var(--error);
+  }
+
   .command-copy:focus-visible {
     outline: none;
     box-shadow: var(--glow-focus);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .command-strip:hover .command-caret,
-    .command-strip:focus-within .command-caret {
-      animation: none;
-      opacity: 1;
-    }
   }
 </style>

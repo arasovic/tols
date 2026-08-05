@@ -81,4 +81,41 @@ describe('CommandStrip', () => {
     expect(guard).toMatch(/animation:\s*none/)
     expect(guard).toMatch(/opacity:\s*1/)
   })
+
+  it('exposes a state-appropriate accessible name on the copy button', async () => {
+    const { container } = render(CommandStrip, {
+      props: { toolId: 'json', action: 'fmt', input: '{}' }
+    })
+    expect(screen.getByLabelText('Copy command to clipboard')).toBeInTheDocument()
+    await fireEvent.click(container.querySelector('.command-copy'))
+    await waitFor(() => {
+      expect(screen.getByLabelText('Command copied to clipboard')).toBeInTheDocument()
+    })
+  })
+
+  it('surfaces a visible failure state when the clipboard write rejects', async () => {
+    Object.assign(navigator, {
+      clipboard: { writeText: vi.fn().mockRejectedValue(new Error('nope')) }
+    })
+    const { container } = render(CommandStrip, {
+      props: { toolId: 'json', action: 'fmt', input: '{}' }
+    })
+    const button = container.querySelector('.command-copy')
+    await fireEvent.click(button)
+    await waitFor(() => {
+      expect(button.textContent?.trim()).toMatch(/^failed/)
+      expect(button.classList.contains('is-failed')).toBe(true)
+      expect(button.getAttribute('aria-label')).toBe('Failed to copy command')
+    })
+  })
+
+  it('sizes the caret off the type scale, not raw px', () => {
+    // jsdom cannot evaluate media queries or layout, so this asserts on the
+    // component's own stylesheet, the same way the reduced-motion test does.
+    const caretBlock = componentSource.match(/\.command-caret\s*{([^}]*)}/)
+    expect(caretBlock).not.toBeNull()
+    const block = caretBlock[1]
+    expect(block).not.toMatch(/width:\s*\d+px/)
+    expect(block).not.toMatch(/height:\s*\d+px/)
+  })
 })
