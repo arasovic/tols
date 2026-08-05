@@ -60,3 +60,26 @@ describe('markdown core', () => {
     expect(md.parseInline('line one  \nline two')).toContain('<br>');
   });
 });
+
+describe('markdown review fixes', () => {
+  it('unclosed fence flushes its content at EOF', () => {
+    const out = md.toHtml('para\n```js\ncode here');
+    expect(out).toContain('<p>para</p>');
+    expect(out).toContain('class="language-js"');
+    expect(out).toContain('code here');
+  });
+
+  it('sanitize blocks protocol-relative and backslash-relative URLs', () => {
+    expect(md.sanitizeUrl('//evil.com')).toBe('#');
+    expect(md.sanitizeUrl('/\\evil.com')).toBe('#');
+    expect(md.sanitizeUrl('\\\\evil.com')).toBe('#');
+    expect(md.sanitizeUrl('javascript:alert(1)')).toBe('#');
+    expect(md.sanitizeUrl('/docs/x')).toBe('/docs/x');
+    expect(md.sanitizeUrl('#frag')).toBe('#frag');
+    expect(md.sanitizeUrl('https://ok.com/x')).toBe('https://ok.com/x');
+  });
+
+  it('backslash-relative links render as # in output', () => {
+    expect(md.toHtml('[x](/\\evil.com)')).toContain('href="#"');
+  });
+});

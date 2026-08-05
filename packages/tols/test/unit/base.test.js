@@ -47,3 +47,14 @@ describe('base core', () => {
     expect(() => base.convert('')).toThrow('Invalid decimal number');
   });
 });
+
+describe('base review fixes', () => {
+  it('explicit --from tolerates prefixes', () => {
+    expect(base.convert('0xff', { from: 'hex' }).value).toBe(255);
+    expect(base.convert('-0b101', { from: 'bin' }).value).toBe(-5);
+  });
+
+  it('explicit --from with mismatched prefix digits still rejects', () => {
+    expect(() => base.convert('0xff', { from: 'bin' })).toThrow(/Invalid binary/);
+  });
+});

@@ -52,3 +52,9 @@ describe('tols base', () => {
     expect(r.err).toContain('unknown --to');
   });
 });
+
+  it('explicit --from tolerates prefixes', async () => {
+    const r = await tols(['base', 'conv', '0xff', '--from=hex']);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('dec: 255');
+  });

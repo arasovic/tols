@@ -52,8 +52,12 @@ export function parse(yaml) {
       throw new Error(`Line ${lineNum}: Custom tags are not supported`)
     }
 
-    // Pop stack to find correct parent
-    while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
+    // Pop stack to find correct parent. Arrays tolerate item lines at
+    // their own indent: YAML allows sequences flush with the parent key.
+    while (stack.length > 1) {
+      const top = stack[stack.length - 1]
+      if (top.indent < indent) break
+      if (top.isArray && top.indent === indent && trimmed.startsWith('- ')) break
       stack.pop()
     }
 
@@ -61,7 +65,7 @@ export function parse(yaml) {
 
     // Handle array items
     if (trimmed.startsWith('- ')) {
-      const value = trimmed.slice(2).trim()
+      const value = stripComment(trimmed.slice(2).trim())
 
       // Ensure parent is an array
       if (!current.isArray) {
@@ -80,6 +84,9 @@ export function parse(yaml) {
         const val = value.slice(colonIndex + 1).trim()
         const parsedObj = /** @type {Record<string, unknown>} */ ({ [key]: parseValue(val) })
         current.obj.push(parsedObj)
+        // Keep the item on the stack: lines after a nested container are
+        // processed by the outer loop and must still attach to this item.
+        stack.push({ obj: parsedObj, indent, key: null, isArray: false })
 
         // Check if next lines are nested properties of this object
         const itemBaseIndent = indent
@@ -110,33 +117,16 @@ export function parse(yaml) {
           if (nextTrimmed.includes(':')) {
             const nestedColonIndex = nextTrimmed.indexOf(':')
             const nestedKey = nextTrimmed.slice(0, nestedColonIndex).trim()
-            let nestedVal = nextTrimmed.slice(nestedColonIndex + 1).trim()
+            let nestedVal = stripComment(nextTrimmed.slice(nestedColonIndex + 1).trim())
 
-            // Check for nested object or array
-            const nextNextLine = j + 1 < lines.length ? lines[j + 1] : null
-            const nextNextIndent = nextNextLine ? getIndent(nextNextLine) : -1
-            const nextNextTrimmed = nextNextLine ? nextNextLine.trim() : ''
-
-            if (nestedVal === '' && nextNextTrimmed && !nextNextTrimmed.startsWith('#')) {
-              if (nextNextTrimmed.startsWith('- ') && nextNextIndent > nextIndent) {
-                // Nested array
-                /** @type {unknown[]} */
-                const arr = []
-                parsedObj[nestedKey] = arr
-                stack.push({ obj: arr, indent: nextIndent, key: nestedKey, isArray: true })
-                i = j
-                break
-              } else if (nextNextIndent > nextIndent) {
-                // Nested object
-                /** @type {Record<string, unknown>} */
-                const obj = {}
-                parsedObj[nestedKey] = obj
-                stack.push({ obj, indent: nextIndent, key: nestedKey, isArray: false })
-                i = j
-                break
-              } else {
-                parsedObj[nestedKey] = {}
-              }
+            if (nestedVal === '' || nestedVal === '|' || nestedVal === '>') {
+              // Empty value or block scalar: hand the key line to the outer
+              // loop. This item sits on the stack, so the outer loop attaches
+              // the container (or block) to it and consumes the container's
+              // own lines. (The old in-scanner stack juggling clobbered the
+              // resume index and silently dropped container contents.)
+              i = j - 1
+              break
             } else if (nestedVal.startsWith('[') && nestedVal.endsWith(']')) {
               parsedObj[nestedKey] = parseArray(nestedVal)
             } else if (nestedVal.startsWith('{') && nestedVal.endsWith('}')) {
@@ -163,7 +153,7 @@ export function parse(yaml) {
     else if (trimmed.includes(':')) {
       const colonIndex = trimmed.indexOf(':')
       const key = trimmed.slice(0, colonIndex).trim()
-      let value = trimmed.slice(colonIndex + 1).trim()
+      let value = stripComment(trimmed.slice(colonIndex + 1).trim())
 
       // Validate key - should not be empty or contain only special characters
       if (!key || key.includes(':')) {
@@ -247,17 +237,38 @@ function parseLine(line, lineNum) {
  * @returns {string | number | boolean | null}
  */
 function parseValue(value) {
-  if (!value) return ''
+  value = stripComment(value)
+  if (!value) return null
   if (value === 'true') return true
   if (value === 'false') return false
   if (value === 'null' || value === '~') return null
   if (/^-?\d+$/.test(value)) return parseInt(value, 10)
   if (/^-?\d+\.?\d*(?:[eE][+-]?\d+)?$/.test(value)) return parseFloat(value)
-  if ((value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))) {
-    return value.slice(1, -1)
+  if (value.startsWith('"') || value.startsWith("'")) {
+    const quote = value[0]
+    const close = value.indexOf(quote, 1)
+    if (close !== -1) return value.slice(1, close)
   }
   return value
+}
+
+/**
+ * Drop a trailing YAML comment from an unquoted value. Comments start at a
+ * '#' preceded by whitespace (or a '#' at the very start of the value);
+ * quoted values keep everything up to the closing quote.
+ * @param {string} value
+ */
+function stripComment(value) {
+  if (!value) return value
+  if (value.startsWith('#')) return ''
+  if (value.startsWith('"') || value.startsWith("'")) {
+    const quote = value[0]
+    const close = value.indexOf(quote, 1)
+    if (close !== -1) return value.slice(0, close + 1)
+    return value
+  }
+  const idx = value.search(/\s#/)
+  return idx === -1 ? value : value.slice(0, idx).trimEnd()
 }
 
 /**
@@ -267,7 +278,7 @@ function parseValue(value) {
 function parseArray(str) {
   const content = str.slice(1, -1)
   if (!content.trim()) return []
-  return content.split(',').map(/** @param {string} v */ v => parseValue(v.trim()))
+  return splitInlinePairs(content).map(/** @param {string} v */ v => parseValue(v.trim()))
 }
 
 /**
@@ -299,8 +310,18 @@ function splitInlinePairs(content) {
   const pairs = []
   let depth = 0
   let current = ''
+  /** @type {string | null} */
+  let quote = null
   for (const char of content) {
-    if (char === '{' || char === '[') {
+    if (quote) {
+      current += char
+      if (char === quote) quote = null
+      continue
+    }
+    if (char === '"' || char === "'") {
+      quote = char
+      current += char
+    } else if (char === '{' || char === '[') {
       depth++
       current += char
     } else if (char === '}' || char === ']') {

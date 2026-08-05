@@ -36,3 +36,22 @@ describe('cron core', () => {
     ]);
   });
 });
+
+describe('cron review fixes', () => {
+  it('sparse expressions (Feb 29) resolve without a minute-walk', () => {
+    const runs = getNextRuns('0 0 29 2 *', 3, new Date('2026-08-06T00:00:00Z'));
+    expect(runs.map((d) => d.toISOString())).toEqual([
+      '2028-02-29T00:00:00.000Z',
+      '2032-02-29T00:00:00.000Z',
+      '2036-02-29T00:00:00.000Z',
+    ]);
+  });
+
+  it('impossible expressions throw instead of silently returning nothing', () => {
+    expect(() => getNextRuns('0 0 31 2 *', 1, new Date('2026-08-06T00:00:00Z'))).toThrow(/no matching run/);
+  });
+
+  it('count must be satisfied within the window', () => {
+    expect(() => getNextRuns('0 0 29 2 *', 100, new Date('2026-08-06T00:00:00Z'))).toThrow(/found \d+ of 100/);
+  });
+});

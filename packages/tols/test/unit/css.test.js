@@ -62,3 +62,20 @@ describe('css core', () => {
     expect(css.minify('')).toBe('');
   });
 });
+
+describe('css review fixes', () => {
+  it('unterminated comment is dropped whole by minify (no orphan char)', () => {
+    expect(css.minify('a{color:red}/*unclosed')).toBe('a{color:red}');
+  });
+
+  it('unterminated comment kept intact by format', () => {
+    expect(css.format('a{color:red}/*unclosed')).toContain('/*unclosed');
+    expect(css.format('a{color:red}/*unclosed')).not.toContain('\nd\n');
+  });
+
+  it('at-rule scan survives semicolons inside quoted strings', () => {
+    const out = css.format('@import "a;b.css";a{color:red}');
+    expect(out).toContain('@import "a;b.css";');
+    expect(out).toContain('color: red');
+  });
+});

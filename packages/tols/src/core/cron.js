@@ -117,11 +117,13 @@ export function getDescription(cron) {
 }
 
 /**
- * @param {string} cron
- * @param {number} count
- * @returns {Date[]}
- */
-/**
+ * Next run times for a cron expression.
+ *
+ * Day-based scan (instead of minute stepping) so sparse expressions like
+ * "0 0 29 2 *" resolve without iterating millions of minutes. Standard cron
+ * day-of-month/day-of-week OR semantics apply when both are constrained.
+ * Throws when fewer than `count` runs occur within the 40-year window
+ * (e.g. "0 0 31 2 *" never matches).
  * @param {string} cron
  * @param {number} [count]
  * @param {Date} [from]
@@ -139,38 +141,42 @@ export function getNextRuns(cron, count = 5, from = new Date()) {
 
   if (!minutes || !hours || !days || !months || !weekdays) return []
 
+  const dayFree = parts[2] === '*' || parts[2] === '?'
+  const weekdayFree = parts[4] === '*' || parts[4] === '?'
+  const dayMatches = (d) => {
+    const dayMatch = days.includes(d.getDate())
+    const weekdayMatch = weekdays.includes(d.getDay())
+    if (!dayFree && !weekdayFree) return dayMatch || weekdayMatch
+    if (!dayFree) return dayMatch
+    if (!weekdayFree) return weekdayMatch
+    return true
+  }
+
+  const start = new Date(from)
+  start.setSeconds(0, 0)
+
   const runs = []
-  let date = new Date(from)
-  date.setSeconds(0, 0)
+  const maxDays = 366 * 40
 
-  const maxIterations = 10000
-  let iterations = 0
+  for (let offset = 0; offset < maxDays && runs.length < count; offset++) {
+    const day = new Date(start)
+    day.setDate(day.getDate() + offset)
+    if (!months.includes(day.getMonth() + 1)) continue
+    if (!dayMatches(day)) continue
 
-  while (runs.length < count && iterations < maxIterations) {
-    iterations++
-    date.setMinutes(date.getMinutes() + 1)
-
-    if (!minutes.includes(date.getMinutes())) continue
-    if (!hours.includes(date.getHours())) continue
-    if (!months.includes(date.getMonth() + 1)) continue
-
-    const dayMatch = days.includes(date.getDate())
-    const weekdayMatch = weekdays.includes(date.getDay())
-
-    // standard cron: '*' or '?' means unconstrained; when both day fields are
-    // constrained they combine with OR
-    const dayFree = parts[2] === '*' || parts[2] === '?'
-    const weekdayFree = parts[4] === '*' || parts[4] === '?'
-
-    if (!dayFree && !weekdayFree) {
-      if (!dayMatch && !weekdayMatch) continue
-    } else if (!dayFree) {
-      if (!dayMatch) continue
-    } else if (!weekdayFree) {
-      if (!weekdayMatch) continue
+    for (const h of hours) {
+      for (const m of minutes) {
+        const candidate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m, 0, 0)
+        if (candidate.getTime() <= start.getTime()) continue
+        runs.push(candidate)
+        if (runs.length >= count) break
+      }
+      if (runs.length >= count) break
     }
+  }
 
-    runs.push(new Date(date))
+  if (runs.length < count) {
+    throw new Error(`no matching run within 40 years (found ${runs.length} of ${count}; check day/month fields)`)
   }
 
   return runs

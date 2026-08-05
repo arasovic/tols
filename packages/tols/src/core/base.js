@@ -82,7 +82,8 @@ export function formatAll(num) {
 export function convert(input, { from } = {}) {
   const detected = detect(input);
   const base = from ?? detected.base;
-  const digits = from ? String(input).trim() : detected.value;
-  const num = parse(digits, base);
+  // Prefixes are stripped even with an explicit --from (0xff --from=hex):
+  // the prefix is syntax, the --from flag decides the radix.
+  const num = parse(detected.value, base);
   return { from: base, value: num, ...formatAll(num) };
 }

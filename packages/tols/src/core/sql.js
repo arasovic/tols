@@ -44,7 +44,9 @@ export function tokenize(sql) {
       let comment = '/*';
       i += 2;
       col += 2;
-      while (i < sql.length - 1 && !(sql[i] === '*' && sql[i + 1] === '/')) {
+      // Unterminated comments run to EOF; the previous `length - 1` bound
+      // orphaned the final character as a separate token.
+      while (i < sql.length && !(sql[i] === '*' && sql[i + 1] === '/')) {
         if (sql[i] === '\n') {
           line++;
           col = 1;
@@ -54,7 +56,7 @@ export function tokenize(sql) {
         comment += sql[i];
         i++;
       }
-      if (i < sql.length - 1) {
+      if (i < sql.length) {
         comment += '*/';
         i += 2;
         col += 2;

@@ -47,3 +47,46 @@ describe('yaml core', () => {
     expect(stringify({ a: 'true' })).toBe('a: "true"\n');
   });
 });
+
+describe('yaml review fixes', () => {
+  it('nested list inside array object survives', () => {
+    const doc = parse('users:\n  - name: a\n    roles:\n      - admin\n      - dev\n  - name: b\n    roles: []');
+    expect(doc).toEqual({
+      users: [
+        { name: 'a', roles: ['admin', 'dev'] },
+        { name: 'b', roles: [] },
+      ],
+    });
+  });
+
+  it('nested object inside array object survives', () => {
+    const doc = parse('users:\n  - name: a\n    addr:\n      city: x\n  - name: b');
+    expect(doc.users[0].addr).toEqual({ city: 'x' });
+    expect(doc.users[1]).toEqual({ name: 'b' });
+  });
+
+  it('scalar after a nested container attaches to the same item', () => {
+    const doc = parse('users:\n  - name: a\n    roles:\n      - admin\n    port: 80');
+    expect(doc.users[0]).toEqual({ name: 'a', roles: ['admin'], port: 80 });
+  });
+
+  it('sequences flush with their parent key parse (top-level and in items)', () => {
+    expect(parse('items:\n- one\n- two')).toEqual({ items: ['one', 'two'] });
+    const doc = parse('users:\n  - name: a\n    roles:\n    - admin\n    port: 80');
+    expect(doc.users[0]).toEqual({ name: 'a', roles: ['admin'], port: 80 });
+  });
+
+  it('inline arrays keep quoted commas intact', () => {
+    expect(parse('tags: ["a,b", c]').tags).toEqual(['a,b', 'c']);
+  });
+
+  it('trailing comments are stripped from unquoted values', () => {
+    expect(parse('key: value # trailing')).toEqual({ key: 'value' });
+    expect(parse('n: 5 # five')).toEqual({ n: 5 });
+    expect(parse('color: #fff')).toEqual({ color: null });
+  });
+
+  it('a bare key parses as null, not empty string', () => {
+    expect(parse('c:')).toEqual({ c: null });
+  });
+});

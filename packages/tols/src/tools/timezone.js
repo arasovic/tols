@@ -18,6 +18,16 @@ export default {
         let date;
         if (input === '') {
           date = new Date();
+        } else if (!core.hasExplicitOffset(input)) {
+          // Zone-less input is a wall-clock time in the --from zone, not a
+          // machine-local instant (2026-01-15 12:00 in New York).
+          const fields = core.parseWallFields(input);
+          if (fields) {
+            date = core.wallTimeInZone(fields, from);
+          } else {
+            date = new Date(input);
+            if (isNaN(date.getTime())) throw new UsageError(`invalid date: ${input}`);
+          }
         } else {
           date = new Date(input);
           if (isNaN(date.getTime())) throw new UsageError(`invalid date: ${input}`);

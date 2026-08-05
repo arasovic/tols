@@ -50,3 +50,19 @@ describe('sql core', () => {
     expect(sql.minify('')).toBe('');
   });
 });
+
+describe('sql unterminated constructs (review fixes)', () => {
+  it('unterminated block comment stays intact in format', () => {
+    const out = sql.format('SELECT a /*unclosed comment');
+    expect(out).toContain('/*unclosed comment');
+    expect(out).not.toMatch(/^t$/m);
+  });
+
+  it('unterminated block comment is dropped whole by minify (no orphan char)', () => {
+    expect(sql.minify('SELECT a /*unclosed comment')).toBe('SELECT a');
+  });
+
+  it('terminated block comment still minifies away', () => {
+    expect(sql.minify('SELECT a /* c */ FROM t')).toBe('SELECT a FROM t');
+  });
+});

@@ -22,14 +22,22 @@ export function escapeHtml(text) {
  * @param {string} [base]
  */
 export function sanitizeUrl(url, base = 'http://localhost') {
-  if (!url || url.startsWith('#') || url.startsWith('/')) {
+  if (!url || url.startsWith('#')) {
     return url;
   }
   try {
     const parsed = new URL(url, base);
-    if (ALLOWED_PROTOCOLS.includes(parsed.protocol)) {
-      return url;
+    if (!ALLOWED_PROTOCOLS.includes(parsed.protocol)) {
+      return '#';
     }
+    // A relative reference (no scheme in the raw string) must stay on the
+    // base origin: protocol-relative forms like '//host', '/\host' or
+    // '\\host' parse cross-origin in browsers even without a scheme.
+    const hasOwnScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url);
+    if (!hasOwnScheme && parsed.origin !== new URL(base).origin) {
+      return '#';
+    }
+    return url;
   } catch {
     // fall through
   }
@@ -205,6 +213,9 @@ export function toHtml(md) {
 
   flushList();
   flushBlockquote();
+  if (inCodeBlock) {
+    result.push(`<pre><code${codeBlockLang ? ` class="language-${escapeHtml(codeBlockLang)}"` : ''}>${escapeHtml(codeBlockContent.join('\n'))}</code></pre>`);
+  }
 
   return result.join('\n');
 }

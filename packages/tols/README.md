@@ -120,13 +120,20 @@ same code runs in the CLI and in a browser bundle.
 
 ## Notes & limitations
 
-- `qrcode`: encodes EC level M with mask 0; versions 1-2 scan reliably.
-  Higher versions follow a simplified encoding (single-block ECC) that
-  strict readers may reject — the encoder is being upgraded.
+- `qrcode`: spec-complete encoder (versions 1-40, EC levels L/M/Q/H via
+  `--ec`, automatic mask selection). Verified end-to-end with a decoder
+  in the test suite.
 - `xml val`: structural validation (tag balance, unclosed constructs).
   The web tool uses DOMParser for full parse checking.
 - `regex`: runs synchronously; pathological patterns can block (the web
   sandboxed them in a Worker with a 5s timeout).
+- `html` / `xml`: hand-rolled tag scanner; a `>` inside a quoted
+  attribute value ends the tag.
+- `yaml`: pragmatic subset parser. Anchors/aliases/tags are rejected
+  with an error, block scalars (`|`) drop the final trailing newline,
+  and escaped quotes inside inline-flow strings are not unescaped.
+- `placeholder`: emits SVG (the web draws a canvas PNG); functional
+  parity, different format.
 
 ## Development
 

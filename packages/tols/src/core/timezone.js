@@ -53,6 +53,51 @@ export function convert(date, fromZone, toZone) {
   };
 }
 
+/**
+ * True when the input carries its own UTC designator or numeric offset
+ * (Z, +03:00, -0500...), i.e. it already pins an instant.
+ * @param {string} input
+ */
+export function hasExplicitOffset(input) {
+  const t = String(input).trim();
+  return /Z$/i.test(t) || /[+-]\d{2}:?\d{2}$/.test(t);
+}
+
+/**
+ * Parse canonical wall-clock fields: 2026-01-15[T ]12:00[:00].
+ * Returns null for anything freer-form.
+ * @param {string} input
+ */
+export function parseWallFields(input) {
+  const m = String(input)
+    .trim()
+    .match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (!m) return null;
+  return { y: +m[1], mo: +m[2], d: +m[3], h: +m[4], mi: +m[5], s: +(m[6] ?? 0) };
+}
+
+/** Wall-clock offset (ms) of a zone at a given instant. */
+function wallOffset(instantMs, zone) {
+  const wall = new Date(new Date(instantMs).toLocaleString('en-US', { timeZone: zone })).getTime();
+  return wall - instantMs;
+}
+
+/**
+ * Interpret zone-less wall-clock fields as a time in `zone` and return the
+ * corresponding instant (two-pass offset refinement, DST-aware).
+ * @param {{ y: number, mo: number, d: number, h: number, mi: number, s: number }} f
+ * @param {string} zone
+ * @returns {Date}
+ */
+export function wallTimeInZone(f, zone) {
+  validateZone(zone);
+  let guess = Date.UTC(f.y, f.mo - 1, f.d, f.h, f.mi, f.s);
+  for (let i = 0; i < 2; i++) {
+    guess = Date.UTC(f.y, f.mo - 1, f.d, f.h, f.mi, f.s) - wallOffset(guess, zone);
+  }
+  return new Date(guess);
+}
+
 /** @param {Date} date @param {string} zone */
 export function formatFull(date, zone) {
   return date.toLocaleString('en-US', {

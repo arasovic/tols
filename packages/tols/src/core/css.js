@@ -15,10 +15,12 @@ export function tokenizeCSS(css) {
     if (char === '/' && css[i + 1] === '*') {
       let comment = '/*';
       i += 2;
-      while (i < length - 1 && !(css[i] === '*' && css[i + 1] === '/')) {
+      // Unterminated comments run to EOF; the previous `length - 1` bound
+      // orphaned the final character as a separate token.
+      while (i < length && !(css[i] === '*' && css[i + 1] === '/')) {
         comment += css[i++];
       }
-      if (i < length - 1) {
+      if (i < length) {
         comment += '*/';
         i += 2;
       }
@@ -74,8 +76,24 @@ export function tokenizeCSS(css) {
     } else if (char === '@') {
       let atRule = '@';
       i++;
+      // Quote-aware scan: a ';' inside a string (e.g. @import "a;b.css")
+      // does not terminate the at-rule.
       while (i < length && /[^{;]/.test(css[i])) {
-        atRule += css[i++];
+        if (css[i] === '"' || css[i] === "'") {
+          const quote = css[i];
+          atRule += css[i++];
+          while (i < length && css[i] !== quote) {
+            if (css[i] === '\\' && i + 1 < length) {
+              atRule += css[i++];
+            }
+            atRule += css[i++];
+          }
+          if (i < length) {
+            atRule += css[i++];
+          }
+        } else {
+          atRule += css[i++];
+        }
       }
       tokens.push({ type: 'atrule', value: atRule.trim() });
     } else if (/\s/.test(char)) {

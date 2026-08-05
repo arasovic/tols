@@ -48,3 +48,17 @@ describe('tols timezone', () => {
     expect(p.result.offsetHours).toBe(9);
   });
 });
+
+  it('zone-less input is interpreted as wall time in the --from zone', async () => {
+    const r = await tols(['tz', 'conv', '2026-01-15 12:00', '--from=America/New_York', '--to=Asia/Tokyo']);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('offset: +14.0h');
+    expect(r.out).toContain('Jan 15, 2026, 12:00:00 PM');
+    expect(r.out).toContain('Jan 16, 2026, 02:00:00 AM');
+  });
+
+  it('offset-qualified input keeps instant semantics', async () => {
+    const r = await tols(['tz', 'conv', '2026-01-15T12:00:00+03:00', '--from=UTC', '--to=UTC']);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('09:00:00 AM');
+  });

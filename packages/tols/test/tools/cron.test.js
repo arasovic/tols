@@ -33,3 +33,17 @@ describe('tols cron', () => {
     expect(r.err).toContain('Value out of range in part 1');
   });
 });
+
+  it('next --count validation -> exit 2', async () => {
+    const bad = await tols(['cron', 'next', '* * * * *', '--count=abc']);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--count');
+    const zero = await tols(['cron', 'next', '* * * * *', '--count=0']);
+    expect(zero.code).toBe(2);
+  });
+
+  it('next on impossible expression -> exit 1 with explanation', async () => {
+    const r = await tols(['cron', 'next', '0 0 31 2 *']);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain('no matching run');
+  });
