@@ -242,4 +242,12 @@ describe('SearchOverlay', () => {
   it('should not declare backdrop-filter on the overlay surface', () => {
     expect(componentSource).not.toMatch(/backdrop-filter/)
   })
+
+  it('should not declare any animation or transition duration above 120ms', () => {
+    const durations = [...componentSource.matchAll(/(\d+)ms/g)].map(m => Number(m[1]))
+    expect(durations.length).toBeGreaterThan(0)
+    for (const duration of durations) {
+      expect(duration).toBeLessThanOrEqual(120)
+    }
+  })
 })

@@ -3,7 +3,7 @@
   import { base } from '$app/paths'
   import { browser } from '$app/environment'
   import { tick } from 'svelte'
-  import { Search, Command, ArrowRight, Clock, X } from 'lucide-svelte'
+  import { Search, ArrowRight, X } from 'lucide-svelte'
   import { searchTools, searchToolsFuzzy } from '$lib/config/searchConfig.js'
   import { recentTools, addRecent } from '$lib/stores/recentTools.js'
   import { escapeHtml } from '$lib/utils/html.js'
@@ -331,13 +331,6 @@
             {#if group.tools.length > 0}
               <div class="results-group">
                 <div class="group-header">
-                  {#if group.label === 'Recent'}
-                    <Clock size={12} />
-                  {:else if group.label === 'Results'}
-                    <Search size={12} />
-                  {:else}
-                    <Command size={12} />
-                  {/if}
                   <span>{group.label}</span>
                 </div>
 
@@ -445,7 +438,7 @@
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
     z-index: var(--z-modal);
-    animation: fadeIn 150ms ease;
+    animation: fadeIn 120ms ease;
   }
 
   .search-overlay {
@@ -472,7 +465,7 @@
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     pointer-events: auto;
-    animation: slideDown 200ms var(--ease-snap);
+    animation: slideDown 120ms var(--ease-snap);
   }
 
   @keyframes fadeIn {
@@ -728,8 +721,6 @@
   }
 
   .result-cmd {
-    margin-left: auto;
-    padding-left: var(--space-3);
     color: var(--text-muted);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
