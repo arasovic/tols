@@ -6,6 +6,7 @@
   import { tools as toolRegistry } from '$lib/config/registry.js'
   import { favorites } from '$lib/stores/favorites.js'
   import { stripBase } from '$lib/utils/paths.js'
+  import { templateFor } from '$lib/cli/templates.js'
   import { onMount } from 'svelte'
   import { Braces, Sun, Moon, Star } from 'lucide-svelte'
 
@@ -13,9 +14,13 @@
 
   const tools = toolRegistry.map(tool => ({
     id: tool.id,
-    label: tool.label,
-    icon: tool.icon
+    label: tool.label
   }))
+
+  // Falls back to the tool id's own first two characters when a tool has no
+  // CLI template yet, so a missing entry degrades instead of crashing the sidebar.
+  /** @param {string} id */
+  const alias = (id) => (templateFor(id)?.tool ?? id).slice(0, 2)
 
   function setTheme() {
     if (browser) {
@@ -78,9 +83,7 @@
           style="--delay: {i * 20}ms"
         >
           <div class="nav-item-content">
-            <span class="nav-item-icon">
-              <svelte:component this={tool.icon} size={18} />
-            </span>
+            <span class="nav-item-icon nav-alias" aria-hidden="true">{alias(tool.id)}</span>
             <span class="nav-item-text">{tool.label}</span>
           </div>
           <span class="nav-item-badges">
@@ -280,6 +283,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .nav-alias {
+    width: 20px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .nav-item:hover .nav-alias,
+  .nav-item.active .nav-alias {
+    color: currentColor;
   }
 
   .nav-item-text {
