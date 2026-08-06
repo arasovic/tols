@@ -1,9 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/svelte'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { page } from '$app/stores'
 import { addRecent } from '$lib/stores/recentTools.js'
 import Layout from '../src/routes/(app)/+layout.svelte'
 import { labelInNameViolations } from './test-utils.js'
+
+const APP_ROUTES = join(dirname(fileURLToPath(import.meta.url)), '../src/routes/(app)')
+
+function walk(dir) {
+  return readdirSync(dir).flatMap((entry) => {
+    const p = join(dir, entry)
+    return statSync(p).isDirectory() ? walk(p) : [p]
+  })
+}
 
 const { baseMock } = vi.hoisted(() => ({ baseMock: { base: '/dev-utilities' } }))
 
@@ -99,6 +111,19 @@ describe('(app) layout header title', () => {
     expect(mains.length).toBe(1)
     expect(mains[0].id).toBe('main-content')
     expect(mains[0].classList.contains('content')).toBe(true)
+  })
+
+  it('is the only file under (app) that renders a <main>', () => {
+    // The test above renders Layout with an EMPTY slot, so it would pass even if
+    // all 30 routes went back to nesting their own <main> inside it — which is
+    // exactly the regression just fixed, and exactly what Phase B's 29 rewrites
+    // plus the feat/tols merge are positioned to reintroduce. This is the guard
+    // with teeth: it reads the route sources rather than the rendered shell.
+    const offenders = walk(APP_ROUTES)
+      .filter((f) => f.endsWith('.svelte') && !f.endsWith('+layout.svelte'))
+      .filter((f) => /<main[\s>]/.test(readFileSync(f, 'utf8')))
+      .map((f) => f.slice(APP_ROUTES.length + 1))
+    expect(offenders).toEqual([])
   })
 
   it('makes the skip-link target focusable', () => {
