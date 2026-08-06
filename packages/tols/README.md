@@ -1,7 +1,7 @@
 # tols
 
-29 developer tools in one CLI, with no runtime dependencies. The same core
-runs the web tools at [tols.arasmehmet.com](https://tols.arasmehmet.com/).
+29 developer tools in one CLI, with no runtime dependencies. Format, encode,
+hash, generate and convert, from the shell or from a pipe.
 
 ```sh
 tols json fmt @config.json
