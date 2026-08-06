@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte'
 import JsonTool from '$lib/tools/JsonTool.svelte'
+import { labelInNameViolations } from './test-utils.js'
 
 const PLACEHOLDER = '{"name": "Example", "version": "1.0.0"}'
 
@@ -153,5 +154,12 @@ describe('JsonTool command strip', () => {
     await waitFor(() => {
       expect(container.querySelector('.output-display')?.textContent).toBe('{\n  "z": 9\n}')
     })
+  })
+
+  it('gives every labelled control an accessible name containing its visible text', () => {
+    // WCAG 2.5.3. This is the reference implementation Phase B's B1 batch copies
+    // into 13 more tools, so the segmented control has to be right here first.
+    const { container } = render(JsonTool)
+    expect(labelInNameViolations(container)).toEqual([])
   })
 })

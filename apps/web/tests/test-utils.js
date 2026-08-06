@@ -3,6 +3,55 @@
 // so processJwt needs an explicit import of decodeJWT.
 import { decodeJWT } from '../src/lib/utils/crypto.js'
 
+const NAMEABLE = 'button, a[href], [role="button"], [role="tab"], [role="link"]'
+
+/** Visible label: text content minus anything hidden from the a11y tree. */
+function visibleLabel(el) {
+  const clone = /** @type {Element} */ (el.cloneNode(true))
+  for (const hidden of clone.querySelectorAll('[aria-hidden="true"]')) hidden.remove()
+  return clone.textContent ?? ''
+}
+
+/**
+ * Same normalisation axe-core's `label-content-name-mismatch` applies before
+ * comparing: lowercase, and every non-alphanumeric character (punctuation and
+ * the ⌘/⇧ key-cap glyphs alike) becomes a word break. Matching the audit
+ * matters more than being clever here — a stricter rule would fail controls
+ * Lighthouse passes and a looser one would miss the ones it fails.
+ */
+function normalise(text) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+/**
+ * WCAG 2.5.3 "Label in Name": when a control has visible text, its accessible
+ * name must CONTAIN that text, or speech input ("click Prettify") cannot reach
+ * it. Returns one string per offending control so the assertion names the
+ * control rather than just failing.
+ *
+ * Only `aria-label` is considered: nothing in this app names a control with
+ * `aria-labelledby`, and a control with no override trivially satisfies the SC.
+ *
+ * @param {ParentNode} container
+ * @returns {string[]}
+ */
+export function labelInNameViolations(container) {
+  const out = []
+  for (const el of container.querySelectorAll(NAMEABLE)) {
+    const label = el.getAttribute('aria-label')
+    if (label === null) continue
+    const visible = normalise(visibleLabel(el))
+    if (!visible) continue
+    if (!normalise(label).includes(visible)) {
+      out.push(
+        `<${el.tagName.toLowerCase()}> visible "${visibleLabel(el).replace(/\s+/g, ' ').trim()}"` +
+          ` vs aria-label "${label}"`
+      )
+    }
+  }
+  return out
+}
+
 export function validateUuidCount(count) {
   if (count < 1 || count > 100) {
     return 'Count must be between 1 and 100'

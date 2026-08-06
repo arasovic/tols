@@ -207,6 +207,14 @@
     </svelte:fragment>
 
     <svelte:fragment slot="rail">
+      <!--
+        The segments carry NO aria-label. Their visible text already is the
+        accessible name, and an aria-label that does not contain the visible
+        text breaks WCAG 2.5.3 (label in name): a speech-input user saying
+        "click Prettify" cannot reach a button named "Format JSON with
+        indentation". Phase B copies this control into 13 more tools — keep the
+        visible text as the name there too.
+      -->
       <div class="segmented" role="tablist" aria-label="JSON formatting options">
         <button type="button"
           class="segment"
@@ -214,7 +222,6 @@
           on:click={prettify}
           role="tab"
           aria-selected={!compact}
-          aria-label="Format JSON with indentation"
         >Prettify</button>
         <button type="button"
           class="segment"
@@ -222,7 +229,6 @@
           on:click={minify}
           role="tab"
           aria-selected={compact}
-          aria-label="Minify JSON to single line"
         >Minify</button>
       </div>
       <!--

@@ -61,7 +61,10 @@
       -->
       <span class="page-title">{title}</span>
       <div class="header-actions">
-        <button type="button" class="search-trigger" on:click={() => openSearch()} aria-label="Open search (Cmd+K)">
+        <!-- No aria-label: the visible "search ⌘K" is the accessible name. An
+             aria-label of "Open search (Cmd+K)" does not contain the visible
+             text, which fails WCAG 2.5.3 for speech input. -->
+        <button type="button" class="search-trigger" on:click={() => openSearch()}>
           <span class="search-text">search</span>
           <Kbd keys="⌘K" />
         </button>

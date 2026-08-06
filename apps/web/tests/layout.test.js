@@ -3,6 +3,7 @@ import { render } from '@testing-library/svelte'
 import { page } from '$app/stores'
 import { addRecent } from '$lib/stores/recentTools.js'
 import Layout from '../src/routes/(app)/+layout.svelte'
+import { labelInNameViolations } from './test-utils.js'
 
 const { baseMock } = vi.hoisted(() => ({ baseMock: { base: '/dev-utilities' } }))
 
@@ -79,5 +80,13 @@ describe('(app) layout header title', () => {
     const pageTitle = container.querySelector('.page-title')
     expect(pageTitle.textContent).toBe('JSON Formatter')
     expect(addRecent).toHaveBeenCalledWith('json')
+  })
+
+  it('gives every labelled control an accessible name containing its visible text', () => {
+    // WCAG 2.5.3: `.search-trigger` reads "search ⌘K" and must be reachable by a
+    // speech-input user saying "click search". Covers the sidebar too, since the
+    // layout renders it.
+    const { container } = render(Layout)
+    expect(labelInNameViolations(container)).toEqual([])
   })
 })
