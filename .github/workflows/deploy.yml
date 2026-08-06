@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Manual re-run. A push event dropped during a GitHub incident never comes
+  # back, and without this trigger the only way to redeploy the same commit is
+  # an empty commit. `gh workflow run deploy.yml` instead.
+  workflow_dispatch:
 
 permissions:
   contents: read
