@@ -1,7 +1,7 @@
 <script>
   import TimezoneTool from '$lib/tools/TimezoneTool.svelte'
 
-  const pageTitle = 'Time Zone Converter - DevUtils | Convert Time Zones'
+  const pageTitle = 'Time Zone Converter - tols | Convert Time Zones'
   const pageDescription = 'Free online time zone converter tool for scheduling. Convert times instantly between different time zones worldwide with automatic daylight saving support.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/timezone'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,75 +42,73 @@
       "Multiple formats"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <TimezoneTool />
+<article>
+  <TimezoneTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is Time Zone Converter?</h2>
-      <p>
-        Time Zone Converter helps you convert times between different time zones around the world.
-        It accounts for daylight saving time changes and provides accurate conversions for scheduling
-        meetings, coordinating with remote teams, or planning travel across multiple time zones.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is Time Zone Converter?</h2>
+    <p>
+      Time Zone Converter helps you convert times between different time zones around the world.
+      It accounts for daylight saving time changes and provides accurate conversions for scheduling
+      meetings, coordinating with remote teams, or planning travel across multiple time zones.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Time Zone Converter</h2>
-      <ol>
-        <li><strong>Select source timezone</strong> - Choose the timezone of your original time</li>
-        <li><strong>Enter time</strong> - Input the date and time you want to convert</li>
-        <li><strong>Select target timezone</strong> - Choose the timezone to convert to</li>
-        <li><strong>View result</strong> - See the converted time instantly</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Time Zone Converter</h2>
+    <ol>
+      <li><strong>Select source timezone</strong> - Choose the timezone of your original time</li>
+      <li><strong>Enter time</strong> - Input the date and time you want to convert</li>
+      <li><strong>Select target timezone</strong> - Choose the timezone to convert to</li>
+      <li><strong>View result</strong> - See the converted time instantly</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Time Zone Converter Features</h2>
-      <ul>
-        <li><strong>Global coverage</strong> - All major time zones worldwide</li>
-        <li><strong>Daylight saving</strong> - Automatic DST adjustments</li>
-        <li><strong>Current time</strong> - Quick button to use current time</li>
-        <li><strong>Time difference</strong> - Shows hours difference between zones</li>
-        <li><strong>Date support</strong> - Convert any date and time</li>
-        <li><strong>Multiple formats</strong> - View in 12-hour and 24-hour formats</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Time Zone Converter Features</h2>
+    <ul>
+      <li><strong>Global coverage</strong> - All major time zones worldwide</li>
+      <li><strong>Daylight saving</strong> - Automatic DST adjustments</li>
+      <li><strong>Current time</strong> - Quick button to use current time</li>
+      <li><strong>Time difference</strong> - Shows hours difference between zones</li>
+      <li><strong>Date support</strong> - Convert any date and time</li>
+      <li><strong>Multiple formats</strong> - View in 12-hour and 24-hour formats</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is UTC and how does it relate to time zones?</h3>
-      <p>
-        UTC (Coordinated Universal Time) is the primary time standard by which the world regulates
-        clocks. All other time zones are defined as offsets from UTC (e.g., UTC+5, UTC-8). When
-        converting between time zones, the tool calculates the difference between each zone's
-        UTC offset, accounting for daylight saving time when applicable.
-      </p>
+    <h3>What is UTC and how does it relate to time zones?</h3>
+    <p>
+      UTC (Coordinated Universal Time) is the primary time standard by which the world regulates
+      clocks. All other time zones are defined as offsets from UTC (e.g., UTC+5, UTC-8). When
+      converting between time zones, the tool calculates the difference between each zone's
+      UTC offset, accounting for daylight saving time when applicable.
+    </p>
 
-      <h3>How does daylight saving time affect conversions?</h3>
-      <p>
-        Many regions observe daylight saving time (DST), which shifts clocks forward by one hour
-        during summer months. The converter automatically applies DST rules for each timezone
-        based on the date you select. Be aware that DST start/end dates vary by region and year.
-      </p>
+    <h3>How does daylight saving time affect conversions?</h3>
+    <p>
+      Many regions observe daylight saving time (DST), which shifts clocks forward by one hour
+      during summer months. The converter automatically applies DST rules for each timezone
+      based on the date you select. Be aware that DST start/end dates vary by region and year.
+    </p>
 
-      <h3>What is the best way to schedule meetings across time zones?</h3>
-      <p>
-        When scheduling international meetings, convert the proposed time to each participant's
-        local time zone to ensure convenience. Consider business hours in each location - a time
-        that works for someone in London might be very early or late for someone in Tokyo.
-        Always confirm times with all participants.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>What is the best way to schedule meetings across time zones?</h3>
+    <p>
+      When scheduling international meetings, convert the proposed time to each participant's
+      local time zone to ensure convenience. Consider business hours in each location - a time
+      that works for someone in London might be very early or late for someone in Tokyo.
+      Always confirm times with all participants.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

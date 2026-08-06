@@ -1,6 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { render, waitFor } from '@testing-library/svelte'
 import SearchOverlay from '$lib/components/SearchOverlay.svelte'
+import { templateFor } from '$lib/cli/templates.js'
+import { aliasFor } from '$lib/ui/aliases.js'
+import { tools } from '$lib/config/registry.js'
+
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', 'src')
+const componentSource = readFileSync(
+  join(SRC, 'lib', 'components', 'SearchOverlay.svelte'),
+  'utf8'
+)
 
 vi.mock('$app/navigation', () => ({
   goto: vi.fn()
@@ -178,5 +190,64 @@ describe('SearchOverlay', () => {
       const resultItems = container.querySelectorAll('.result-item')
       expect(resultItems.length).toBeGreaterThan(0)
     })
+  })
+
+  it('should show the real CLI invocation for each result row', async () => {
+    const { component, container } = render(SearchOverlay)
+
+    component.open()
+
+    await waitFor(() => {
+      const resultItems = container.querySelectorAll('.result-item')
+      expect(resultItems.length).toBeGreaterThan(0)
+    })
+
+    for (const tool of tools) {
+      const row = container.querySelector(`#result-${tool.id}`)
+      expect(row).toBeInTheDocument()
+      const cmd = row.querySelector('.result-cmd')
+      const template = templateFor(tool.id)
+      expect(template).toBeDefined()
+      expect(cmd).toBeInTheDocument()
+      expect(cmd.textContent).toBe(`tols ${template.tool} ${template.defaultAction}`)
+    }
+  })
+
+  it('renders no .result-cmd for a tool with no template', () => {
+    // Every registry id currently has a CLI template, so this is asserted
+    // against the component's guard rather than a faked result row.
+    expect(componentSource).toMatch(/\{#if\s+template\s*\}/)
+    expect(componentSource).toContain('<code class="result-cmd">')
+  })
+
+  it('should render the tool alias, not an icon, in .result-icon', async () => {
+    const { component, container } = render(SearchOverlay)
+
+    component.open()
+
+    await waitFor(() => {
+      const resultItems = container.querySelectorAll('.result-item')
+      expect(resultItems.length).toBeGreaterThan(0)
+    })
+
+    for (const tool of tools) {
+      const row = container.querySelector(`#result-${tool.id}`)
+      const icon = row.querySelector('.result-icon')
+      expect(icon).toBeInTheDocument()
+      expect(icon.querySelector('svg')).not.toBeInTheDocument()
+      expect(icon.textContent.trim()).toBe(aliasFor(tool.id))
+    }
+  })
+
+  it('should not declare backdrop-filter on the overlay surface', () => {
+    expect(componentSource).not.toMatch(/backdrop-filter/)
+  })
+
+  it('should not declare any animation or transition duration above 120ms', () => {
+    const durations = [...componentSource.matchAll(/(\d+)ms/g)].map(m => Number(m[1]))
+    expect(durations.length).toBeGreaterThan(0)
+    for (const duration of durations) {
+      expect(duration).toBeLessThanOrEqual(120)
+    }
   })
 })

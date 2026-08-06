@@ -1,7 +1,7 @@
 <script>
   import UrlTool from '$lib/tools/UrlTool.svelte'
 
-  const pageTitle = 'URL Encoder/Decoder - DevUtils | Online URL Converter'
+  const pageTitle = 'URL Encoder/Decoder - tols | Online URL Converter'
   const pageDescription = 'Free online URL encoder and decoder tool for web developers. Encode and decode URL components instantly with full character support for all development.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/url'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,70 +42,68 @@
       "Copy to clipboard"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <UrlTool />
+<article>
+  <UrlTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is URL Encoding?</h2>
-      <p>
-        URL encoding (also known as percent-encoding) is a mechanism for encoding information in a Uniform
-        Resource Locator (URL). It replaces unsafe ASCII characters with a "%" followed by two hexadecimal digits.
-        This ensures that URLs can be safely transmitted over the internet.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is URL Encoding?</h2>
+    <p>
+      URL encoding (also known as percent-encoding) is a mechanism for encoding information in a Uniform
+      Resource Locator (URL). It replaces unsafe ASCII characters with a "%" followed by two hexadecimal digits.
+      This ensures that URLs can be safely transmitted over the internet.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use URL Encoder/Decoder</h2>
-      <ol>
-        <li><strong>Select mode</strong> - Choose "Encode" or "Decode" based on your needs</li>
-        <li><strong>Enter URL or text</strong> - Paste the URL or text you want to encode or decode</li>
-        <li><strong>View results</strong> - The converted output appears automatically</li>
-        <li><strong>Copy output</strong> - Use the copy button to copy the result</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use URL Encoder/Decoder</h2>
+    <ol>
+      <li><strong>Select mode</strong> - Choose "Encode" or "Decode" based on your needs</li>
+      <li><strong>Enter URL or text</strong> - Paste the URL or text you want to encode or decode</li>
+      <li><strong>View results</strong> - The converted output appears automatically</li>
+      <li><strong>Copy output</strong> - Use the copy button to copy the result</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">URL Tool Features</h2>
-      <ul>
-        <li><strong>Full encoding support</strong> - Handles all special characters per RFC 3986</li>
-        <li><strong>Decode mode</strong> - Convert percent-encoded URLs back to readable text</li>
-        <li><strong>Real-time conversion</strong> - Results update as you type</li>
-        <li><strong>Space handling</strong> - Properly encodes spaces as %20</li>
-        <li><strong>Unicode support</strong> - Handles international characters</li>
-        <li><strong>Auto-save</strong> - Saves your work automatically</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">URL Tool Features</h2>
+    <ul>
+      <li><strong>Full encoding support</strong> - Handles all special characters per RFC 3986</li>
+      <li><strong>Decode mode</strong> - Convert percent-encoded URLs back to readable text</li>
+      <li><strong>Real-time conversion</strong> - Results update as you type</li>
+      <li><strong>Space handling</strong> - Properly encodes spaces as %20</li>
+      <li><strong>Unicode support</strong> - Handles international characters</li>
+      <li><strong>Auto-save</strong> - Saves your work automatically</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What characters need to be URL encoded?</h3>
-      <p>
-        Characters that need encoding include spaces, special characters like @, #, $, %, &, +, and non-ASCII
-        characters. Alphanumeric characters (A-Z, a-z, 0-9) and some special characters (-, _, ., ~) don't need encoding.
-      </p>
+    <h3>What characters need to be URL encoded?</h3>
+    <p>
+      Characters that need encoding include spaces, special characters like @, #, $, %, &, +, and non-ASCII
+      characters. Alphanumeric characters (A-Z, a-z, 0-9) and some special characters (-, _, ., ~) don't need encoding.
+    </p>
 
-      <h3>Why do URLs need encoding?</h3>
-      <p>
-        URLs have a limited character set. Special characters must be encoded to prevent them from being
-        misinterpreted as URL delimiters or control characters during transmission.
-      </p>
+    <h3>Why do URLs need encoding?</h3>
+    <p>
+      URLs have a limited character set. Special characters must be encoded to prevent them from being
+      misinterpreted as URL delimiters or control characters during transmission.
+    </p>
 
-      <h3>What is the difference between encode and decode?</h3>
-      <p>
-        Encoding converts special characters to percent-encoded format (e.g., space becomes %20). Decoding
-        reverses this process, converting percent-encoded sequences back to their original characters.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>What is the difference between encode and decode?</h3>
+    <p>
+      Encoding converts special characters to percent-encoded format (e.g., space becomes %20). Decoding
+      reverses this process, converting percent-encoded sequences back to their original characters.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

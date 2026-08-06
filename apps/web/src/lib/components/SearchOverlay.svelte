@@ -3,10 +3,12 @@
   import { base } from '$app/paths'
   import { browser } from '$app/environment'
   import { tick } from 'svelte'
-  import { Search, Command, ArrowRight, Clock, X } from 'lucide-svelte'
+  import { Search, ArrowRight, X } from 'lucide-svelte'
   import { searchTools, searchToolsFuzzy } from '$lib/config/searchConfig.js'
   import { recentTools, addRecent } from '$lib/stores/recentTools.js'
   import { escapeHtml } from '$lib/utils/html.js'
+  import { templateFor } from '$lib/cli/templates.js'
+  import { aliasFor } from '$lib/ui/aliases.js'
 
   let isOpen = false
   let isOpening = false
@@ -63,6 +65,11 @@
 
   export function open() {
     openOverlay()
+  }
+
+  export function toggle() {
+    if (isOpen) closeOverlay()
+    else openOverlay()
   }
 
   function closeOverlay() {
@@ -141,17 +148,6 @@
    * @param {KeyboardEvent} e
    */
   function handleKeydown(/** @type {KeyboardEvent} */ e) {
-    // Cmd+K / Ctrl+K to open/close - check isOpen FIRST
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault()
-      if (!isOpen) {
-        openOverlay()
-      } else {
-        closeOverlay()
-      }
-      return
-    }
-
     if (!isOpen) return
 
     // Handle Tab for focus trap
@@ -335,13 +331,6 @@
             {#if group.tools.length > 0}
               <div class="results-group">
                 <div class="group-header">
-                  {#if group.label === 'Recent'}
-                    <Clock size={12} />
-                  {:else if group.label === 'Results'}
-                    <Search size={12} />
-                  {:else}
-                    <Command size={12} />
-                  {/if}
                   <span>{group.label}</span>
                 </div>
 
@@ -349,6 +338,7 @@
                   {@const resultIndex = getResultIndex(groupIndex, toolIndex)}
                   {@const isSelected = selectedIndex === resultIndex}
                   {@const shortcutNumber = resultIndex < 9 ? resultIndex + 1 : null}
+                  {@const template = templateFor(tool.id)}
 
                   <button
                     type="button"
@@ -360,9 +350,7 @@
                     role="option"
                     aria-selected={isSelected}
                   >
-                    <div class="result-icon">
-                      <svelte:component this={tool.icon} size={18} />
-                    </div>
+                    <span class="result-icon result-alias">{aliasFor(tool.id)}</span>
 
                     <div class="result-content">
                       <div class="result-title">
@@ -381,6 +369,10 @@
                         <kbd class="result-shortcut">⌘{shortcutNumber}</kbd>
                       {/if}
                     </div>
+
+                    {#if template}
+                      <code class="result-cmd">tols {template.tool} {template.defaultAction}</code>
+                    {/if}
 
                     {#if isSelected}
                       <div class="result-arrow">
@@ -445,9 +437,8 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
     z-index: var(--z-modal);
-    animation: fadeIn 150ms ease;
+    animation: fadeIn 120ms ease;
   }
 
   .search-overlay {
@@ -470,14 +461,11 @@
     max-height: 70vh;
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
-    border-radius: var(--radius-md);
-    box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.1),
-      0 20px 40px rgba(0, 0, 0, 0.4),
-      0 0 0 1px var(--border-subtle) inset;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
     pointer-events: auto;
-    animation: slideDown 200ms var(--ease-snap);
+    animation: slideDown 120ms var(--ease-snap);
   }
 
   @keyframes fadeIn {
@@ -646,6 +634,14 @@
     border: 1px solid var(--border-subtle);
   }
 
+  .result-alias {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    text-transform: lowercase;
+    letter-spacing: var(--tracking-wide);
+  }
+
   .result-item.selected .result-icon {
     background: var(--accent-dim);
     color: var(--accent);
@@ -722,6 +718,13 @@
     background: var(--accent-dim);
     border-color: var(--accent-dim);
     color: var(--accent);
+  }
+
+  .result-cmd {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    white-space: nowrap;
   }
 
   .result-arrow {

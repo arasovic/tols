@@ -1,7 +1,7 @@
 <script>
   import JsonTool from '$lib/tools/JsonTool.svelte'
 
-  const pageTitle = 'JSON Formatter - DevUtils | Online JSON Validator & Beautifier'
+  const pageTitle = 'JSON Formatter - tols | Online JSON Validator & Beautifier'
   const pageDescription = 'Free online JSON formatter, validator, and minifier. Format, validate, and beautify JSON data instantly with syntax error highlighting support included.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/json'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,77 +42,75 @@
       "Copy formatted output"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <JsonTool />
+<article>
+  <JsonTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is JSON Formatter?</h2>
-      <p>
-        JSON Formatter is a free online tool that helps developers format, validate, and beautify JSON data.
-        JSON (JavaScript Object Notation) is a lightweight data interchange format that's easy for humans
-        to read and write, and easy for machines to parse and generate.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is JSON Formatter?</h2>
+    <p>
+      JSON Formatter is a free online tool that helps developers format, validate, and beautify JSON data.
+      JSON (JavaScript Object Notation) is a lightweight data interchange format that's easy for humans
+      to read and write, and easy for machines to parse and generate.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use JSON Formatter</h2>
-      <ol>
-        <li><strong>Paste your JSON</strong> - Copy and paste your JSON data into the input area</li>
-        <li><strong>Automatic validation</strong> - The tool automatically validates your JSON and shows any errors</li>
-        <li><strong>Choose format</strong> - Click "Prettify" for readable formatting or "Minify" for compact output</li>
-        <li><strong>Copy result</strong> - Use the copy button to copy the formatted JSON to your clipboard</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use JSON Formatter</h2>
+    <ol>
+      <li><strong>Paste your JSON</strong> - Copy and paste your JSON data into the input area</li>
+      <li><strong>Automatic validation</strong> - The tool automatically validates your JSON and shows any errors</li>
+      <li><strong>Choose format</strong> - Click "Prettify" for readable formatting or "Minify" for compact output</li>
+      <li><strong>Copy result</strong> - Use the copy button to copy the formatted JSON to your clipboard</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">JSON Formatter Features</h2>
-      <ul>
-        <li><strong>Real-time validation</strong> - Instantly validates JSON syntax as you type</li>
-        <li><strong>Error highlighting</strong> - Shows exact line and column numbers for errors</li>
-        <li><strong>Prettify mode</strong> - Formats JSON with proper indentation and line breaks</li>
-        <li><strong>Minify mode</strong> - Removes whitespace for production-ready JSON</li>
-        <li><strong>Auto-save</strong> - Your input is automatically saved to local storage</li>
-        <li><strong>One-click copy</strong> - Copy formatted output with a single click</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">JSON Formatter Features</h2>
+    <ul>
+      <li><strong>Real-time validation</strong> - Instantly validates JSON syntax as you type</li>
+      <li><strong>Error highlighting</strong> - Shows exact line and column numbers for errors</li>
+      <li><strong>Prettify mode</strong> - Formats JSON with proper indentation and line breaks</li>
+      <li><strong>Minify mode</strong> - Removes whitespace for production-ready JSON</li>
+      <li><strong>Auto-save</strong> - Your input is automatically saved to local storage</li>
+      <li><strong>One-click copy</strong> - Copy formatted output with a single click</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is JSON?</h3>
-      <p>
-        JSON (JavaScript Object Notation) is a lightweight, text-based data format that is easy for humans
-        to read and write and easy for machines to parse and generate. It's commonly used for data
-        transmission between web servers and applications.
-      </p>
+    <h3>What is JSON?</h3>
+    <p>
+      JSON (JavaScript Object Notation) is a lightweight, text-based data format that is easy for humans
+      to read and write and easy for machines to parse and generate. It's commonly used for data
+      transmission between web servers and applications.
+    </p>
 
-      <h3>Is my data secure?</h3>
-      <p>
-        Yes, all processing happens in your browser. Your JSON data is never sent to any server,
-        ensuring complete privacy and security.
-      </p>
+    <h3>Is my data secure?</h3>
+    <p>
+      Yes, all processing happens in your browser. Your JSON data is never sent to any server,
+      ensuring complete privacy and security.
+    </p>
 
-      <h3>Can I format large JSON files?</h3>
-      <p>
-        Yes, the tool can handle JSON files of substantial size. However, for very large files
-        (multiple megabytes), you might experience some performance impact depending on your device.
-      </p>
+    <h3>Can I format large JSON files?</h3>
+    <p>
+      Yes, the tool can handle JSON files of substantial size. However, for very large files
+      (multiple megabytes), you might experience some performance impact depending on your device.
+    </p>
 
-      <h3>Does it support all JSON types?</h3>
-      <p>
-        Yes, the formatter supports all valid JSON data types including objects, arrays, strings,
-        numbers, booleans, and null values.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Does it support all JSON types?</h3>
+    <p>
+      Yes, the formatter supports all valid JSON data types including objects, arrays, strings,
+      numbers, booleans, and null values.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

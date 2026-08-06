@@ -1,79 +1,122 @@
-/* Preconnect to Google Fonts for faster loading */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600&display=swap');
+/* tols design tokens — terminal-native, achromatic base + amber signature */
+
+@font-face {
+  font-family: 'Commit Mono';
+  src: url('/fonts/CommitMono-400-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Commit Mono';
+  src: url('/fonts/CommitMono-700-Regular.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Martian Mono Cn';
+  src: url('/fonts/MartianMono-CnRg.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Martian Mono Cn';
+  src: url('/fonts/MartianMono-CnBd.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  /* ========================================
-     DARK THEME - Refined Professional Design
-     Inspired by Linear, Raycast, Vercel
-     ======================================== */
+  /* Surfaces — neutral, near-black, no colour cast */
+  --bg-base: #0b0b0b;
+  --bg-surface: #121212;
+  --bg-elevated: #181818;
+  --bg-hover: #1f1f1f;
+  --bg-active: #262626;
+  --bg-gradient: none;
 
-  /* Base colors - sophisticated warm grays (not pure black) */
-  --bg-base: #09090b;
-  --bg-surface: #0f0f11;
-  --bg-elevated: #141416;
-  --bg-hover: #1a1a1d;
-  --bg-active: #202024;
+  /* Borders — hairlines carry all elevation */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-focus: var(--accent);
 
-  /* Subtle atmospheric gradient - very restrained */
-  --bg-gradient: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+  /* Signature — amber phosphor. Used for focus, primary action, the command strip. */
+  --accent: #ffb000;
+  --accent-hover: #ffc233;
+  --accent-active: #e09a00;
+  --accent-dim: rgba(255, 176, 0, 0.12);
+  --accent-soft: rgba(255, 176, 0, 0.06);
+  --accent-muted: rgba(255, 176, 0, 0.12);
+  --accent-secondary: #d4d4d4;
+  --accent-secondary-muted: rgba(212, 212, 212, 0.12);
 
-  /* Border colors - ultra subtle */
-  --border-subtle: rgba(255, 255, 255, 0.04);
-  --border-default: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.12);
-  --border-focus: rgba(255, 255, 255, 0.18);
+  --neutral: #333333;
+  --neutral-hover: #404040;
 
-  /* Accent - refined violet with precise tints */
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
-  --accent-active: #7c3aed;
-  --accent-dim: rgba(139, 92, 246, 0.1);
-  --accent-soft: rgba(139, 92, 246, 0.06);
+  /* Text ramp. Every rung that renders body text clears WCAG AA (4.5:1) against
+     --bg-base, --bg-surface AND --bg-elevated; --bg-elevated is the tightest of
+     the three here and is the background the global `code` rule paints, so it is
+     the one that binds. --text-disabled is exempt (WCAG 1.4.3 excludes inactive
+     controls) and is deliberately below the floor so "disabled" still reads as
+     disabled. design-tokens.test.js pins all of this. */
+  --text-primary: #f2f2f2;
+  --text-secondary: #a6a6a6;
+  --text-tertiary: #949494;
+  --text-muted: #858585;
+  --text-disabled: #4d4d4d;
 
-  /* Neutral accent for secondary elements */
-  --neutral: #3f3f46;
-  --neutral-hover: #52525b;
+  /* Semantic — two hues only; warning shares the amber signature */
+  --success: #3da35d;
+  --success-soft: rgba(61, 163, 93, 0.12);
+  --success-text: #57bd77;
 
-  /* Text colors - refined contrast hierarchy */
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
-  --text-tertiary: #71717a;
-  --text-muted: #52525b;
+  --error: #e5484d;
+  --error-soft: rgba(229, 72, 77, 0.12);
+  --error-subtle: rgba(229, 72, 77, 0.06);
+  --error-muted: rgba(229, 72, 77, 0.12);
+  --error-text: #f16b6f;
 
-  /* Semantic colors - muted professionalism */
-  --success: #22c55e;
-  --success-soft: rgba(34, 197, 94, 0.1);
-  --success-text: #4ade80;
+  --warning: var(--accent);
+  --warning-soft: var(--accent-dim);
 
-  --error: #ef4444;
-  --error-soft: rgba(239, 68, 68, 0.1);
-  --error-text: #f87171;
+  --info: #a6a6a6;
+  --info-soft: rgba(166, 166, 166, 0.10);
+  --info-muted: rgba(166, 166, 166, 0.14);
 
-  --warning: #f59e0b;
-  --warning-soft: rgba(245, 158, 11, 0.1);
+  /* Aliases consumed by existing tool components — kept for the token contract */
+  --error-bg: var(--error-soft);
+  --error-border: var(--error);
+  --bg-error: var(--error-soft);
+  --border-error: var(--error);
+  --bg-warning: var(--accent-soft);
+  --accent-subtle: var(--accent-soft);
+  --text-accent: var(--accent);
+  --text-error: var(--error-text);
+  --text-success: var(--success-text);
+  --text-warning: var(--accent);
+  --warning-hover: var(--accent-hover);
+  --warning-muted: var(--accent-muted);
+  --warning-subtle: var(--accent-soft);
+  --font-bold: var(--font-semibold);
+  --btn-size: 28px;
+  --delay: 0ms;
 
-  --info: #3b82f6;
-  --info-soft: rgba(59, 130, 246, 0.1);
-  --info-muted: rgba(59, 130, 246, 0.12);
+  /* Diff — the only place two hues sit side by side */
+  --diff-remove-bg: rgba(229, 72, 77, 0.10);
+  --diff-remove-bg-subtle: rgba(229, 72, 77, 0.05);
+  --diff-add-bg: rgba(61, 163, 93, 0.10);
+  --diff-add-bg-subtle: rgba(61, 163, 93, 0.05);
+  --diff-word-remove-bg: rgba(229, 72, 77, 0.28);
+  --diff-word-add-bg: rgba(61, 163, 93, 0.28);
 
-  --text-disabled: #52525b;
-
-  --error-subtle: rgba(239, 68, 68, 0.06);
-  --error-muted: rgba(239, 68, 68, 0.1);
-
-  --accent-muted: rgba(139, 92, 246, 0.1);
-  --accent-secondary: #22d3ee;
-  --accent-secondary-muted: rgba(34, 211, 238, 0.12);
-
-  /* Diff colors - backgrounds */
-  --diff-remove-bg: rgba(239, 68, 68, 0.08);
-  --diff-remove-bg-subtle: rgba(239, 68, 68, 0.05);
-  --diff-add-bg: rgba(34, 197, 94, 0.08);
-  --diff-add-bg-subtle: rgba(34, 197, 94, 0.05);
-  --diff-word-remove-bg: rgba(239, 68, 68, 0.3);
-  --diff-word-add-bg: rgba(34, 197, 94, 0.3);
-
-  /* Spacing scale - refined 4px grid */
+  /* Spacing — 4px grid */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -84,169 +127,168 @@
   --space-10: 40px;
   --space-12: 48px;
 
-  /* Typography - Inter with optical sizing */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
+  /* Type — mono everywhere. --font-sans is a legacy name kept for the token contract. */
+  --font-mono: 'Commit Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-sans: var(--font-mono);
+  --font-display: 'Martian Mono Cn', var(--font-mono);
 
-  /* Font sizes - refined scale */
   --text-xs: 11px;
-  --text-sm: 13px;
-  --text-base: 14px;
-  --text-md: 15px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
   --text-lg: 16px;
-  --text-xl: 18px;
-  --text-2xl: 20px;
-  --text-3xl: 24px;
-  --text-4xl: 32px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-4xl: 44px;
 
-  /* Font weights - Inter specific */
   --font-normal: 400;
-  --font-medium: 500;
-  --font-semibold: 600;
+  --font-medium: 400;
+  --font-semibold: 700;
 
-  /* Line heights - tight for UI */
   --leading-none: 1;
-  --leading-tight: 1.25;
-  --leading-snug: 1.375;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
   --leading-normal: 1.5;
-  --leading-relaxed: 1.625;
+  --leading-relaxed: 1.6;
 
-  /* Letter spacing - refined */
-  --tracking-tight: -0.025em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.025em;
+  --tracking-tight: 0;
+  --tracking-normal: 0.01em;
+  --tracking-wide: 0.08em;
 
-  /* Border radius - sharp but not harsh */
-  --radius-sm: 3px;
-  --radius: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  /* Radius — sharpened, deliberate 2px */
+  --radius-sm: 2px;
+  --radius: 2px;
+  --radius-md: 2px;
+  --radius-lg: 3px;
   --radius-full: 9999px;
 
-  /* Shadows - minimal, layered depth */
-  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  /* Elevation is borders, not shadows. Only the modal layer keeps a shadow. */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-md: none;
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --shadow-accent-sm: none;
+  --shadow-accent: none;
 
-  /* Accent glow - subtle aura */
-  --glow-accent: 0 0 0 1px rgba(139, 92, 246, 0.4), 0 0 16px rgba(139, 92, 246, 0.2);
-  --glow-focus: 0 0 0 1px var(--accent), 0 0 0 3px rgba(139, 92, 246, 0.15);
+  --glow-accent: 0 0 0 1px var(--accent);
+  --glow-focus: 0 0 0 1px var(--accent);
 
-  /* Accent shadow variations */
-  --shadow-accent-sm: 0 1px 2px rgba(139, 92, 246, 0.2);
-  --shadow-accent: 0 2px 8px rgba(139, 92, 246, 0.25);
+  /* Opaque, not glass — anti-slop rule 2 */
+  --glass-bg: var(--bg-base);
+  --glass-border: var(--border-subtle);
 
-  /* Transition timing */
-  --transition-normal: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Glass effect - refined */
-  --glass-bg: rgba(15, 15, 17, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.06);
-
-  /* Transitions - snappy and responsive */
-  --transition-instant: 50ms ease;
-  --transition-fast: 100ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-  /* Easing functions */
-  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Motion — ≤120ms, no springs */
+  --transition-instant: 0ms;
+  --transition-fast: 80ms ease-out;
+  --transition: 120ms ease-out;
+  --transition-normal: 120ms ease-out;
+  --transition-slow: 120ms ease-out;
+  --transition-spring: 120ms ease-out;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Z-index scale */
+  /* Layout */
+  --sidebar-width: 232px;
+  --header-height: 40px;
+  --command-height: 44px;
+  --control-height: 28px;   /* buttons, segments — every interactive control */
+  --pane-min-height: 320px; /* editor / output pane floor, shared by every tool */
+
+  /* Ramp order is load-bearing: Toast uses --z-popover and SearchOverlay uses
+     --z-modal, so popover must stay above modal or copy toasts fired from the
+     command palette render behind it. */
   --z-base: 0;
   --z-elevated: 10;
-  --z-dropdown: 20;
-  --z-sticky: 30;
+  --z-sticky: 20;
+  --z-dropdown: 30;
   --z-overlay: 40;
   --z-modal: 50;
   --z-popover: 60;
-
-  /* Layout */
-  --sidebar-width: 240px;
-  --header-height: 52px;
 }
 
 /* ========================================
-   LIGHT THEME - Clean & Refined
+   LIGHT THEME — paper, amber darkened to hold contrast
    ======================================== */
 
 [data-theme="light"] {
-  --bg-base: #fafafa;
-  --bg-surface: #ffffff;
-  --bg-elevated: #f4f4f5;
-  --bg-hover: #e4e4e7;
-  --bg-active: #d4d4d8;
-
+  --bg-base: #ffffff;
+  --bg-surface: #f7f7f7;
+  --bg-elevated: #f2f2f2;
+  --bg-hover: #ebebeb;
+  --bg-active: #e0e0e0;
   --bg-gradient: none;
 
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-default: rgba(0, 0, 0, 0.1);
-  --border-strong: rgba(0, 0, 0, 0.14);
-  --border-focus: rgba(0, 0, 0, 0.2);
+  --border-subtle: rgba(0, 0, 0, 0.07);
+  --border-default: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.20);
+  --border-focus: var(--accent);
 
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-active: #5b21b6;
-  --accent-dim: rgba(124, 58, 237, 0.1);
-  --accent-soft: rgba(124, 58, 237, 0.06);
+  --accent: #a15c00;
+  --accent-hover: #8a4e00;
+  --accent-active: #6f3f00;
+  --accent-dim: rgba(161, 92, 0, 0.10);
+  --accent-soft: rgba(161, 92, 0, 0.05);
+  --accent-muted: rgba(161, 92, 0, 0.10);
+  --accent-secondary: #404040;
+  --accent-secondary-muted: rgba(64, 64, 64, 0.10);
 
-  --neutral: #d4d4d8;
-  --neutral-hover: #a1a1aa;
+  --neutral: #d4d4d4;
+  --neutral-hover: #bfbfbf;
 
-  --text-primary: #18181b;
-  --text-secondary: #52525b;
-  --text-tertiary: #a1a1aa;
-  --text-muted: #d4d4d8;
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --text-tertiary: #5f5f5f;
+  --text-muted: #6e6e6e;
+  --text-disabled: #a3a3a3;
 
-  --success: #16a34a;
-  --success-soft: rgba(22, 163, 74, 0.1);
-  --success-text: #15803d;
+  --success: #2f7d46;
+  --success-soft: rgba(47, 125, 70, 0.10);
+  --success-text: #276b3b;
 
-  --error: #dc2626;
-  --error-soft: rgba(220, 38, 38, 0.1);
-  --error-text: #b91c1c;
+  --error: #c02b30;
+  --error-soft: rgba(192, 43, 48, 0.10);
+  --error-subtle: rgba(192, 43, 48, 0.05);
+  --error-muted: rgba(192, 43, 48, 0.10);
+  --error-text: #a52327;
 
-  --warning: #d97706;
-  --warning-soft: rgba(217, 119, 6, 0.1);
+  --warning: var(--accent);
+  --warning-soft: var(--accent-dim);
 
-  --info: #2563eb;
-  --info-soft: rgba(37, 99, 235, 0.1);
-  --info-muted: rgba(37, 99, 235, 0.1);
+  --info: #525252;
+  --info-soft: rgba(82, 82, 82, 0.08);
+  --info-muted: rgba(82, 82, 82, 0.12);
 
-  --text-disabled: #a1a1aa;
+  --error-bg: var(--error-soft);
+  --error-border: var(--error);
+  --bg-error: var(--error-soft);
+  --border-error: var(--error);
+  --bg-warning: var(--accent-soft);
+  --accent-subtle: var(--accent-soft);
+  --text-accent: var(--accent);
+  --text-error: var(--error-text);
+  --text-success: var(--success-text);
+  --text-warning: var(--accent);
+  --warning-hover: var(--accent-hover);
+  --warning-muted: var(--accent-muted);
+  --warning-subtle: var(--accent-soft);
 
-  --error-subtle: rgba(220, 38, 38, 0.05);
-  --error-muted: rgba(220, 38, 38, 0.1);
+  --diff-remove-bg: rgba(192, 43, 48, 0.09);
+  --diff-remove-bg-subtle: rgba(192, 43, 48, 0.05);
+  --diff-add-bg: rgba(47, 125, 70, 0.09);
+  --diff-add-bg-subtle: rgba(47, 125, 70, 0.05);
+  --diff-word-remove-bg: rgba(192, 43, 48, 0.24);
+  --diff-word-add-bg: rgba(47, 125, 70, 0.24);
 
-  --accent-muted: rgba(124, 58, 237, 0.1);
-  --accent-secondary: #0891b2;
-  --accent-secondary-muted: rgba(8, 145, 178, 0.1);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
 
-  /* Diff colors - backgrounds (light theme) */
-  --diff-remove-bg: rgba(220, 38, 38, 0.08);
-  --diff-remove-bg-subtle: rgba(220, 38, 38, 0.05);
-  --diff-add-bg: rgba(22, 163, 74, 0.08);
-  --diff-add-bg-subtle: rgba(22, 163, 74, 0.05);
-  --diff-word-remove-bg: rgba(220, 38, 38, 0.25);
-  --diff-word-add-bg: rgba(22, 163, 74, 0.25);
-
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
-  --shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
-
-  --glow-accent: 0 0 0 1px rgba(124, 58, 237, 0.3), 0 0 12px rgba(124, 58, 237, 0.15);
-  --glow-focus: 0 0 0 1px var(--accent), 0 0 0 3px rgba(124, 58, 237, 0.12);
-
-  --glass-bg: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(0, 0, 0, 0.06);
+  --glow-accent: 0 0 0 1px var(--accent);
+  --glow-focus: 0 0 0 1px var(--accent);
+  --glass-bg: var(--bg-base);
+  --glass-border: var(--border-subtle);
 }
 
 /* ========================================
@@ -931,4 +973,15 @@ pre code {
 .drag-over {
   border-color: var(--accent) !important;
   box-shadow: var(--glow-focus);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

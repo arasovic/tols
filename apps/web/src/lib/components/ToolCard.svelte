@@ -7,8 +7,9 @@
   import { createEventDispatcher } from 'svelte'
   import { ChevronRight, Star } from 'lucide-svelte'
   import { escapeHtml } from '$lib/utils/html.js'
+  import { templateFor } from '$lib/cli/templates.js'
 
-  /** @type {{ path: string, name: string, desc: string, icon: any }} */
+  /** @type {{ path: string, name: string, desc: string }} */
   export let tool
   /** Current search query; matched fragments are wrapped in <mark>. */
   export let query = ''
@@ -39,6 +40,9 @@
     }
     return result + escapeHtml(text.slice(last))
   }
+
+  $: template = templateFor(tool.path)
+  $: cliCommand = template ? `tols ${template.tool} ${template.defaultAction}` : `tols ${tool.path}`
 </script>
 
 <a href="{base}/{tool.path}" class="tool-card" class:popular>
@@ -56,9 +60,6 @@
     <Star size={14} />
   </span>
   <div class="tool-card-content">
-    <div class="tool-icon">
-      <svelte:component this={tool.icon} size={20} />
-    </div>
     <div class="tool-info">
       <h2 class="tool-name">
         {@html highlightMatch(tool.name, query)}
@@ -66,6 +67,7 @@
       <p class="tool-desc">
         {@html highlightMatch(tool.desc, query)}
       </p>
+      <code class="tool-cmd">{cliCommand}</code>
     </div>
   </div>
   {#if popular}
@@ -98,9 +100,11 @@
   }
 
   .tool-card:hover {
-    border-color: var(--accent);
-    background: var(--bg-elevated);
-    box-shadow: var(--shadow-sm);
+    border-color: var(--border-strong);
+  }
+
+  .tool-card:hover .tool-cmd {
+    color: var(--accent);
   }
 
   .tool-card.popular {
@@ -156,18 +160,6 @@
     flex: 1;
   }
 
-  .tool-icon {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--accent-soft);
-    border-radius: var(--radius);
-    color: var(--accent);
-  }
-
   .tool-info {
     flex: 1;
     min-width: 0;
@@ -204,6 +196,15 @@
     color: var(--accent);
     padding: 0 2px;
     border-radius: var(--radius-sm);
+  }
+
+  .tool-cmd {
+    display: block;
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
   }
 
   .tool-meta {

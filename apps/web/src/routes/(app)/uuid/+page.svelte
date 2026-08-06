@@ -1,7 +1,7 @@
 <script>
   import UuidTool from '$lib/tools/UuidTool.svelte'
 
-  const pageTitle = 'UUID Generator - DevUtils | Free UUID v4 Generator'
+  const pageTitle = 'UUID Generator - tols | Free UUID v4 Generator'
   const pageDescription = 'Free online UUID generator tool for web developers. Create version 4 UUIDs instantly for unique identifiers in databases and distributed software apps.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/uuid'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,70 +42,68 @@
       "Auto-save preferences"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <UuidTool />
+<article>
+  <UuidTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is a UUID?</h2>
-      <p>
-        A UUID (Universally Unique Identifier) is a 128-bit number used to uniquely identify information
-        in computer systems. UUID v4 generates random identifiers with an extremely low probability of
-        duplicates, making them perfect for database keys, session IDs, and distributed systems.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is a UUID?</h2>
+    <p>
+      A UUID (Universally Unique Identifier) is a 128-bit number used to uniquely identify information
+      in computer systems. UUID v4 generates random identifiers with an extremely low probability of
+      duplicates, making them perfect for database keys, session IDs, and distributed systems.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use UUID Generator</h2>
-      <ol>
-        <li><strong>Set quantity</strong> - Choose how many UUIDs you want to generate (1-100)</li>
-        <li><strong>Click generate</strong> - Press the generate button to create your UUIDs</li>
-        <li><strong>Copy results</strong> - Click the copy button to copy all generated UUIDs</li>
-        <li><strong>Regenerate</strong> - Click again to generate new random UUIDs</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use UUID Generator</h2>
+    <ol>
+      <li><strong>Set quantity</strong> - Choose how many UUIDs you want to generate (1-100)</li>
+      <li><strong>Click generate</strong> - Press the generate button to create your UUIDs</li>
+      <li><strong>Copy results</strong> - Click the copy button to copy all generated UUIDs</li>
+      <li><strong>Regenerate</strong> - Click again to generate new random UUIDs</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">UUID Generator Features</h2>
-      <ul>
-        <li><strong>UUID v4 standard</strong> - Generates RFC 4122 compliant version 4 UUIDs</li>
-        <li><strong>Bulk generation</strong> - Generate up to 100 UUIDs at once</li>
-        <li><strong>Cryptographically secure</strong> - Uses browser crypto API for randomness</li>
-        <li><strong>Standard format</strong> - Output in xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx format</li>
-        <li><strong>One-click copy</strong> - Copy all generated UUIDs instantly</li>
-        <li><strong>Save preferences</strong> - Remembers your last used quantity</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">UUID Generator Features</h2>
+    <ul>
+      <li><strong>UUID v4 standard</strong> - Generates RFC 4122 compliant version 4 UUIDs</li>
+      <li><strong>Bulk generation</strong> - Generate up to 100 UUIDs at once</li>
+      <li><strong>Cryptographically secure</strong> - Uses browser crypto API for randomness</li>
+      <li><strong>Standard format</strong> - Output in xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx format</li>
+      <li><strong>One-click copy</strong> - Copy all generated UUIDs instantly</li>
+      <li><strong>Save preferences</strong> - Remembers your last used quantity</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is the probability of duplicate UUIDs?</h3>
-      <p>
-        The probability of generating duplicate UUID v4 is extremely low - approximately 1 in 2.71 quintillion.
-        For practical purposes, you can assume UUIDs are unique.
-      </p>
+    <h3>What is the probability of duplicate UUIDs?</h3>
+    <p>
+      The probability of generating duplicate UUID v4 is extremely low - approximately 1 in 2.71 quintillion.
+      For practical purposes, you can assume UUIDs are unique.
+    </p>
 
-      <h3>What is UUID v4?</h3>
-      <p>
-        UUID v4 is a version of UUID that generates random identifiers. The '4' in the version field
-        indicates random generation, with 122 bits of randomness.
-      </p>
+    <h3>What is UUID v4?</h3>
+    <p>
+      UUID v4 is a version of UUID that generates random identifiers. The '4' in the version field
+      indicates random generation, with 122 bits of randomness.
+    </p>
 
-      <h3>Can I use these UUIDs in production?</h3>
-      <p>
-        Yes, the UUIDs generated here are cryptographically secure and suitable for production use.
-        They use the browser's crypto.getRandomValues() API for randomness.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Can I use these UUIDs in production?</h3>
+    <p>
+      Yes, the UUIDs generated here are cryptographically secure and suitable for production use.
+      They use the browser's crypto.getRandomValues() API for randomness.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

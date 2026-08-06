@@ -1,7 +1,7 @@
 <script>
   import QrcodeTool from '$lib/tools/QrcodeTool.svelte'
 
-  const pageTitle = 'QR Code Generator - DevUtils | Free QR Code Creator'
+  const pageTitle = 'QR Code Generator - tols | Free QR Code Creator'
   const pageDescription = 'Free online QR code generator tool for everyone. Create QR codes from text and URLs instantly with size controls, error correction, and download options.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/qrcode'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,74 +42,72 @@
       "High quality"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <QrcodeTool />
+<article>
+  <QrcodeTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is QR Code Generator?</h2>
-      <p>
-        QR Code Generator creates scannable QR codes from text, URLs, or other data. QR codes
-        (Quick Response codes) are two-dimensional barcodes that can be scanned by smartphones
-        and other devices to quickly access information. They're widely used for sharing URLs,
-        contact information, WiFi credentials, and more.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is QR Code Generator?</h2>
+    <p>
+      QR Code Generator creates scannable QR codes from text, URLs, or other data. QR codes
+      (Quick Response codes) are two-dimensional barcodes that can be scanned by smartphones
+      and other devices to quickly access information. They're widely used for sharing URLs,
+      contact information, WiFi credentials, and more.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use QR Code Generator</h2>
-      <ol>
-        <li><strong>Enter data</strong> - Type the text, URL, or information to encode</li>
-        <li><strong>Customize size</strong> - Choose the QR code dimensions</li>
-        <li><strong>Set error correction</strong> - Select error correction level</li>
-        <li><strong>Generate and download</strong> - Create and save your QR code as PNG or SVG</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use QR Code Generator</h2>
+    <ol>
+      <li><strong>Enter data</strong> - Type the text, URL, or information to encode</li>
+      <li><strong>Customize size</strong> - Choose the QR code dimensions</li>
+      <li><strong>Set error correction</strong> - Select error correction level</li>
+      <li><strong>Generate and download</strong> - Create and save your QR code as PNG or SVG</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">QR Code Generator Features</h2>
-      <ul>
-        <li><strong>Multiple formats</strong> - Generate QR codes for URLs, text, email, phone, WiFi, and more</li>
-        <li><strong>Error correction</strong> - Four levels: Low, Medium, Quartile, High</li>
-        <li><strong>Customizable size</strong> - Adjust QR code dimensions</li>
-        <li><strong>PNG and SVG output</strong> - Download in your preferred format</li>
-        <li><strong>Real-time generation</strong> - See QR code update as you type</li>
-        <li><strong>High quality</strong> - Print-ready resolution</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">QR Code Generator Features</h2>
+    <ul>
+      <li><strong>Multiple formats</strong> - Generate QR codes for URLs, text, email, phone, WiFi, and more</li>
+      <li><strong>Error correction</strong> - Four levels: Low, Medium, Quartile, High</li>
+      <li><strong>Customizable size</strong> - Adjust QR code dimensions</li>
+      <li><strong>PNG and SVG output</strong> - Download in your preferred format</li>
+      <li><strong>Real-time generation</strong> - See QR code update as you type</li>
+      <li><strong>High quality</strong> - Print-ready resolution</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is error correction in QR codes?</h3>
-      <p>
-        Error correction allows a QR code to be read even if part of it is damaged or obscured.
-        Four levels are available: L (Low) recovers ~7%, M (Medium) ~15%, Q (Quartile) ~25%, and
-        H (High) ~30% of the code. Higher levels create larger QR codes but are more resilient.
-      </p>
+    <h3>What is error correction in QR codes?</h3>
+    <p>
+      Error correction allows a QR code to be read even if part of it is damaged or obscured.
+      Four levels are available: L (Low) recovers ~7%, M (Medium) ~15%, Q (Quartile) ~25%, and
+      H (High) ~30% of the code. Higher levels create larger QR codes but are more resilient.
+    </p>
 
-      <h3>What is the maximum data capacity of a QR code?</h3>
-      <p>
-        QR codes can store up to 7,089 numeric characters, 4,296 alphanumeric characters, or 2,953
-        bytes of binary data. However, larger data amounts create denser codes that are harder to
-        scan. For best results, keep URLs short and data concise.
-      </p>
+    <h3>What is the maximum data capacity of a QR code?</h3>
+    <p>
+      QR codes can store up to 7,089 numeric characters, 4,296 alphanumeric characters, or 2,953
+      bytes of binary data. However, larger data amounts create denser codes that are harder to
+      scan. For best results, keep URLs short and data concise.
+    </p>
 
-      <h3>Can I use these QR codes commercially?</h3>
-      <p>
-        Yes, the QR codes generated by this tool are free to use for both personal and commercial
-        purposes. They contain no watermarks or restrictions. You can use them on products,
-        marketing materials, business cards, and more.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Can I use these QR codes commercially?</h3>
+    <p>
+      Yes, the QR codes generated by this tool are free to use for both personal and commercial
+      purposes. They contain no watermarks or restrictions. You can use them on products,
+      marketing materials, business cards, and more.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

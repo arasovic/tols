@@ -1,7 +1,7 @@
 <script>
   import UnicodeTool from '$lib/tools/UnicodeTool.svelte'
 
-  const pageTitle = 'Unicode Inspector - DevUtils | Explore Unicode Characters'
+  const pageTitle = 'Unicode Inspector - tols | Explore Unicode Characters'
   const pageDescription = 'Free online Unicode inspector tool for developers. Explore Unicode characters, codepoints, categories, and special symbols instantly with search included.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/unicode'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,75 +42,73 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <UnicodeTool />
+<article>
+  <UnicodeTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is Unicode Inspector?</h2>
-      <p>
-        Unicode Inspector is a tool for exploring Unicode characters and their properties. Unicode
-        is a universal character encoding standard that assigns a unique number to every character
-        across all writing systems. This tool helps developers and linguists inspect character
-        codepoints, names, categories, and other Unicode properties.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is Unicode Inspector?</h2>
+    <p>
+      Unicode Inspector is a tool for exploring Unicode characters and their properties. Unicode
+      is a universal character encoding standard that assigns a unique number to every character
+      across all writing systems. This tool helps developers and linguists inspect character
+      codepoints, names, categories, and other Unicode properties.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Unicode Inspector</h2>
-      <ol>
-        <li><strong>Enter characters</strong> - Type or paste text to inspect its Unicode properties</li>
-        <li><strong>View details</strong> - See codepoints, names, and categories for each character</li>
-        <li><strong>Search by codepoint</strong> - Enter a Unicode codepoint to find the character</li>
-        <li><strong>Copy information</strong> - Copy character data for use in your projects</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Unicode Inspector</h2>
+    <ol>
+      <li><strong>Enter characters</strong> - Type or paste text to inspect its Unicode properties</li>
+      <li><strong>View details</strong> - See codepoints, names, and categories for each character</li>
+      <li><strong>Search by codepoint</strong> - Enter a Unicode codepoint to find the character</li>
+      <li><strong>Copy information</strong> - Copy character data for use in your projects</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Unicode Inspector Features</h2>
-      <ul>
-        <li><strong>Character details</strong> - View codepoints, names, and categories</li>
-        <li><strong>Block information</strong> - See which Unicode block a character belongs to</li>
-        <li><strong>Escape sequences</strong> - Get JavaScript, CSS, and HTML escape codes</li>
-        <li><strong>Multi-character analysis</strong> - Inspect entire strings at once</li>
-        <li><strong>Search functionality</strong> - Find characters by name or codepoint</li>
-        <li><strong>One-click copy</strong> - Copy character or escape sequences easily</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Unicode Inspector Features</h2>
+    <ul>
+      <li><strong>Character details</strong> - View codepoints, names, and categories</li>
+      <li><strong>Block information</strong> - See which Unicode block a character belongs to</li>
+      <li><strong>Escape sequences</strong> - Get JavaScript, CSS, and HTML escape codes</li>
+      <li><strong>Multi-character analysis</strong> - Inspect entire strings at once</li>
+      <li><strong>Search functionality</strong> - Find characters by name or codepoint</li>
+      <li><strong>One-click copy</strong> - Copy character or escape sequences easily</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is a Unicode codepoint?</h3>
-      <p>
-        A Unicode codepoint is a number assigned to each character in the Unicode standard. Codepoints
-        are typically written as U+ followed by hexadecimal, like U+0041 for the letter 'A'. Unicode
-        supports over 140,000 characters covering virtually all writing systems in use today.
-      </p>
+    <h3>What is a Unicode codepoint?</h3>
+    <p>
+      A Unicode codepoint is a number assigned to each character in the Unicode standard. Codepoints
+      are typically written as U+ followed by hexadecimal, like U+0041 for the letter 'A'. Unicode
+      supports over 140,000 characters covering virtually all writing systems in use today.
+    </p>
 
-      <h3>What are Unicode character categories?</h3>
-      <p>
-        Unicode assigns each character a general category like Letter (L), Mark (M), Number (N),
-        Symbol (S), Separator (Z), or Other (C). These categories help software determine how to
-        process text, such as where line breaks can occur or which characters are part of words.
-      </p>
+    <h3>What are Unicode character categories?</h3>
+    <p>
+      Unicode assigns each character a general category like Letter (L), Mark (M), Number (N),
+      Symbol (S), Separator (Z), or Other (C). These categories help software determine how to
+      process text, such as where line breaks can occur or which characters are part of words.
+    </p>
 
-      <h3>Why do I need escape sequences?</h3>
-      <p>
-        Escape sequences allow you to represent special characters in code or markup when direct
-        entry isn't possible or might cause issues. For example, you might need to escape emojis,
-        special symbols, or non-ASCII characters when writing code, JSON, or CSS to ensure proper
-        encoding and display.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Why do I need escape sequences?</h3>
+    <p>
+      Escape sequences allow you to represent special characters in code or markup when direct
+      entry isn't possible or might cause issues. For example, you might need to escape emojis,
+      special symbols, or non-ASCII characters when writing code, JSON, or CSS to ensure proper
+      encoding and display.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

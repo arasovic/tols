@@ -1,7 +1,7 @@
 <script>
   import XmlTool from '$lib/tools/XmlTool.svelte'
 
-  const pageTitle = 'XML Formatter - DevUtils | XML Beautifier & Validator'
+  const pageTitle = 'XML Formatter - tols | XML Beautifier & Validator'
   const pageDescription = 'Free online XML formatter and validator tool for developers. Format, validate, and minify XML data instantly with CDATA, comment, and syntax support online.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/xml'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,75 +42,73 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <XmlTool />
+<article>
+  <XmlTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is XML Formatter?</h2>
-      <p>
-        XML Formatter helps you format, validate, and minify XML documents. XML (eXtensible Markup
-        Language) is widely used for data storage, configuration files, and data exchange between
-        systems. This tool ensures your XML is well-formed, properly indented, and ready for use
-        in applications or APIs.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is XML Formatter?</h2>
+    <p>
+      XML Formatter helps you format, validate, and minify XML documents. XML (eXtensible Markup
+      Language) is widely used for data storage, configuration files, and data exchange between
+      systems. This tool ensures your XML is well-formed, properly indented, and ready for use
+      in applications or APIs.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use XML Formatter</h2>
-      <ol>
-        <li><strong>Paste your XML</strong> - Copy and paste your XML document into the editor</li>
-        <li><strong>Choose action</strong> - Select format (prettify), minify, or validate</li>
-        <li><strong>Process</strong> - Click the button to transform your XML</li>
-        <li><strong>View results</strong> - See formatted output or error messages</li>
-        <li><strong>Copy output</strong> - Copy the result to your clipboard</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use XML Formatter</h2>
+    <ol>
+      <li><strong>Paste your XML</strong> - Copy and paste your XML document into the editor</li>
+      <li><strong>Choose action</strong> - Select format (prettify), minify, or validate</li>
+      <li><strong>Process</strong> - Click the button to transform your XML</li>
+      <li><strong>View results</strong> - See formatted output or error messages</li>
+      <li><strong>Copy output</strong> - Copy the result to your clipboard</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">XML Formatter Features</h2>
-      <ul>
-        <li><strong>Prettify mode</strong> - Add proper indentation and line breaks</li>
-        <li><strong>Minify mode</strong> - Remove whitespace for smaller file sizes</li>
-        <li><strong>Validation</strong> - Check XML for syntax errors</li>
-        <li><strong>Error highlighting</strong> - See exact location of errors</li>
-        <li><strong>Syntax highlighting</strong> - Colored XML for better readability</li>
-        <li><strong>One-click copy</strong> - Copy formatted XML instantly</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">XML Formatter Features</h2>
+    <ul>
+      <li><strong>Prettify mode</strong> - Add proper indentation and line breaks</li>
+      <li><strong>Minify mode</strong> - Remove whitespace for smaller file sizes</li>
+      <li><strong>Validation</strong> - Check XML for syntax errors</li>
+      <li><strong>Error highlighting</strong> - See exact location of errors</li>
+      <li><strong>Syntax highlighting</strong> - Colored XML for better readability</li>
+      <li><strong>One-click copy</strong> - Copy formatted XML instantly</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is the difference between XML and JSON?</h3>
-      <p>
-        XML uses tags to define elements and supports attributes, namespaces, and schemas. JSON is
-        simpler with key-value pairs and arrays. XML is more verbose but offers more features for
-        complex documents. JSON is lighter and more commonly used in modern web APIs.
-      </p>
+    <h3>What is the difference between XML and JSON?</h3>
+    <p>
+      XML uses tags to define elements and supports attributes, namespaces, and schemas. JSON is
+      simpler with key-value pairs and arrays. XML is more verbose but offers more features for
+      complex documents. JSON is lighter and more commonly used in modern web APIs.
+    </p>
 
-      <h3>Can this validate against an XML Schema?</h3>
-      <p>
-        This tool performs basic well-formedness validation, checking that tags are properly closed
-        and nested. For schema validation against XSD or DTD, you would need a more advanced XML
-        validator that supports external schema files.
-      </p>
+    <h3>Can this validate against an XML Schema?</h3>
+    <p>
+      This tool performs basic well-formedness validation, checking that tags are properly closed
+      and nested. For schema validation against XSD or DTD, you would need a more advanced XML
+      validator that supports external schema files.
+    </p>
 
-      <h3>Why is my XML not formatting correctly?</h3>
-      <p>
-        XML must be well-formed to be formatted. Check that all tags are properly closed, attributes
-        are quoted, and special characters are escaped. The validator will show you the specific
-        line and column where the error occurs.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Why is my XML not formatting correctly?</h3>
+    <p>
+      XML must be well-formed to be formatted. Check that all tags are properly closed, attributes
+      are quoted, and special characters are escaped. The validator will show you the specific
+      line and column where the error occurs.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

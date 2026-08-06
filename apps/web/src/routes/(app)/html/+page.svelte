@@ -1,7 +1,7 @@
 <script>
   import HtmlTool from '$lib/tools/HtmlTool.svelte'
 
-  const pageTitle = 'HTML Formatter - DevUtils | HTML Beautifier & Minifier'
+  const pageTitle = 'HTML Formatter - tols | HTML Beautifier & Minifier'
   const pageDescription = 'Free online HTML formatter and optimizer tool for developers. Beautify and minify HTML code instantly with comment removal, attribute quoting, and formatting.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/html'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,74 +42,72 @@
       "Auto-save"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <HtmlTool />
+<article>
+  <HtmlTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is HTML Formatter?</h2>
-      <p>
-        HTML Formatter beautifies and cleans up HTML code by adding proper indentation and structure.
-        It can also minify HTML for production use, removing unnecessary whitespace and comments.
-        This tool helps developers maintain clean, readable HTML during development while optimizing
-        it for deployment.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is HTML Formatter?</h2>
+    <p>
+      HTML Formatter beautifies and cleans up HTML code by adding proper indentation and structure.
+      It can also minify HTML for production use, removing unnecessary whitespace and comments.
+      This tool helps developers maintain clean, readable HTML during development while optimizing
+      it for deployment.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use HTML Formatter</h2>
-      <ol>
-        <li><strong>Paste your HTML</strong> - Copy and paste your HTML code into the editor</li>
-        <li><strong>Choose format</strong> - Select beautify (prettify) or minify mode</li>
-        <li><strong>Process</strong> - Click the format button to transform your HTML</li>
-        <li><strong>Review and copy</strong> - Check the output and copy to your clipboard</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use HTML Formatter</h2>
+    <ol>
+      <li><strong>Paste your HTML</strong> - Copy and paste your HTML code into the editor</li>
+      <li><strong>Choose format</strong> - Select beautify (prettify) or minify mode</li>
+      <li><strong>Process</strong> - Click the format button to transform your HTML</li>
+      <li><strong>Review and copy</strong> - Check the output and copy to your clipboard</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">HTML Formatter Features</h2>
-      <ul>
-        <li><strong>Beautify mode</strong> - Proper indentation and line breaks</li>
-        <li><strong>Minify mode</strong> - Remove whitespace for smaller files</li>
-        <li><strong>Attribute sorting</strong> - Consistent attribute ordering</li>
-        <li><strong>Quote normalization</strong> - Standardize quote style</li>
-        <li><strong>One-click copy</strong> - Copy formatted HTML instantly</li>
-        <li><strong>Auto-save</strong> - Saves your input automatically</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">HTML Formatter Features</h2>
+    <ul>
+      <li><strong>Beautify mode</strong> - Proper indentation and line breaks</li>
+      <li><strong>Minify mode</strong> - Remove whitespace for smaller files</li>
+      <li><strong>Attribute sorting</strong> - Consistent attribute ordering</li>
+      <li><strong>Quote normalization</strong> - Standardize quote style</li>
+      <li><strong>One-click copy</strong> - Copy formatted HTML instantly</li>
+      <li><strong>Auto-save</strong> - Saves your input automatically</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>When should I minify HTML?</h3>
-      <p>
-        Minify HTML before deploying to production. Minification reduces file size by removing
-        whitespace, comments, and unnecessary characters, which improves page load times. Keep
-        the beautified version for development and editing.
-      </p>
+    <h3>When should I minify HTML?</h3>
+    <p>
+      Minify HTML before deploying to production. Minification reduces file size by removing
+      whitespace, comments, and unnecessary characters, which improves page load times. Keep
+      the beautified version for development and editing.
+    </p>
 
-      <h3>Will formatting break my HTML?</h3>
-      <p>
-        No, this formatter preserves the structure and functionality of your HTML. It only changes
-        whitespace and formatting, not the actual elements or attributes. However, always review
-        the output to ensure it meets your expectations.
-      </p>
+    <h3>Will formatting break my HTML?</h3>
+    <p>
+      No, this formatter preserves the structure and functionality of your HTML. It only changes
+      whitespace and formatting, not the actual elements or attributes. However, always review
+      the output to ensure it meets your expectations.
+    </p>
 
-      <h3>Does this fix invalid HTML?</h3>
-      <p>
-        This tool focuses on formatting, not validation. While it may handle some minor issues,
-        it won't fix structural problems like unclosed tags or invalid nesting. Use an HTML validator
-        for checking markup validity.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Does this fix invalid HTML?</h3>
+    <p>
+      This tool focuses on formatting, not validation. While it may handle some minor issues,
+      it won't fix structural problems like unclosed tags or invalid nesting. Use an HTML validator
+      for checking markup validity.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

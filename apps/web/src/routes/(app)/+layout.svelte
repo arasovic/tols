@@ -3,12 +3,13 @@
   import { base } from '$app/paths'
   import Sidebar from '$lib/components/Sidebar.svelte'
   import SearchOverlay from '$lib/components/SearchOverlay.svelte'
+  import Kbd from '$lib/ui/Kbd.svelte'
+  import { dispatchShortcut } from '$lib/ui/shortcuts.js'
   import { toolTitles } from '$lib/config/tools.js'
   import { getTool } from '$lib/config/registry.js'
   import { addRecent } from '$lib/stores/recentTools.js'
   import { stripBase } from '$lib/utils/paths.js'
   import { browser } from '$app/environment'
-  import { Menu, Search } from 'lucide-svelte'
   import '../../app.css'
 
   let sidebarOpen = false
@@ -28,7 +29,7 @@
   // tool segment can be stripped in every environment.
   $: pathWithoutBase = stripBase(base, $page.url.pathname)
   $: currentPath = pathWithoutBase.slice(1) || ''
-  $: title = toolTitles[currentPath] || 'DevUtils'
+  $: title = toolTitles[currentPath] || 'tols'
 
   // Visiting a tool page counts as recent usage, no matter how the user got there
   $: if (browser && currentPath && getTool(currentPath)) {
@@ -36,38 +37,55 @@
   }
 </script>
 
-<svelte:window on:keydown={(e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-    e.preventDefault()
-    toggleSidebar()
-  }
-}} />
+<svelte:window on:keydown={(e) => dispatchShortcut(e, {
+  palette: () => searchOverlay?.toggle(),
+  sidebar: toggleSidebar
+})} />
 
 <SearchOverlay bind:this={searchOverlay} />
 
-<div class="layout">
+<div class="layout" class:sidebar-open={sidebarOpen}>
   <Sidebar bind:isOpen={sidebarOpen} />
 
   <div class="main">
     <header class="header">
       <button type="button" class="menu-btn" on:click={toggleSidebar} aria-label="Toggle menu">
-        <Menu size={20} class="menu-icon" />
+        <span class="menu-glyph" aria-hidden="true">≡</span>
       </button>
+      <a class="wordmark" href="{base}/">tols</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <!--
+        A span, not a heading: all 30 tool components still render their own
+        <h1>, so promoting the breadcrumb would give every tool page two.
+        Hoisting the heading here is a Phase B step, once no tool carries one.
+      -->
       <span class="page-title">{title}</span>
       <div class="header-actions">
-        <button type="button"
-          class="search-trigger"
-          on:click={() => openSearch()}
-          aria-label="Open search (Cmd+K)"
-        >
-          <Search size={16} />
-          <span class="search-text">Search</span>
-          <kbd class="kbd">⌘K</kbd>
+        <!-- No aria-label: the visible "search ⌘K" is the accessible name. An
+             aria-label of "Open search (Cmd+K)" does not contain the visible
+             text, which fails WCAG 2.5.3 for speech input. -->
+        <button type="button" class="search-trigger" on:click={() => openSearch()}>
+          <span class="search-text">search</span>
+          <Kbd keys="⌘K" />
         </button>
       </div>
     </header>
 
-    <main class="content">
+    <!--
+      The one <main> of every tool document. The 30 tool routes used to render
+      their own <main id="main-content"> inside this one, which is invalid (a
+      document has at most one), so the id lives here now and each route
+      contributes its bare <article>.
+
+      tabindex="-1" is what actually moves focus. <main> is not focusable by
+      default, so activating the skip link would only relocate the sequential
+      focus starting point — the next Tab lands inside, but activeElement stays
+      on <body>, which means no focus ring and nothing for a screen reader to
+      announce. (Chrome alone would paper over it here: `overflow-y: auto` makes
+      this a scroll container, and Chrome focuses scroll containers. That is
+      Chrome-only and it disappears the moment the content fits.)
+    -->
+    <main class="content" id="main-content" tabindex="-1">
       <slot />
     </main>
   </div>
@@ -83,7 +101,7 @@
   }
 
   @media (min-width: 768px) {
-    .layout {
+    .layout.sidebar-open {
       grid-template-columns: var(--sidebar-width) 1fr;
     }
   }
@@ -92,130 +110,91 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
+    min-width: 0;
     overflow: hidden;
   }
 
   .header {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    position: sticky;
-    top: 0;
-    z-index: var(--z-sticky);
+    gap: var(--space-2);
     height: var(--header-height);
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
+    padding: 0 var(--space-3);
+    background: var(--bg-base);
     border-bottom: 1px solid var(--border-subtle);
-  }
-
-  @media (min-width: 768px) {
-    .header {
-      padding: var(--space-3) var(--space-5);
-    }
+    flex-shrink: 0;
   }
 
   .menu-btn {
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    color: var(--text-secondary);
+    width: 24px;
+    height: 24px;
+    color: var(--text-tertiary);
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
   }
 
-  .menu-btn:hover {
-    background: var(--bg-hover);
+  .menu-btn:hover { color: var(--text-primary); }
+  .menu-btn:focus-visible { outline: none; box-shadow: var(--glow-focus); }
+
+  .menu-glyph { font-family: var(--font-mono); font-size: var(--text-lg); line-height: 1; }
+
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-base);
+    letter-spacing: var(--tracking-wide);
     color: var(--text-primary);
+    text-decoration: none;
   }
+
+  .crumb-sep { color: var(--text-muted); font-family: var(--font-mono); }
 
   .page-title {
     flex: 1;
-    font-size: var(--text-base);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    letter-spacing: var(--tracking-tight);
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
+  .header-actions { display: flex; align-items: center; gap: var(--space-2); }
 
   .search-trigger {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    color: var(--text-secondary);
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-default);
+    padding: var(--space-1) var(--space-2);
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    background: transparent;
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
   }
 
-  .search-trigger:hover {
-    background: var(--bg-hover);
-    border-color: var(--border-strong);
-    color: var(--text-primary);
-  }
-
-  .search-text {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-  }
-
-  .kbd {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 6px;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-    color: var(--text-tertiary);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-sm);
-    white-space: nowrap;
-  }
+  .search-trigger:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  .search-trigger:focus-visible { outline: none; box-shadow: var(--glow-focus); }
 
   .content {
     flex: 1;
-    max-width: 1200px;
+    width: 100%;
+    max-width: 1280px;
     margin: 0 auto;
     padding: var(--space-4);
-    width: 100%;
     overflow-y: auto;
   }
 
-  @media (min-width: 768px) {
-    .content {
-      padding: var(--space-5);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .menu-btn {
-      display: flex;
-    }
-
-    .content {
-      padding: var(--space-3);
-    }
-
-    .search-text {
-      display: none;
-    }
-
-    .search-trigger .kbd {
-      display: none;
-    }
+  @media (max-width: 767px) {
+    .content { padding: var(--space-3); }
+    .search-text { display: none; }
   }
 </style>

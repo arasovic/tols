@@ -321,10 +321,10 @@ describe('JsonTool', () => {
     // Advance timers to process the example
     vi.advanceTimersByTime(500)
 
-    // Verify the click triggered processing - check output contains DevUtils
+    // Verify the click triggered processing - check output contains the example payload
     await waitFor(() => {
       const outputArea = document.querySelector('.output-display')
-      expect(outputArea?.textContent).toContain('DevUtils')
+      expect(outputArea?.textContent).toContain('tols')
     }, { timeout: 2000 })
   }, 10000)
 

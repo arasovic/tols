@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { render, screen, fireEvent } from '@testing-library/svelte'
 import { writable } from 'svelte/store'
 import { page } from '$app/stores'
 import Sidebar from '$lib/components/Sidebar.svelte'
+
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', 'src')
+const sidebarSource = readFileSync(join(SRC, 'lib', 'components', 'Sidebar.svelte'), 'utf8')
 
 const { baseMock, favoritesMock } = vi.hoisted(() => ({
   baseMock: { base: '' },
@@ -57,7 +63,7 @@ describe('Sidebar', () => {
 
   it('should render correctly', () => {
     render(Sidebar)
-    expect(screen.getByText('DevUtils')).toBeInTheDocument()
+    expect(screen.getByText('tols')).toBeInTheDocument()
   })
 
   it('should show tools list', () => {
@@ -116,7 +122,7 @@ describe('Sidebar', () => {
 
   it('should show logo', () => {
     render(Sidebar)
-    expect(screen.getByText('DevUtils')).toBeInTheDocument()
+    expect(screen.getByText('tols')).toBeInTheDocument()
   })
 
   it('should close sidebar on link click when open', async () => {
@@ -137,5 +143,16 @@ describe('Sidebar', () => {
     expect(favStar.tagName).toBe('SPAN')
     expect(favStar.querySelector('svg')).not.toBeNull()
     expect(container.querySelectorAll('.nav-fav')).toHaveLength(1)
+  })
+
+  it('gives the alias cell a fixed character-cell width so every label starts on one column', () => {
+    // jsdom computes no layout, so the ragged left edge this guards against is
+    // structurally invisible to a rendered assertion — the declaration itself is
+    // what has to be pinned. Same idiom as CommandStrip's layout guard.
+    const block = sidebarSource.match(/\.nav-alias\s*\{([^}]*)\}/)
+    expect(block).not.toBeNull()
+    expect(block[1]).toMatch(/width:\s*\d+ch/)
+    expect(block[1]).toMatch(/font-family:\s*var\(--font-mono\)/) // ch needs the mono face
+    expect(block[1]).not.toMatch(/width:\s*\d+px/)
   })
 })

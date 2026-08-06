@@ -1,7 +1,7 @@
 <script>
   import JwtEncoderTool from '$lib/tools/JwtEncoderTool.svelte'
 
-  const pageTitle = 'JWT Encoder - DevUtils | Create and Sign JWT Tokens'
+  const pageTitle = 'JWT Encoder - tols | Create and Sign JWT Tokens'
   const pageDescription = 'Free online JWT encoder tool for web developers. Create and sign JSON Web Tokens instantly with HS256 algorithm for securely signing web app authentication.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/jwt-encoder'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,75 +42,73 @@
       "Validation"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <JwtEncoderTool />
+<article>
+  <JwtEncoderTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is JWT Encoder?</h2>
-      <p>
-        JWT Encoder creates and signs JSON Web Tokens (JWT) using the HS256 algorithm. JWTs are
-        compact, self-contained tokens used for authentication and secure information exchange.
-        This tool helps developers generate signed tokens for testing APIs, debugging authentication
-        flows, and understanding how JWTs work.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is JWT Encoder?</h2>
+    <p>
+      JWT Encoder creates and signs JSON Web Tokens (JWT) using the HS256 algorithm. JWTs are
+      compact, self-contained tokens used for authentication and secure information exchange.
+      This tool helps developers generate signed tokens for testing APIs, debugging authentication
+      flows, and understanding how JWTs work.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use JWT Encoder</h2>
-      <ol>
-        <li><strong>Enter header</strong> - Input the JWT header (typically contains algorithm and type)</li>
-        <li><strong>Add payload</strong> - Enter the claims and data for your token</li>
-        <li><strong>Provide secret</strong> - Enter the secret key for signing</li>
-        <li><strong>Generate token</strong> - Click to create and sign your JWT</li>
-        <li><strong>Copy result</strong> - Copy the complete encoded token</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use JWT Encoder</h2>
+    <ol>
+      <li><strong>Enter header</strong> - Input the JWT header (typically contains algorithm and type)</li>
+      <li><strong>Add payload</strong> - Enter the claims and data for your token</li>
+      <li><strong>Provide secret</strong> - Enter the secret key for signing</li>
+      <li><strong>Generate token</strong> - Click to create and sign your JWT</li>
+      <li><strong>Copy result</strong> - Copy the complete encoded token</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">JWT Encoder Features</h2>
-      <ul>
-        <li><strong>HS256 signing</strong> - HMAC with SHA-256 algorithm support</li>
-        <li><strong>Custom headers</strong> - Define your own JWT headers</li>
-        <li><strong>Flexible payload</strong> - Add any claims and custom data</li>
-        <li><strong>Real-time preview</strong> - See encoded parts as you type</li>
-        <li><strong>One-click copy</strong> - Copy the complete JWT instantly</li>
-        <li><strong>Validation</strong> - Checks for valid JSON in header and payload</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">JWT Encoder Features</h2>
+    <ul>
+      <li><strong>HS256 signing</strong> - HMAC with SHA-256 algorithm support</li>
+      <li><strong>Custom headers</strong> - Define your own JWT headers</li>
+      <li><strong>Flexible payload</strong> - Add any claims and custom data</li>
+      <li><strong>Real-time preview</strong> - See encoded parts as you type</li>
+      <li><strong>One-click copy</strong> - Copy the complete JWT instantly</li>
+      <li><strong>Validation</strong> - Checks for valid JSON in header and payload</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is a JWT token used for?</h3>
-      <p>
-        JWT tokens are used for authentication and authorization in web applications. After a user
-        logs in, the server issues a JWT that the client can use to prove identity on subsequent
-        requests. They're commonly used in REST APIs, single sign-on systems, and microservices.
-      </p>
+    <h3>What is a JWT token used for?</h3>
+    <p>
+      JWT tokens are used for authentication and authorization in web applications. After a user
+      logs in, the server issues a JWT that the client can use to prove identity on subsequent
+      requests. They're commonly used in REST APIs, single sign-on systems, and microservices.
+    </p>
 
-      <h3>What is HS256?</h3>
-      <p>
-        HS256 stands for HMAC with SHA-256. It's a symmetric signing algorithm where the same secret
-        key is used to sign and verify the token. This tool uses HS256, which is widely supported
-        and suitable for many applications.
-      </p>
+    <h3>What is HS256?</h3>
+    <p>
+      HS256 stands for HMAC with SHA-256. It's a symmetric signing algorithm where the same secret
+      key is used to sign and verify the token. This tool uses HS256, which is widely supported
+      and suitable for many applications.
+    </p>
 
-      <h3>Is the secret key safe when using this tool?</h3>
-      <p>
-        The JWT encoding happens entirely in your browser. The secret key and all data are never
-        sent to any server. However, you should still use test secrets and never use production
-        secrets in online tools as a security best practice.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Is the secret key safe when using this tool?</h3>
+    <p>
+      The JWT encoding happens entirely in your browser. The secret key and all data are never
+      sent to any server. However, you should still use test secrets and never use production
+      secrets in online tools as a security best practice.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

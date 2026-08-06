@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, fireEvent } from '@testing-library/svelte'
 import ToolCard from '$lib/components/ToolCard.svelte'
 import { Code } from 'lucide-svelte'
+import { templateFor } from '$lib/cli/templates.js'
 
 const tool = {
   path: 'json',
@@ -32,5 +33,16 @@ describe('ToolCard favorites', () => {
     expect(events).toEqual(['toggled'])
     // The click must not trigger the card link
     expect(window.location.pathname).not.toContain('/json')
+  })
+
+  it('renders the real CLI invocation derived from templateFor', () => {
+    const { container } = render(ToolCard, { props: { tool } })
+
+    const template = templateFor(tool.path)
+    const expected = `tols ${template.tool} ${template.defaultAction}`
+
+    const cmd = container.querySelector('.tool-cmd')
+    expect(cmd).not.toBeNull()
+    expect(cmd?.textContent).toContain(expected)
   })
 })

@@ -1,7 +1,7 @@
 <script>
   import GzipTool from '$lib/tools/GzipTool.svelte'
 
-  const pageTitle = 'Gzip Calculator - DevUtils | Estimate Compression Size'
+  const pageTitle = 'Gzip Calculator - tols | Estimate Compression Size'
   const pageDescription = 'Free online Gzip compression calculator tool for web developers. Estimate gzip compression size and analyze bandwidth savings for content optimization.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/gzip'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -42,76 +42,74 @@
       "Performance insights"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "DevUtils", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <GzipTool />
+<article>
+  <GzipTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is Gzip Compression?</h2>
-      <p>
-        Gzip is a file format and software application used for file compression and decompression.
-        It's widely used on the web to reduce the size of HTML, CSS, JavaScript, and other text-based
-        files before sending them over the network. This tool helps you estimate the compression
-        ratio and size savings you can achieve with gzip.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is Gzip Compression?</h2>
+    <p>
+      Gzip is a file format and software application used for file compression and decompression.
+      It's widely used on the web to reduce the size of HTML, CSS, JavaScript, and other text-based
+      files before sending them over the network. This tool helps you estimate the compression
+      ratio and size savings you can achieve with gzip.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Gzip Calculator</h2>
-      <ol>
-        <li><strong>Enter your text</strong> - Paste the content you want to analyze</li>
-        <li><strong>See compression stats</strong> - View original size, compressed size, and ratio</li>
-        <li><strong>Analyze savings</strong> - Understand how much bandwidth you'll save</li>
-        <li><strong>Optimize content</strong> - Use insights to improve your web performance</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Gzip Calculator</h2>
+    <ol>
+      <li><strong>Enter your text</strong> - Paste the content you want to analyze</li>
+      <li><strong>See compression stats</strong> - View original size, compressed size, and ratio</li>
+      <li><strong>Analyze savings</strong> - Understand how much bandwidth you'll save</li>
+      <li><strong>Optimize content</strong> - Use insights to improve your web performance</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Gzip Calculator Features</h2>
-      <ul>
-        <li><strong>Size estimation</strong> - Calculate compressed size before deployment</li>
-        <li><strong>Compression ratio</strong> - See percentage of size reduction</li>
-        <li><strong>Real-time calculation</strong> - Instant results as you type</li>
-        <li><strong>Byte-level precision</strong> - Accurate size measurements</li>
-        <li><strong>Multiple formats</strong> - View sizes in bytes and human-readable format</li>
-        <li><strong>Performance insights</strong> - Understand your content's compressibility</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Gzip Calculator Features</h2>
+    <ul>
+      <li><strong>Size estimation</strong> - Calculate compressed size before deployment</li>
+      <li><strong>Compression ratio</strong> - See percentage of size reduction</li>
+      <li><strong>Real-time calculation</strong> - Instant results as you type</li>
+      <li><strong>Byte-level precision</strong> - Accurate size measurements</li>
+      <li><strong>Multiple formats</strong> - View sizes in bytes and human-readable format</li>
+      <li><strong>Performance insights</strong> - Understand your content's compressibility</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What types of content compress well with gzip?</h3>
-      <p>
-        Text-based content like HTML, CSS, JavaScript, JSON, and XML compress very well with gzip,
-        often achieving 60-80% size reduction. Content with lots of repeated patterns, whitespace,
-        and common words compresses best. Already compressed content like images, videos, and
-        pre-compressed archives see little additional benefit from gzip.
-      </p>
+    <h3>What types of content compress well with gzip?</h3>
+    <p>
+      Text-based content like HTML, CSS, JavaScript, JSON, and XML compress very well with gzip,
+      often achieving 60-80% size reduction. Content with lots of repeated patterns, whitespace,
+      and common words compresses best. Already compressed content like images, videos, and
+      pre-compressed archives see little additional benefit from gzip.
+    </p>
 
-      <h3>Should I always enable gzip on my server?</h3>
-      <p>
-        Yes, gzip compression should be enabled on your web server for all text-based content.
-        The CPU overhead of compression is minimal compared to the bandwidth savings. Modern servers
-        can compress on-the-fly efficiently, and browsers have supported gzip decompression for decades.
-      </p>
+    <h3>Should I always enable gzip on my server?</h3>
+    <p>
+      Yes, gzip compression should be enabled on your web server for all text-based content.
+      The CPU overhead of compression is minimal compared to the bandwidth savings. Modern servers
+      can compress on-the-fly efficiently, and browsers have supported gzip decompression for decades.
+    </p>
 
-      <h3>What compression level should I use?</h3>
-      <p>
-        Most web servers default to compression level 6, which offers a good balance between
-        compression ratio and CPU usage. Levels 1-3 offer faster compression with less size reduction,
-        while levels 7-9 offer maximum compression at the cost of more CPU time. Level 6 is
-        recommended for most use cases.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>What compression level should I use?</h3>
+    <p>
+      Most web servers default to compression level 6, which offers a good balance between
+      compression ratio and CPU usage. Levels 1-3 offer faster compression with less size reduction,
+      while levels 7-9 offer maximum compression at the cost of more CPU time. Level 6 is
+      recommended for most use cases.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

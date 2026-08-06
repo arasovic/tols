@@ -15,5 +15,5 @@ export const toolTitles = Object.fromEntries(tools.map(tool => [tool.id, tool.na
  * @returns {string}
  */
 export function getToolTitle(path) {
-  return toolTitles[path] || 'DevUtils'
+  return toolTitles[path] || 'tols'
 }

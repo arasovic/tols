@@ -15,9 +15,9 @@
   import PrivacyBanner from '$lib/components/PrivacyBanner.svelte'
   import ToolCard from '$lib/components/ToolCard.svelte'
   import HomeFooter from '$lib/components/HomeFooter.svelte'
-  import { Braces, Sun, Moon, Sparkles, SearchX, Star, Clock } from 'lucide-svelte'
+  import { Sun, Moon, SearchX } from 'lucide-svelte'
 
-  const pageTitle = 'DevUtils - Free Developer Utilities & Online Tools'
+  const pageTitle = 'tols - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
   const canonicalUrl = 'https://arasovic.github.io/dev-utilities/'
   const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
@@ -27,7 +27,6 @@
     name: tool.name,
     desc: tool.description,
     category: tool.category,
-    icon: tool.icon,
     popular: tool.popular === true
   }))
 
@@ -38,8 +37,12 @@
     .map(id => tools.find(tool => tool.path === id))
     .filter(/** @returns {tool is typeof tools[number]} */ (tool) => tool !== undefined)
 
+  // One value feeds both the headline and the `Tools` stat, which sit in the
+  // same viewport at every width. Two independent literals is how they drifted.
+  const toolCount = tools.length
+
   const heroStats = [
-    { value: String(tools.length), label: 'Tools' },
+    { value: String(toolCount), label: 'Tools' },
     { value: String(categories.length), label: 'Categories' },
     { value: '0', label: 'Data Upload' }
   ]
@@ -95,7 +98,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImage} />
-  <meta property="og:site_name" content="DevUtils" />
+  <meta property="og:site_name" content="tols" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -108,9 +111,9 @@
     <div class="header-top">
       <a href="{base}/" class="logo">
         <div class="logo-icon">
-          <Braces size={20} />
+          <span class="logo-glyph" aria-hidden="true">$</span>
         </div>
-        <span class="logo-title">DevUtils</span>
+        <span class="logo-title">tols</span>
       </a>
       <button type="button" class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
         {#if $theme === 'dark'}
@@ -122,8 +125,13 @@
     </div>
   </header>
 
-  <main class="home-main">
-    <HomeHero stats={heroStats} />
+  <!-- id is load-bearing: app.html's skip link targets #main-content, which the
+       (app) layout provides for every tool route. This page is outside that
+       group, so it carries its own — and tabindex="-1", without which focus
+       never actually lands here (measured in Chrome: activeElement stayed on
+       <body> after activating the link). -->
+  <main id="main-content" class="home-main" tabindex="-1">
+    <HomeHero stats={heroStats} {toolCount} />
 
     <HomeSearch bind:query={searchQuery} bind:selected={selectedCategory} />
 
@@ -134,7 +142,6 @@
         <div class="favorites-section">
           <div class="section-header">
             <div class="section-title">
-              <Star size={16} />
               <span>Favorites</span>
             </div>
           </div>
@@ -156,7 +163,6 @@
         <div class="recent-section">
           <div class="section-header">
             <div class="section-title">
-              <Clock size={16} />
               <span>Recent</span>
             </div>
           </div>
@@ -172,7 +178,6 @@
         <div class="popular-section">
           <div class="section-header">
             <div class="section-title">
-              <Sparkles size={16} />
               <span>Popular Tools</span>
             </div>
           </div>
@@ -267,11 +272,19 @@
     color: white;
   }
 
+  .logo-glyph {
+    font-family: var(--font-mono);
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    line-height: 1;
+  }
+
   .logo-title {
+    font-family: var(--font-display);
     font-size: var(--text-xl);
     font-weight: var(--font-semibold);
     color: var(--text-primary);
-    letter-spacing: var(--tracking-tight);
+    letter-spacing: var(--tracking-wide);
   }
 
   .theme-toggle {
@@ -351,10 +364,6 @@
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: var(--tracking-wide);
-  }
-
-  .section-title :global(svg) {
-    color: var(--accent);
   }
 
   .tool-count {

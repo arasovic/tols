@@ -2,13 +2,15 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
+  import Workbench from '$lib/ui/Workbench.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
   import { format as formatJson, minify as minifyJson } from 'tols/core/json'
 
   const EXAMPLE_JSON = `{
-  "name": "DevUtils",
+  "name": "tols",
   "version": "1.0.0",
   "features": ["JSON", "Base64", "Hash"],
   "active": true
@@ -28,6 +30,12 @@
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let saveInProgress = false
+
+  // Declared once so the visible command and the ⌘⇧C payload cannot drift:
+  // writing `compact ? 'min' : 'fmt'` a second time is how a renamed action
+  // ends up displayed in one place and copied in another.
+  $: cliAction = compact ? 'min' : 'fmt'
+  $: cliFlags = compact ? {} : { indent: 2 }
 
   function loadState() {
     try {
@@ -157,9 +165,47 @@
       <h1 class="tool-name">JSON Formatter</h1>
       <p class="tool-desc">Format, validate, and minify JSON data</p>
     </div>
-    <div class="tool-actions">
-      <ShareButton getState={() => ({ input, compact: String(compact) })} />
-      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
+  </div>
+
+  <Workbench
+    toolId="json"
+    action={cliAction}
+    flags={cliFlags}
+    {input}
+    {output}
+    onRun={process}
+  >
+    <textarea
+      slot="input"
+      bind:value={input}
+      on:input={debouncedProcess}
+      use:fileDrop={{ onText: (text) => { input = text; process() } }}
+      placeholder={PLACEHOLDER_TEXT}
+      class="editor-textarea"
+      spellcheck="false"
+      aria-label="JSON input"
+      aria-describedby={error ? 'json-error' : undefined}
+    ></textarea>
+
+    <svelte:fragment slot="output">
+      {#if error}
+        <div class="error-display" role="alert" id="json-error" aria-live="polite">
+          <span>{error}</span>
+        </div>
+      {:else}
+        <pre class="output-display">{output || 'Output will appear here...'}</pre>
+      {/if}
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail">
+      <!--
+        The segments carry NO aria-label. Their visible text already is the
+        accessible name, and an aria-label that does not contain the visible
+        text breaks WCAG 2.5.3 (label in name): a speech-input user saying
+        "click Prettify" cannot reach a button named "Format JSON with
+        indentation". Phase B copies this control into 13 more tools — keep the
+        visible text as the name there too.
+      -->
       <div class="segmented" role="tablist" aria-label="JSON formatting options">
         <button type="button"
           class="segment"
@@ -167,98 +213,55 @@
           on:click={prettify}
           role="tab"
           aria-selected={!compact}
-          aria-label="Format JSON with indentation"
-        >
-          Prettify
-        </button>
+        >Prettify</button>
         <button type="button"
           class="segment"
           class:active={compact}
           on:click={minify}
           role="tab"
           aria-selected={compact}
-          aria-label="Minify JSON to single line"
-        >
-          Minify
-        </button>
+        >Minify</button>
       </div>
-      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example JSON">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M12 6v6l4 2"/>
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear input and output">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-      </button>
-    </div>
-  </div>
+      <!--
+        `icon-btn` carries no styling any more — no rule for it exists in
+        app.css or lib/ui/ — but JsonTool.test.js selects these two buttons as
+        `.icon-btn[aria-label="…"]`, and that spec is frozen. It is a test hook,
+        not a style hook: keep it here and on the tools Phase B converts, and
+        retire it only together with the selectors in the specs.
+      -->
+      <Button class="icon-btn" aria-label="Load example JSON" title="Load Example" on:click={loadExample}>example</Button>
+      <Button class="icon-btn" aria-label="Clear input and output" title="Clear" on:click={clear}>clear</Button>
+    </svelte:fragment>
 
-  <div class="workspace">
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">Input</span>
-        <span class="char-count">{input.length} chars</span>
-      </div>
-      <textarea
-        bind:value={input}
-        on:input={debouncedProcess}
-        use:fileDrop={{ onText: (text) => { input = text; process() } }}
-        placeholder={PLACEHOLDER_TEXT}
-        class="editor-textarea"
-        spellcheck="false"
-        aria-label="JSON input"
-        aria-describedby={error ? 'json-error' : undefined}
-      ></textarea>
-    </div>
-
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">Output</span>
-        <div class="editor-meta">
-          {#if output}
-            <span class="char-count">{output.length} chars</span>
-            <CopyButton text={output} />
-          {/if}
-        </div>
-      </div>
-      {#if error}
-        <div class="error-display" role="alert" id="json-error" aria-live="polite">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <span>{error}</span>
-        </div>
-      {:else}
-        <pre class="output-display" role="region" aria-label="JSON output">{output || 'Output will appear here...'}</pre>
-      {/if}
-    </div>
-  </div>
+    <svelte:fragment slot="rail-end">
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
+      <CopyButton text={output} disabled={!output} />
+      <ShareButton getState={() => ({ input, compact: String(compact) })} />
+    </svelte:fragment>
+  </Workbench>
 </div>
 
 <style>
+  /*
+    Everything this component used to style itself — the two-column grid, the
+    panel chrome, the pane headers, the icon buttons — now belongs to
+    Workbench / Panel / ActionRail / Button. What is left is only what is
+    genuinely specific to the JSON tool: the two pane contents and the
+    prettify/minify mode switch.
+  */
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
-    width: 100%;
-    animation: fadeIn var(--transition) var(--ease-out);
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .tool-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     gap: var(--space-4);
+    width: 100%;
+  }
+
+  /*
+    The page heading stays in the tool, matching the other 29 tool components.
+    The shell breadcrumb is a <span>: hoisting the <h1> into the shell is only
+    correct once every tool has been converted, which is a Phase B step.
+  */
+  .tool-header {
     padding-bottom: var(--space-4);
     border-bottom: 1px solid var(--border-subtle);
   }
@@ -270,181 +273,88 @@
   }
 
   .tool-name {
+    margin: 0;
+    color: var(--text-primary);
     font-size: var(--text-xl);
     font-weight: var(--font-semibold);
-    color: var(--text-primary);
     letter-spacing: var(--tracking-tight);
-    margin: 0;
   }
 
   .tool-desc {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
     margin: 0;
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
+    color: var(--text-tertiary);
+    font-size: var(--text-sm);
   }
 
   .segmented {
-    display: flex;
-    background: var(--bg-elevated);
+    display: inline-flex;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius);
-    padding: 2px;
+    overflow: hidden;
   }
 
   .segment {
-    display: flex;
-    align-items: center;
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-sm);
+    height: var(--control-height);
+    padding: 0 var(--space-3);
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
     font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-secondary);
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: color var(--transition-fast), background var(--transition-fast);
   }
 
-  .segment:hover {
-    color: var(--text-primary);
-  }
+  .segment + .segment { border-left: 1px solid var(--border-subtle); }
+  .segment:hover { color: var(--text-primary); }
+  .segment:focus-visible { outline: none; box-shadow: var(--glow-focus); }
 
   .segment.active {
-    background: var(--bg-surface);
-    color: var(--text-primary);
-    border: 1px solid var(--border-default);
-    box-shadow: var(--shadow-xs);
-  }
-
-  .icon-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .icon-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .workspace {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-  }
-
-  .editor {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    min-height: 400px;
-  }
-
-  .editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-2) var(--space-3);
-    background: var(--bg-elevated);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .editor-label {
-    font-size: var(--text-xs);
+    color: var(--bg-base);
+    background: var(--accent);
     font-weight: var(--font-semibold);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-    color: var(--text-tertiary);
-  }
-
-  .editor-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .char-count {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-    font-family: var(--font-mono);
   }
 
   .editor-textarea {
-    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: var(--pane-min-height);
     padding: var(--space-3);
-    border: none;
-    background: var(--bg-surface);
     color: var(--text-primary);
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    line-height: var(--leading-snug);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    background: transparent;
+    border: none;
     resize: none;
-    outline: none;
+    tab-size: 2;
   }
 
-  .editor-textarea::placeholder {
-    color: var(--text-muted);
-  }
+  .editor-textarea:focus { outline: none; }
+  .editor-textarea::placeholder { color: var(--text-muted); }
 
   .output-display {
-    flex: 1;
     margin: 0;
     padding: var(--space-3);
-    background: var(--bg-surface);
-    color: var(--text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    line-height: var(--leading-snug);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow: auto;
-  }
-
-  .output-display:not(:empty):not(:only-child) {
+    min-height: var(--pane-min-height);
     color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   .error-display {
-    flex: 1;
     display: flex;
-    align-items: flex-start;
     gap: var(--space-2);
+    margin: var(--space-3);
     padding: var(--space-3);
-    background: var(--error-soft);
     color: var(--error-text);
+    font-family: var(--font-mono);
     font-size: var(--text-sm);
-  }
-
-  @media (max-width: 768px) {
-    .workspace {
-      grid-template-columns: 1fr;
-    }
-
-    .tool-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .tool-actions {
-      width: 100%;
-      justify-content: flex-end;
-    }
+    background: var(--error-soft);
+    border-left: 2px solid var(--error);
+    border-radius: var(--radius);
   }
 </style>
