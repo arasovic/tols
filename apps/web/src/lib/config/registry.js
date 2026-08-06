@@ -142,7 +142,7 @@ export const tools = [
   // Encoding
   {
     id: 'base64',
-    name: 'Base64',
+    name: 'Base64 Encoder/Decoder',
     label: 'Base64',
     description: 'Encode & decode Base64 strings for data transmission',
     category: 'encoding',
@@ -152,7 +152,7 @@ export const tools = [
   },
   {
     id: 'url',
-    name: 'URL Encoder',
+    name: 'URL Encoder/Decoder',
     label: 'URL',
     description: 'Encode & decode URLs and query parameters safely',
     category: 'encoding',
@@ -229,7 +229,7 @@ export const tools = [
   },
   {
     id: 'lorem',
-    name: 'Lorem Ipsum',
+    name: 'Lorem Ipsum Generator',
     label: 'Lorem',
     description: 'Generate placeholder text for mockups and prototypes',
     category: 'generators',
@@ -238,7 +238,7 @@ export const tools = [
   },
   {
     id: 'qrcode',
-    name: 'QR Code',
+    name: 'QR Code Generator',
     label: 'QR Code',
     description: 'Generate QR codes from text or URLs',
     category: 'generators',
@@ -247,7 +247,7 @@ export const tools = [
   },
   {
     id: 'barcode',
-    name: 'Barcode',
+    name: 'Barcode Generator',
     label: 'Barcode',
     description: 'Generate Code128 barcodes',
     category: 'generators',
@@ -285,7 +285,7 @@ export const tools = [
   },
   {
     id: 'timestamp',
-    name: 'Timestamp',
+    name: 'Timestamp Converter',
     label: 'Timestamp',
     description: 'Convert Unix timestamps to readable dates and times',
     category: 'converters',
@@ -294,7 +294,7 @@ export const tools = [
   },
   {
     id: 'timezone',
-    name: 'Time Zone',
+    name: 'Time Zone Converter',
     label: 'Timezone',
     description: 'Convert times between different time zones',
     category: 'converters',

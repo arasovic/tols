@@ -3,6 +3,7 @@
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
   import Workbench from '$lib/ui/Workbench.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
@@ -160,12 +161,7 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">JSON Formatter</h1>
-      <p class="tool-desc">Format, validate, and minify JSON data</p>
-    </div>
-  </div>
+  <ToolHeader toolId="json" />
 
   <Workbench
     toolId="json"
@@ -244,8 +240,8 @@
 <style>
   /*
     Everything this component used to style itself — the two-column grid, the
-    panel chrome, the pane headers, the icon buttons — now belongs to
-    Workbench / Panel / ActionRail / Button. What is left is only what is
+    panel chrome, the pane headers, the page heading, the icon buttons — now
+    belongs to Workbench / Panel / ToolHeader / ActionRail / Button. What is
     genuinely specific to the JSON tool: the two pane contents and the
     prettify/minify mode switch.
   */
@@ -254,36 +250,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  /*
-    The page heading stays in the tool, matching the other 29 tool components.
-    The shell breadcrumb is a <span>: hoisting the <h1> into the shell is only
-    correct once every tool has been converted, which is a Phase B step.
-  */
-  .tool-header {
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .tool-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .tool-name {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .tool-desc {
-    margin: 0;
-    color: var(--text-tertiary);
-    font-size: var(--text-sm);
   }
 
   .segmented {
