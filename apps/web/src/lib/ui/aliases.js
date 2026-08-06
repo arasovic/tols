@@ -20,7 +20,9 @@ import { tools } from '$lib/config/registry.js'
  *
  * Later rungs widen through the hyphen-stripped id one character at a time, and
  * the last rung is the raw id, which is unique by construction — so the ladder
- * always terminates with a free alias no matter how the registry grows.
+ * always terminates with a free alias no matter how the registry grows. The one
+ * thing that can break that is an override reserving another tool's id; see
+ * `overrideProblems()`.
  *
  * @param {string} id
  * @returns {string[]}
@@ -35,19 +37,105 @@ function ladder(id) {
   return rungs
 }
 
-function build() {
+/**
+ * Sidebar.svelte sizes `.nav-alias` to a fixed `3ch` so all 30 labels start on
+ * the same column. Anything longer silently re-raggeds it, so the number lives
+ * here rather than only in the CSS and only in the test.
+ */
+export const MAX_ALIAS_LENGTH = 3
+
+/**
+ * Hand-written aliases for ids the ladder cannot reach a readable form for.
+ *
+ * `timestamp` and `timezone` share four leading characters and neither has a
+ * hyphen to initialise, so derivation can only truncate: `ti` and `tim`, which
+ * a reader has to already know to tell apart. `jsonp` sits behind `json` and
+ * truncates to `jso`. `ts`/`tz`/`jsp` are predictable from the name instead.
+ *
+ * This is a second source of truth, and the thing that goes wrong with one is
+ * rot: it names a tool the registry dropped, or it quietly steals an alias the
+ * ladder would have handed to a different tool. `overrideProblems()` states
+ * every way it can be wrong, and aliases.test.js asserts the list is empty, so
+ * a drifting entry fails by name rather than by producing a worse alias table.
+ *
+ * @type {Record<string, string>}
+ */
+const OVERRIDES = Object.freeze({
+  timestamp: 'ts',
+  timezone: 'tz',
+  jsonp: 'jsp'
+})
+
+/**
+ * Overrides are claimed before any tool climbs its ladder, so derivation can
+ * never hand out a value the table has reserved.
+ * @param {Record<string, string>} overrides
+ * @returns {Record<string, string>}
+ */
+function assign(overrides) {
   /** @type {Record<string, string>} */
   const map = {}
-  const taken = new Set()
+  const taken = new Set(Object.values(overrides))
   for (const tool of tools) {
-    const alias = /** @type {string} */ (ladder(tool.id).find((rung) => !taken.has(rung)))
+    const alias = overrides[tool.id] ?? ladder(tool.id).find((rung) => !taken.has(rung))
+    if (!alias) {
+      throw new Error(
+        `no free alias for "${tool.id}": every rung of its ladder, including its own id, is already taken`
+      )
+    }
     taken.add(alias)
     map[tool.id] = alias
   }
-  return Object.freeze(map)
+  return map
 }
 
-export const TOOL_ALIASES = build()
+export const TOOL_ALIASES = Object.freeze(assign(OVERRIDES))
+
+/**
+ * Every way the override table can be wrong, as messages naming the entry.
+ * Empty means the table still agrees with the registry and with the ladder.
+ *
+ * Takes the table as an argument so the tests can prove each guard fires on a
+ * deliberately broken one instead of only asserting that the real one is clean.
+ * @param {Record<string, string>} [overrides]
+ * @returns {string[]}
+ */
+export function overrideProblems(overrides = OVERRIDES) {
+  /** @type {string[]} */
+  const problems = []
+  const ids = new Set(tools.map((t) => t.id))
+  // What the ladder alone would produce. An override is only worth its cost if
+  // it differs from this, and is only safe if it does not take someone else's.
+  const derived = assign({})
+  /** @type {Map<string, string>} */
+  const claimed = new Map()
+
+  for (const [id, alias] of Object.entries(overrides)) {
+    const entry = `override "${id}" -> "${alias}"`
+
+    if (!ids.has(id)) {
+      problems.push(`${entry}: the registry has no tool with id "${id}"`)
+    }
+
+    const twin = claimed.get(alias)
+    if (twin) problems.push(`${entry}: collides with override "${twin}" -> "${alias}"`)
+    else claimed.set(alias, id)
+
+    const owner = Object.entries(derived).find(([other, a]) => a === alias && other !== id)
+    if (owner) problems.push(`${entry}: "${alias}" is the alias "${owner[0]}" derives on its own`)
+
+    if (derived[id] === alias) {
+      problems.push(`${entry}: redundant, the derivation ladder already produces "${alias}"`)
+    }
+
+    if (alias.length > MAX_ALIAS_LENGTH) {
+      problems.push(
+        `${entry}: ${alias.length} characters does not fit the ${MAX_ALIAS_LENGTH}ch nav column`
+      )
+    }
+  }
+  return problems
+}
 
 /**
  * Falls back to the same derivation the map uses, so an id the registry does
