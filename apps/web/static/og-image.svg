@@ -10,5 +10,5 @@
 
   <text x="600" y="417" text-anchor="middle"
         font-family="'Commit Mono', ui-monospace, 'SF Mono', Menlo, monospace"
-        font-size="40" fill="#ffb000">$ npm i -g tols</text>
+        font-size="40" fill="#ffb000">$ npm i -g tols-cli</text>
 </svg>

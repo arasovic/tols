@@ -7,7 +7,7 @@
   import { copyToClipboard } from '$lib/utils/clipboard.js'
   import { onDestroy } from 'svelte'
 
-  const INSTALL = 'npm i -g tols'
+  const INSTALL = 'npm i -g tols-cli'
   let copied = false
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let resetTimer

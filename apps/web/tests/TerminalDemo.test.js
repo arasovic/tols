@@ -23,12 +23,12 @@ describe('TerminalDemo', () => {
   it('renders the install line and copies it verbatim', async () => {
     const { getByText } = render(TerminalDemo)
 
-    expect(getByText('npm i -g tols')).toBeInTheDocument()
+    expect(getByText('npm i -g tols-cli')).toBeInTheDocument()
 
     await fireEvent.click(getByText('copy'))
 
     await waitFor(() => {
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('npm i -g tols')
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('npm i -g tols-cli')
     })
     // The clipboard call alone does not prove the user saw anything happen.
     await waitFor(() => {
