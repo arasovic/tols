@@ -3,6 +3,9 @@ import { describe, it, expect } from 'vitest'
 import { buildCommand, INLINE_LIMIT } from '$lib/cli/command.js'
 import { templateFor } from '$lib/cli/templates.js'
 import { tools } from '$lib/config/registry.js'
+import { readdirSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 describe('buildCommand', () => {
   it('renders tool, action and a simple inline input', () => {
@@ -105,6 +108,48 @@ describe('templateFor', () => {
       const tpl = templateFor(t.id)
       expect(tpl.actions, `${t.id} default action not in actions`).toContain(tpl.defaultAction)
     }
+  })
+
+  /**
+   * The check above is self-consistency: it proves the template agrees with
+   * itself, which a template that names a command the CLI does not have also
+   * satisfies. That is not hypothetical — `regex` shipped `['test', 'match']`
+   * with `test` as the default, and the CLI has only `match` and `replace`, so
+   * the regex tool card and the search overlay both advertised `tols regex
+   * test`, a command that exits with a usage error.
+   *
+   * The tool modules are read by importing them rather than by parsing the
+   * source, because each one is a plain `export default { name, actions }` and
+   * an import is the same thing the CLI itself does — a guard that reimplements
+   * the loading is a guard that can be right about a file the CLI never runs.
+   */
+  it('names tools and actions the CLI actually has', async () => {
+    const dir = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/tols/src/tools')
+    const cli = new Map()
+    for (const file of readdirSync(dir).filter((f) => f.endsWith('.js'))) {
+      // index.js is the barrel that registers the rest, not a tool itself.
+      const def = (await import(pathToFileURL(join(dir, file)).href)).default
+      if (!def?.actions) continue
+      for (const name of [def.name, ...(def.aliases ?? [])]) {
+        cli.set(name, new Set(Object.keys(def.actions)))
+      }
+    }
+
+    const unknown = []
+    for (const t of tools) {
+      const tpl = templateFor(t.id)
+      const actions = cli.get(tpl.tool)
+      if (!actions) {
+        unknown.push(`${t.id}: no CLI tool named '${tpl.tool}'`)
+        continue
+      }
+      for (const action of tpl.actions) {
+        if (!actions.has(action)) {
+          unknown.push(`${t.id}: 'tols ${tpl.tool} ${action}' does not exist`)
+        }
+      }
+    }
+    expect(unknown).toEqual([])
   })
 
   it('maps the json tool onto the tols CLI shape', () => {

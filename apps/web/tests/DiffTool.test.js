@@ -34,7 +34,7 @@ describe('DiffTool', () => {
     it('should show character counts with correct format', async () => {
       const { container } = render(DiffTool)
       await waitFor(() => {
-        const charCounts = container.querySelectorAll('.char-count')
+        const charCounts = container.querySelectorAll('.panel-meta')
         expect(charCounts.length).toBe(2)
         // Verify format matches "<number> chars" pattern
         expect(charCounts[0].textContent).toMatch(/^\d+ chars$/)
@@ -47,7 +47,7 @@ describe('DiffTool', () => {
     it('should show diff results', async () => {
       const { container } = render(DiffTool)
       await waitFor(() => {
-        expect(container.querySelector('.diff-result')).toBeInTheDocument()
+        expect(container.querySelector('[data-testid="diff-result"]')).toBeInTheDocument()
       }, { timeout: 500 })
     })
 
@@ -75,14 +75,14 @@ describe('DiffTool', () => {
       const unifiedButton = screen.getByText('Unified')
       await fireEvent.click(unifiedButton)
       expect(screen.getByText('Unified Diff')).toBeInTheDocument()
-      expect(container.querySelector('.unified-result')).toBeInTheDocument()
+      expect(container.querySelector('[data-testid="unified-result"]')).toBeInTheDocument()
     })
 
     it('should switch back to split mode', async () => {
       const { container } = render(DiffTool)
       await fireEvent.click(screen.getByText('Unified'))
       await fireEvent.click(screen.getByText('Split'))
-      expect(container.querySelector('.diff-result')).toBeInTheDocument()
+      expect(container.querySelector('[data-testid="diff-result"]')).toBeInTheDocument()
     })
 
     it('should show unified diff with correct line markers', async () => {
@@ -648,7 +648,7 @@ describe('DiffTool', () => {
     it('should have copy button area in split mode', async () => {
       const { container } = render(DiffTool)
       await waitFor(() => {
-        const resultHeader = container.querySelector('.result-header')
+        const resultHeader = container.querySelector('[data-testid="diff-result"]')
         expect(resultHeader).toBeInTheDocument()
       }, { timeout: 500 })
     })
@@ -657,7 +657,7 @@ describe('DiffTool', () => {
       const { container } = render(DiffTool)
       await fireEvent.click(screen.getByText('Unified'))
       await waitFor(() => {
-        const resultHeader = container.querySelector('.result-header')
+        const resultHeader = container.querySelector('[data-testid="unified-result"]')
         expect(resultHeader).toBeInTheDocument()
       }, { timeout: 500 })
     })

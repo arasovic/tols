@@ -2,6 +2,10 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import FactStrip from '$lib/ui/FactStrip.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import PanelGroup from '$lib/ui/PanelGroup.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   let paragraphs = 3
@@ -12,6 +16,13 @@
   let timeout
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
+
+  // Declared once so the strip and the ⌘⇧C payload cannot drift. The CLI starts
+  // with the classic opener by default and opens with `--random-start` when the
+  // toggle is off (packages/tols/src/tools/lorem.js).
+  $: cliFlags = startWithLorem
+    ? { paragraphs, words }
+    : { paragraphs, words, 'random-start': true }
 
   /**
    * @param {number} max
@@ -144,36 +155,54 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="lorem">
-    <svelte:fragment slot="actions">
-      <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <path d="M12 6v6l4 2"/>
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button type="button" class="btn-ghost" on:click={clear} title="Clear">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <ToolHeader toolId="lorem" />
 
-  <div class="controls-card">
-    <div class="controls-grid">
-      <div class="control-group">
-        <span class="control-label">Paragraphs</span>
-        <div class="counter">
-          <button type="button" class="counter-btn" on:click={decrementParagraphs} disabled={paragraphs <= 1}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
+  <ToolShell
+    toolId="lorem"
+    action="gen"
+    flags={cliFlags}
+    output={output}
+    onRun={generate}
+    let:copyNotice
+  >
+    <div class="controls-card">
+      <div class="controls-grid">
+        <div class="control-group">
+          <span class="control-label">Paragraphs</span>
+          <div class="counter">
+            <button type="button" class="counter-btn" on:click={decrementParagraphs} disabled={paragraphs <= 1}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+            <input
+              type="number"
+              bind:value={paragraphs}
+              on:input={() => {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                  generate()
+                  saveState()
+                }, 150)
+              }}
+              min="1"
+              max="50"
+              class="counter-input"
+            />
+            <button type="button" class="counter-btn" on:click={incrementParagraphs} disabled={paragraphs >= 50}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Words per Paragraph</span>
           <input
             type="number"
-            bind:value={paragraphs}
+            bind:value={words}
             on:input={() => {
               clearTimeout(timeout)
               timeout = setTimeout(() => {
@@ -182,87 +211,71 @@
               }, 150)
             }}
             min="1"
-            max="50"
-            class="counter-input"
+            max="500"
+            class="words-input"
           />
-          <button type="button" class="counter-btn" on:click={incrementParagraphs} disabled={paragraphs >= 50}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
+        </div>
+
+        <div class="control-group toggle-group">
+          <span class="control-label">Start with Lorem</span>
+          <label class="toggle">
+            <input
+              type="checkbox"
+              bind:checked={startWithLorem}
+              on:change={() => {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                  generate()
+                  saveState()
+                }, 150)
+              }}
+            />
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
-
-      <div class="control-group">
-        <span class="control-label">Words per Paragraph</span>
-        <input
-          type="number"
-          bind:value={words}
-          on:input={() => {
-            clearTimeout(timeout)
-            timeout = setTimeout(() => {
-              generate()
-              saveState()
-            }, 150)
-          }}
-          min="1"
-          max="500"
-          class="words-input"
-        />
-      </div>
-
-      <div class="control-group toggle-group">
-        <span class="control-label">Start with Lorem</span>
-        <label class="toggle">
-          <input
-            type="checkbox"
-            bind:checked={startWithLorem}
-            on:change={() => {
-              clearTimeout(timeout)
-              timeout = setTimeout(() => {
-                generate()
-                saveState()
-              }, 150)
-            }}
-          />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
     </div>
-  </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Generated Text</span>
-      <div class="header-actions">
-        <span class="panel-badge">{paragraphs} paragraphs</span>
+    <!-- columns={1}: generated prose is a long unbroken string that would wrap
+         badly in half a width, so the output reads top-to-bottom. -->
+    <PanelGroup columns={1}>
+      <Panel
+        label="Generated Text"
+        meta={copyNotice || `${paragraphs} paragraphs`}
+        data-testid="lorem-output-panel"
+      >
         {#if output}
-          <CopyButton text={output} />
+          <div class="output-content">
+            {output}
+          </div>
+        {:else}
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Click generate to create lorem ipsum</span>
+          </div>
         {/if}
-      </div>
-    </div>
-    {#if output}
-      <div class="output-content">
-        {output}
-      </div>
-    {:else}
-      <div class="empty-state">
-        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
-        <span>Click generate to create lorem ipsum</span>
-      </div>
-    {/if}
-  </div>
+      </Panel>
+    </PanelGroup>
 
-  <FactStrip
-    facts={[
-      { label: 'Format', value: 'Plain Text' },
-      { label: 'Starting', value: startWithLorem ? 'Lorem ipsum...' : 'Random words', presentation: 'accent' }
-    ]}
-  />
+    <FactStrip
+      facts={[
+        { label: 'Format', value: 'Plain Text' },
+        { label: 'Starting', value: startWithLorem ? 'Lorem ipsum...' : 'Random words', presentation: 'accent' }
+      ]}
+    />
+
+    <svelte:fragment slot="rail">
+      <Button on:click={loadExample} aria-label="Load Example" title="Load Example">example</Button>
+      <Button on:click={clear} aria-label="Clear" title="Clear">clear</Button>
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail-end">
+      {#if output}<CopyButton text={output} />{/if}
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
@@ -271,23 +284,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .btn-ghost {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    transition: all var(--transition) var(--ease-out);
-  }
-
-  .btn-ghost:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
   }
 
   .controls-card {
@@ -451,45 +447,6 @@
 
   .toggle input:focus + .toggle-slider {
     box-shadow: 0 0 0 3px var(--accent-muted);
-  }
-
-  .panel {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    background: var(--bg-elevated);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .panel-title {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-secondary);
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-left: auto;
-  }
-
-  .panel-badge {
-    font-size: var(--text-xs);
-    color: var(--text-tertiary);
-    padding: 2px 6px;
-    background: var(--bg-surface);
-    border-radius: var(--radius-sm);
   }
 
   .output-content {

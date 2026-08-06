@@ -4,6 +4,10 @@
   import PasteButton from '$lib/components/PasteButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import FactStrip from '$lib/ui/FactStrip.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import PanelGroup from '$lib/ui/PanelGroup.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -30,6 +34,12 @@
   /** @type {Worker | null} */
   let currentWorker = null
   let persistentError = ''
+
+  // The CLI mirrors the single match mode as `tols regex match` with
+  // --pattern= and --flags= (packages/tols/src/tools/regex.js). Deriving both
+  // here once keeps the strip and the ⌘⇧C payload from drifting.
+  $: cliFlags = { pattern, flags }
+  $: matchesText = matches.map(m => m[0]).join('\n')
 
   const flagOptions = [
     { value: 'g', label: 'Global', desc: 'Find all matches' },
@@ -333,181 +343,165 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="regex">
-    <svelte:fragment slot="actions">
-      <ShareButton getState={() => ({ pattern, input, flags })} />
-      <PasteButton on:text={(e) => { input = e.detail.text; performMatch() }} />
-      <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M12 6v6l4 2" fill="none"/>
+  <ToolHeader toolId="regex" />
+
+  <ToolShell
+    toolId="regex"
+    action="match"
+    flags={cliFlags}
+    {input}
+    output={matchesText}
+    onRun={performMatch}
+  >
+    {#if persistentError}
+      <div class="persistent-error">
+        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-      </button>
-      <button type="button" class="btn-ghost" on:click={clear} title="Clear">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
-
-  {#if persistentError}
-    <div class="persistent-error">
-      <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span class="error-content">{persistentError}</span>
-      <button type="button" class="error-dismiss" on:click={dismissPersistentError} aria-label="Dismiss error">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-  {/if}
-
-  <div class="pattern-card">
-    <label for="regex-pattern" class="pattern-label">Regex Pattern</label>
-    <div class="pattern-input-group">
-      <span class="delimiter">/</span>
-      <input
-        type="text"
-        id="regex-pattern"
-        bind:value={pattern}
-        on:input={debouncedMatch}
-        placeholder="Enter regex pattern..."
-        class="pattern-input mono"
-        spellcheck="false"
-        aria-label="Regex pattern"
-      />
-      <span class="delimiter">/</span>
-      <span class="flags-display mono" aria-label="Active regex flags">{flags}</span>
-    </div>
-    <div class="flags-row">
-      {#each flagOptions as flag}
-        <button type="button"
-          class="flag-btn"
-          class:active={flags.includes(flag.value)}
-          on:click={() => toggleFlag(flag.value)}
-          title="{flag.label}: {flag.desc}"
-          aria-label="Toggle {flag.label} flag ({flag.value})"
-          aria-pressed={flags.includes(flag.value)}
-        >
-          {flag.value}
-        </button>
-      {/each}
-    </div>
-  </div>
-
-  {#if error}
-    <div class="error-state">
-      <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <div class="error-content">
-        <span class="error-title">{error}</span>
-        {#if errorDetails}
-          <span class="error-details">{errorDetails}</span>
-        {/if}
-      </div>
-    </div>
-  {/if}
-
-  <div class="panels-grid">
-    <div class="panel">
-      <div class="panel-header">
-        <label for="regex-input-text" class="panel-title">Test String</label>
-        <span class="panel-badge">{input.length} chars</span>
-      </div>
-      <textarea
-        id="regex-input-text"
-        bind:value={input}
-        on:input={debouncedMatch}
-        use:fileDrop={{ onText: (text) => { input = text; performMatch() } }}
-        placeholder="Enter text to test against the regex..."
-        class="input-area"
-        spellcheck="false"
-        aria-label="Text to match against regex pattern"
-      ></textarea>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">
-          Matches
-          {#if matches.length > 0}
-            <span class="match-count">{matches.length}</span>
-          {/if}
-        </span>
-        <div class="header-actions">
-          {#if matches.length > 0}
-            <CopyButton text={matches.map(m => m[0]).join('\n')} />
-          {/if}
-        </div>
-      </div>
-      {#if highlightedInput}
-        <div class="highlighted-area">{@html highlightedInput}</div>
-      {:else}
-        <div class="empty-state">
-          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
-            <path d="m15 5 4 4"></path>
+        <span class="error-content">{persistentError}</span>
+        <button type="button" class="error-dismiss" on:click={dismissPersistentError} aria-label="Dismiss error">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
-          <span>
-            {#if !pattern.trim()}
-              Enter a regex pattern to see matches
-            {:else if !input}
-              Enter text to test against the regex
-            {:else}
-              Matches will appear here
-            {/if}
-          </span>
-        </div>
-      {/if}
-    </div>
-  </div>
-
-  {#if matches.length > 0}
-    <div class="matches-list-card">
-      <div class="panel-header">
-        <span class="panel-title">Match Details</span>
-        <span class="badge badge-accent">{matches.length} matches</span>
+        </button>
       </div>
-      <div class="matches-list">
-        {#each matches as match, i}
-          <div class="match-item" style="animation-delay: {i * 30}ms">
-            <span class="match-index">{i + 1}</span>
-            <div class="match-content">
-              <code class="match-text">{match[0]}</code>
-              {#if match.length > 1}
-                <div class="match-groups">
-                  {#each match.slice(1) as group, gi}
-                    <span class="group-item">
-                      <span class="group-label">Group {gi + 1}:</span>
-                      <code class="group-value">{group || '(empty)'}</code>
-                    </span>
-                  {/each}
-                </div>
-              {/if}
-            </div>
-            <span class="match-position">@{match.index}</span>
-          </div>
+    {/if}
+
+    <div class="pattern-card">
+      <label for="regex-pattern" class="pattern-label">Regex Pattern</label>
+      <div class="pattern-input-group">
+        <span class="delimiter">/</span>
+        <input
+          type="text"
+          id="regex-pattern"
+          bind:value={pattern}
+          on:input={debouncedMatch}
+          placeholder="Enter regex pattern..."
+          class="pattern-input mono"
+          spellcheck="false"
+          aria-label="Regex pattern"
+        />
+        <span class="delimiter">/</span>
+        <span class="flags-display mono" aria-label="Active regex flags">{flags}</span>
+      </div>
+      <div class="flags-row">
+        {#each flagOptions as flag}
+          <button type="button"
+            class="flag-btn"
+            class:active={flags.includes(flag.value)}
+            on:click={() => toggleFlag(flag.value)}
+            title="{flag.label}: {flag.desc}"
+            aria-label="Toggle {flag.label} flag ({flag.value})"
+            aria-pressed={flags.includes(flag.value)}
+          >
+            {flag.value}
+          </button>
         {/each}
       </div>
     </div>
-  {/if}
 
-  <FactStrip
-    facts={[
-      { label: 'Flags', value: flags || '(none)', presentation: 'mono' },
-      { label: 'Pattern', value: pattern || '(empty)', presentation: 'mono' }
-    ]}
-  />
+    {#if error}
+      <div class="error-state">
+        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <div class="error-content">
+          <span class="error-title">{error}</span>
+          {#if errorDetails}
+            <span class="error-details">{errorDetails}</span>
+          {/if}
+        </div>
+      </div>
+    {/if}
+
+    <PanelGroup>
+      <Panel label="Test String" meta="{input.length} chars">
+        <textarea
+          id="regex-input-text"
+          bind:value={input}
+          on:input={debouncedMatch}
+          use:fileDrop={{ onText: (text) => { input = text; performMatch() } }}
+          placeholder="Enter text to test against the regex..."
+          class="input-area"
+          spellcheck="false"
+          aria-label="Text to match against regex pattern"
+        ></textarea>
+      </Panel>
+
+      <Panel label="Matches" meta={matches.length > 0 ? String(matches.length) : ''}>
+        {#if highlightedInput}
+          <div class="highlighted-area">{@html highlightedInput}</div>
+        {:else}
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+              <path d="m15 5 4 4"></path>
+            </svg>
+            <span>
+              {#if !pattern.trim()}
+                Enter a regex pattern to see matches
+              {:else if !input}
+                Enter text to test against the regex
+              {:else}
+                Matches will appear here
+              {/if}
+            </span>
+          </div>
+        {/if}
+      </Panel>
+    </PanelGroup>
+
+    {#if matches.length > 0}
+      <PanelGroup columns={1}>
+        <Panel label="Match Details" meta="{matches.length} matches">
+          <div class="matches-list">
+            {#each matches as match, i}
+              <div class="match-item" style="animation-delay: {i * 30}ms">
+                <span class="match-index">{i + 1}</span>
+                <div class="match-content">
+                  <code class="match-text">{match[0]}</code>
+                  {#if match.length > 1}
+                    <div class="match-groups">
+                      {#each match.slice(1) as group, gi}
+                        <span class="group-item">
+                          <span class="group-label">Group {gi + 1}:</span>
+                          <code class="group-value">{group || '(empty)'}</code>
+                        </span>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+                <span class="match-position">@{match.index}</span>
+              </div>
+            {/each}
+          </div>
+        </Panel>
+      </PanelGroup>
+    {/if}
+
+    <FactStrip
+      facts={[
+        { label: 'Flags', value: flags || '(none)', presentation: 'mono' },
+        { label: 'Pattern', value: pattern || '(empty)', presentation: 'mono' }
+      ]}
+    />
+
+    <svelte:fragment slot="rail">
+      <Button on:click={loadExample} aria-label="Load Example" title="Load Example">example</Button>
+      <Button on:click={clear} aria-label="Clear" title="Clear">clear</Button>
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail-end">
+      <PasteButton on:text={(e) => { input = e.detail.text; performMatch() }} />
+      {#if matchesText}<CopyButton text={matchesText} />{/if}
+      <ShareButton getState={() => ({ pattern, input, flags })} />
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
@@ -516,23 +510,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .btn-ghost {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    transition: all var(--transition) var(--ease-out);
-  }
-
-  .btn-ghost:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
   }
 
   .persistent-error {
@@ -693,75 +670,6 @@
     font-size: var(--text-xs);
   }
 
-  .panels-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-  }
-
-  .panel {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    animation: fadeIn var(--transition-normal) ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    background: var(--bg-elevated);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .panel-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-secondary);
-  }
-
-  .match-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    background: var(--accent);
-    color: white;
-    font-size: var(--text-xs);
-    font-weight: var(--font-semibold);
-    border-radius: var(--radius-full);
-  }
-
-  .panel-badge {
-    font-size: var(--text-xs);
-    color: var(--text-tertiary);
-    padding: 2px 6px;
-    background: var(--bg-surface);
-    border-radius: var(--radius-sm);
-    margin-left: auto;
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-left: auto;
-  }
-
   .input-area {
     min-height: 280px;
     padding: var(--space-3);
@@ -818,13 +726,6 @@
     width: 32px;
     height: 32px;
     opacity: 0.5;
-  }
-
-  .matches-list-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    overflow: hidden;
   }
 
   .matches-list {
@@ -921,20 +822,6 @@
     flex-shrink: 0;
   }
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-    border-radius: var(--radius-sm);
-  }
-
-  .badge-accent {
-    background: var(--accent-muted);
-    color: var(--accent);
-  }
-
   .mono {
     font-family: var(--font-mono);
   }
@@ -943,11 +830,5 @@
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     color: var(--text-secondary);
-  }
-
-  @media (max-width: 768px) {
-    .panels-grid {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

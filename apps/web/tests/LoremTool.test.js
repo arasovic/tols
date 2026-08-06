@@ -4,6 +4,13 @@ import LoremTool from '$lib/tools/LoremTool.svelte'
 
 describe('LoremTool', () => {
   beforeEach(() => {
+    // The tool restores `startWithLorem` from localStorage on mount, and this
+    // file never cleared it between tests: once a test's 500ms save debounce
+    // wrote `startwith=false`, every later render started from a random word,
+    // and "should load example" — which asserts the output contains "lorem" —
+    // failed depending on which tests had run first. Seen failing in a full
+    // suite run and passing in isolation.
+    localStorage.clear()
     vi.useFakeTimers()
     vi.stubGlobal('crypto', {
       getRandomValues: (/** @type {Uint32Array} */ array) => {

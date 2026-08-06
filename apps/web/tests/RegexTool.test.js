@@ -441,7 +441,7 @@ describe('RegexTool', () => {
     await fireEvent.input(inputArea, { target: { value: 'test test' } })
 
     await waitFor(() => {
-      const copyButton = screen.queryByRole('button', { name: /Copy/i })
+      const copyButton = screen.queryByRole('button', { name: 'Copy to clipboard' })
       expect(copyButton).toBeInTheDocument()
     }, { timeout: 400 })
   })

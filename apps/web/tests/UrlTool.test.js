@@ -334,7 +334,7 @@ describe('UrlTool', () => {
 
       vi.advanceTimersByTime(200)
 
-      const inputCount = screen.getByTestId('input-char-count')
+      const inputCount = screen.getByTestId('input-char-count').querySelector('.panel-meta')
       expect(inputCount?.textContent).toBe('11 chars')
     })
 
@@ -345,7 +345,7 @@ describe('UrlTool', () => {
       vi.advanceTimersByTime(200)
 
       await waitFor(() => {
-        const outputCount = screen.getByTestId('output-char-count')
+        const outputCount = screen.getByTestId('output-char-count').querySelector('.panel-meta')
         expect(outputCount?.textContent).toBe('13 chars')
       })
     })

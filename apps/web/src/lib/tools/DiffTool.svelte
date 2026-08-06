@@ -2,6 +2,10 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import PanelGroup from '$lib/ui/PanelGroup.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -72,6 +76,21 @@ console.log(greet(user));`
 
   const MAX_LINES = 10000
   const MAX_CHARS = 1000000
+
+  // The CLI takes the two sides as positional files and is a single `run`
+  // action, so split/unified are view modes, not CLI modes — the action does
+  // not change. The output feeds both ⌘⇧O and the rail copy button, so the two
+  // cannot disagree.
+  $: diffText = getDiffContent()
+
+  function getDiffContent() {
+    return diff.map(d => {
+      if (d.type === 'removed') return `- ${d.left}`
+      if (d.type === 'added') return `+ ${d.right}`
+      if (d.type === 'modified') return `- ${d.left}\n+ ${d.right}`
+      return ` ${d.left}`
+    }).join('\n')
+  }
 
   function loadState() {
     try {
@@ -270,44 +289,35 @@ console.log(greet(user));`
     rightInput = temp
     debouncedCompute()
   }
-
-  function getSplitDiffContent() {
-    return diff.map(d => {
-      if (d.type === 'removed') return `- ${d.left}`
-      if (d.type === 'added') return `+ ${d.right}`
-      if (d.type === 'modified') return `- ${d.left}\n+ ${d.right}`
-      return ` ${d.left}`
-    }).join('\n')
-  }
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="diff">
-    <svelte:fragment slot="actions">
-      <ShareButton getState={() => ({ left: leftInput, right: rightInput, mode })} />
-      <div class="segmented">
-        <button type="button" class="segment" class:active={mode === 'split'} on:click={() => mode = 'split'}>Split</button>
-        <button type="button" class="segment" class:active={mode === 'unified'} on:click={() => mode = 'unified'}>Unified</button>
-      </div>
-      <button type="button" class="icon-btn" on:click={swap} title="Swap Sides">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0-12 4 4m-4-4-4 4"/></svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <ToolHeader toolId="diff" />
 
-  {#if mode === 'split'}
-    <div class="diff-split">
-      <div class="diff-panel">
-        <div class="panel-header">
-          <span>Original</span>
-          <span class="char-count">{leftInput.length} chars</span>
-        </div>
+  <!--
+    No command, for now. `tols diff run` takes two positional inputs
+    (`tols diff @old.txt @new.txt`) and errors with a usage message given one —
+    but `buildCommand` renders a single input, so the strip was showing
+    `tols diff run @a.txt`, a command that does not run. Diff is the only
+    two-input tool in the registry, so teaching the builder a second positional
+    is a deliberate change rather than a side effect of this migration. Until
+    then it shows nothing, on the same rule as YamlTool's minify mode: the
+    nearest wrong command is worse than none.
+  -->
+  <ToolShell
+    toolId=""
+    action="run"
+    input={leftInput}
+    output={diffText}
+    onRun={computeDiff}
+  >
+    <div class="segmented">
+      <button type="button" class="segment" class:active={mode === 'split'} on:click={() => mode = 'split'}>Split</button>
+      <button type="button" class="segment" class:active={mode === 'unified'} on:click={() => mode = 'unified'}>Unified</button>
+    </div>
+
+    <PanelGroup>
+      <Panel label={mode === 'split' ? 'Original' : 'Original Text'} meta="{leftInput.length} chars">
         <textarea
           bind:value={leftInput}
           on:input={debouncedCompute}
@@ -316,13 +326,9 @@ console.log(greet(user));`
           class="diff-textarea"
           aria-label="Original text input"
         ></textarea>
-      </div>
+      </Panel>
 
-      <div class="diff-panel">
-        <div class="panel-header">
-          <span>Modified</span>
-          <span class="char-count">{rightInput.length} chars</span>
-        </div>
+      <Panel label={mode === 'split' ? 'Modified' : 'Modified Text'} meta="{rightInput.length} chars">
         <textarea
           bind:value={rightInput}
           on:input={debouncedCompute}
@@ -331,216 +337,184 @@ console.log(greet(user));`
           class="diff-textarea"
           aria-label="Modified text input"
         ></textarea>
-      </div>
-    </div>
+      </Panel>
+    </PanelGroup>
 
-    <div class="diff-result">
-      <div class="result-header">
-        <h3>Word-Level Comparison</h3>
-        {#if diff.length > 0}
-          <CopyButton text={getSplitDiffContent()} />
-        {/if}
-      </div>
-      {#if isTruncated}
-        <div class="truncation-warning">
-          <span class="warning-icon">⚠️</span>
-          <span>Input truncated due to size limits. Showing first {MAX_LINES.toLocaleString()} lines.</span>
-        </div>
-      {/if}
-      <div class="diff-grid" role="table" aria-label="Diff comparison results">
-        {#each diff as item, idx}
-          <div class="diff-row {item.type}" role="row">
-            <div class="line-num" role="cell">{item.oldLineNum ?? ''}</div>
-            <div class="line-content old" role="cell">
-              {#if item.type === 'added'}
-                <span class="empty-line" aria-label="Empty line"></span>
-              {:else if item.oldWordDiff}
-                {#each item.oldWordDiff as word}
-                  {#if word.type === 'delete'}
-                    <span class="word-delete" aria-label="Deleted text">
-                      <span class="change-icon">−</span>{word.text}
-                    </span>
-                  {:else}
-                    <span>{word.text}</span>
-                  {/if}
-                {/each}
-              {:else}
-                {item.left || ' '}
-              {/if}
+    {#if mode === 'split'}
+      <PanelGroup columns={1}>
+        <Panel label="Word-Level Comparison" data-testid="diff-result">
+          {#if isTruncated}
+            <div class="truncation-warning">
+              <span class="warning-icon">⚠️</span>
+              <span>Input truncated due to size limits. Showing first {MAX_LINES.toLocaleString()} lines.</span>
             </div>
-            <div class="line-num" role="cell">{item.newLineNum ?? ''}</div>
-            <div class="line-content new" role="cell">
-              {#if item.type === 'removed'}
-                <span class="empty-line" aria-label="Empty line"></span>
-              {:else if item.newWordDiff}
-                {#each item.newWordDiff as word}
-                  {#if word.type === 'insert'}
-                    <span class="word-insert" aria-label="Inserted text">
-                      <span class="change-icon">+</span>{word.text}
-                    </span>
-                  {:else}
-                    <span>{word.text}</span>
-                  {/if}
-                {/each}
-              {:else}
-                {item.right || ' '}
-              {/if}
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
-  {:else}
-    <div class="diff-unified">
-      <div class="diff-panel">
-        <div class="panel-header">
-          <span>Original Text</span>
-          <span class="char-count">{leftInput.length} chars</span>
-        </div>
-        <textarea
-          bind:value={leftInput}
-          on:input={debouncedCompute}
-          use:fileDrop={{ onText: (text) => { leftInput = text } }}
-          placeholder="Paste original text..."
-          class="diff-textarea"
-          aria-label="Original text input"
-        ></textarea>
-      </div>
-
-      <div class="diff-panel">
-        <div class="panel-header">
-          <span>Modified Text</span>
-          <span class="char-count">{rightInput.length} chars</span>
-        </div>
-        <textarea
-          bind:value={rightInput}
-          on:input={debouncedCompute}
-          use:fileDrop={{ onText: (text) => { rightInput = text } }}
-          placeholder="Paste modified text..."
-          class="diff-textarea"
-          aria-label="Modified text input"
-        ></textarea>
-      </div>
-
-      <div class="unified-result">
-        <div class="result-header">
-          <h3>Unified Diff</h3>
-          {#if diff.length > 0}
-            <CopyButton text={diff.map(d => {
-              if (d.type === 'removed') return `- ${d.left}`
-              if (d.type === 'added') return `+ ${d.right}`
-              if (d.type === 'modified') return `- ${d.left}\n+ ${d.right}`
-              return ` ${d.left}`
-            }).join('\n')} />
           {/if}
-        </div>
-        {#if isTruncated}
-          <div class="truncation-warning">
-            <span class="warning-icon">⚠️</span>
-            <span>Input truncated due to size limits. Showing first {MAX_LINES.toLocaleString()} lines.</span>
+          <div class="diff-grid" role="table" aria-label="Diff comparison results">
+            {#each diff as item, idx}
+              <div class="diff-row {item.type}" role="row">
+                <div class="line-num" role="cell">{item.oldLineNum ?? ''}</div>
+                <div class="line-content old" role="cell">
+                  {#if item.type === 'added'}
+                    <span class="empty-line" aria-label="Empty line"></span>
+                  {:else if item.oldWordDiff}
+                    {#each item.oldWordDiff as word}
+                      {#if word.type === 'delete'}
+                        <span class="word-delete" aria-label="Deleted text">
+                          <span class="change-icon">−</span>{word.text}
+                        </span>
+                      {:else}
+                        <span>{word.text}</span>
+                      {/if}
+                    {/each}
+                  {:else}
+                    {item.left || ' '}
+                  {/if}
+                </div>
+                <div class="line-num" role="cell">{item.newLineNum ?? ''}</div>
+                <div class="line-content new" role="cell">
+                  {#if item.type === 'removed'}
+                    <span class="empty-line" aria-label="Empty line"></span>
+                  {:else if item.newWordDiff}
+                    {#each item.newWordDiff as word}
+                      {#if word.type === 'insert'}
+                        <span class="word-insert" aria-label="Inserted text">
+                          <span class="change-icon">+</span>{word.text}
+                        </span>
+                      {:else}
+                        <span>{word.text}</span>
+                      {/if}
+                    {/each}
+                  {:else}
+                    {item.right || ' '}
+                  {/if}
+                </div>
+              </div>
+            {/each}
           </div>
-        {/if}
-        <div class="unified-content">
-          {#each diff as item}
-            {#if item.type === 'removed'}
-              <div class="unified-line removed" role="row" aria-label="Removed line {item.oldLineNum}">
-                <span class="line-marker" aria-hidden="true">−</span>
-                <span class="line-text">
-                  {#if item.oldWordDiff}
-                    {#each item.oldWordDiff as word}
-                      {#if word.type === 'delete'}
-                        <span class="word-delete">{word.text}</span>
-                      {:else}
-                        <span>{word.text}</span>
-                      {/if}
-                    {/each}
-                  {:else}
-                    {item.left}
-                  {/if}
-                </span>
-              </div>
-            {:else if item.type === 'added'}
-              <div class="unified-line added" role="row" aria-label="Added line {item.newLineNum}">
-                <span class="line-marker" aria-hidden="true">+</span>
-                <span class="line-text">
-                  {#if item.newWordDiff}
-                    {#each item.newWordDiff as word}
-                      {#if word.type === 'insert'}
-                        <span class="word-insert">{word.text}</span>
-                      {:else}
-                        <span>{word.text}</span>
-                      {/if}
-                    {/each}
-                  {:else}
-                    {item.right}
-                  {/if}
-                </span>
-              </div>
-            {:else if item.type === 'modified'}
-              <div class="unified-line removed modified-pair" role="row" aria-label="Modified line {item.oldLineNum} (old)">
-                <span class="line-marker" aria-hidden="true">−</span>
-                <span class="line-text">
-                  {#if item.oldWordDiff}
-                    {#each item.oldWordDiff as word}
-                      {#if word.type === 'delete'}
-                        <span class="word-delete">{word.text}</span>
-                      {:else}
-                        <span>{word.text}</span>
-                      {/if}
-                    {/each}
-                  {:else}
-                    {item.left}
-                  {/if}
-                </span>
-              </div>
-              <div class="unified-line added modified-pair" role="row" aria-label="Modified line {item.newLineNum} (new)">
-                <span class="line-marker" aria-hidden="true">+</span>
-                <span class="line-text">
-                  {#if item.newWordDiff}
-                    {#each item.newWordDiff as word}
-                      {#if word.type === 'insert'}
-                        <span class="word-insert">{word.text}</span>
-                      {:else}
-                        <span>{word.text}</span>
-                      {/if}
-                    {/each}
-                  {:else}
-                    {item.right}
-                  {/if}
-                </span>
-              </div>
-            {:else}
-              <div class="unified-line same" role="row" aria-label="Unchanged line {item.oldLineNum}">
-                <span class="line-marker" aria-hidden="true"> </span>
-                <span class="line-text">{item.left}</span>
-              </div>
-            {/if}
-          {/each}
-        </div>
-      </div>
-    </div>
-  {/if}
+        </Panel>
+      </PanelGroup>
+    {:else}
+      <PanelGroup columns={1}>
+        <Panel label="Unified Diff" data-testid="unified-result">
+          {#if isTruncated}
+            <div class="truncation-warning">
+              <span class="warning-icon">⚠️</span>
+              <span>Input truncated due to size limits. Showing first {MAX_LINES.toLocaleString()} lines.</span>
+            </div>
+          {/if}
+          <div class="unified-content">
+            {#each diff as item}
+              {#if item.type === 'removed'}
+                <div class="unified-line removed" role="row" aria-label="Removed line {item.oldLineNum}">
+                  <span class="line-marker" aria-hidden="true">−</span>
+                  <span class="line-text">
+                    {#if item.oldWordDiff}
+                      {#each item.oldWordDiff as word}
+                        {#if word.type === 'delete'}
+                          <span class="word-delete">{word.text}</span>
+                        {:else}
+                          <span>{word.text}</span>
+                        {/if}
+                      {/each}
+                    {:else}
+                      {item.left}
+                    {/if}
+                  </span>
+                </div>
+              {:else if item.type === 'added'}
+                <div class="unified-line added" role="row" aria-label="Added line {item.newLineNum}">
+                  <span class="line-marker" aria-hidden="true">+</span>
+                  <span class="line-text">
+                    {#if item.newWordDiff}
+                      {#each item.newWordDiff as word}
+                        {#if word.type === 'insert'}
+                          <span class="word-insert">{word.text}</span>
+                        {:else}
+                          <span>{word.text}</span>
+                        {/if}
+                      {/each}
+                    {:else}
+                      {item.right}
+                    {/if}
+                  </span>
+                </div>
+              {:else if item.type === 'modified'}
+                <div class="unified-line removed modified-pair" role="row" aria-label="Modified line {item.oldLineNum} (old)">
+                  <span class="line-marker" aria-hidden="true">−</span>
+                  <span class="line-text">
+                    {#if item.oldWordDiff}
+                      {#each item.oldWordDiff as word}
+                        {#if word.type === 'delete'}
+                          <span class="word-delete">{word.text}</span>
+                        {:else}
+                          <span>{word.text}</span>
+                        {/if}
+                      {/each}
+                    {:else}
+                      {item.left}
+                    {/if}
+                  </span>
+                </div>
+                <div class="unified-line added modified-pair" role="row" aria-label="Modified line {item.newLineNum} (new)">
+                  <span class="line-marker" aria-hidden="true">+</span>
+                  <span class="line-text">
+                    {#if item.newWordDiff}
+                      {#each item.newWordDiff as word}
+                        {#if word.type === 'insert'}
+                          <span class="word-insert">{word.text}</span>
+                        {:else}
+                          <span>{word.text}</span>
+                        {/if}
+                      {/each}
+                    {:else}
+                      {item.right}
+                    {/if}
+                  </span>
+                </div>
+              {:else}
+                <div class="unified-line same" role="row" aria-label="Unchanged line {item.oldLineNum}">
+                  <span class="line-marker" aria-hidden="true"> </span>
+                  <span class="line-text">{item.left}</span>
+                </div>
+              {/if}
+            {/each}
+          </div>
+        </Panel>
+      </PanelGroup>
+    {/if}
+
+    <svelte:fragment slot="rail">
+      <Button on:click={swap} aria-label="Swap Sides" title="Swap Sides">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0-12 4 4m-4-4-4 4"/></svg>
+        swap
+      </Button>
+      <Button on:click={loadExample} aria-label="Load Example" title="Load Example">example</Button>
+      <Button on:click={clear} aria-label="Clear" title="Clear">clear</Button>
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail-end">
+      {#if diffText}<CopyButton text={diffText} />{/if}
+      <ShareButton getState={() => ({ left: leftInput, right: rightInput, mode })} />
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: 100%;
+  }
+
   .segmented { display: flex; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 2px; }
   .segment { display: flex; align-items: center; padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: transparent; border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .segment:hover { color: var(--text-primary); }
   .segment.active { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); box-shadow: var(--shadow-xs); }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-  .diff-split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
-  .diff-unified { display: flex; flex-direction: column; gap: var(--space-4); }
-  .diff-panel { display: flex; flex-direction: column; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
-  .panel-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) var(--space-3); background: var(--bg-elevated); border-bottom: 1px solid var(--border-subtle); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); }
-  .char-count { font-size: var(--text-xs); color: var(--text-muted); font-family: var(--font-mono); }
+
   .diff-textarea { flex: 1; min-height: 150px; padding: var(--space-3); border: none; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); resize: vertical; outline: none; }
   .diff-textarea::placeholder { color: var(--text-muted); }
-  .diff-result { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
-  .result-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border-bottom: 1px solid var(--border-subtle); }
-  .result-header h3 { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text-tertiary); margin: 0; text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+
   .diff-grid { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 1px; background: var(--border-subtle); }
   .diff-row { display: contents; }
   .diff-row .line-num { padding: var(--space-1) var(--space-2); background: var(--bg-elevated); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); text-align: right; min-width: 40px; }
@@ -550,7 +524,7 @@ console.log(greet(user));`
   .diff-row.added .line-content.new { background: var(--diff-add-bg); color: var(--success); border-left: 3px solid var(--success); }
   .diff-row.modified .line-content.old { background: var(--diff-remove-bg-subtle); border-left: 3px solid var(--warning); }
   .diff-row.modified .line-content.new { background: var(--diff-add-bg-subtle); border-left: 3px solid var(--warning); }
-  .unified-result { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
+
   .unified-content { max-height: 400px; overflow: auto; }
   .unified-line { display: flex; font-family: var(--font-mono); font-size: var(--text-sm); }
   .line-marker { width: 24px; padding: var(--space-1) var(--space-2); background: var(--bg-elevated); text-align: center; flex-shrink: 0; }
@@ -611,7 +585,6 @@ console.log(greet(user));`
   }
 
   @media (max-width: 768px) {
-    .diff-split { grid-template-columns: 1fr; }
     .diff-grid { grid-template-columns: auto 1fr; }
   }
 </style>

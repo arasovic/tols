@@ -2,6 +2,10 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import FactStrip from '$lib/ui/FactStrip.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import PanelGroup from '$lib/ui/PanelGroup.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { validateCount, sanitizeCount, generate as coreGenerate } from 'tols/core/uuid'
   import { onMount, onDestroy } from 'svelte'
 
@@ -135,124 +139,119 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="uuid">
-    <svelte:fragment slot="actions">
-      <button type="button" class="btn-primary" on:click={generate} aria-label="Generate UUIDs">
+  <ToolHeader toolId="uuid" />
+
+  <ToolShell
+    toolId="uuid"
+    action="gen"
+    flags={{ count }}
+    output={output}
+    onRun={generate}
+    let:copyNotice
+  >
+    <div class="controls-card">
+      <div class="count-control">
+        <span class="control-label">Number of UUIDs</span>
+        <div class="count-buttons">
+          <button type="button"
+            class="count-btn"
+            on:click={decrementCount}
+            disabled={count <= MIN_COUNT}
+            aria-label="Decrease count"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <input
+            type="number"
+            bind:value={count}
+            on:input={handleInput}
+            min={MIN_COUNT}
+            max={MAX_COUNT}
+            class="count-input"
+            aria-label="Number of UUIDs to generate"
+          />
+          <button type="button"
+            class="count-btn"
+            on:click={incrementCount}
+            disabled={count >= MAX_COUNT}
+            aria-label="Increase count"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <PanelGroup columns={1}>
+      <Panel
+        label="Generated UUID{count > 1 ? 's' : ''}"
+        meta={copyNotice || (output ? (count > 1 ? `${count} UUIDs` : 'v4') : '')}
+        data-testid="uuid-output-panel"
+      >
+        {#if error}
+          <div class="error-state" role="alert" aria-live="assertive">
+            <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{error}</span>
+          </div>
+        {:else if localStorageError}
+          <div class="error-state localStorage-error" role="alert" aria-live="polite">
+            <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{localStorageError}</span>
+          </div>
+        {:else if count === 1}
+          <div class="single-output">
+            <code class="uuid-single">{output}</code>
+          </div>
+        {:else}
+          <div class="uuid-list">
+            {#each output.split('\n').filter(uuid => uuid) as uuid, i (uuid)}
+              <div class="uuid-item">
+                <span class="uuid-index">{String(i + 1).padStart(2, '0')}</span>
+                <code class="uuid-text">{uuid}</code>
+                <CopyButton text={uuid} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </Panel>
+    </PanelGroup>
+
+    <FactStrip
+      facts={[
+        { label: 'Version', value: 'UUID v4', presentation: 'accent' },
+        { label: 'Format', value: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', presentation: 'mono' }
+      ]}
+    />
+
+    <svelte:fragment slot="rail">
+      <Button variant="primary" on:click={generate} aria-label="Generate UUIDs">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
           <polyline points="23 4 23 10 17 10"></polyline>
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
         </svg>
         Generate
-      </button>
-      <button type="button" class="btn-ghost" on:click={loadExample} aria-label="Load example">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
-          <path d="M12 6v6l4 2"/>
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button type="button" class="btn-ghost" on:click={clear} aria-label="Clear output">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-      </button>
+      </Button>
+      <Button on:click={loadExample} aria-label="Load example">example</Button>
+      <Button on:click={clear} aria-label="Clear output">clear</Button>
     </svelte:fragment>
-  </ToolHeader>
 
-  <div class="controls-card">
-    <div class="count-control">
-      <span class="control-label">Number of UUIDs</span>
-      <div class="count-buttons">
-        <button type="button"
-          class="count-btn"
-          on:click={decrementCount}
-          disabled={count <= MIN_COUNT}
-          aria-label="Decrease count"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-        <input
-          type="number"
-          bind:value={count}
-          on:input={handleInput}
-          min={MIN_COUNT}
-          max={MAX_COUNT}
-          class="count-input"
-          aria-label="Number of UUIDs to generate"
-        />
-        <button type="button"
-          class="count-btn"
-          on:click={incrementCount}
-          disabled={count >= MAX_COUNT}
-          aria-label="Increase count"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Generated UUID{count > 1 ? 's' : ''}</span>
-      <div class="header-actions">
-        {#if count > 1 && output}
-          <span class="panel-badge">{count} UUIDs</span>
-        {:else if output}
-          <span class="panel-badge">v4</span>
-        {/if}
-        {#if output}
-          <CopyButton text={output} />
-        {/if}
-      </div>
-    </div>
-
-    {#if error}
-      <div class="error-state" role="alert" aria-live="assertive">
-        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <span>{error}</span>
-      </div>
-    {:else if localStorageError}
-      <div class="error-state localStorage-error" role="alert" aria-live="polite">
-        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <span>{localStorageError}</span>
-      </div>
-    {:else if count === 1}
-      <div class="single-output">
-        <code class="uuid-single">{output}</code>
-      </div>
-    {:else}
-      <div class="uuid-list">
-        {#each output.split('\n').filter(uuid => uuid) as uuid, i (uuid)}
-          <div class="uuid-item">
-            <span class="uuid-index">{String(i + 1).padStart(2, '0')}</span>
-            <code class="uuid-text">{uuid}</code>
-            <CopyButton text={uuid} />
-          </div>
-        {/each}
-      </div>
-    {/if}
-  </div>
-
-  <FactStrip
-    facts={[
-      { label: 'Version', value: 'UUID v4', presentation: 'accent' },
-      { label: 'Format', value: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', presentation: 'mono' }
-    ]}
-  />
+    <svelte:fragment slot="rail-end">
+      {#if output}<CopyButton text={output} />{/if}
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
@@ -261,43 +260,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .btn-primary {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    background: var(--accent);
-    color: white;
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-xs), var(--shadow-accent-sm);
-    transition: all var(--transition) var(--ease-out);
-  }
-
-  .btn-primary:hover {
-    background: var(--accent-hover);
-    box-shadow: var(--shadow-sm), var(--shadow-accent);
-    transform: translateY(-1px);
-  }
-
-  .btn-ghost {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    transition: all var(--transition) var(--ease-out);
-  }
-
-  .btn-ghost:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
   }
 
   .controls-card {
@@ -373,45 +335,6 @@
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-muted);
-  }
-
-  .panel {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    background: var(--bg-elevated);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .panel-title {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-secondary);
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-left: auto;
-  }
-
-  .panel-badge {
-    font-size: var(--text-xs);
-    color: var(--text-tertiary);
-    padding: 2px 6px;
-    background: var(--bg-surface);
-    border-radius: var(--radius-sm);
   }
 
   .single-output {

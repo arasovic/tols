@@ -33,7 +33,7 @@ describe('CronTool', () => {
     const input = container.querySelector('.cron-input')
     await fireEvent.input(input, { target: { value: '0 * * * *' } })
     await waitFor(() => {
-      expect(container.querySelector('.description-panel')).toBeInTheDocument()
+      expect(container.querySelector('[data-testid="description-panel"]')).toBeInTheDocument()
     }, { timeout: 1000 })
   })
 
@@ -86,7 +86,7 @@ describe('CronTool', () => {
     const input = container.querySelector('.cron-input')
     await fireEvent.input(input, { target: { value: '* * * * *' } })
     await waitFor(() => {
-      const description = container.querySelector('.description-panel')
+      const description = container.querySelector('[data-testid="description-panel"]')
       expect(description?.textContent).toContain('Every minute')
     }, { timeout: 500 })
   })
@@ -96,7 +96,7 @@ describe('CronTool', () => {
     const input = container.querySelector('.cron-input')
     await fireEvent.input(input, { target: { value: '0 0 * * *' } })
     await waitFor(() => {
-      const description = container.querySelector('.description-panel')
+      const description = container.querySelector('[data-testid="description-panel"]')
       expect(description?.textContent).toContain('Every day')
     }, { timeout: 500 })
   })
@@ -126,7 +126,7 @@ describe('CronTool', () => {
     const input = container.querySelector('.cron-input')
     await fireEvent.input(input, { target: { value: '*/5 * * * *' } })
     await waitFor(() => {
-      const description = container.querySelector('.description-panel')
+      const description = container.querySelector('[data-testid="description-panel"]')
       expect(description).toBeInTheDocument()
     }, { timeout: 500 })
   })
@@ -136,7 +136,7 @@ describe('CronTool', () => {
     const input = container.querySelector('.cron-input')
     await fireEvent.input(input, { target: { value: '0 9-17 * * 1-5' } })
     await waitFor(() => {
-      const description = container.querySelector('.description-panel')
+      const description = container.querySelector('[data-testid="description-panel"]')
       expect(description).toBeInTheDocument()
     }, { timeout: 500 })
   })
@@ -157,7 +157,7 @@ describe('CronTool', () => {
     await waitFor(() => {
       const error = container.querySelector('.error-display')
       expect(error).not.toBeInTheDocument()
-      const description = container.querySelector('.description-panel')
+      const description = container.querySelector('[data-testid="description-panel"]')
       expect(description).toBeInTheDocument()
     }, { timeout: 500 })
   })
@@ -169,7 +169,7 @@ describe('CronTool', () => {
     await waitFor(() => {
       const error = container.querySelector('.error-display')
       expect(error).not.toBeInTheDocument()
-      const description = container.querySelector('.description-panel')
+      const description = container.querySelector('[data-testid="description-panel"]')
       expect(description).toBeInTheDocument()
     }, { timeout: 500 })
   })
@@ -236,7 +236,7 @@ describe('CronTool', () => {
     const input = container.querySelector('.cron-input')
     await fireEvent.input(input, { target: { value: '0 0 1 1 1' } })
     await waitFor(() => {
-      expect(container.querySelector('.description-panel')).toBeInTheDocument()
+      expect(container.querySelector('[data-testid="description-panel"]')).toBeInTheDocument()
     }, { timeout: 500 })
     await fireEvent.input(input, { target: { value: '     ' } })
     await waitFor(() => {
@@ -249,7 +249,7 @@ describe('CronTool', () => {
     const input = container.querySelector('.cron-input')
     await fireEvent.input(input, { target: { value: '0 0 29 2 *' } })
     await waitFor(() => {
-      const description = container.querySelector('.description-panel')
+      const description = container.querySelector('[data-testid="description-panel"]')
       expect(description).toBeInTheDocument()
     }, { timeout: 500 })
   })
