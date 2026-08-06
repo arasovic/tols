@@ -1,6 +1,8 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const MIN_LENGTH = 8
@@ -22,6 +24,18 @@
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let errorMessage = ''
+
+  // The CLI defaults upper/lower/numbers ON and symbols OFF, and buildCommand
+  // drops a `false` value entirely — so a disabled class has to be the string
+  // 'false' to survive as --lower=false. The generated password is never the
+  // command's input; it is a secret, and the command has none.
+  $: cliFlags = {
+    length,
+    upper: includeUppercase || 'false',
+    lower: includeLowercase || 'false',
+    numbers: includeNumbers || 'false',
+    symbols: includeSymbols
+  }
 
   function loadState() {
     try {
@@ -170,77 +184,83 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="password">
-    <svelte:fragment slot="actions">
-      <button type="button" class="icon-btn" on:click={handleRegenerate} aria-label="Regenerate password" title="Regenerate">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={handleClear} aria-label="Clear password" title="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <ToolHeader toolId="password" />
 
-  <div class="options-section">
-    <div class="option-row">
-      <label for="length-slider">Length: {length}</label>
-      <input
-        id="length-slider"
-        type="range"
-        bind:value={length}
-        min={MIN_LENGTH}
-        max={MAX_LENGTH}
-        aria-label="Password length"
-        on:input={handleLengthInput}
-      />
+  <ToolShell
+    toolId="password"
+    action="gen"
+    flags={cliFlags}
+    output={generatedPassword}
+    onRun={handleRegenerate}
+  >
+    <div class="options-section">
+      <div class="option-row">
+        <label for="length-slider">Length: {length}</label>
+        <input
+          id="length-slider"
+          type="range"
+          bind:value={length}
+          min={MIN_LENGTH}
+          max={MAX_LENGTH}
+          aria-label="Password length"
+          on:input={handleLengthInput}
+        />
+      </div>
+
+      {#if errorMessage}
+        <div class="error-message" role="alert">{errorMessage}</div>
+      {/if}
+
+      <div class="checkboxes">
+        <label class="checkbox" for="check-lowercase">
+          <input id="check-lowercase" type="checkbox" bind:checked={includeLowercase} on:change={handleLowercaseChange} />
+          <span>Lowercase (a-z)</span>
+        </label>
+        <label class="checkbox" for="check-uppercase">
+          <input id="check-uppercase" type="checkbox" bind:checked={includeUppercase} on:change={handleUppercaseChange} />
+          <span>Uppercase (A-Z)</span>
+        </label>
+        <label class="checkbox" for="check-numbers">
+          <input id="check-numbers" type="checkbox" bind:checked={includeNumbers} on:change={handleNumbersChange} />
+          <span>Numbers (0-9)</span>
+        </label>
+        <label class="checkbox" for="check-symbols">
+          <input id="check-symbols" type="checkbox" bind:checked={includeSymbols} on:change={handleSymbolsChange} />
+          <span>Symbols (!@#$...)</span>
+        </label>
+      </div>
     </div>
 
-    {#if errorMessage}
-      <div class="error-message" role="alert">{errorMessage}</div>
+    {#if generatedPassword}
+      <div class="password-display" role="status" aria-live="polite">
+        <div class="password-value">{generatedPassword}</div>
+        <div class="password-meta">
+          <span class="strength" style="color: {entropyLabel.color}">{entropyLabel.text}</span>
+          <span class="entropy">{Math.round(entropy)} bits</span>
+        </div>
+        <CopyButton text={generatedPassword} />
+      </div>
+    {:else}
+      <div class="password-placeholder" role="status" aria-live="polite">
+        <span>Click regenerate to create a password</span>
+      </div>
     {/if}
 
-    <div class="checkboxes">
-      <label class="checkbox" for="check-lowercase">
-        <input id="check-lowercase" type="checkbox" bind:checked={includeLowercase} on:change={handleLowercaseChange} />
-        <span>Lowercase (a-z)</span>
-      </label>
-      <label class="checkbox" for="check-uppercase">
-        <input id="check-uppercase" type="checkbox" bind:checked={includeUppercase} on:change={handleUppercaseChange} />
-        <span>Uppercase (A-Z)</span>
-      </label>
-      <label class="checkbox" for="check-numbers">
-        <input id="check-numbers" type="checkbox" bind:checked={includeNumbers} on:change={handleNumbersChange} />
-        <span>Numbers (0-9)</span>
-      </label>
-      <label class="checkbox" for="check-symbols">
-        <input id="check-symbols" type="checkbox" bind:checked={includeSymbols} on:change={handleSymbolsChange} />
-        <span>Symbols (!@#$...)</span>
-      </label>
-    </div>
-  </div>
-
-  {#if generatedPassword}
-    <div class="password-display" role="status" aria-live="polite">
-      <div class="password-value">{generatedPassword}</div>
-      <div class="password-meta">
-        <span class="strength" style="color: {entropyLabel.color}">{entropyLabel.text}</span>
-        <span class="entropy">{Math.round(entropy)} bits</span>
-      </div>
-      <CopyButton text={generatedPassword} />
-    </div>
-  {:else}
-    <div class="password-placeholder" role="status" aria-live="polite">
-      <span>Click regenerate to create a password</span>
-    </div>
-  {/if}
+    <svelte:fragment slot="rail">
+      <Button variant="primary" on:click={handleRegenerate} aria-label="Regenerate password">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        regenerate
+      </Button>
+      <Button on:click={handleClear} aria-label="Clear password">clear</Button>
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-  .icon-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .options-section { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .option-row { display: flex; flex-direction: column; gap: var(--space-2); }
   .option-row label { font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); }

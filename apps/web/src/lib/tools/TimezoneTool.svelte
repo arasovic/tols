@@ -1,6 +1,8 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { onMount } from 'svelte'
 
   let baseDate = new Date()
@@ -14,6 +16,11 @@
   let timeout
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
+
+  // Derived once so the command strip and the ⌘⇧C payload cannot disagree. The
+  // CLI converts "now" when no input is given, which is all this tool ever does
+  // (packages/tols/src/tools/timezone.js).
+  $: cliFlags = { from: fromZone, to: toZone }
 
   const ZONES = [
     { name: 'UTC', offset: '+00:00' },
@@ -65,11 +72,11 @@
       const toTime = new Date(date.toLocaleString('en-US', { timeZone: toZone }))
       const diffMs = toTime.getTime() - fromTime.getTime()
       const diffHours = diffMs / (1000 * 60 * 60)
-      
+
       convertedTime = {
         result: toTime,
         offset: diffHours >= 0 ? `+${diffHours.toFixed(1)}` : diffHours.toFixed(1),
-        formatted: toTime.toLocaleString('en-US', { 
+        formatted: toTime.toLocaleString('en-US', {
           timeZone: toZone,
           weekday: 'short',
           year: 'numeric',
@@ -90,12 +97,12 @@
       const now = new Date()
       return {
         name: zone.label || zone.name,
-        time: now.toLocaleString('en-US', { 
+        time: now.toLocaleString('en-US', {
           timeZone: zone.name,
           hour: '2-digit',
           minute: '2-digit'
         }),
-        date: now.toLocaleString('en-US', { 
+        date: now.toLocaleString('en-US', {
           timeZone: zone.name,
           month: 'short',
           day: 'numeric'
@@ -130,67 +137,80 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="timezone">
-    <svelte:fragment slot="actions">
-      <button type="button" class="icon-btn" on:click={setNow} title="Set to Now">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
+  <ToolHeader toolId="timezone" />
+
+  <ToolShell
+    toolId="timezone"
+    action="conv"
+    flags={cliFlags}
+    output={convertedTime ? convertedTime.formatted : ''}
+    onRun={convert}
+  >
+    <div class="converter-section">
+      <div class="time-inputs">
+        <div class="input-group">
+          <label for="from-zone">From Time Zone</label>
+          <select id="from-zone" bind:value={fromZone} on:change={debouncedConvert}>
+            {#each ZONES as zone}
+              <option value={zone.name}>{zone.label || zone.name}</option>
+            {/each}
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="to-zone">To Time Zone</label>
+          <select id="to-zone" bind:value={toZone} on:change={debouncedConvert}>
+            {#each ZONES as zone}
+              <option value={zone.name}>{zone.label || zone.name}</option>
+            {/each}
+          </select>
+        </div>
+      </div>
+
+      {#if convertedTime}
+        <div class="result-display">
+          <div class="time-result">
+            <span class="time-value">{convertedTime.formatted}</span>
+            <span class="time-offset">({convertedTime.offset}h)</span>
+          </div>
+          <CopyButton text={convertedTime.formatted} />
+        </div>
+      {/if}
+    </div>
+
+    <div class="common-times">
+      <h3>Current Times Around the World</h3>
+      <div class="times-grid">
+        {#each commonZones as zone}
+          <div class="zone-card">
+            <span class="zone-name">{zone.name}</span>
+            <span class="zone-time">{zone.time}</span>
+            <span class="zone-date">{zone.date}</span>
+          </div>
+        {/each}
+      </div>
+    </div>
+
+    <svelte:fragment slot="rail">
+      <Button on:click={setNow} title="Set to Now">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Now
+      </Button>
+      <Button on:click={clear} title="Clear">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        clear
+      </Button>
     </svelte:fragment>
-  </ToolHeader>
-
-  <div class="converter-section">
-    <div class="time-inputs">
-      <div class="input-group">
-        <label for="from-zone">From Time Zone</label>
-        <select id="from-zone" bind:value={fromZone} on:change={debouncedConvert}>
-          {#each ZONES as zone}
-            <option value={zone.name}>{zone.label || zone.name}</option>
-          {/each}
-        </select>
-      </div>
-      <div class="input-group">
-        <label for="to-zone">To Time Zone</label>
-        <select id="to-zone" bind:value={toZone} on:change={debouncedConvert}>
-          {#each ZONES as zone}
-            <option value={zone.name}>{zone.label || zone.name}</option>
-          {/each}
-        </select>
-      </div>
-    </div>
-
-    {#if convertedTime}
-      <div class="result-display">
-        <div class="time-result">
-          <span class="time-value">{convertedTime.formatted}</span>
-          <span class="time-offset">({convertedTime.offset}h)</span>
-        </div>
-        <CopyButton text={convertedTime.formatted} />
-      </div>
-    {/if}
-  </div>
-
-  <div class="common-times">
-    <h3>Current Times Around the World</h3>
-    <div class="times-grid">
-      {#each commonZones as zone}
-        <div class="zone-card">
-          <span class="zone-name">{zone.name}</span>
-          <span class="zone-time">{zone.time}</span>
-          <span class="zone-date">{zone.date}</span>
-        </div>
-      {/each}
-    </div>
-  </div>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .converter-section { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .time-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
   .input-group { display: flex; flex-direction: column; gap: var(--space-1); }

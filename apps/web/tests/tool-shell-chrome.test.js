@@ -134,8 +134,10 @@ function panelPairGrids(source) {
 
 const ON_TOOLSHELL = [
   'BarcodeTool.svelte',
+  'BaseConverterTool.svelte',
   'ColorTool.svelte',
   'CronTool.svelte',
+  'CssFilterTool.svelte',
   'DataUriTool.svelte',
   'DiffTool.svelte',
   'HashTool.svelte',
@@ -144,10 +146,12 @@ const ON_TOOLSHELL = [
   'JwtEncoderTool.svelte',
   'JwtTool.svelte',
   'LoremTool.svelte',
+  'PasswordTool.svelte',
   'PlaceholderTool.svelte',
   'QrcodeTool.svelte',
   'RegexTool.svelte',
   'TimestampTool.svelte',
+  'TimezoneTool.svelte',
   'UnicodeTool.svelte',
   'UrlTool.svelte',
   'UuidTool.svelte'

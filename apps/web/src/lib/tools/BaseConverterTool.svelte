@@ -1,6 +1,8 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const DEFAULT_DECIMAL = '255'
@@ -13,6 +15,9 @@
 
   const STORAGE_KEY = 'devutils-base-decimal'
 
+  // CLI radix names mirror the web field names (packages/tols/src/tools/base.js).
+  const BASE_TO_CLI = { decimal: 'dec', binary: 'bin', hex: 'hex', octal: 'oct' }
+
   const CONVERSION_EXAMPLES = [
     { value: '255', label: '255' },
     { value: '1024', label: '1024' },
@@ -24,6 +29,10 @@
   let binary = ''
   let hex = ''
   let octal = ''
+  /**
+   * @typedef {'decimal' | 'binary' | 'hex' | 'octal'} BaseField
+   */
+  /** @type {BaseField} */
   let activeBase = 'decimal'
   let error = ''
   /** @type {ReturnType<typeof setTimeout> | undefined} */
@@ -31,16 +40,21 @@
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
 
+  // Derived once so the command strip and the ⌘⇧C payload cannot disagree: the
+  // active field is the input, its base is --from, and the CLI prints all four
+  // bases. The output mirrors the CLI stdout for ⌘⇧O.
+  $: cliInput = getFieldValue(activeBase)
+  $: cliFlags = { from: BASE_TO_CLI[activeBase], to: 'all' }
+  $: cliOutput = !error && decimal && binary && hex && octal
+    ? `dec: ${decimal}\nbin: ${binary}\nhex: ${hex}\noct: ${octal}`
+    : ''
+
   const baseConverters = {
     decimal: { convert: convertFromDecimal, validate: validateDecimal },
     binary: { convert: convertFromBinary, validate: validateBinary },
     hex: { convert: convertFromHex, validate: validateHex },
     octal: { convert: convertFromOctal, validate: validateOctal }
   }
-
-  /**
-   * @typedef {'decimal' | 'binary' | 'hex' | 'octal'} BaseField
-   */
 
   /**
    * @param {string} value
@@ -293,115 +307,116 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="base-converter">
-    <svelte:fragment slot="actions">
-      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example value">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear all fields">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
+  <ToolHeader toolId="base-converter" />
+
+  <ToolShell
+    toolId="base-converter"
+    action="conv"
+    input={cliInput}
+    flags={cliFlags}
+    output={cliOutput}
+  >
+    {#if error}
+      <div class="error-state" role="alert" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>{error}</span>
+      </div>
+    {/if}
+
+    <div class="converter-grid">
+      <div class="base-card">
+        <div class="base-header">
+          <span class="base-name">Decimal</span>
+          <span class="base-prefix">Base 10</span>
+        </div>
+        <input
+          type="text"
+          bind:value={decimal}
+          on:input={() => updateFrom('decimal')}
+          placeholder="0"
+          aria-label="Decimal number input"
+          inputmode="numeric"
+          pattern="[0-9-]*"
+        />
+        <CopyButton text={decimal} />
+      </div>
+
+      <div class="base-card">
+        <div class="base-header">
+          <span class="base-name">Binary</span>
+          <span class="base-prefix">Base 2</span>
+        </div>
+        <input
+          type="text"
+          bind:value={binary}
+          on:input={() => updateFrom('binary')}
+          placeholder="0"
+          aria-label="Binary number input"
+          inputmode="numeric"
+          pattern="[01]*"
+        />
+        <CopyButton text={binary} />
+      </div>
+
+      <div class="base-card">
+        <div class="base-header">
+          <span class="base-name">Hexadecimal</span>
+          <span class="base-prefix">Base 16</span>
+        </div>
+        <input
+          type="text"
+          bind:value={hex}
+          on:input={() => updateFrom('hex')}
+          placeholder="0"
+          aria-label="Hexadecimal number input"
+          inputmode="text"
+          pattern="[0-9A-Fa-f]*"
+        />
+        <CopyButton text={hex} />
+      </div>
+
+      <div class="base-card">
+        <div class="base-header">
+          <span class="base-name">Octal</span>
+          <span class="base-prefix">Base 8</span>
+        </div>
+        <input
+          type="text"
+          bind:value={octal}
+          on:input={() => updateFrom('octal')}
+          placeholder="0"
+          aria-label="Octal number input"
+          inputmode="numeric"
+          pattern="[0-7]*"
+        />
+        <CopyButton text={octal} />
+      </div>
+    </div>
+
+    <div class="quick-conversions">
+      <h3>Common Conversions</h3>
+      <div class="conversion-grid">
+        {#each CONVERSION_EXAMPLES as example}
+          <button type="button"
+            class="conv-btn"
+            on:click={() => loadQuickConversion(example.value)}
+            aria-label={`Load ${example.label} as decimal value`}
+          >
+            {example.label}
+          </button>
+        {/each}
+      </div>
+    </div>
+
+    <svelte:fragment slot="rail">
+      <Button on:click={loadExample} aria-label="Load example value">example</Button>
+      <Button on:click={clear} aria-label="Clear all fields">clear</Button>
     </svelte:fragment>
-  </ToolHeader>
-
-  {#if error}
-    <div class="error-state" role="alert" aria-live="polite">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-      <span>{error}</span>
-    </div>
-  {/if}
-
-  <div class="converter-grid">
-    <div class="base-card">
-      <div class="base-header">
-        <span class="base-name">Decimal</span>
-        <span class="base-prefix">Base 10</span>
-      </div>
-      <input
-        type="text"
-        bind:value={decimal}
-        on:input={() => updateFrom('decimal')}
-        placeholder="0"
-        aria-label="Decimal number input"
-        inputmode="numeric"
-        pattern="[0-9-]*"
-      />
-      <CopyButton text={decimal} />
-    </div>
-
-    <div class="base-card">
-      <div class="base-header">
-        <span class="base-name">Binary</span>
-        <span class="base-prefix">Base 2</span>
-      </div>
-      <input
-        type="text"
-        bind:value={binary}
-        on:input={() => updateFrom('binary')}
-        placeholder="0"
-        aria-label="Binary number input"
-        inputmode="numeric"
-        pattern="[01]*"
-      />
-      <CopyButton text={binary} />
-    </div>
-
-    <div class="base-card">
-      <div class="base-header">
-        <span class="base-name">Hexadecimal</span>
-        <span class="base-prefix">Base 16</span>
-      </div>
-      <input
-        type="text"
-        bind:value={hex}
-        on:input={() => updateFrom('hex')}
-        placeholder="0"
-        aria-label="Hexadecimal number input"
-        inputmode="text"
-        pattern="[0-9A-Fa-f]*"
-      />
-      <CopyButton text={hex} />
-    </div>
-
-    <div class="base-card">
-      <div class="base-header">
-        <span class="base-name">Octal</span>
-        <span class="base-prefix">Base 8</span>
-      </div>
-      <input
-        type="text"
-        bind:value={octal}
-        on:input={() => updateFrom('octal')}
-        placeholder="0"
-        aria-label="Octal number input"
-        inputmode="numeric"
-        pattern="[0-7]*"
-      />
-      <CopyButton text={octal} />
-    </div>
-  </div>
-
-  <div class="quick-conversions">
-    <h3>Common Conversions</h3>
-    <div class="conversion-grid">
-      {#each CONVERSION_EXAMPLES as example}
-        <button type="button"
-          class="conv-btn"
-          on:click={() => loadQuickConversion(example.value)}
-          aria-label={`Load ${example.label} as decimal value`}
-        >
-          {example.label}
-        </button>
-      {/each}
-    </div>
-  </div>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .converter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
   .base-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .base-header { display: flex; justify-content: space-between; align-items: center; }

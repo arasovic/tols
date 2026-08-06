@@ -2,6 +2,8 @@
   import { onMount, onDestroy } from 'svelte'
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Button from '$lib/ui/Button.svelte'
 
   const DEBOUNCE_WAIT = 50
   const SAVE_DELAY = 300
@@ -21,6 +23,21 @@
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout
   let prefersReducedMotion = false
+
+  // Derived once so the command strip and the ⌘⇧C payload cannot disagree. The
+  // CLI flag is kebab-cased --hue-rotate (packages/tols/src/tools/cssfilter.js),
+  // and the output is the CSS declaration the preview shows.
+  $: cliFlags = {
+    blur,
+    brightness,
+    contrast,
+    grayscale,
+    'hue-rotate': hueRotate,
+    invert,
+    saturate,
+    sepia
+  }
+  $: cliOutput = `filter: ${filterString};`
 
   /**
    * @typedef {'blur' | 'brightness' | 'contrast' | 'grayscale' | 'hueRotate' | 'invert' | 'saturate' | 'sepia'} FilterName
@@ -205,197 +222,170 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="css-filter">
-    <svelte:fragment slot="actions">
-      <button type="button"
-        class="icon-btn"
-        on:click={reset}
-        title="Reset"
-        aria-label="Reset all filters to default values"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  <ToolHeader toolId="css-filter" />
+
+  <ToolShell
+    toolId="css-filter"
+    action="gen"
+    flags={cliFlags}
+    output={cliOutput}
+  >
+    <div class="preview-section">
+      <div class="preview-image" style="filter: {filterString}; transition: {prefersReducedMotion ? 'none' : 'filter 0.1s'}">
+        <svg width="200" height="150" viewBox="0 0 200 150" aria-label="Sample image for filter preview">
+          <rect width="200" height="150" fill="#6366f1"/>
+          <circle cx="60" cy="50" r="30" fill="#f43f5e"/>
+          <circle cx="140" cy="50" r="30" fill="#10b981"/>
+          <rect x="40" y="100" width="120" height="30" fill="#f59e0b"/>
         </svg>
-      </button>
+      </div>
+      <div class="filter-code">
+        <code>filter: {filterString || 'none'};</code>
+        <CopyButton text={`filter: ${filterString || 'none'};`} />
+      </div>
+    </div>
+
+    <div class="controls-grid">
+      <div class="control">
+        <label for="blur-control">Blur: {blur}px</label>
+        <input
+          id="blur-control"
+          type="range"
+          value={blur}
+          min="0"
+          max="20"
+          on:input={handleBlurInput}
+          aria-label="Blur filter amount"
+          aria-valuemin="0"
+          aria-valuemax="20"
+          aria-valuenow={blur}
+        />
+      </div>
+      <div class="control">
+        <label for="brightness-control">Brightness: {brightness}%</label>
+        <input
+          id="brightness-control"
+          type="range"
+          value={brightness}
+          min="0"
+          max="200"
+          on:input={handleBrightnessInput}
+          aria-label="Brightness filter amount"
+          aria-valuemin="0"
+          aria-valuemax="200"
+          aria-valuenow={brightness}
+        />
+      </div>
+      <div class="control">
+        <label for="contrast-control">Contrast: {contrast}%</label>
+        <input
+          id="contrast-control"
+          type="range"
+          value={contrast}
+          min="0"
+          max="200"
+          on:input={handleContrastInput}
+          aria-label="Contrast filter amount"
+          aria-valuemin="0"
+          aria-valuemax="200"
+          aria-valuenow={contrast}
+        />
+      </div>
+      <div class="control">
+        <label for="grayscale-control">Grayscale: {grayscale}%</label>
+        <input
+          id="grayscale-control"
+          type="range"
+          value={grayscale}
+          min="0"
+          max="100"
+          on:input={handleGrayscaleInput}
+          aria-label="Grayscale filter amount"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow={grayscale}
+        />
+      </div>
+      <div class="control">
+        <label for="hue-rotate-control">Hue Rotate: {hueRotate}deg</label>
+        <input
+          id="hue-rotate-control"
+          type="range"
+          value={hueRotate}
+          min="0"
+          max="360"
+          on:input={handleHueRotateInput}
+          aria-label="Hue rotation filter amount"
+          aria-valuemin="0"
+          aria-valuemax="360"
+          aria-valuenow={hueRotate}
+        />
+      </div>
+      <div class="control">
+        <label for="invert-control">Invert: {invert}%</label>
+        <input
+          id="invert-control"
+          type="range"
+          value={invert}
+          min="0"
+          max="100"
+          on:input={handleInvertInput}
+          aria-label="Invert filter amount"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow={invert}
+        />
+      </div>
+      <div class="control">
+        <label for="saturate-control">Saturate: {saturate}%</label>
+        <input
+          id="saturate-control"
+          type="range"
+          value={saturate}
+          min="0"
+          max="200"
+          on:input={handleSaturateInput}
+          aria-label="Saturation filter amount"
+          aria-valuemin="0"
+          aria-valuemax="200"
+          aria-valuenow={saturate}
+        />
+      </div>
+      <div class="control">
+        <label for="sepia-control">Sepia: {sepia}%</label>
+        <input
+          id="sepia-control"
+          type="range"
+          value={sepia}
+          min="0"
+          max="100"
+          on:input={handleSepiaInput}
+          aria-label="Sepia filter amount"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow={sepia}
+        />
+      </div>
+    </div>
+
+    <svelte:fragment slot="rail">
+      <Button on:click={reset} title="Reset" aria-label="Reset all filters to default values">reset</Button>
     </svelte:fragment>
-  </ToolHeader>
-
-  <div class="preview-section">
-    <div class="preview-image" style="filter: {filterString}; transition: {prefersReducedMotion ? 'none' : 'filter 0.1s'}">
-      <svg width="200" height="150" viewBox="0 0 200 150" aria-label="Sample image for filter preview">
-        <rect width="200" height="150" fill="#6366f1"/>
-        <circle cx="60" cy="50" r="30" fill="#f43f5e"/>
-        <circle cx="140" cy="50" r="30" fill="#10b981"/>
-        <rect x="40" y="100" width="120" height="30" fill="#f59e0b"/>
-      </svg>
-    </div>
-    <div class="filter-code">
-      <code>filter: {filterString || 'none'};</code>
-      <CopyButton text={`filter: ${filterString || 'none'};`} />
-    </div>
-  </div>
-
-  <div class="controls-grid">
-    <div class="control">
-      <label for="blur-control">Blur: {blur}px</label>
-      <input
-        id="blur-control"
-        type="range"
-        value={blur}
-        min="0"
-        max="20"
-        on:input={handleBlurInput}
-        aria-label="Blur filter amount"
-        aria-valuemin="0"
-        aria-valuemax="20"
-        aria-valuenow={blur}
-      />
-    </div>
-    <div class="control">
-      <label for="brightness-control">Brightness: {brightness}%</label>
-      <input
-        id="brightness-control"
-        type="range"
-        value={brightness}
-        min="0"
-        max="200"
-        on:input={handleBrightnessInput}
-        aria-label="Brightness filter amount"
-        aria-valuemin="0"
-        aria-valuemax="200"
-        aria-valuenow={brightness}
-      />
-    </div>
-    <div class="control">
-      <label for="contrast-control">Contrast: {contrast}%</label>
-      <input
-        id="contrast-control"
-        type="range"
-        value={contrast}
-        min="0"
-        max="200"
-        on:input={handleContrastInput}
-        aria-label="Contrast filter amount"
-        aria-valuemin="0"
-        aria-valuemax="200"
-        aria-valuenow={contrast}
-      />
-    </div>
-    <div class="control">
-      <label for="grayscale-control">Grayscale: {grayscale}%</label>
-      <input
-        id="grayscale-control"
-        type="range"
-        value={grayscale}
-        min="0"
-        max="100"
-        on:input={handleGrayscaleInput}
-        aria-label="Grayscale filter amount"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow={grayscale}
-      />
-    </div>
-    <div class="control">
-      <label for="hue-rotate-control">Hue Rotate: {hueRotate}deg</label>
-      <input
-        id="hue-rotate-control"
-        type="range"
-        value={hueRotate}
-        min="0"
-        max="360"
-        on:input={handleHueRotateInput}
-        aria-label="Hue rotation filter amount"
-        aria-valuemin="0"
-        aria-valuemax="360"
-        aria-valuenow={hueRotate}
-      />
-    </div>
-    <div class="control">
-      <label for="invert-control">Invert: {invert}%</label>
-      <input
-        id="invert-control"
-        type="range"
-        value={invert}
-        min="0"
-        max="100"
-        on:input={handleInvertInput}
-        aria-label="Invert filter amount"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow={invert}
-      />
-    </div>
-    <div class="control">
-      <label for="saturate-control">Saturate: {saturate}%</label>
-      <input
-        id="saturate-control"
-        type="range"
-        value={saturate}
-        min="0"
-        max="200"
-        on:input={handleSaturateInput}
-        aria-label="Saturation filter amount"
-        aria-valuemin="0"
-        aria-valuemax="200"
-        aria-valuenow={saturate}
-      />
-    </div>
-    <div class="control">
-      <label for="sepia-control">Sepia: {sepia}%</label>
-      <input
-        id="sepia-control"
-        type="range"
-        value={sepia}
-        min="0"
-        max="100"
-        on:input={handleSepiaInput}
-        aria-label="Sepia filter amount"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow={sepia}
-      />
-    </div>
-  </div>
+  </ToolShell>
 </div>
 
 <style>
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
+    gap: var(--space-4);
     width: 100%;
-    animation: fadeIn var(--transition) var(--ease-out);
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .tool {
       animation: none;
     }
-  }
-
-  .icon-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-fast) var(--ease-out);
-  }
-
-  .icon-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
   }
 
   .preview-section {
