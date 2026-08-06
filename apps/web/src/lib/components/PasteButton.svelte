@@ -67,7 +67,7 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .paste-btn:hover {

@@ -534,10 +534,10 @@ console.log(greet(user));`
   .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
   .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
   .segmented { display: flex; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 2px; }
-  .segment { display: flex; align-items: center; padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: transparent; border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .segment { display: flex; align-items: center; padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: transparent; border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .segment:hover { color: var(--text-primary); }
   .segment.active { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); box-shadow: var(--shadow-xs); }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .diff-split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
   .diff-unified { display: flex; flex-direction: column; gap: var(--space-4); }

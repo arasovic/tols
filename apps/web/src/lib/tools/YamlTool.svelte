@@ -329,7 +329,7 @@ config:
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .segment:hover {
@@ -354,7 +354,7 @@ config:
     color: var(--text-tertiary);
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .icon-btn:hover {

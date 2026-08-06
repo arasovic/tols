@@ -332,7 +332,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--text-tertiary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-ghost:hover {
@@ -385,7 +385,7 @@
     background: var(--bg-surface);
     color: var(--text-secondary);
     border: none;
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .counter-btn:hover:not(:disabled) {
@@ -438,7 +438,7 @@
     font-size: var(--text-sm);
     font-family: var(--font-mono);
     text-align: center;
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .words-input:focus {
@@ -474,7 +474,7 @@
     background: var(--bg-elevated);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-full);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .toggle-slider::before {
@@ -486,7 +486,7 @@
     bottom: 2px;
     background: var(--text-tertiary);
     border-radius: 50%;
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .toggle input:checked + .toggle-slider {

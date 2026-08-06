@@ -186,7 +186,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .toast-close:hover {

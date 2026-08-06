@@ -302,7 +302,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: color var(--transition-fast), background var(--transition-fast);
+    transition: color var(--transition-fast) var(--ease-out), background var(--transition-fast) var(--ease-out);
   }
 
   .segment + .segment { border-left: 1px solid var(--border-subtle); }

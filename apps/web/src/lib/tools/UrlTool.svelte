@@ -437,7 +437,7 @@
     font-weight: var(--font-medium);
     color: var(--text-secondary);
     background: transparent;
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
     border: none;
     cursor: pointer;
   }
@@ -461,7 +461,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--text-tertiary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
     border: none;
     cursor: pointer;
   }
@@ -518,7 +518,7 @@
     font-size: var(--text-xs);
     color: var(--text-tertiary);
     background: transparent;
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
     border: none;
     cursor: pointer;
   }

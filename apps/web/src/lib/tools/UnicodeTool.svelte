@@ -241,7 +241,7 @@
   .empty { text-align: center; padding: var(--space-8); color: var(--text-muted); }
   .common-section h3 { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text-tertiary); margin-bottom: var(--space-3); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
   .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: var(--space-2); }
-  .char-btn { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: var(--text-xl); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast); color: var(--text-primary); }
+  .char-btn { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: var(--text-xl); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); color: var(--text-primary); }
   .char-btn:hover { background: var(--accent-soft); border-color: var(--accent-dim); }
   @media (max-width: 768px) { .char-card { flex-direction: column; text-align: center; } .char-actions { flex-direction: row; } }
 </style>

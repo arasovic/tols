@@ -75,7 +75,7 @@
     align-items: center;
     max-width: 600px;
     margin: 0 auto;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .search-wrapper.expanded {
@@ -100,7 +100,7 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
     outline: none;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .search-input::placeholder {
@@ -139,7 +139,7 @@
     background: var(--bg-hover);
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .search-clear:hover {
@@ -167,7 +167,7 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .category-chip:hover {

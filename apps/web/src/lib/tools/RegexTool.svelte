@@ -574,7 +574,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--text-tertiary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-ghost:hover {
@@ -613,7 +613,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--error);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
     flex-shrink: 0;
   }
 
@@ -690,7 +690,7 @@
     font-weight: var(--font-semibold);
     font-size: var(--text-sm);
     border: 1px solid var(--border-subtle);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .flag-btn:hover {
@@ -886,7 +886,7 @@
     gap: var(--space-3);
     padding: var(--space-3);
     border-bottom: 1px solid var(--border-subtle);
-    transition: background var(--transition);
+    transition: background var(--transition) var(--ease-out);
     animation: fadeInUp var(--transition-normal) ease backwards;
   }
 

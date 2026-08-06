@@ -341,7 +341,7 @@
   .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
   .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
   .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .icon-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
   .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
@@ -353,7 +353,7 @@
   .control-group input[type="color"] { height: 38px; cursor: pointer; }
   .preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .preview canvas { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-  .download-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-size: var(--text-sm); font-weight: var(--font-medium); color: white; background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast); }
+  .download-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-size: var(--text-sm); font-weight: var(--font-medium); color: white; background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .download-btn:hover { background: var(--accent-hover); }
   .download-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
   .error-message { padding: var(--space-3); background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); color: #dc2626; font-size: var(--text-sm); }

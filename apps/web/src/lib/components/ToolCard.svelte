@@ -95,7 +95,7 @@
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     text-decoration: none;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
     min-height: 120px;
   }
 
@@ -129,7 +129,7 @@
     color: var(--text-muted);
     cursor: pointer;
     opacity: 0;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .favorite-star :global(svg) {
@@ -204,7 +204,7 @@
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--text-muted);
-    transition: color var(--transition-fast);
+    transition: color var(--transition-fast) var(--ease-out);
   }
 
   .tool-meta {
@@ -229,7 +229,7 @@
     color: var(--text-muted);
     opacity: 0;
     transform: translateX(-4px);
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .tool-card:hover .tool-arrow {

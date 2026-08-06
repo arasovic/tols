@@ -149,4 +149,39 @@ describe('design tokens', () => {
     const accentLines = css.split('\n').filter((l) => /--accent[a-z-]*\s*:/.test(l))
     expect(accentLines.filter((l) => banned.test(l))).toEqual([])
   })
+
+  it('gives every shorthand that uses a motion token an explicit easing', () => {
+    // The --transition-* tokens carry a duration only. A transition/animation
+    // shorthand that ends a segment on one of them falls back to the CSS default
+    // `ease`, silently discarding the designed --ease-out curve.
+    const files = walk(SRC).filter((f) => f.endsWith('.svelte') || f.endsWith('.css'))
+    const timingFn = /^(?:var\(--ease-[a-z-]+\)|cubic-bezier\([^)]*\)|ease-in-out|ease-in|ease-out|ease|linear|steps\([^)]*\)|step-start|step-end)$/
+
+    /** @type {string[]} */
+    const offenders = []
+    for (const file of files) {
+      const src = readFileSync(file, 'utf8')
+      const rel = file.slice(SRC.length + 1)
+      for (const m of src.matchAll(/(?:^|[\s;}])(transition|animation)\s*:/g)) {
+        let i = m.index + m[0].length
+        let depth = 0
+        while (i < src.length) {
+          if (src[i] === '(') depth++
+          if (src[i] === ')') depth--
+          if (depth === 0 && (src[i] === ';' || src[i] === '}')) break
+          i++
+        }
+        const value = src.slice(m.index + m[0].length, i)
+        if (!value.includes('--transition')) continue
+        const line = src.slice(0, m.index).split('\n').length
+        for (const t of value.matchAll(/var\(--transition(?:-[a-z]+)?\)/g)) {
+          const next = value.slice(t.index + t[0].length).trim().match(/^[^,\s]+(?:\([^)]*\))?/)?.[0] ?? ''
+          if (!timingFn.test(next)) {
+            offenders.push(`${rel}:${line}: ${value.trim()}`)
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([])
+  })
 })

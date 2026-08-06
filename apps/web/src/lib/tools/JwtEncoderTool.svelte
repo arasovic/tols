@@ -234,7 +234,7 @@
   .tool-crosslink { font-size: var(--text-xs); color: var(--accent); text-decoration: none; margin-top: var(--space-1); }
   .tool-crosslink:hover { text-decoration: underline; }
   .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .jwt-inputs { display: flex; flex-direction: column; gap: var(--space-4); }
   .input-panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
@@ -242,7 +242,7 @@
   .input-textarea { width: 100%; min-height: 100px; padding: var(--space-3); border: none; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); resize: vertical; outline: none; }
   .secret-input-wrapper { display: flex; align-items: center; position: relative; }
   .secret-input { width: 100%; padding: var(--space-3); padding-right: 40px; border: none; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); outline: none; }
-  .secret-toggle { position: absolute; right: var(--space-2); display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .secret-toggle { position: absolute; right: var(--space-2); display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .secret-toggle:hover { color: var(--text-primary); }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
   .token-output { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }

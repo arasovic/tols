@@ -29,7 +29,7 @@
     font-size: var(--text-sm);
     color: var(--text-secondary);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    transition: color var(--transition-fast) var(--ease-out);
   }
 
   .footer-link:hover {

@@ -479,7 +479,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--text-tertiary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-ghost:hover {
@@ -601,7 +601,7 @@
     border-radius: var(--radius);
     color: var(--text-primary);
     font-size: var(--text-sm);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .format-input:hover {

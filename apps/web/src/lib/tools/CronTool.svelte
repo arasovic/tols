@@ -205,7 +205,7 @@
   .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
   .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
   .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .cron-input-section { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .cron-parts { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2); }
@@ -228,7 +228,7 @@
   .run-date { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-primary); }
   .examples-section h3 { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text-tertiary); margin-bottom: var(--space-3); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
   .examples-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-2); }
-  .example-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast); }
+  .example-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .example-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-dim); }
   @media (max-width: 768px) { .cron-parts { grid-template-columns: repeat(3, 1fr); } .examples-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>

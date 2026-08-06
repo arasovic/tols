@@ -297,7 +297,7 @@
     color: var(--text-tertiary);
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .icon-btn:hover {
@@ -335,7 +335,7 @@
     font-size: var(--text-sm);
     color: var(--text-primary);
     resize: vertical;
-    transition: border-color var(--transition-fast);
+    transition: border-color var(--transition-fast) var(--ease-out);
   }
 
   .input-area:focus {

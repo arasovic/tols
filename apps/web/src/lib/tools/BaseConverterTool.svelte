@@ -408,7 +408,7 @@
   .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
   .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
   .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .converter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
   .base-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
@@ -420,7 +420,7 @@
   .base-card input:invalid { border-color: var(--error); }
   .quick-conversions h3 { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text-tertiary); margin-bottom: var(--space-3); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
   .conversion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
-  .conv-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast); }
+  .conv-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .conv-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-dim); }
   .error-state { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft, rgba(239, 68, 68, 0.1)); border: 1px solid var(--error, #EF4444); border-radius: var(--radius); color: var(--error); font-size: var(--text-sm); }
   @media (max-width: 768px) { .converter-grid { grid-template-columns: 1fr; } .conversion-grid { grid-template-columns: repeat(2, 1fr); } .tool-header { flex-direction: column; align-items: flex-start; } .tool-actions { width: 100%; justify-content: flex-end; } }

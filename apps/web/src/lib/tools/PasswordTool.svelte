@@ -246,7 +246,7 @@
   .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
   .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
   .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast); }
+  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .icon-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
   .options-section { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
@@ -255,7 +255,7 @@
   .option-row input[type="range"] { width: 100%; }
   .error-message { padding: var(--space-3); background: var(--error-bg, rgba(239, 68, 68, 0.1)); border: 1px solid var(--error); border-radius: var(--radius); color: var(--error); font-size: var(--text-sm); }
   .checkboxes { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
-  .checkbox { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-2); border-radius: var(--radius); transition: background var(--transition-fast); }
+  .checkbox { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-2); border-radius: var(--radius); transition: background var(--transition-fast) var(--ease-out); }
   .checkbox:hover { background: var(--bg-hover); }
   .checkbox input { cursor: pointer; }
   .checkbox span { font-size: var(--text-sm); color: var(--text-secondary); }

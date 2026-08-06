@@ -209,7 +209,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .theme-toggle:hover {
@@ -251,7 +251,7 @@
     text-decoration: none;
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   @media (max-width: 767px) {
@@ -371,7 +371,7 @@
     z-index: 99;
     opacity: 0;
     visibility: hidden;
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .sidebar-overlay.open {

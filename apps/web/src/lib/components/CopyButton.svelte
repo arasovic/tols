@@ -85,7 +85,7 @@
     background: var(--bg-surface);
     color: var(--text-tertiary);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -99,7 +99,7 @@
     inset: 0;
     background: var(--accent-soft);
     opacity: 0;
-    transition: opacity var(--transition-fast);
+    transition: opacity var(--transition-fast) var(--ease-out);
   }
 
   .copy-btn:hover:not(.disabled) {
@@ -140,7 +140,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .icon-copy {

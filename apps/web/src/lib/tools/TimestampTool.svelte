@@ -350,7 +350,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--text-tertiary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-ghost:hover {
@@ -385,7 +385,7 @@
     color: var(--text-secondary);
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
     white-space: nowrap;
   }
 
@@ -430,7 +430,7 @@
     color: var(--text-secondary);
     font-size: var(--text-xs);
     border: 1px solid var(--border-subtle);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .tz-btn:hover {
@@ -487,7 +487,7 @@
     color: var(--accent);
     font-size: var(--text-xs);
     font-weight: var(--font-medium);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-now:hover {

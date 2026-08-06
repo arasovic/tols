@@ -322,7 +322,7 @@
     font-weight: var(--font-medium);
     border-radius: var(--radius);
     box-shadow: var(--shadow-xs), var(--shadow-accent-sm);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-primary:hover {
@@ -340,7 +340,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--text-tertiary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-ghost:hover {
@@ -390,7 +390,7 @@
     background: var(--bg-surface);
     color: var(--text-secondary);
     border: 1px solid var(--border-subtle);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .count-btn:hover:not(:disabled) {
@@ -489,7 +489,7 @@
     gap: var(--space-3);
     padding: var(--space-2) var(--space-3);
     border-bottom: 1px solid var(--border-subtle);
-    transition: background var(--transition);
+    transition: background var(--transition) var(--ease-out);
     animation: fadeInUp var(--transition-normal) ease;
     animation-fill-mode: both;
   }

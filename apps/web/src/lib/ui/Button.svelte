@@ -52,8 +52,8 @@
     font-size: var(--text-sm);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: color var(--transition-fast), background var(--transition-fast),
-      border-color var(--transition-fast);
+    transition: color var(--transition-fast) var(--ease-out), background var(--transition-fast) var(--ease-out),
+      border-color var(--transition-fast) var(--ease-out);
   }
 
   .btn:disabled {

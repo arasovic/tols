@@ -181,11 +181,11 @@
 
   /* Motion — ≤120ms, no springs */
   --transition-instant: 0ms;
-  --transition-fast: 80ms ease-out;
-  --transition: 120ms ease-out;
-  --transition-normal: 120ms ease-out;
-  --transition-slow: 120ms ease-out;
-  --transition-spring: 120ms ease-out;
+  --transition-fast: 80ms;
+  --transition: 120ms;
+  --transition-normal: 120ms;
+  --transition-slow: 120ms;
+  --transition-spring: 120ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-snap: cubic-bezier(0.2, 0, 0, 1);
@@ -358,7 +358,7 @@ code, pre {
 a {
   color: var(--accent);
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: color var(--transition-fast) var(--ease-out);
 }
 
 a:hover {
@@ -380,7 +380,7 @@ button, .btn {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast) var(--ease-out);
   white-space: nowrap;
   user-select: none;
   border-radius: var(--radius);
@@ -478,7 +478,7 @@ input, textarea, select {
   border: 1px solid var(--border-default);
   border-radius: var(--radius);
   outline: none;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast) var(--ease-out);
   width: 100%;
 }
 
@@ -873,8 +873,8 @@ pre code {
 .shadow { box-shadow: var(--shadow); }
 
 /* Transitions */
-.transition { transition: all var(--transition); }
-.transition-fast { transition: all var(--transition-fast); }
+.transition { transition: all var(--transition) var(--ease-out); }
+.transition-fast { transition: all var(--transition-fast) var(--ease-out); }
 
 /* Cursor */
 .cursor-pointer { cursor: pointer; }
@@ -960,7 +960,7 @@ pre code {
   border: 1px solid var(--border-default);
   border-radius: var(--radius);
   z-index: var(--z-modal);
-  transition: top var(--transition-fast);
+  transition: top var(--transition-fast) var(--ease-out);
 }
 
 .skip-link:focus {

@@ -171,7 +171,7 @@
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: color var(--transition-fast), border-color var(--transition-fast);
+    transition: color var(--transition-fast) var(--ease-out), border-color var(--transition-fast) var(--ease-out);
   }
 
   .command-copy:hover {

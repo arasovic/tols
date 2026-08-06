@@ -384,7 +384,7 @@
     border-radius: var(--radius);
     background: transparent;
     color: var(--text-tertiary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
   }
 
   .btn-ghost:hover {
@@ -427,7 +427,7 @@
     border-radius: var(--radius-sm);
     background: transparent;
     color: var(--text-secondary);
-    transition: all var(--transition);
+    transition: all var(--transition) var(--ease-out);
     min-width: 90px;
   }
 

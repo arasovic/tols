@@ -298,7 +298,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .theme-toggle:hover {
@@ -342,7 +342,7 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius-full);
     text-decoration: none;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .recent-chip:hover {
@@ -421,7 +421,7 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .btn-secondary:hover {

@@ -539,7 +539,7 @@
     background: var(--bg-hover);
     border: none;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .search-clear:hover {
@@ -603,7 +603,7 @@
     border: none;
     cursor: pointer;
     text-align: left;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
     position: relative;
   }
 
@@ -784,7 +784,7 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast) var(--ease-out);
   }
 
   .suggestion-chip:hover {
