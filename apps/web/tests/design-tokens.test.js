@@ -63,8 +63,15 @@ describe('design tokens', () => {
     const missing = {}
     for (const file of files) {
       const src = readFileSync(file, 'utf8')
+      // A property the file declares itself — PanelGroup sets
+      // --panel-group-columns from a prop via an inline style — is a local
+      // variable, not a design token, and app.css has no business knowing its
+      // name. What this guard is for is a reference to a property that nothing
+      // declares anywhere, which is still caught: the declaration has to exist
+      // in the same file or in :root.
+      const localProps = new Set([...src.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]))
       for (const m of src.matchAll(/var\((--[a-z0-9-]+)/g)) {
-        if (!rootTokens.has(m[1])) {
+        if (!rootTokens.has(m[1]) && !localProps.has(m[1])) {
           missing[m[1]] = (missing[m[1]] ?? []).concat(file.slice(SRC.length + 1))
         }
       }

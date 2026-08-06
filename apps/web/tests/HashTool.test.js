@@ -124,18 +124,18 @@ describe('HashTool', () => {
   it('should update hash algorithm display when algorithm changes', async () => {
     component = render(HashTool)
 
-    const initialHashTypeElement = document.querySelector('.hash-type')
+    const initialHashTypeElement = document.querySelector('[data-testid="output-panel"] .panel-label')
     expect(initialHashTypeElement).not.toBeNull()
-    expect(initialHashTypeElement?.textContent).toBe('SHA-256')
+    expect(initialHashTypeElement?.textContent).toBe('SHA-256 Hash')
 
     const sha1Button = screen.getByLabelText('SHA-1 160-bit hash algorithm')
     await fireEvent.click(sha1Button)
 
     await advanceAndFlush(DEBOUNCE_DELAY_MS)
 
-    const updatedHashTypeElement = document.querySelector('.hash-type')
+    const updatedHashTypeElement = document.querySelector('[data-testid="output-panel"] .panel-label')
     expect(updatedHashTypeElement).not.toBeNull()
-    expect(updatedHashTypeElement?.textContent).toBe('SHA-1')
+    expect(updatedHashTypeElement?.textContent).toBe('SHA-1 Hash')
   })
 
   it('should clear all fields when clear button is clicked', async () => {
@@ -317,7 +317,7 @@ describe('HashTool', () => {
 
     await fireEvent.input(inputArea, { target: { value: 'hello' } })
 
-    const charCount = screen.getByTestId('input-char-count')
+    const charCount = document.querySelector('[data-testid="input-panel"] .panel-meta')
     expect(charCount.textContent).toBe('5 chars')
   })
 
@@ -329,7 +329,7 @@ describe('HashTool', () => {
     await advanceAndFlush(DEBOUNCE_DELAY_MS + 50)
 
     await waitFor(() => {
-      const outputCharCount = screen.getByTestId('output-char-count')
+      const outputCharCount = document.querySelector('[data-testid="output-panel"] .panel-meta')
       expect(outputCharCount.textContent).toBe('64 chars')
     })
   })
@@ -365,7 +365,7 @@ describe('HashTool', () => {
   it('should have aria-live on output panel', () => {
     component = render(HashTool)
 
-    const outputPanel = document.querySelector('.output-panel')
+    const outputPanel = document.querySelector('[data-testid="output-panel"]')
     expect(outputPanel).not.toBeNull()
     expect(outputPanel).toHaveAttribute('aria-live', 'polite')
     expect(outputPanel).toHaveAttribute('aria-atomic', 'true')
@@ -436,7 +436,7 @@ describe('HashTool', () => {
       expect(hashElement?.textContent).toMatch(/^[a-f0-9]{64}$/)
     })
 
-    const charCount = screen.getByTestId('input-char-count')
+    const charCount = document.querySelector('[data-testid="input-panel"] .panel-meta')
     expect(charCount.textContent).toBe('10000 chars')
   })
 

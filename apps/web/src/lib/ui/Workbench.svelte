@@ -1,19 +1,15 @@
 <!-- apps/web/src/lib/ui/Workbench.svelte -->
 <script>
   import Panel from './Panel.svelte'
-  import ActionRail from './ActionRail.svelte'
-  import CommandStrip from './CommandStrip.svelte'
-  import { dispatchShortcut } from './shortcuts.js'
-  import { createCopyFeedback } from './copyFeedback.js'
+  import PanelGroup from './PanelGroup.svelte'
+  import ToolShell from './ToolShell.svelte'
   import { byteLabel } from './bytes.js'
-  import { onDestroy } from 'svelte'
 
   /**
-   * A tool declares *intent* here — which CLI command it mirrors, what its
-   * input and output currently are, and how to re-run it. Everything else
-   * (rendering the command strip, owning ⌘⏎ / ⌘⇧C / ⌘⇧O, deriving the pane
-   * byte counts, guarding the clipboard) is this primitive's job, because
-   * every tool component would otherwise carry a verbatim copy of it.
+   * The two-pane shape: stdin on the left, stdout on the right, for a tool
+   * that transforms one text into another. Everything that is not the pane
+   * grid — the command strip, the action rail, ⌘⏎ / ⌘⇧C / ⌘⇧O — belongs to
+   * ToolShell and is shared with the other page shapes.
    */
 
   /** Registry id of the tool, e.g. 'json'. Omit to render no command strip. */
@@ -40,85 +36,23 @@
   export let inputMeta = ''
   export let outputMeta = ''
 
-  /** @type {CommandStrip | undefined} */
-  let strip
-
-  /** @type {import('./copyFeedback.js').CopyStatus} */
-  let outputStatus = 'idle'
-  const outputFeedback = createCopyFeedback((status) => {
-    outputStatus = status
-  })
-  onDestroy(() => outputFeedback.dispose())
-
   $: resolvedInputMeta = inputMeta || byteLabel(input)
-  // ⌘⇧O reports where the thing it copied lives, so it is no longer the one
-  // shortcut that succeeds silently while ⌘⇧C shows `copied` on the strip.
-  $: resolvedOutputMeta =
-    outputStatus === 'copied'
-      ? 'copied'
-      : outputStatus === 'failed'
-        ? 'copy failed'
-        : outputMeta || byteLabel(output)
-
-  /** @param {KeyboardEvent} event */
-  function onKeydown(event) {
-    dispatchShortcut(event, {
-      run: onRun,
-      // Delegated rather than rebuilt: the strip is the only place the command
-      // string exists, so ⌘⇧C cannot copy something other than what is shown.
-      copyCommand: () => strip?.copy(),
-      copyOutput: () => outputFeedback.copy(output)
-    })
-  }
+  $: resolvedOutputMeta = outputMeta || byteLabel(output)
 </script>
 
-<svelte:window on:keydown={onKeydown} />
-
-<div class="workbench">
-  <CommandStrip bind:this={strip} {toolId} {action} {input} {flags} />
-
-  <div class="workbench-panes">
+<ToolShell {toolId} {action} {flags} {input} {output} {onRun} let:copyNotice>
+  <PanelGroup>
     <Panel label={inputLabel} meta={resolvedInputMeta}>
       <slot name="input" />
     </Panel>
-    <Panel label={outputLabel} meta={resolvedOutputMeta}>
+    <!-- ⌘⇧O reports where the thing it copied lives, so it is no longer the
+         one shortcut that succeeds silently while ⌘⇧C shows `copied` on the
+         strip. The notice wins over the byte count only while it is set. -->
+    <Panel label={outputLabel} meta={copyNotice || resolvedOutputMeta}>
       <slot name="output" />
     </Panel>
-  </div>
+  </PanelGroup>
 
-  <ActionRail>
-    <slot name="rail" />
-    <svelte:fragment slot="end">
-      <slot name="rail-end" />
-    </svelte:fragment>
-  </ActionRail>
-</div>
-
-<style>
-  .workbench {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  /* :global because the strip is a child component this primitive renders
-     itself. Spacing it from here rather than adding a wrapper element keeps
-     the gap out of the DOM when CommandStrip renders nothing (no toolId), and
-     leaves CommandStrip usable full-bleed somewhere else. */
-  .workbench > :global(.command-strip) {
-    margin-bottom: var(--space-4);
-  }
-
-  .workbench-panes {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
-    min-height: 0;
-  }
-
-  @media (min-width: 900px) {
-    .workbench-panes {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-</style>
+  <svelte:fragment slot="rail"><slot name="rail" /></svelte:fragment>
+  <svelte:fragment slot="rail-end"><slot name="rail-end" /></svelte:fragment>
+</ToolShell>

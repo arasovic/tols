@@ -16,7 +16,6 @@
     gap: var(--space-3);
     padding: var(--space-2) 0 0;
     border-top: 1px solid var(--border-subtle);
-    margin-top: var(--space-3);
   }
 
   .rail-main,

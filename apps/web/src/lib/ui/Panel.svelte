@@ -12,7 +12,14 @@
   back to `undefined` keeps the DOM honest — no empty attribute pretending to
   be a label — but a consumer that omits `label` still gets an unnamed pane.
 -->
-<section class="panel" aria-label={label || undefined}>
+<!--
+  `$$restProps` first so the panel's own contract wins: `label` is the API for
+  naming a pane and must not be overridable by a stray aria-label. What it does
+  let through is the per-pane wiring a primitive cannot guess — `aria-live` on a
+  pane whose contents are computed, `data-testid` for a spec that needs a stable
+  handle on one pane out of several.
+-->
+<section {...$$restProps} class="panel" aria-label={label || undefined}>
   <header class="panel-head">
     <span class="panel-label">{label}</span>
     {#if meta}<span class="panel-meta">{meta}</span>{/if}
