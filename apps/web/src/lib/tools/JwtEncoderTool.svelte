@@ -7,7 +7,7 @@
   import Button from '$lib/ui/Button.svelte'
   import { base } from '$app/paths'
   import { onMount, onDestroy } from 'svelte'
-  import { base64UrlEncode, signHS256 as signHMAC } from 'tols/core/jwt'
+  import { base64UrlEncode, signHS256 as signHMAC } from 'tols-cli/core/jwt'
 
   const EXAMPLE_PAYLOAD = JSON.stringify({
     sub: "1234567890",

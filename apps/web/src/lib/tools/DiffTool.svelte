@@ -9,7 +9,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
-  import { myersDiff, computeWordDiff, similarityScore, resetCache } from 'tols/core/diff'
+  import { myersDiff, computeWordDiff, similarityScore, resetCache } from 'tols-cli/core/diff'
 
   const EXAMPLE_LEFT = `function greet(name) {
   return "Hello, " + name + "!";

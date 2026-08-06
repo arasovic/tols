@@ -1,5 +1,5 @@
 {
-  "name": "tols",
+  "name": "tols-cli",
   "version": "0.1.0",
   "description": "Dev utilities in one zero-dep CLI: 29 tools to format, encode, hash, generate, convert. Pipe-friendly, --json everywhere.",
   "license": "MIT",

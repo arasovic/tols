@@ -1,5 +1,5 @@
 // tols — public API. CLI entry is bin/tols.js; everything here is also
-// usable programmatically: import { base64, json } from 'tols'.
+// usable programmatically: import { base64, json } from 'tols-cli'.
 export * as base64 from './core/base64.js';
 export * as url from './core/url.js';
 export * as json from './core/json.js';

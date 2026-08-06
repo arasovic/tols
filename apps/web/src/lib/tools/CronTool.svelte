@@ -10,7 +10,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
-  import { validateCron, getDescription, getNextRuns } from 'tols/core/cron'
+  import { validateCron, getDescription, getNextRuns } from 'tols-cli/core/cron'
 
   const CRON_PARTS = ['minute', 'hour', 'day', 'month', 'weekday']
 

@@ -8,7 +8,7 @@
   import PanelGroup from '$lib/ui/PanelGroup.svelte'
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
-  import { decodeJWT } from 'tols/core/jwt'
+  import { decodeJWT } from 'tols-cli/core/jwt'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { base } from '$app/paths'

@@ -11,7 +11,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
-  import { encode, decode } from 'tols/core/url'
+  import { encode, decode } from 'tols-cli/core/url'
 
   const EXAMPLE_URL = 'https://example.com/path?name=John&age=30'
   const DEBOUNCE_DELAY_MS = 150

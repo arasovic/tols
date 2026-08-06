@@ -8,7 +8,7 @@ program. The web version runs entirely in your browser: there is no backend, no
 account, and nothing is sent anywhere. The CLI has no runtime dependencies.
 
 - **Web:** [tols.arasmehmet.com](https://tols.arasmehmet.com/)
-- **CLI:** `npm install -g tols`
+- **CLI:** `npm install -g tols-cli`
 
 Each web page shows the CLI command that does the same job, so anything you can
 do on the site you can also put in a script.

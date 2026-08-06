@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "lucide-svelte": "^0.577.0",
-    "tols": "*"
+    "tols-cli": "*"
   },
   "description": "The tols website: 30 developer tools running entirely in the browser."
 }

@@ -8,7 +8,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
-  import { format as formatJson, minify as minifyJson } from 'tols/core/json'
+  import { format as formatJson, minify as minifyJson } from 'tols-cli/core/json'
 
   const EXAMPLE_JSON = `{
   "name": "tols",

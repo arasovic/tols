@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte'
 import YamlTool from '$lib/tools/YamlTool.svelte'
-import { parse as parseYAML } from 'tols/core/yaml'
+import { parse as parseYAML } from 'tols-cli/core/yaml'
 
 function waitForDebounce(ms = 400) {
   return new Promise(resolve => setTimeout(resolve, ms))

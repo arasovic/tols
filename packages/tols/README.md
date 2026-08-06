@@ -13,16 +13,16 @@ tols hash sha256 <<< "secret"
 - No runtime dependencies. Node >= 20, ESM only.
 - Results go to stdout and diagnostics to stderr, so commands pipe cleanly.
 - `--json` works on every command and returns `{"ok":true,"result":...}`.
-- Every core module is importable: `import { base64, json } from 'tols'`.
+- Every core module is importable: `import { base64, json } from 'tols-cli'`.
 
 ## Install
 
 ```sh
-npm install -g tols   # global CLI
-npm install tols      # or just this project
+npm install -g tols-cli   # global CLI, installs the `tols` command
+npm install tols-cli      # or just this project
 ```
 
-Run without installing: `npx tols <tool> <action> [input] [flags]`.
+Run without installing: `npx tols-cli <tool> <action> [input] [flags]`.
 
 ## Usage
 
@@ -103,14 +103,14 @@ tols md html @notes.md > notes.html
 ## Programmatic API
 
 ```js
-import { base64, color, cron } from 'tols';
+import { base64, color, cron } from 'tols-cli';
 
 base64.encode('hello');            // 'aGVsbG8='
 color.parse('#ff6b35');            // { rgb, hsl, hex, rgbString, hslString }
 cron.parse('*/5 * * * *');         // field breakdown
 
 // Individual modules without the CLI registry:
-import { gzip } from 'tols/core/gzip.js';
+import { gzip } from 'tols-cli/core/gzip.js';
 ```
 
 All core modules are browser-safe (no Node-only APIs, no `Buffer`), so the

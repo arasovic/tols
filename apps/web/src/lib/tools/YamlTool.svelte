@@ -12,7 +12,7 @@
     parse as parseYAML,
     stringify as stringifyYAML,
     stringifyFlow as flowYAML
-  } from 'tols/core/yaml'
+  } from 'tols-cli/core/yaml'
 
   const EXAMPLE_YAML = `name: tols
 version: 1.0.0

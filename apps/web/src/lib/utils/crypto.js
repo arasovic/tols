@@ -2,9 +2,9 @@
  * Thin delegation layer over the shared `tols` core so web and CLI never
  * diverge. Kept because web tests and (historically) components import it.
  */
-import { generate as coreGenerate } from 'tols/core/uuid'
-import { hash as coreHash, hashMD5 } from 'tols/core/hash'
-import { decodeJWT } from 'tols/core/jwt'
+import { generate as coreGenerate } from 'tols-cli/core/uuid'
+import { hash as coreHash, hashMD5 } from 'tols-cli/core/hash'
+import { decodeJWT } from 'tols-cli/core/jwt'
 
 export { hashMD5, decodeJWT }
 

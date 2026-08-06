@@ -17,7 +17,7 @@
   import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
-  import { hash as coreHash } from 'tols/core/hash'
+  import { hash as coreHash } from 'tols-cli/core/hash'
   import { onMount, onDestroy } from 'svelte'
 
   let input = ''

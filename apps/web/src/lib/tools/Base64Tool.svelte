@@ -9,7 +9,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount } from 'svelte'
-  import { encode as utf8ToBase64, decode as base64ToUtf8 } from 'tols/core/base64'
+  import { encode as utf8ToBase64, decode as base64ToUtf8 } from 'tols-cli/core/base64'
 
   const EXAMPLE_TEXT = 'Hello, World!'
   const DEBOUNCE_WAIT = 150

@@ -7,7 +7,7 @@
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
-  import { toHuman, toUnix } from 'tols/core/timestamp'
+  import { toHuman, toUnix } from 'tols-cli/core/timestamp'
 
   const DEBOUNCE_MS = 150
   const SAVE_DEBOUNCE_MS = 500

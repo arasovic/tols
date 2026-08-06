@@ -6,7 +6,7 @@
   import PanelGroup from '$lib/ui/PanelGroup.svelte'
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
-  import { validateCount, sanitizeCount, generate as coreGenerate } from 'tols/core/uuid'
+  import { validateCount, sanitizeCount, generate as coreGenerate } from 'tols-cli/core/uuid'
   import { onMount, onDestroy } from 'svelte'
 
   const DEBOUNCE_TIME = 150
