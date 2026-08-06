@@ -11,13 +11,24 @@ function getIndent(line) {
 }
 
 /**
- * @typedef {{ obj: any, indent: number, key: string | null, isArray: boolean }} YamlStackItem
+ * `dashCol` is the column a nested sequence's dashes sit at, so a later dash
+ * line can tell whether it belongs to this frame or to an outer one.
+ * `seqItemObj` marks a frame as a sequence item's mapping, which dash lines
+ * must pop past to reach the array that owns them. Both are set on some
+ * frames only, hence optional.
+ *
+ * @typedef {{ obj: any, indent: number, key: string | null, isArray: boolean, dashCol?: number, seqItemObj?: boolean }} YamlStackItem
  */
 
 // Parse YAML with improved array handling
 /**
+ * Returns an array when the document's first meaningful line is a sequence
+ * dash — a top-level YAML sequence is a valid document and `result` is
+ * initialised to `[]` for it. The old `Record<string, unknown>` return type
+ * simply did not describe that branch.
+ *
  * @param {string} yaml
- * @returns {Record<string, unknown>}
+ * @returns {Record<string, unknown> | unknown[]}
  */
 export function parse(yaml) {
   if (!yaml.trim()) return {}
@@ -621,6 +632,11 @@ function stringifyItems(arr, indent) {
   return result
 }
 
+/**
+ * @param {unknown} obj
+ * @param {number} [indent]
+ * @returns {string}
+ */
 export function stringify(obj, indent = 0) {
   if (obj === null || typeof obj !== 'object') {
     if (typeof obj === 'string' && needsQuoting(obj)) return `"${obj.replace(/"/g, '\\"')}"\n`

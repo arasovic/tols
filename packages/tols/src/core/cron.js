@@ -133,6 +133,7 @@ export function getNextRuns(cron, count = 5, from = new Date()) {
 
   // '?' means unconstrained (Quartz-style); normalize it to '*' for the
   // time/month fields so validation and scheduling stay consistent.
+  /** @param {number} idx */
   const field = (idx) => (parts[idx] === '?' ? '*' : parts[idx])
   const minutes = parseCronField(field(0), 0, 59)
   const hours = parseCronField(field(1), 0, 23)
@@ -148,6 +149,7 @@ export function getNextRuns(cron, count = 5, from = new Date()) {
 
   const dayFree = parts[2] === '*' || parts[2] === '?'
   const weekdayFree = parts[4] === '*' || parts[4] === '?'
+  /** @param {Date} d */
   const dayMatches = (d) => {
     const dayMatch = days.includes(d.getDate())
     const weekdayMatch = weekdays.includes(d.getDay())
