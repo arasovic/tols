@@ -1,8 +1,8 @@
 # tols
 
 Dev utilities in your terminal. 29 tools, one zero-dependency CLI — the same
-engines that power the [DevUtils](https://arasovic.github.io/dev-utilities/)
-web tools, extracted into a browser-safe core with a pipe-friendly CLI on top.
+engines that power the [tols web tools](https://arasovic.github.io/dev-utilities/),
+extracted into a browser-safe core with a pipe-friendly CLI on top.
 
 ```sh
 tols json fmt @config.json
