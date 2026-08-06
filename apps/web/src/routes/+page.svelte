@@ -37,8 +37,12 @@
     .map(id => tools.find(tool => tool.path === id))
     .filter(/** @returns {tool is typeof tools[number]} */ (tool) => tool !== undefined)
 
+  // One value feeds both the headline and the `Tools` stat, which sit in the
+  // same viewport at every width. Two independent literals is how they drifted.
+  const toolCount = tools.length
+
   const heroStats = [
-    { value: String(tools.length), label: 'Tools' },
+    { value: String(toolCount), label: 'Tools' },
     { value: String(categories.length), label: 'Categories' },
     { value: '0', label: 'Data Upload' }
   ]
@@ -121,8 +125,10 @@
     </div>
   </header>
 
-  <main class="home-main">
-    <HomeHero stats={heroStats} />
+  <!-- id is load-bearing: app.html's skip link targets #main-content, and all
+       30 tool routes already provide it. Without it the link goes nowhere here. -->
+  <main id="main-content" class="home-main">
+    <HomeHero stats={heroStats} {toolCount} />
 
     <HomeSearch bind:query={searchQuery} bind:selected={selectedCategory} />
 

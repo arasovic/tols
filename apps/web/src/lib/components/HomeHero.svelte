@@ -9,10 +9,18 @@
 
   /** @type {Array<{ value: string, label: string }>} */
   export let stats
+
+  /**
+   * Registry tool count, from the same value that feeds the `Tools` stat.
+   * Hardcoding it is what let the headline say 28 while the stat row twelve
+   * pixels below said 30 — both visible in one viewport at every width.
+   * @type {number}
+   */
+  export let toolCount
 </script>
 
 <section class="hero">
-  <h1 class="hero-title">28 dev tools. One command.</h1>
+  <h1 class="hero-title">{toolCount} dev tools. One command.</h1>
   <p class="hero-subtitle">
     Format, encode, hash, convert — in the browser or in your terminal. Nothing leaves your machine.
   </p>
