@@ -73,9 +73,9 @@ describe('DataUriTool', () => {
       readerInstance.onload?.({ target: { result: readerInstance.result } })
 
       await waitFor(() => {
-        expect(screen.getByText('Type:')).toBeInTheDocument()
+        expect(screen.getByText('Type')).toBeInTheDocument()
         expect(screen.getByText('text/plain')).toBeInTheDocument()
-        expect(screen.getByText('Size:')).toBeInTheDocument()
+        expect(screen.getByText('Size')).toBeInTheDocument()
       }, { timeout: DEFAULT_TIMEOUT })
     })
 

@@ -4,6 +4,7 @@
   import PasteButton from '$lib/components/PasteButton.svelte'
   import Workbench from '$lib/ui/Workbench.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
@@ -264,30 +265,29 @@
     </svelte:fragment>
   </Workbench>
 
-  <div class="info-bar" class:visible={mode || input.length > 0 || output.length > 0}>
-    <div class="info-item">
-      <span class="info-label">Mode</span>
-      <span class="badge" class:accent={mode === 'encode'} class:info={mode === 'decode'}>
-        {mode === 'encode' ? 'Encoding' : 'Decoding'}
-      </span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Input</span>
-      <span class="info-value">{input.length.toLocaleString()} chars</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Output</span>
-      <span class="info-value">{output.length.toLocaleString()} chars</span>
-    </div>
-  </div>
+  <!--
+    The strip is always shown: `mode` is always one of the two valid modes, so
+    the visibility class the old strip toggled was never false after hydration.
+  -->
+  <FactStrip
+    facts={[
+      {
+        label: 'Mode',
+        value: mode === 'encode' ? 'Encoding' : 'Decoding',
+        presentation: mode === 'encode' ? 'accent' : 'info'
+      },
+      { label: 'Input', value: `${input.length.toLocaleString()} chars`, presentation: 'mono' },
+      { label: 'Output', value: `${output.length.toLocaleString()} chars`, presentation: 'mono' }
+    ]}
+  />
 </div>
 
 <style>
   /*
     Everything the two-column grid, the pane boxes, the pane headers and the
     icon buttons used to own now belongs to Workbench / Panel / ActionRail /
-    Button. What is genuinely specific to the Base64 tool: the pane contents,
-    the encode/decode mode switch, and the stats bar below the workbench.
+    Button. What is genuinely specific to the Base64 tool: the pane contents
+    and the encode/decode mode switch.
   */
   .tool {
     display: flex;
@@ -391,68 +391,5 @@
     font-size: var(--text-sm);
   }
 
-  .info-bar {
-    display: none;
-    align-items: center;
-    gap: var(--space-6);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .info-bar.visible {
-    display: flex;
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 1px 6px;
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-    border-radius: var(--radius-sm);
-    background: var(--bg-elevated);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-subtle);
-  }
-
-  .badge.accent {
-    background: var(--accent-soft);
-    color: var(--accent);
-    border-color: var(--accent-dim);
-  }
-
-  .badge.info {
-    background: var(--info-soft);
-    color: var(--info);
-    border-color: rgba(59, 130, 246, 0.2);
-  }
-
-  @media (max-width: 768px) {
-    .info-bar {
-      flex-wrap: wrap;
-      gap: var(--space-3);
-    }
-  }
+  
 </style>

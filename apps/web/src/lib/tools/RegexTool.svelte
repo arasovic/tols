@@ -3,6 +3,7 @@
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -501,16 +502,12 @@
     </div>
   {/if}
 
-  <div class="info-bar">
-    <div class="info-item">
-      <span class="info-label">Flags:</span>
-      <span class="info-value mono">{flags || '(none)'}</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Pattern:</span>
-      <span class="info-value mono">{pattern || '(empty)'}</span>
-    </div>
-  </div>
+  <FactStrip
+    facts={[
+      { label: 'Flags', value: flags || '(none)', presentation: 'mono' },
+      { label: 'Pattern', value: pattern || '(empty)', presentation: 'mono' }
+    ]}
+  />
 </div>
 
 <style>
@@ -938,34 +935,6 @@
     color: var(--accent);
   }
 
-  .info-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    flex-wrap: wrap;
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-  }
-
   .mono {
     font-family: var(--font-mono);
   }
@@ -979,11 +948,6 @@
   @media (max-width: 768px) {
     .panels-grid {
       grid-template-columns: 1fr;
-    }
-
-    .info-bar {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>

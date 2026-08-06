@@ -27,9 +27,10 @@ function walk(dir) {
  *
  * Deliberately NOT flagged: `output-display`, `error-display`, `editor-textarea`
  * (pane *contents*), and the tool-specific readouts that survived conversion —
- * MarkdownTool's `html-output` source view, Base64Tool's `info-bar` stats strip,
- * HtmlTool's `options-bar`. Those are single supplementary regions, not the
- * stdin/stdout pane shape this guard protects.
+ * MarkdownTool's `html-output` source view, HtmlTool's `options-bar`. Those are
+ * single supplementary regions, not the stdin/stdout pane shape this guard
+ * protects. (The `info-bar` stats strip that used to be listed here moved to
+ * FactStrip and is guarded by fact-strip-chrome.test.js.)
  *
  * Class-name matching alone is how the previous header guard shipped with a
  * hole: a reintroduced grid written with renamed wrappers passes an exact

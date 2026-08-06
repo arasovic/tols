@@ -3,6 +3,7 @@
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
@@ -401,16 +402,12 @@
     </div>
   </div>
 
-  <div class="info-bar">
-    <div class="info-item">
-      <span class="info-label">Format:</span>
-      <span class="info-value">HEX, RGB, HSL</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Input:</span>
-      <span class="badge badge-accent">Type any format</span>
-    </div>
-  </div>
+  <FactStrip
+    facts={[
+      { label: 'Format', value: 'HEX, RGB, HSL' },
+      { label: 'Input', value: 'Type any format', presentation: 'accent' }
+    ]}
+  />
 </div>
 
 <style>
@@ -581,43 +578,9 @@
     border: 0;
   }
 
-  .info-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    flex-wrap: wrap;
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-  }
-
   @media (max-width: 768px) {
     .formats-grid {
       grid-template-columns: 1fr;
-    }
-
-    .info-bar {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>

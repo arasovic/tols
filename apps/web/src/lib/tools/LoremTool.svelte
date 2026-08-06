@@ -1,6 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   let paragraphs = 3
@@ -256,16 +257,12 @@
     {/if}
   </div>
 
-  <div class="info-bar">
-    <div class="info-item">
-      <span class="info-label">Format:</span>
-      <span class="info-value">Plain Text</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Starting:</span>
-      <span class="badge badge-accent">{startWithLorem ? 'Lorem ipsum...' : 'Random words'}</span>
-    </div>
-  </div>
+  <FactStrip
+    facts={[
+      { label: 'Format', value: 'Plain Text' },
+      { label: 'Starting', value: startWithLorem ? 'Lorem ipsum...' : 'Random words', presentation: 'accent' }
+    ]}
+  />
 </div>
 
 <style>
@@ -525,34 +522,6 @@
     opacity: 0.5;
   }
 
-  .info-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    flex-wrap: wrap;
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-  }
-
   @media (max-width: 768px) {
     .controls-grid {
       flex-direction: column;
@@ -563,11 +532,6 @@
       margin-left: 0;
       width: 100%;
       justify-content: space-between;
-    }
-
-    .info-bar {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>

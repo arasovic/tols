@@ -3,6 +3,7 @@
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -351,20 +352,18 @@
     </div>
   </div>
 
-  <div class="info-bar">
-    <div class="info-item">
-      <span class="info-label">Mode:</span>
-      <span class="badge" class:badge-accent={mode === 'encode'} class:badge-info={mode === 'decode'}>
-        {mode === 'encode' ? 'Encoding' : 'Decoding'}
-      </span>
-    </div>
-    {#if output}
-      <div class="info-item">
-        <span class="info-label">Output length:</span>
-        <span class="info-value">{output.length} characters</span>
-      </div>
-    {/if}
-  </div>
+  <FactStrip
+    facts={[
+      {
+        label: 'Mode',
+        value: mode === 'encode' ? 'Encoding' : 'Decoding',
+        presentation: mode === 'encode' ? 'accent' : 'info'
+      },
+      ...(output
+        ? [{ label: 'Output length', value: `${output.length} characters` }]
+        : [])
+    ]}
+  />
 </div>
 
 <style>
@@ -492,16 +491,6 @@
     border-radius: var(--radius-sm);
   }
 
-  .badge-accent {
-    background: var(--accent);
-    color: white;
-  }
-
-  .badge-info {
-    background: var(--info-muted);
-    color: var(--info);
-  }
-
   .input-area {
     flex: 1;
     min-height: 280px;
@@ -573,40 +562,6 @@
     opacity: 0.5;
   }
 
-  .info-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-  }
-
-  .badge {
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
-  }
-
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
@@ -615,10 +570,6 @@
   @media (max-width: 768px) {
     .panels {
       grid-template-columns: 1fr;
-    }
-
-    .info-bar {
-      flex-wrap: wrap;
     }
 
     .header-actions {

@@ -1,6 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import { validateCount, sanitizeCount, generate as coreGenerate } from 'tols/core/uuid'
   import { onMount, onDestroy } from 'svelte'
 
@@ -246,16 +247,12 @@
     {/if}
   </div>
 
-  <div class="info-bar">
-    <div class="info-item">
-      <span class="info-label">Version:</span>
-      <span class="badge badge-accent">UUID v4</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Format:</span>
-      <span class="info-value">xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx</span>
-    </div>
-  </div>
+  <FactStrip
+    facts={[
+      { label: 'Version', value: 'UUID v4', presentation: 'accent' },
+      { label: 'Format', value: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', presentation: 'mono' }
+    ]}
+  />
 </div>
 
 <style>
@@ -496,35 +493,6 @@
     margin-top: 1px;
   }
 
-  .info-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    flex-wrap: wrap;
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-family: var(--font-mono);
-    color: var(--text-primary);
-  }
-
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -538,13 +506,6 @@
     to {
       opacity: 1;
       transform: translateY(0);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .info-bar {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>

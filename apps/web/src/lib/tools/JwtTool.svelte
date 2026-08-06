@@ -3,6 +3,7 @@
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import { decodeJWT } from 'tols/core/jwt'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
@@ -266,24 +267,17 @@
       </div>
     </div>
 
-    <div class="info-bar">
-      <div class="info-item">
-        <span class="info-label">Status:</span>
-        <span class="badge badge-success">Decoded</span>
-      </div>
-      {#if decoded.payload?.exp}
-        <div class="info-item">
-          <span class="info-label">Expires:</span>
-          <span class="info-value">{formatDate(decoded.payload.exp)}</span>
-        </div>
-      {/if}
-      {#if decoded.payload?.iat}
-        <div class="info-item">
-          <span class="info-label">Issued:</span>
-          <span class="info-value">{formatDate(decoded.payload.iat)}</span>
-        </div>
-      {/if}
-    </div>
+    <FactStrip
+        facts={[
+          { label: 'Status', value: 'Decoded', presentation: 'success' },
+          ...(decoded.payload?.exp
+            ? [{ label: 'Expires', value: formatDate(decoded.payload.exp) }]
+            : []),
+          ...(decoded.payload?.iat
+            ? [{ label: 'Issued', value: formatDate(decoded.payload.iat) }]
+            : [])
+        ]}
+      />
   {:else if !error && token}
     <div class="empty-state">
       <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -522,34 +516,6 @@
     color: var(--warning);
   }
 
-  .info-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    flex-wrap: wrap;
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-  }
-
   .empty-state {
     display: flex;
     flex-direction: column;
@@ -578,11 +544,6 @@
   @media (max-width: 768px) {
     .decoded-grid {
       grid-template-columns: 1fr;
-    }
-
-    .info-bar {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>

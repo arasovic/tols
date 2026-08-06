@@ -10,6 +10,7 @@
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import ToolShell from '$lib/ui/ToolShell.svelte'
   import PanelGroup from '$lib/ui/PanelGroup.svelte'
   import Panel from '$lib/ui/Panel.svelte'
@@ -287,22 +288,17 @@
       </Panel>
     </PanelGroup>
 
-    <div class="info-bar">
-      <div class="info-item">
-        <span class="info-label">Algorithm:</span>
-        <span class="badge badge-accent">{algorithm}</span>
-      </div>
-      {#if output}
-        <div class="info-item">
-          <span class="info-label">Length:</span>
-          <span class="info-value">{output.length} characters</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Digest:</span>
-          <span class="info-value">{getCurrentAlgorithmBits()}-bit</span>
-        </div>
-      {/if}
-    </div>
+    <FactStrip
+      facts={[
+        { label: 'Algorithm', value: algorithm, presentation: 'accent' },
+        ...(output
+          ? [
+              { label: 'Length', value: `${output.length} characters` },
+              { label: 'Digest', value: `${getCurrentAlgorithmBits()}-bit` }
+            ]
+          : [])
+      ]}
+    />
 
     <svelte:fragment slot="rail">
       <Button on:click={loadExample} aria-label="Load example text" title="Load Example">example</Button>
@@ -464,47 +460,6 @@
     opacity: 0.5;
   }
 
-  .info-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .info-label {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-  }
-
-  .badge {
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
-    background: var(--bg-elevated);
-    color: var(--text-secondary);
-  }
-
-  .badge-accent {
-    background: var(--accent-subtle);
-    color: var(--accent);
-  }
-
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
@@ -519,10 +474,6 @@
     .algo-btn {
       min-width: 80px;
       padding: var(--space-2) var(--space-3);
-    }
-
-    .info-bar {
-      flex-wrap: wrap;
     }
   }
 </style>

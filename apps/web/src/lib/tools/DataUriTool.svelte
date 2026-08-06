@@ -1,6 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import FactStrip from '$lib/ui/FactStrip.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -228,22 +229,13 @@
 
   {#if dataUrl}
     <div class="result-section" data-testid="result-section">
-      <div class="file-info">
-        {#if fileName}
-          <div class="info-item" data-testid="filename-display">
-            <span class="info-label">Name:</span>
-            <span class="info-value">{fileName}</span>
-          </div>
-        {/if}
-        <div class="info-item">
-          <span class="info-label">Type:</span>
-          <span class="info-value" data-testid="mime-type">{mimeType}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Size:</span>
-          <span class="info-value">{fileSize}</span>
-        </div>
-      </div>
+      <FactStrip
+        facts={[
+          ...(fileName ? [{ label: 'Name', value: fileName, testid: 'filename-display' }] : []),
+          { label: 'Type', value: mimeType, testid: 'mime-type' },
+          { label: 'Size', value: fileSize }
+        ]}
+      />
 
       <div class="dataurl-output">
         <div class="output-header">
@@ -296,10 +288,6 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .error-display { padding: var(--space-3); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
   .result-section { display: flex; flex-direction: column; gap: var(--space-4); }
-  .file-info { display: flex; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-3); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-  .info-item { display: flex; gap: var(--space-2); }
-  .info-label { font-size: var(--text-sm); color: var(--text-tertiary); }
-  .info-value { font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary); }
   .dataurl-output { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
   .output-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3); background: var(--bg-elevated); border-bottom: 1px solid var(--border-subtle); font-size: var(--text-xs); font-weight: var(--font-semibold); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--text-tertiary); }
   .dataurl-text { width: 100%; min-height: 100px; padding: var(--space-3); border: none; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); resize: none; }

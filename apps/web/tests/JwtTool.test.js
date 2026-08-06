@@ -274,8 +274,8 @@ describe('JwtTool', () => {
     await vi.runAllTimersAsync()
 
     await waitFor(() => {
-      expect(screen.getByText(/Expires:/i)).toBeInTheDocument()
-      expect(screen.getByText(/Issued:/i)).toBeInTheDocument()
+      expect(screen.getByText('Expires')).toBeInTheDocument()
+      expect(screen.getByText('Issued')).toBeInTheDocument()
     })
   })
 
