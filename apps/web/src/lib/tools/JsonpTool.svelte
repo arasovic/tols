@@ -1,6 +1,10 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import PanelGroup from '$lib/ui/PanelGroup.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_URL = 'https://api.example.com/data'
@@ -171,76 +175,79 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="jsonp">
-    <svelte:fragment slot="actions">
-      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load Example">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <!-- toolId is deliberately empty: this tool STRIPS a callback wrapper, while
+       the CLI's `jsonp wrap`/`jsonp script` ADD one — inverse operations, so
+       no command is the honest mirror (see BRIEF.md). -->
+  <ToolHeader toolId="jsonp" />
 
-  <div class="jsonp-inputs">
-    <div class="input-row">
+  <ToolShell
+    toolId=""
+    output={generatedScript}
+    onRun={generateScript}
+  >
+    <div class="jsonp-inputs">
+      <div class="input-row">
+        <div class="input-group">
+          <label for={urlInputId}>URL</label>
+          <input id={urlInputId} type="text" bind:value={url} on:input={debouncedGenerate} placeholder="https://api.example.com/data" />
+        </div>
+        <div class="input-group callback-group">
+          <label for={callbackInputId}>Callback Function</label>
+          <input id={callbackInputId} type="text" bind:value={callback} on:input={debouncedGenerate} placeholder="myCallback" />
+        </div>
+      </div>
+
       <div class="input-group">
-        <label for={urlInputId}>URL</label>
-        <input id={urlInputId} type="text" bind:value={url} on:input={debouncedGenerate} placeholder="https://api.example.com/data" />
-      </div>
-      <div class="input-group callback-group">
-        <label for={callbackInputId}>Callback Function</label>
-        <input id={callbackInputId} type="text" bind:value={callback} on:input={debouncedGenerate} placeholder="myCallback" />
+        <label for={responseTextareaId}>Simulated Response (JSON)</label>
+        <textarea id={responseTextareaId} bind:value={response} on:input={debouncedGenerate} placeholder='{"{\"key\": \"value\"}"}' class="response-textarea"></textarea>
       </div>
     </div>
 
-    <div class="input-group">
-      <label for={responseTextareaId}>Simulated Response (JSON)</label>
-      <textarea id={responseTextareaId} bind:value={response} on:input={debouncedGenerate} placeholder='{"{\"key\": \"value\"}"}' class="response-textarea"></textarea>
-    </div>
-  </div>
+    {#if generatedScript}
+      <PanelGroup columns={1}>
+        <Panel label="Generated Script Tag">
+          <pre class="code-block">{generatedScript}</pre>
+        </Panel>
+      </PanelGroup>
+    {/if}
 
-  {#if generatedScript}
-    <div class="output-section">
-      <div class="output-header">
-        <span>Generated Script Tag</span>
-        <CopyButton text={generatedScript} />
-      </div>
-      <pre class="code-block">{generatedScript}</pre>
-    </div>
-  {/if}
+    {#if parsedResult}
+      <PanelGroup columns={1}>
+        <Panel label="Parsed Result">
+          <div class="result-display" class:success={parsedResult.status === 'success'} class:error={parsedResult.status === 'error'}>
+            {#if parsedResult.status === 'success'}
+              <pre>{JSON.stringify(parsedResult.data, null, 2)}</pre>
+            {:else}
+              <span>{parsedResult.error}</span>
+            {/if}
+          </div>
+        </Panel>
+      </PanelGroup>
+    {/if}
 
-  {#if parsedResult}
-    <div class="output-section">
-      <div class="output-header">
-        <span>Parsed Result</span>
-      </div>
-      <div class="result-display" class:success={parsedResult.status === 'success'} class:error={parsedResult.status === 'error'}>
-        {#if parsedResult.status === 'success'}
-          <pre>{JSON.stringify(parsedResult.data, null, 2)}</pre>
-        {:else}
-          <span>{parsedResult.error}</span>
-        {/if}
-      </div>
+    <div class="info-section">
+      <h3>How JSONP Works</h3>
+      <p>JSONP (JSON with Padding) is a technique used to bypass cross-origin policy limitations in browsers. It works by:</p>
+      <ol>
+        <li>Creating a script tag with a URL that includes a callback parameter</li>
+        <li>The server wraps the JSON response in the callback function</li>
+        <li>The browser executes the script, calling the callback with the data</li>
+      </ol>
     </div>
-  {/if}
 
-  <div class="info-section">
-    <h3>How JSONP Works</h3>
-    <p>JSONP (JSON with Padding) is a technique used to bypass cross-origin policy limitations in browsers. It works by:</p>
-    <ol>
-      <li>Creating a script tag with a URL that includes a callback parameter</li>
-      <li>The server wraps the JSON response in the callback function</li>
-      <li>The browser executes the script, calling the callback with the data</li>
-    </ol>
-  </div>
+    <svelte:fragment slot="rail">
+      <Button on:click={loadExample} title="Load Example" aria-label="Load Example">example</Button>
+      <Button on:click={clear} title="Clear" aria-label="Clear">clear</Button>
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail-end">
+      {#if generatedScript}<CopyButton text={generatedScript} />{/if}
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .jsonp-inputs { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .input-row { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4); }
   .input-group { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -249,8 +256,6 @@
   .input-group input:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }
   .response-textarea { width: 100%; min-height: 100px; padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); resize: vertical; outline: none; }
   .response-textarea:focus { border-color: var(--accent); }
-  .output-section { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
-  .output-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border-bottom: 1px solid var(--border-subtle); font-size: var(--text-xs); font-weight: var(--font-semibold); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--text-tertiary); }
   .code-block { margin: 0; padding: var(--space-3) var(--space-4); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); overflow-x: auto; }
   .result-display { padding: var(--space-4); }
   .result-display.success { background: rgba(34, 197, 94, 0.1); }

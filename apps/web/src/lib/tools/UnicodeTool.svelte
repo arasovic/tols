@@ -1,6 +1,7 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
   import { onMount } from 'svelte'
 
   const STORAGE_KEY = 'devutils-unicode-search'
@@ -167,57 +168,62 @@
 </script>
 
 <div class="tool">
+  <!-- toolId is deliberately empty: this tool escapes and unescapes text, while
+       the CLI's `unicode info`/`unicode search` inspect a codepoint or query a
+       character table — a different tool, so no command is the honest mirror
+       (see BRIEF.md). -->
   <ToolHeader toolId="unicode" />
 
-  <div class="search-section">
-    <input type="text" bind:value={searchChar} on:input={debouncedSearch} placeholder="Type a character or search..." class="search-input" maxlength="10" />
-  </div>
+  <ToolShell toolId="">
+    <div class="search-section">
+      <input type="text" bind:value={searchChar} on:input={debouncedSearch} placeholder="Type a character or search..." class="search-input" maxlength="10" />
+    </div>
 
-  {#if results.length > 0}
-    <div class="results">
-      {#each results as char}
-        <div class="char-card">
-          <div class="char-display">{char.char}</div>
-          <div class="char-info">
-            <div class="char-name">{char.name}</div>
-            <div class="char-meta">
-              <span class="category">{char.category}</span>
-              <span class="codepoint">{char.codepoint}</span>
-            </div>
-            {#if char.decimal && char.html && char.js}
-              <div class="char-codes">
-                <span>Dec: {char.decimal}</span>
-                <span>HTML: {escapeHtml(char.html)}</span>
-                <span>JS: {char.js}</span>
+    {#if results.length > 0}
+      <div class="results">
+        {#each results as char}
+          <div class="char-card">
+            <div class="char-display">{char.char}</div>
+            <div class="char-info">
+              <div class="char-name">{char.name}</div>
+              <div class="char-meta">
+                <span class="category">{char.category}</span>
+                <span class="codepoint">{char.codepoint}</span>
               </div>
-            {/if}
+              {#if char.decimal && char.html && char.js}
+                <div class="char-codes">
+                  <span>Dec: {char.decimal}</span>
+                  <span>HTML: {escapeHtml(char.html)}</span>
+                  <span>JS: {char.js}</span>
+                </div>
+              {/if}
+            </div>
+            <div class="char-actions">
+              <CopyButton text={char.char} size="sm" />
+              <CopyButton text={char.codepoint} size="sm" />
+            </div>
           </div>
-          <div class="char-actions">
-            <CopyButton text={char.char} size="sm" />
-            <CopyButton text={char.codepoint} size="sm" />
-          </div>
-        </div>
-      {/each}
-    </div>
-  {:else if searchChar}
-    <div class="empty">No characters found</div>
-  {/if}
+        {/each}
+      </div>
+    {:else if searchChar}
+      <div class="empty">No characters found</div>
+    {/if}
 
-  <div class="common-section">
-    <h3>Common Characters</h3>
-    <div class="char-grid">
-      {#each COMMON_CHARS.slice(0, 24) as char}
-        <button type="button" class="char-btn" on:click={() => { searchChar = char.char; search(); }} title="{char.name}">
-          {char.char}
-        </button>
-      {/each}
+    <div class="common-section">
+      <h3>Common Characters</h3>
+      <div class="char-grid">
+        {#each COMMON_CHARS.slice(0, 24) as char}
+          <button type="button" class="char-btn" on:click={() => { searchChar = char.char; search(); }} title="{char.name}">
+            {char.char}
+          </button>
+        {/each}
+      </div>
     </div>
-  </div>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .search-section { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .search-input { width: 100%; padding: var(--space-3); font-size: var(--text-lg); text-align: center; border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); outline: none; }
   .search-input:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }

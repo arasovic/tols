@@ -1,6 +1,9 @@
 <script>
   import { onMount, onDestroy } from 'svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
 
   let width = 400
   let height = 300
@@ -18,6 +21,18 @@
   const MAX_TEXT_LENGTH = 100
   const MIN_DIMENSION = 50
   const MAX_DIMENSION = 2000
+
+  // The CLI mirrors the five controls as flags, --text-color for the hyphenated
+  // flag name (packages/tols/src/tools/placeholder.js). The text is only
+  // passed once non-empty: an empty --text would override the CLI's own
+  // width x height fallback.
+  $: cliFlags = {
+    width,
+    height,
+    bg: bgColor,
+    'text-color': textColor,
+    text: placeholderText || undefined
+  }
 
   /**
    * @param {number} value
@@ -243,99 +258,98 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="placeholder">
-    <svelte:fragment slot="actions">
-      <button type="button" class="icon-btn" on:click={clear} title="Clear" data-testid="clear-button" aria-label="Clear all settings">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
+  <ToolHeader toolId="placeholder" />
+
+  <ToolShell
+    toolId="placeholder"
+    action="gen"
+    flags={cliFlags}
+  >
+    {#if errorMessage}
+      <div class="error-message" role="alert" data-testid="error-message">
+        {errorMessage}
+      </div>
+    {/if}
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="width-input">Width</label>
+        <input
+          id="width-input"
+          type="number"
+          bind:value={width}
+          min={MIN_DIMENSION}
+          max={MAX_DIMENSION}
+          on:input={debouncedDraw}
+          data-testid="width-input"
+          aria-label="Image width in pixels"
+        />
+      </div>
+      <div class="control-group">
+        <label for="height-input">Height</label>
+        <input
+          id="height-input"
+          type="number"
+          bind:value={height}
+          min={MIN_DIMENSION}
+          max={MAX_DIMENSION}
+          on:input={debouncedDraw}
+          data-testid="height-input"
+          aria-label="Image height in pixels"
+        />
+      </div>
+      <div class="control-group">
+        <label for="bg-color-input">Background</label>
+        <input
+          id="bg-color-input"
+          type="color"
+          bind:value={bgColor}
+          on:input={debouncedDraw}
+          data-testid="bg-color-input"
+          aria-label="Background color"
+        />
+      </div>
+      <div class="control-group">
+        <label for="text-color-input">Text Color</label>
+        <input
+          id="text-color-input"
+          type="color"
+          bind:value={textColor}
+          on:input={debouncedDraw}
+          data-testid="text-color-input"
+          aria-label="Text color"
+        />
+      </div>
+      <div class="control-group wide">
+        <label for="custom-text-input">Custom Text</label>
+        <input
+          id="custom-text-input"
+          type="text"
+          bind:value={placeholderText}
+          on:input={debouncedDraw}
+          placeholder="Leave empty for dimensions..."
+          maxlength={MAX_TEXT_LENGTH}
+          data-testid="custom-text-input"
+          aria-label="Custom placeholder text"
+        />
+      </div>
+    </div>
+
+    <Panel label="Preview">
+      <div class="preview">
+        <canvas bind:this={canvas} width={width} height={height} data-testid="preview-canvas" aria-label="Preview of placeholder image"></canvas>
+      </div>
+    </Panel>
+
+    <svelte:fragment slot="rail">
+      <Button variant="primary" on:click={downloadPNG} data-testid="download-button" aria-label="Download placeholder image as PNG">Download PNG</Button>
+      <Button on:click={clear} title="Clear" data-testid="clear-button" aria-label="Clear all settings">clear</Button>
     </svelte:fragment>
-  </ToolHeader>
-
-  {#if errorMessage}
-    <div class="error-message" role="alert" data-testid="error-message">
-      {errorMessage}
-    </div>
-  {/if}
-
-  <div class="controls">
-    <div class="control-group">
-      <label for="width-input">Width</label>
-      <input
-        id="width-input"
-        type="number"
-        bind:value={width}
-        min={MIN_DIMENSION}
-        max={MAX_DIMENSION}
-        on:input={debouncedDraw}
-        data-testid="width-input"
-        aria-label="Image width in pixels"
-      />
-    </div>
-    <div class="control-group">
-      <label for="height-input">Height</label>
-      <input
-        id="height-input"
-        type="number"
-        bind:value={height}
-        min={MIN_DIMENSION}
-        max={MAX_DIMENSION}
-        on:input={debouncedDraw}
-        data-testid="height-input"
-        aria-label="Image height in pixels"
-      />
-    </div>
-    <div class="control-group">
-      <label for="bg-color-input">Background</label>
-      <input
-        id="bg-color-input"
-        type="color"
-        bind:value={bgColor}
-        on:input={debouncedDraw}
-        data-testid="bg-color-input"
-        aria-label="Background color"
-      />
-    </div>
-    <div class="control-group">
-      <label for="text-color-input">Text Color</label>
-      <input
-        id="text-color-input"
-        type="color"
-        bind:value={textColor}
-        on:input={debouncedDraw}
-        data-testid="text-color-input"
-        aria-label="Text color"
-      />
-    </div>
-    <div class="control-group wide">
-      <label for="custom-text-input">Custom Text</label>
-      <input
-        id="custom-text-input"
-        type="text"
-        bind:value={placeholderText}
-        on:input={debouncedDraw}
-        placeholder="Leave empty for dimensions..."
-        maxlength={MAX_TEXT_LENGTH}
-        data-testid="custom-text-input"
-        aria-label="Custom placeholder text"
-      />
-    </div>
-  </div>
-
-  <div class="preview">
-    <canvas bind:this={canvas} width={width} height={height} data-testid="preview-canvas" aria-label="Preview of placeholder image"></canvas>
-    <button type="button" class="download-btn" on:click={downloadPNG} data-testid="download-button" aria-label="Download placeholder image as PNG">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download PNG
-    </button>
-  </div>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-  .icon-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .control-group { display: flex; flex-direction: column; gap: var(--space-1); }
   .control-group.wide { grid-column: 1 / -1; }
@@ -343,11 +357,8 @@
   .control-group input { padding: var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); font-size: var(--text-sm); outline: none; }
   .control-group input:focus { border-color: var(--accent); }
   .control-group input[type="color"] { height: 38px; cursor: pointer; }
-  .preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+  .preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); }
   .preview canvas { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-  .download-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-size: var(--text-sm); font-weight: var(--font-medium); color: white; background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .download-btn:hover { background: var(--accent-hover); }
-  .download-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
   .error-message { padding: var(--space-3); background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); color: #dc2626; font-size: var(--text-sm); }
   @media (max-width: 768px) { .controls { grid-template-columns: 1fr; } }
 </style>

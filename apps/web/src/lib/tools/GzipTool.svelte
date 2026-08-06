@@ -2,6 +2,10 @@
   import { onMount, onDestroy } from 'svelte'
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import PanelGroup from '$lib/ui/PanelGroup.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
 
   const DEBOUNCE_WAIT = 150
   const SAVE_DELAY = 500
@@ -22,6 +26,9 @@
   $: compressedSize = compressedBytes ? compressedBytes.length : 0
   $: compressionRatio = originalSize > 0 ? ((originalSize - compressedSize) / originalSize * 100).toFixed(1) : 0
   $: savingsPercent = originalSize > 0 ? Math.max(0, Number(compressionRatio)) : 0
+  // Hex of the compressed bytes, the same representation the tool's copy
+  // button offers; feeds ⌘⇧O (the CLI's own `comp` prints base64).
+  $: cliOutput = compressedBytes ? Array.from(compressedBytes).map(b => b.toString(16).padStart(2, '0')).join('') : ''
 
   function loadState() {
     try {
@@ -170,120 +177,80 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="gzip">
-    <svelte:fragment slot="actions">
-      <button type="button"
-        class="icon-btn"
-        on:click={clearInput}
-        title="Clear"
-        aria-label="Clear input"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <ToolHeader toolId="gzip" />
 
-  <div class="content-grid">
-    <div class="input-section">
-      <label class="section-label" for="gzip-input">Input Text</label>
-      <textarea
-        id="gzip-input"
-        class="input-area"
-        bind:value={input}
-        on:input={handleInput}
-        placeholder="Enter text to compress..."
-        rows="10"
-        aria-describedby="input-stats"
-      ></textarea>
-      <div class="input-stats" id="input-stats">
-        <span>Original size: {formatBytes(originalSize)}</span>
-        {#if input.length >= MAX_INPUT_LENGTH}
-          <span class="limit-warning">(max 1MB)</span>
-        {/if}
-      </div>
-    </div>
-
-    <div class="output-section">
-      <span class="section-label">Compression Results</span>
-      <div class="results-card">
-        {#if isProcessing}
-          <div class="loading" aria-live="polite">Compressing...</div>
-        {:else if error}
-          <div class="error-message" role="alert">{error}</div>
-        {:else if compressedBytes}
-          <div class="stat-row">
-            <span class="stat-label">Compressed size:</span>
-            <span class="stat-value compressed">{formatBytes(compressedSize)}</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Savings:</span>
-            <span class="stat-value savings">{formatBytes(originalSize - compressedSize)} ({savingsPercent}%)</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Ratio:</span>
-            <span class="stat-value">{(compressedSize / originalSize * 100).toFixed(1)}% of original</span>
-          </div>
-        {:else}
-          <div class="empty-state">Enter text to see compression stats</div>
-        {/if}
-      </div>
-
-      {#if compressedBytes && !isProcessing && !error}
-        <div class="output-actions">
-          <CopyButton text={Array.from(compressedBytes).map(b => b.toString(16).padStart(2, '0')).join('')} />
-          <CopyButton text={input} />
+  <ToolShell
+    toolId="gzip"
+    action="comp"
+    {input}
+    output={cliOutput}
+    onRun={process}
+    let:copyNotice
+  >
+    <PanelGroup columns={2}>
+      <Panel label="Input Text" meta={formatBytes(originalSize)}>
+        <textarea
+          id="gzip-input"
+          class="input-area"
+          bind:value={input}
+          on:input={handleInput}
+          placeholder="Enter text to compress..."
+          rows="10"
+          aria-describedby="input-stats"
+        ></textarea>
+        <div class="input-stats" id="input-stats">
+          <span>Original size: {formatBytes(originalSize)}</span>
+          {#if input.length >= MAX_INPUT_LENGTH}
+            <span class="limit-warning">(max 1MB)</span>
+          {/if}
         </div>
+      </Panel>
+
+      <Panel label="Compression Results" meta={copyNotice || (compressedBytes ? formatBytes(compressedSize) : '')}>
+        <div class="results-card">
+          {#if isProcessing}
+            <div class="loading" aria-live="polite">Compressing...</div>
+          {:else if error}
+            <div class="error-message" role="alert">{error}</div>
+          {:else if compressedBytes}
+            <div class="stat-row">
+              <span class="stat-label">Compressed size:</span>
+              <span class="stat-value compressed">{formatBytes(compressedSize)}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Savings:</span>
+              <span class="stat-value savings">{formatBytes(originalSize - compressedSize)} ({savingsPercent}%)</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Ratio:</span>
+              <span class="stat-value">{(compressedSize / originalSize * 100).toFixed(1)}% of original</span>
+            </div>
+          {:else}
+            <div class="empty-state">Enter text to see compression stats</div>
+          {/if}
+        </div>
+      </Panel>
+    </PanelGroup>
+
+    <svelte:fragment slot="rail">
+      <Button on:click={clearInput} title="Clear" aria-label="Clear input">clear</Button>
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail-end">
+      {#if compressedBytes && !isProcessing && !error}
+        <CopyButton text={cliOutput} />
+        <CopyButton text={input} />
       {/if}
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
+    gap: var(--space-4);
     width: 100%;
-  }
-
-  .icon-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-fast) var(--ease-out);
-  }
-
-  .icon-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .content-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-5);
-  }
-
-  .input-section,
-  .output-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .section-label {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-secondary);
   }
 
   .input-area {
@@ -308,6 +275,7 @@
   .input-stats {
     display: flex;
     gap: var(--space-2);
+    margin-top: var(--space-2);
     font-size: var(--text-xs);
     color: var(--text-tertiary);
   }
@@ -318,9 +286,6 @@
 
   .results-card {
     padding: var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius);
     min-height: 200px;
   }
 
@@ -383,16 +348,5 @@
     min-height: 150px;
     font-size: var(--text-sm);
     color: var(--text-tertiary);
-  }
-
-  .output-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  @media (max-width: 768px) {
-    .content-grid {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

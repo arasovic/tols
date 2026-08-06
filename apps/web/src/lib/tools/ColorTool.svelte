@@ -4,6 +4,8 @@
   import PasteButton from '$lib/components/PasteButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import FactStrip from '$lib/ui/FactStrip.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
@@ -18,6 +20,10 @@
   let saveTimeout
   let isMounted = false
   let errorMessage = ''
+
+  // The canonical result shown in the preview; feeds ⌘⇧O. The CLI takes the
+  // bare hex as positional input (packages/tols/src/tools/color.js).
+  $: cliOutput = hex ? '#' + hex.toUpperCase() : ''
 
   /**
    * @param {number} ms
@@ -286,128 +292,118 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="color">
-    <svelte:fragment slot="actions">
-      <ShareButton getState={() => ({ hex })} />
-      <PasteButton on:text={(e) => handleHexInput({ currentTarget: { value: e.detail.text } })} />
-      <button type="button"
-        class="btn-ghost"
-        on:click={loadExample}
-        title="Load Example"
-        aria-label="Load example color"
+  <ToolHeader toolId="color" />
+
+  <ToolShell
+    toolId="color"
+    action="conv"
+    input={hex}
+    output={cliOutput}
+  >
+    <div class="preview-card">
+      <div
+        class="color-swatch"
+        style="background-color: {colorPreview};"
+        role="img"
+        aria-label="Color preview: {hex ? '#' + hex.toUpperCase() : 'None'}"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <path d="M12 6v6l4 2"/>
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button type="button"
-        class="btn-ghost"
-        on:click={clear}
-        title="Clear"
-        aria-label="Clear all fields"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-      </button>
+        <div class="swatch-overlay"></div>
+      </div>
+      <div class="preview-info">
+        <span class="preview-label">Preview</span>
+        <span class="preview-hex mono">{hex ? '#' + hex.toUpperCase() : '#000000'}</span>
+      </div>
+    </div>
+
+    {#if errorMessage}
+      <div class="error-bar" role="alert" aria-live="polite">
+        <span class="error-message">{errorMessage}</span>
+      </div>
+    {/if}
+
+    <div class="formats-grid">
+      <div class="format-card">
+        <div class="format-header">
+          <span class="format-label">HEX</span>
+          <div class="format-actions">
+            {#if hex}
+              <CopyButton text={'#' + hex.toUpperCase()} />
+            {/if}
+          </div>
+        </div>
+        <input
+          type="text"
+          value="#{hex}"
+          on:input={handleHexInput}
+          placeholder="#000000"
+          class="format-input mono"
+          maxlength="7"
+          aria-label="HEX color value"
+          aria-describedby="hex-desc"
+        />
+        <span id="hex-desc" class="sr-only">Enter a HEX color value without the hash symbol</span>
+      </div>
+
+      <div class="format-card">
+        <div class="format-header">
+          <span class="format-label">RGB</span>
+          <div class="format-actions">
+            {#if rgb}
+              <CopyButton text={rgb} />
+            {/if}
+          </div>
+        </div>
+        <input
+          type="text"
+          value={rgb}
+          on:input={handleRgbInput}
+          placeholder="rgb(0, 0, 0)"
+          class="format-input mono"
+          aria-label="RGB color value"
+          aria-describedby="rgb-desc"
+        />
+        <span id="rgb-desc" class="sr-only">Enter an RGB or RGBA color value</span>
+      </div>
+
+      <div class="format-card">
+        <div class="format-header">
+          <span class="format-label">HSL</span>
+          <div class="format-actions">
+            {#if hsl}
+              <CopyButton text={hsl} />
+            {/if}
+          </div>
+        </div>
+        <input
+          type="text"
+          value={hsl}
+          on:input={handleHslInput}
+          placeholder="hsl(0, 0%, 0%)"
+          class="format-input mono"
+          aria-label="HSL color value"
+          aria-describedby="hsl-desc"
+        />
+        <span id="hsl-desc" class="sr-only">Enter an HSL or HSLA color value</span>
+      </div>
+    </div>
+
+    <FactStrip
+      facts={[
+        { label: 'Format', value: 'HEX, RGB, HSL' },
+        { label: 'Input', value: 'Type any format', presentation: 'accent' }
+      ]}
+    />
+
+    <svelte:fragment slot="rail">
+      <Button on:click={loadExample} title="Load Example" aria-label="Load example color">example</Button>
+      <Button on:click={clear} title="Clear" aria-label="Clear all fields">clear</Button>
     </svelte:fragment>
-  </ToolHeader>
 
-  <div class="preview-card">
-    <div
-      class="color-swatch"
-      style="background-color: {colorPreview};"
-      role="img"
-      aria-label="Color preview: {hex ? '#' + hex.toUpperCase() : 'None'}"
-    >
-      <div class="swatch-overlay"></div>
-    </div>
-    <div class="preview-info">
-      <span class="preview-label">Preview</span>
-      <span class="preview-hex mono">{hex ? '#' + hex.toUpperCase() : '#000000'}</span>
-    </div>
-  </div>
-
-  {#if errorMessage}
-    <div class="error-bar" role="alert" aria-live="polite">
-      <span class="error-message">{errorMessage}</span>
-    </div>
-  {/if}
-
-  <div class="formats-grid">
-    <div class="format-card">
-      <div class="format-header">
-        <span class="format-label">HEX</span>
-        <div class="format-actions">
-          {#if hex}
-            <CopyButton text={'#' + hex.toUpperCase()} />
-          {/if}
-        </div>
-      </div>
-      <input
-        type="text"
-        value="#{hex}"
-        on:input={handleHexInput}
-        placeholder="#000000"
-        class="format-input mono"
-        maxlength="7"
-        aria-label="HEX color value"
-        aria-describedby="hex-desc"
-      />
-      <span id="hex-desc" class="sr-only">Enter a HEX color value without the hash symbol</span>
-    </div>
-
-    <div class="format-card">
-      <div class="format-header">
-        <span class="format-label">RGB</span>
-        <div class="format-actions">
-          {#if rgb}
-            <CopyButton text={rgb} />
-          {/if}
-        </div>
-      </div>
-      <input
-        type="text"
-        value={rgb}
-        on:input={handleRgbInput}
-        placeholder="rgb(0, 0, 0)"
-        class="format-input mono"
-        aria-label="RGB color value"
-        aria-describedby="rgb-desc"
-      />
-      <span id="rgb-desc" class="sr-only">Enter an RGB or RGBA color value</span>
-    </div>
-
-    <div class="format-card">
-      <div class="format-header">
-        <span class="format-label">HSL</span>
-        <div class="format-actions">
-          {#if hsl}
-            <CopyButton text={hsl} />
-          {/if}
-        </div>
-      </div>
-      <input
-        type="text"
-        value={hsl}
-        on:input={handleHslInput}
-        placeholder="hsl(0, 0%, 0%)"
-        class="format-input mono"
-        aria-label="HSL color value"
-        aria-describedby="hsl-desc"
-      />
-      <span id="hsl-desc" class="sr-only">Enter an HSL or HSLA color value</span>
-    </div>
-  </div>
-
-  <FactStrip
-    facts={[
-      { label: 'Format', value: 'HEX, RGB, HSL' },
-      { label: 'Input', value: 'Type any format', presentation: 'accent' }
-    ]}
-  />
+    <svelte:fragment slot="rail-end">
+      <PasteButton on:text={(e) => handleHexInput({ currentTarget: { value: e.detail.text } })} />
+      <ShareButton getState={() => ({ hex })} />
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
@@ -416,23 +412,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .btn-ghost {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    transition: all var(--transition) var(--ease-out);
-  }
-
-  .btn-ghost:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
   }
 
   .preview-card {

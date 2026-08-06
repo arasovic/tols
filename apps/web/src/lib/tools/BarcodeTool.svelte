@@ -1,6 +1,9 @@
 <script>
   import { onMount, onDestroy, tick } from 'svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
 
   let barcodeText = 'CODE128'
   let barcodeType = 'CODE128'
@@ -358,83 +361,68 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="barcode">
-    <svelte:fragment slot="actions">
-      <button type="button"
-        class="icon-btn"
-        on:click={loadExample}
-        title="Load Example"
-        aria-label="Load example barcode text"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button type="button"
-        class="icon-btn"
-        on:click={clear}
-        title="Clear"
-        aria-label="Clear barcode input"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <ToolHeader toolId="barcode" />
 
-  {#if error}
-    <div class="error-display" role="alert" aria-live="polite">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <span>{error}</span>
+  <ToolShell
+    toolId="barcode"
+    action="gen"
+    input={barcodeText}
+    output=""
+    onRun={generateBarcode}
+  >
+    <div class="barcode-input">
+      <div class="input-group">
+        <label for="barcode-text">Text to encode</label>
+        <input
+          id="barcode-text"
+          type="text"
+          bind:value={barcodeText}
+          on:input={debouncedGenerate}
+          placeholder="Enter text or numbers..."
+          maxlength={MAX_INPUT_LENGTH}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? 'barcode-error' : undefined}
+        />
+      </div>
+      <div class="input-group type-group">
+        <label for="barcode-type">Type</label>
+        <select id="barcode-type" bind:value={barcodeType}>
+          <option value="CODE128">Code128</option>
+        </select>
+      </div>
     </div>
-  {/if}
 
-  <div class="barcode-input">
-    <div class="input-group">
-      <label for="barcode-text">Text to encode</label>
-      <input
-        id="barcode-text"
-        type="text"
-        bind:value={barcodeText}
-        on:input={debouncedGenerate}
-        placeholder="Enter text or numbers..."
-        maxlength={MAX_INPUT_LENGTH}
-        aria-invalid={error ? 'true' : 'false'}
-        aria-describedby={error ? 'barcode-error' : undefined}
-      />
-    </div>
-    <div class="input-group type-group">
-      <label for="barcode-type">Type</label>
-      <select id="barcode-type" bind:value={barcodeType}>
-        <option value="CODE128">Code128</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="barcode-preview">
-    <canvas
-      bind:this={canvas}
-      aria-label={barcodeText ? `Barcode representing: ${barcodeText}` : 'Barcode preview area'}
-    ></canvas>
-    {#if barcodeText}
-      <button type="button" class="download-btn" on:click={downloadPNG}>
+    {#if error}
+      <div class="error-display" role="alert" aria-live="polite">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        Download PNG
-      </button>
+        <span>{error}</span>
+      </div>
     {/if}
-  </div>
+
+    <Panel label="Barcode">
+      <div class="barcode-preview">
+        <canvas
+          bind:this={canvas}
+          class="barcode-canvas"
+          aria-label={barcodeText ? `Barcode representing: ${barcodeText}` : 'Barcode preview area'}
+        ></canvas>
+      </div>
+    </Panel>
+
+    <svelte:fragment slot="rail">
+      {#if barcodeText}
+        <Button variant="primary" on:click={downloadPNG} aria-label="Download barcode PNG">Download PNG</Button>
+      {/if}
+      <Button on:click={loadExample} title="Load Example" aria-label="Load example barcode text">example</Button>
+      <Button on:click={clear} title="Clear" aria-label="Clear barcode input">clear</Button>
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
   .barcode-input { display: flex; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .input-group { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -442,9 +430,7 @@
   .input-group input, .input-group select { padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); font-size: var(--text-base); outline: none; }
   .input-group input:focus, .input-group select:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }
   .type-group { width: 120px; }
-  .barcode-preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-  .barcode-preview canvas { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-  .download-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-size: var(--text-sm); font-weight: var(--font-medium); color: white; background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .download-btn:hover { background: var(--accent-hover); }
+  .barcode-preview { display: flex; justify-content: center; padding: var(--space-6); }
+  .barcode-canvas { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
   @media (max-width: 768px) { .barcode-input { flex-direction: column; } .type-group { width: 100%; } }
 </style>

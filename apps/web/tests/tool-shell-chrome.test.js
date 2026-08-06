@@ -15,9 +15,10 @@ function walk(dir) {
 /**
  * Panel and ToolShell own the panel box chrome now. A tool that renders them
  * must declare no panel-box chrome of its own — neither the markup nor the CSS
- * rules, in any of the idioms the nine tools used to hand-roll (the `panel`
- * box, its `panel-header`/`panel-title`/`panel-badge`/`badge`/`header-actions`
- * header fragments, and the pair grids and result wrappers that placed them).
+ * rules, in any of the idioms the converted tools used to hand-roll (the
+ * `panel` box, its `panel-header`/`panel-title`/`panel-badge`/`badge`/
+ * `header-actions`/`output-header` header fragments, and the pair grids and
+ * result wrappers that placed them).
  *
  * Each name is matched as a class *token*, not as a whole attribute or plain
  * rule: `class="panel"` and `class="panel content"` are the same
@@ -46,6 +47,7 @@ const PANEL_CHROME_CLASSES = [
   'panel-badge',
   'badge',
   'header-actions',
+  'output-header',
   'char-count',
   // the pair grids and result containers that placed them
   'decoded-grid',
@@ -131,13 +133,22 @@ function panelPairGrids(source) {
 }
 
 const ON_TOOLSHELL = [
+  'BarcodeTool.svelte',
+  'ColorTool.svelte',
   'CronTool.svelte',
+  'DataUriTool.svelte',
   'DiffTool.svelte',
+  'HashTool.svelte',
+  'GzipTool.svelte',
+  'JsonpTool.svelte',
   'JwtEncoderTool.svelte',
   'JwtTool.svelte',
   'LoremTool.svelte',
+  'PlaceholderTool.svelte',
+  'QrcodeTool.svelte',
   'RegexTool.svelte',
   'TimestampTool.svelte',
+  'UnicodeTool.svelte',
   'UrlTool.svelte',
   'UuidTool.svelte'
 ]
@@ -157,27 +168,49 @@ describe('panel box chrome', () => {
     expect(offenders).toEqual([])
   })
 
-  it('is what the nine tools render — they cannot opt back out of it', () => {
+  it('is what the converted tools render — they cannot opt back out of it', () => {
     // The check above proves nobody kept their OWN chrome, which a tool that
     // neither renders ToolShell nor hand-rolls a panel box also satisfies. The
-    // list is explicit: these nine own a panel-box layout, so each must render
-    // it through the shell. A tool that reintroduces the chrome under renamed
-    // classes (invisible to the scan above) AND drops the import fails here.
+    // list is explicit: these own a panel-box layout, so each must
+    // render it through the shell. A tool that reintroduces the chrome under
+    // renamed classes (invisible to the scan above) AND drops the import fails
+    // here.
     const missing = ON_TOOLSHELL.filter(
       (name) => !/<ToolShell\b/.test(readFileSync(join(TOOLS_DIR, name), 'utf8'))
     )
     expect(missing).toEqual([])
   })
 
+  it('catches the box-and-header idiom as a class token among others', () => {
+    // Each of the four guards before this one shipped with a hole; the first
+    // was an exact-attribute pattern that `class="x wide"` walks past. The
+    // added `output-header` guard is a token pattern, so the interesting
+    // mutation is the box header reintroduced as one of several classes on the
+    // same element — `class="result output-header"` — which the exact-match
+    // form would miss and this one catches.
+    const mutation = 'class="result output-header"'
+    expect(PANEL_CHROME_PATTERNS.some((pattern) => pattern.test(mutation))).toBe(true)
+  })
+
   it('does not come back as a renamed panel-pair grid', () => {
     // The first two tests catch the historical names and the shell contract.
     // What they cannot see is a reintroduction written with fresh wrapper
     // names — the hole the pane guard closed with its structural signature.
-    const offenders = ON_TOOLSHELL.flatMap((name) =>
-      panelPairGrids(readFileSync(join(TOOLS_DIR, name), 'utf8')).map(
-        (tracks) => `${name}: grid-template-columns: ${tracks}`
-      )
-    )
+    //
+    // Scoped to files that render two or more `<Panel>` elements, because a
+    // two-equal-column track list is not by itself evidence of anything: a
+    // checkbox pair, a from/to time picker and a filter control grid are all
+    // written `repeat(2, 1fr)` and none of them is a panel pair. Without this
+    // scope the guard reported those as offenders, and the fix applied to them
+    // was to rewrite the *product* CSS to `repeat(auto-fit, minmax(…))` — the
+    // tool bending to the test. A tool that has several panels is the one that
+    // owes their placement to PanelGroup, and that is the only place the track
+    // list is evidence.
+    const offenders = ON_TOOLSHELL.flatMap((name) => {
+      const source = readFileSync(join(TOOLS_DIR, name), 'utf8')
+      if ((source.match(/<Panel\b/g) || []).length < 2) return []
+      return panelPairGrids(source).map((tracks) => `${name}: grid-template-columns: ${tracks}`)
+    })
     expect(offenders).toEqual([])
   })
 })

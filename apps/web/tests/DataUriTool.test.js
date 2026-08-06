@@ -446,8 +446,7 @@ describe('DataUriTool', () => {
       readerInstance.onload?.({ target: { result: readerInstance.result } })
 
       await waitFor(() => {
-        const copyButton = screen.getByTestId('copy-button')
-        expect(copyButton).toBeInTheDocument()
+        expect(screen.getByLabelText('Copy to clipboard')).toBeInTheDocument()
       }, { timeout: DEFAULT_TIMEOUT })
     })
   })
@@ -566,7 +565,7 @@ describe('DataUriTool', () => {
         expect(screen.getByTestId('result-section')).toBeInTheDocument()
         expect(screen.getByTestId('filename-display')).toHaveTextContent('hello.txt')
         expect(screen.getByText('text/plain')).toBeInTheDocument()
-        expect(screen.getByTestId('copy-button')).toBeInTheDocument()
+        expect(screen.getByLabelText('Copy to clipboard')).toBeInTheDocument()
         expect(screen.getByTestId('preview-unavailable')).toBeInTheDocument()
       }, { timeout: DEFAULT_TIMEOUT })
 

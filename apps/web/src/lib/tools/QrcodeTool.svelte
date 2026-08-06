@@ -1,6 +1,9 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import ToolShell from '$lib/ui/ToolShell.svelte'
+  import Panel from '$lib/ui/Panel.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const DEFAULT_URL = 'https://github.com/arasovic/dev-utilities'
@@ -737,59 +740,59 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="qrcode">
-    <svelte:fragment slot="actions">
-      <button type="button" class="icon-btn" on:click={clear} title="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <ToolHeader toolId="qrcode" />
 
-  {#if error}
-    <div class="error-display" role="alert">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span>{error}</span>
-    </div>
-  {/if}
-
-  <div class="qr-input-section">
-    <div class="input-group">
-      <label for="qr-text-input">Text or URL</label>
-      <input id="qr-text-input" type="text" bind:value={qrText} on:input={debouncedGenerate} placeholder="Enter text or URL..." />
-    </div>
-    <div class="input-group size-group">
-      <label for="qr-size-slider">Size: {qrSize}px</label>
-      <input id="qr-size-slider" type="range" bind:value={qrSize} min="100" max="500" step="50" on:input={debouncedGenerate} />
-    </div>
-  </div>
-
-  <div class="qr-preview">
-    <canvas bind:this={qrCanvas} width={qrSize} height={qrSize} aria-label="Generated QR code"></canvas>
-    {#if qrText}
-      <button type="button" class="download-btn" on:click={downloadPNG}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download PNG
-      </button>
+  <ToolShell
+    toolId="qrcode"
+    action="gen"
+    flags={{ ec: 'M' }}
+    input={qrText}
+  >
+    {#if error}
+      <div class="error-display" role="alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>{error}</span>
+      </div>
     {/if}
-  </div>
 
-  <div class="examples-section">
-    <h3>Quick Examples</h3>
-    <div class="examples">
-      <button type="button" class="example-btn" on:click={() => setExample('https://github.com')}>GitHub</button>
-      <button type="button" class="example-btn" on:click={() => setExample('https://google.com')}>Google</button>
-      <button type="button" class="example-btn" on:click={() => setExample('mailto:hello@example.com')}>Email</button>
-      <button type="button" class="example-btn" on:click={() => setExample('tel:+1234567890')}>Phone</button>
+    <div class="qr-input-section">
+      <div class="input-group">
+        <label for="qr-text-input">Text or URL</label>
+        <input id="qr-text-input" type="text" bind:value={qrText} on:input={debouncedGenerate} placeholder="Enter text or URL..." />
+      </div>
+      <div class="input-group size-group">
+        <label for="qr-size-slider">Size: {qrSize}px</label>
+        <input id="qr-size-slider" type="range" bind:value={qrSize} min="100" max="500" step="50" on:input={debouncedGenerate} />
+      </div>
     </div>
-  </div>
+
+    <Panel label="QR Code">
+      <div class="qr-preview">
+        <canvas bind:this={qrCanvas} width={qrSize} height={qrSize} aria-label="Generated QR code"></canvas>
+      </div>
+    </Panel>
+
+    <div class="examples-section">
+      <h3>Quick Examples</h3>
+      <div class="examples">
+        <button type="button" class="example-btn" on:click={() => setExample('https://github.com')}>GitHub</button>
+        <button type="button" class="example-btn" on:click={() => setExample('https://google.com')}>Google</button>
+        <button type="button" class="example-btn" on:click={() => setExample('mailto:hello@example.com')}>Email</button>
+        <button type="button" class="example-btn" on:click={() => setExample('tel:+1234567890')}>Phone</button>
+      </div>
+    </div>
+
+    <svelte:fragment slot="rail">
+      {#if qrText}
+        <Button variant="primary" on:click={downloadPNG} aria-label="Download QR code PNG">Download PNG</Button>
+      {/if}
+      <Button on:click={clear} title="Clear" aria-label="Clear">clear</Button>
+    </svelte:fragment>
+  </ToolShell>
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-  .icon-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
   .qr-input-section { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .input-group { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -797,11 +800,8 @@
   .input-group input[type="text"] { padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); font-size: var(--text-base); outline: none; }
   .input-group input[type="text"]:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }
   .size-group input[type="range"] { width: 100%; }
-  .qr-preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+  .qr-preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); }
   .qr-preview canvas { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-  .download-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-size: var(--text-sm); font-weight: var(--font-medium); color: white; background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
-  .download-btn:hover { background: var(--accent-hover); }
-  .download-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
   .examples-section h3 { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text-tertiary); margin-bottom: var(--space-3); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
   .examples { display: flex; flex-wrap: wrap; gap: var(--space-2); }
   .example-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }

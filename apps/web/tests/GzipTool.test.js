@@ -223,8 +223,8 @@ describe('GzipTool', () => {
     await waitForDebounce()
 
     await waitFor(() => {
-      const outputActions = document.querySelector('.output-actions')
-      expect(outputActions).toBeInTheDocument()
+      const copyButtons = document.querySelectorAll('.copy-btn')
+      expect(copyButtons.length).toBeGreaterThan(0)
     })
   })
 
