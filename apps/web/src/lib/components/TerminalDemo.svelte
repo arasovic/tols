@@ -70,7 +70,18 @@
 
   .prompt { color: var(--accent); }
 
-  .install code { flex: 1; color: var(--text-primary); }
+  /* Same opt-out as .command-text: this is the install line itself, not a code
+     reference inside prose. `font-size: inherit` matters independently — the
+     global rule's 0.92em against .install's --text-md lands on 12.88px, a size
+     the type scale does not contain. */
+  .install code {
+    flex: 1;
+    color: var(--text-primary);
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+  }
 
   .install-copy {
     padding: var(--space-1) var(--space-2);

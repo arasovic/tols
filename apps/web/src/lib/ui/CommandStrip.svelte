@@ -101,6 +101,12 @@
      container for a long command — without it, `white-space: pre` painted the
      command straight over the copy button below ~600px. Neither is visible to
      jsdom, which computes no layout. */
+  /* The global `code` rule (app.css) paints every <code> as an inline chip:
+     --bg-elevated, 2px 4px padding, a radius and 0.92em. That is right for a
+     code reference inside prose and wrong here — this element IS the terminal
+     line, so a chip nested inside the strip reads as a quoted fragment rather
+     than a command you could run. Opt out explicitly; the size already comes
+     from the scale, but the box does not reset itself. */
   .command-text {
     flex: 0 1 auto;
     min-width: 0;
@@ -109,6 +115,9 @@
     font-family: var(--font-mono);
     font-size: var(--text-base);
     white-space: pre;
+    background: none;
+    padding: 0;
+    border-radius: 0;
   }
 
   /* A block caret is a character cell, so it is sized off the type scale
