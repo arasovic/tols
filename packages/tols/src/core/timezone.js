@@ -76,10 +76,34 @@ export function parseWallFields(input) {
   return { y: +m[1], mo: +m[2], d: +m[3], h: +m[4], mi: +m[5], s: +(m[6] ?? 0) };
 }
 
-/** Wall-clock offset (ms) of a zone at a given instant. */
+/**
+ * Wall-clock offset (ms) of a zone at a given instant. Computed via
+ * formatToParts + Date.UTC so the result does not depend on the machine's
+ * own time zone (the toLocaleString-parse trick re-introduces it).
+ */
 function wallOffset(instantMs, zone) {
-  const wall = new Date(new Date(instantMs).toLocaleString('en-US', { timeZone: zone })).getTime();
-  return wall - instantMs;
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+  /** @type {Record<string, string>} */
+  const parts = {};
+  for (const p of dtf.formatToParts(new Date(instantMs))) parts[p.type] = p.value;
+  const wallUtc = Date.UTC(
+    Number(parts.year),
+    Number(parts.month) - 1,
+    Number(parts.day),
+    Number(parts.hour),
+    Number(parts.minute),
+    Number(parts.second)
+  );
+  return wallUtc - instantMs;
 }
 
 /**

@@ -19,11 +19,24 @@ const { version } = require('../package.json');
  * }
  */
 export async function run(argv, { stdin = process.stdin, stdout = process.stdout, stderr = process.stderr } = {}) {
-  const json = argv.includes('--json');
+  let json = false;
   const flags = {};
   const rest = [];
+  let positionalOnly = false;
   for (const a of argv) {
-    if (a === '--json') continue;
+    if (positionalOnly) {
+      rest.push(a);
+      continue;
+    }
+    if (a === '--') {
+      // Everything after a bare `--` is input, even if it looks like a flag.
+      positionalOnly = true;
+      continue;
+    }
+    if (a === '--json') {
+      json = true;
+      continue;
+    }
     if (a.startsWith('--')) {
       const [k, ...v] = a.slice(2).split('=');
       flags[k] = v.length ? v.join('=') : true;

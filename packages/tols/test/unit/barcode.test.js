@@ -37,10 +37,10 @@ describe('barcode core', () => {
     expect(invalid[0]).toMatchObject({ index: 2, char: 'é' });
   });
 
-  it('generate returns SVG with geometry matching the web', () => {
+  it('generate returns SVG with spec geometry', () => {
     const r = bc.generate('ABC');
-    // 3 chars: start + 3 data + checksum + stop = 6 values * 11 modules * 2px + 2*10 quiet
-    expect(r.width).toBe(6 * 11 * 2 + 20);
+    // 6 values: five 11-module symbols + 13-module STOP, 2px modules, quiet 10
+    expect(r.width).toBe((5 * 11 + 13) * 2 + 20);
     expect(r.svg).toContain(`<svg xmlns="http://www.w3.org/2000/svg" width="${r.width}" height="140"`);
     expect(r.svg).toContain('>ABC</text>');
   });
@@ -56,9 +56,12 @@ describe('barcode core', () => {
     expect(() => bc.generate('   ')).toThrow(bc.EMPTY_INPUT_MESSAGE);
   });
 
-  it('every value maps to an 11-module pattern', () => {
-    for (const v of bc.encodeCode128('Test-123')) {
+  it('symbols use 11-module patterns; STOP is 13 with the termination bar', () => {
+    const values = bc.encodeCode128('Test-123');
+    for (const v of values.slice(0, -1)) {
       expect(bc.CODE128.patterns[v]).toHaveLength(11);
     }
+    // ISO 15417 STOP: 13 modules ending in the `11` termination bar.
+    expect(bc.CODE128.patterns[values[values.length - 1]]).toBe('1100011101011');
   });
 });

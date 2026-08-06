@@ -44,7 +44,7 @@ export const CODE128 = {
     '11011110110', '11110110110', '10101111000', '10100011110', '10001011110',
     '10111101000', '10111100010', '11110101000', '11110100010', '10111011110',
     '10111101110', '11101011110', '11110101110', '11010000100', '11010010000',
-    '11010011100', '11000111010',
+    '11010011100', '1100011101011',
   ],
 };
 
@@ -169,7 +169,8 @@ export function escapeXml(s) {
  * @param {string} label
  */
 export function renderSvg(values, label) {
-  const totalWidth = values.length * 11 * MODULE_WIDTH + QUIET_ZONE * 2;
+  // 11 modules per symbol value, except STOP which is 13 (termination bar).
+  const totalWidth = ((values.length - 1) * 11 + 13) * MODULE_WIDTH + QUIET_ZONE * 2;
   const totalHeight = MODULE_HEIGHT + 40;
 
   const rects = [];
@@ -212,6 +213,6 @@ export function generate(text) {
     throw new Error(message);
   }
   const values = encodeCode128(text);
-  const width = values.length * 11 * MODULE_WIDTH + QUIET_ZONE * 2;
+  const width = ((values.length - 1) * 11 + 13) * MODULE_WIDTH + QUIET_ZONE * 2;
   return { svg: renderSvg(values, text), values, set: determineSet(text), width };
 }

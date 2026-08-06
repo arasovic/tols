@@ -45,3 +45,21 @@ describe('timezone core', () => {
     expect(r.name).toBe('Europe/Istanbul');
   });
 });
+
+describe('wallTimeInZone machine independence', () => {
+  it('maps canonical wall times correctly', () => {
+    expect(tz.wallTimeInZone(tz.parseWallFields('2026-01-15 12:00'), 'America/New_York').toISOString())
+      .toBe('2026-01-15T17:00:00.000Z');
+    expect(tz.wallTimeInZone(tz.parseWallFields('2026-01-15 12:00'), 'Europe/Istanbul').toISOString())
+      .toBe('2026-01-15T09:00:00.000Z');
+  });
+
+  it('is deterministic for DST gaps and ambiguous times', () => {
+    // 2026-03-08 02:30 does not exist in New York (spring forward)
+    expect(tz.wallTimeInZone(tz.parseWallFields('2026-03-08 02:30'), 'America/New_York').toISOString())
+      .toBe('2026-03-08T06:30:00.000Z');
+    // 2026-11-01 01:30 happens twice (fall back); the first occurrence wins
+    expect(tz.wallTimeInZone(tz.parseWallFields('2026-11-01 01:30'), 'America/New_York').toISOString())
+      .toBe('2026-11-01T05:30:00.000Z');
+  });
+});

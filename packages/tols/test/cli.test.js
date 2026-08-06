@@ -93,3 +93,17 @@ describe('cli contract', () => {
     expect(r.out.trim()).toMatch(/^\d+\.\d+\.\d+$/);
   });
 });
+
+describe('-- separator', () => {
+  it('treats args after -- as input even when they look like flags', async () => {
+    const r = await tols(['base64', 'enc', '--', '--text']);
+    expect(r.code).toBe(0);
+    expect(r.out).toBe(Buffer.from('--text').toString('base64') + '\n');
+  });
+
+  it('does not enable --json after --', async () => {
+    const r = await tols(['hash', 'md5', '--', '--json']);
+    expect(r.code).toBe(0);
+    expect(r.out.startsWith('{')).toBe(false);
+  });
+});
