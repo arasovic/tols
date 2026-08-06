@@ -95,6 +95,8 @@ export function toHtml(md) {
   let listType = '';
   let inBlockquote = false;
   let blockquoteLines = [];
+  /** @type {string[]} */
+  let paragraphLines = [];
 
   const flushList = () => {
     if (inList) {
@@ -111,11 +113,29 @@ export function toHtml(md) {
       blockquoteLines = [];
     }
   };
+  /**
+   * Consecutive non-blank lines are one paragraph, joined by the newline that
+   * separated them. Emitting a <p> per line, which is what this did before,
+   * breaks every document whose prose is wrapped at a column: each wrapped line
+   * became its own paragraph.
+   *
+   * Joining also feeds parseInline the whole paragraph at once, which is what
+   * its `  $` -> <br> rule (multiline flag) and its emphasis rules were written
+   * for. flushBlockquote already did this; the paragraph branch was the one
+   * place that did not.
+   */
+  const flushParagraph = () => {
+    if (paragraphLines.length) {
+      result.push(`<p>${parseInline(paragraphLines.join('\n'))}</p>`);
+      paragraphLines = [];
+    }
+  };
 
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i];
 
     if (line.startsWith('```')) {
+      flushParagraph();
       if (inCodeBlock) {
         result.push(`<pre><code${codeBlockLang ? ` class="language-${escapeHtml(codeBlockLang)}"` : ''}>${escapeHtml(codeBlockContent.join('\n'))}</code></pre>`);
         inCodeBlock = false;
@@ -134,6 +154,7 @@ export function toHtml(md) {
     }
 
     if (/^(---|___|\*\*\*)$/.test(line.trim())) {
+      flushParagraph();
       flushList();
       flushBlockquote();
       result.push('<hr>');
@@ -142,6 +163,7 @@ export function toHtml(md) {
 
     const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);
     if (headerMatch) {
+      flushParagraph();
       flushList();
       flushBlockquote();
       const level = headerMatch[1].length;
@@ -152,6 +174,7 @@ export function toHtml(md) {
 
     const quoteMatch = line.match(/^>\s?(.*)$/);
     if (quoteMatch) {
+      flushParagraph();
       flushList();
       inBlockquote = true;
       blockquoteLines.push(quoteMatch[1]);
@@ -164,6 +187,7 @@ export function toHtml(md) {
     const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/);
 
     if (ulMatch || olMatch) {
+      flushParagraph();
       const lineMatch = /** @type {RegExpMatchArray} */ (ulMatch || olMatch);
       const isOrdered = !!olMatch;
       const newListType = isOrdered ? 'ol' : 'ul';
@@ -197,6 +221,7 @@ export function toHtml(md) {
     }
 
     if (line.startsWith('    ')) {
+      flushParagraph();
       const codeLines = [];
       while (i < lines.length) {
         const currentLine = lines[i];
@@ -216,10 +241,13 @@ export function toHtml(md) {
     }
 
     if (line.trim()) {
-      result.push(`<p>${parseInline(line)}</p>`);
+      paragraphLines.push(line);
+    } else {
+      flushParagraph();
     }
   }
 
+  flushParagraph();
   flushList();
   flushBlockquote();
   if (inCodeBlock) {

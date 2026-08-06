@@ -18,9 +18,8 @@ tols hash sha256 <<< "secret"
 ## Install
 
 ```sh
-npm install -g tols        # global CLI
-# or per project
-npm install tols
+npm install -g tols   # global CLI
+npm install tols      # or just this project
 ```
 
 Run without installing: `npx tols <tool> <action> [input] [flags]`.

@@ -5,15 +5,13 @@
 
 Thirty developer tools, available both as a website and as a command line
 program. The web version runs entirely in your browser: there is no backend, no
-account, and nothing is sent anywhere. The CLI is the same code with no runtime
-dependencies.
+account, and nothing is sent anywhere. The CLI has no runtime dependencies.
 
-**Web:** [tols.arasmehmet.com](https://tols.arasmehmet.com/)
-**CLI:** `npm install -g tols`
+- **Web:** [tols.arasmehmet.com](https://tols.arasmehmet.com/)
+- **CLI:** `npm install -g tols`
 
-Both sides import the same core modules, so a tool behaves identically whichever
-one you reach for. The web pages show the CLI command that does the same job,
-which means anything you can do on the site you can also put in a script.
+Each web page shows the CLI command that does the same job, so anything you can
+do on the site you can also put in a script.
 
 ```sh
 tols json fmt @config.json
@@ -93,6 +91,12 @@ The core lives in `packages/tols/src/core/`. Those modules use no Node specific
 APIs, so the same files are imported by the CLI and bundled into the site. The
 CLI adapters in `packages/tols/src/tools/` wrap them in argument parsing, and
 the Svelte components in `apps/web/src/lib/tools/` wrap them in a UI.
+
+That consolidation is partway done: 11 of the 30 web tools import the shared
+core today, and the other 19 still carry their own implementation next to the
+CLI's. Moving one onto the core is a good first contribution. Markdown is the
+worked example of why it is worth doing: both copies had drifted into the same
+paragraph bug, and each had to be fixed separately.
 
 ## Development
 

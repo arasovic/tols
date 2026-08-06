@@ -145,11 +145,27 @@ This is a **bold** text and this is *italic*.
     let listType = ''
     let inBlockquote = false
     let blockquoteLines = []
+    /** @type {string[]} */
+    let paragraphLines = []
+
+    // Consecutive non-blank lines are ONE paragraph, joined by the newline
+    // between them. Emitting a <p> per line, which is what this did, split
+    // every column-wrapped document into a paragraph per line. Joining also
+    // hands parseInline the whole paragraph, which is what its two-space
+    // hard-break rule needs in order to fire at all. Mirrors
+    // tols/core/markdown.js, which had the same defect.
+    const flushParagraph = () => {
+      if (paragraphLines.length) {
+        result.push(`<p>${parseInline(paragraphLines.join('\n'))}</p>`)
+        paragraphLines = []
+      }
+    }
 
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i]
 
       if (line.startsWith('```')) {
+        flushParagraph()
         if (inCodeBlock) {
           result.push(`<pre><code${codeBlockLang ? ` class="language-${escapeHtml(codeBlockLang)}"` : ''}>${escapeHtml(codeBlockContent.join('\n'))}</code></pre>`)
           inCodeBlock = false
@@ -168,6 +184,7 @@ This is a **bold** text and this is *italic*.
       }
 
       if (/^(---|___|\*\*\*)$/.test(line.trim())) {
+        flushParagraph()
         if (inList) {
           result.push(`<${listType}>${listItems.join('')}</${listType}>`)
           inList = false
@@ -185,6 +202,7 @@ This is a **bold** text and this is *italic*.
 
       const headerMatch = line.match(/^(#{1,6})\s+(.+)$/)
       if (headerMatch) {
+        flushParagraph()
         if (inList) {
           result.push(`<${listType}>${listItems.join('')}</${listType}>`)
           inList = false
@@ -204,6 +222,7 @@ This is a **bold** text and this is *italic*.
 
       const quoteMatch = line.match(/^>\s?(.*)$/)
       if (quoteMatch) {
+        flushParagraph()
         if (inList) {
           result.push(`<${listType}>${listItems.join('')}</${listType}>`)
           inList = false
@@ -223,6 +242,7 @@ This is a **bold** text and this is *italic*.
       const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/)
       
       if (ulMatch || olMatch) {
+        flushParagraph()
         const lineMatch = /** @type {RegExpMatchArray} */ (ulMatch || olMatch)
         const isOrdered = !!olMatch
         const newListType = isOrdered ? 'ol' : 'ul'
@@ -268,6 +288,7 @@ This is a **bold** text and this is *italic*.
       }
 
       if (line.startsWith('    ')) {
+        flushParagraph()
         const codeLines = []
         while (i < lines.length) {
           const currentLine = lines[i]
@@ -287,10 +308,13 @@ This is a **bold** text and this is *italic*.
       }
 
       if (line.trim()) {
-        result.push(`<p>${parseInline(line)}</p>`)
+        paragraphLines.push(line)
+      } else {
+        flushParagraph()
       }
     }
 
+    flushParagraph()
     if (inList) {
       result.push(`<${listType}>${listItems.join('')}</${listType}>`)
     }

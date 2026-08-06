@@ -91,3 +91,40 @@ describe('markdown deep-review fixes', () => {
     expect(md.toHtml('a `b` **c**')).toBe('<p>a <code>b</code> <strong>c</strong></p>');
   });
 });
+
+describe('paragraphs span the lines they were wrapped across', () => {
+  // The whole suite above tests single-line inputs, which is why nothing caught
+  // this: every non-blank line became its own <p>, so any document whose prose
+  // is wrapped at a column rendered as one paragraph per line. The repository's
+  // own READMEs are wrapped that way, which is how it surfaced.
+  it('joins consecutive lines into one paragraph', () => {
+    expect(md.toHtml('first line\nsecond line')).toBe('<p>first line\nsecond line</p>');
+  });
+
+  it('still separates paragraphs on a blank line', () => {
+    expect(md.toHtml('one\n\ntwo')).toBe('<p>one</p>\n<p>two</p>');
+  });
+
+  it('honours a two-space hard break inside a paragraph', () => {
+    // parseInline has always had the `  $` -> <br> rule, but it is written with
+    // the multiline flag and so could never fire while it was handed one line
+    // at a time. Joining the paragraph is what makes it reachable.
+    expect(md.toHtml('Web: tols  \nCLI: npm i')).toBe('<p>Web: tols<br>\nCLI: npm i</p>');
+  });
+
+  it('parses emphasis that opens and closes on different lines', () => {
+    expect(md.toHtml('a **bold\ntext** b')).toBe('<p>a <strong>bold\ntext</strong> b</p>');
+  });
+
+  it('closes the paragraph before every block construct', () => {
+    expect(md.toHtml('text\n# H')).toBe('<p>text</p>\n<h1>H</h1>');
+    expect(md.toHtml('text\n- item')).toBe('<p>text</p>\n<ul><li>item</li></ul>');
+    expect(md.toHtml('text\n> quote')).toBe('<p>text</p>\n<blockquote>quote</blockquote>');
+    expect(md.toHtml('text\n---')).toBe('<p>text</p>\n<hr>');
+    expect(md.toHtml('text\n```\nc\n```')).toBe('<p>text</p>\n<pre><code>c</code></pre>');
+  });
+
+  it('closes the paragraph at end of input', () => {
+    expect(md.toHtml('trailing text')).toBe('<p>trailing text</p>');
+  });
+});

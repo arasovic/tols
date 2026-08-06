@@ -499,3 +499,49 @@ describe('MarkdownTool', () => {
     })
   })
 })
+
+describe('MarkdownTool paragraphs', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.clearAllTimers()
+  })
+
+  afterEach(() => {
+    cleanup()
+  })
+
+  // Every assertion in the suite above reads textContent, which is identical
+  // whether the preview holds one paragraph or one per line. That is why the
+  // component rendered a <p> per source line for as long as it did: the text
+  // was always right, only the structure was wrong. These count elements.
+  it('renders lines wrapped at a column as a single paragraph', async () => {
+    const { container } = render(MarkdownTool)
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: 'first line\nsecond line' } })
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('.preview-display p')).toHaveLength(1)
+    }, { timeout: 500 })
+  })
+
+  it('still starts a new paragraph on a blank line', async () => {
+    const { container } = render(MarkdownTool)
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: 'one\n\ntwo' } })
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('.preview-display p')).toHaveLength(2)
+    }, { timeout: 500 })
+  })
+
+  it('turns a two-space line ending into a hard break', async () => {
+    const { container } = render(MarkdownTool)
+    const textarea = container.querySelector('.editor-textarea')
+    await fireEvent.input(textarea, { target: { value: 'Web: tols  \nCLI: npm i' } })
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('.preview-display p')).toHaveLength(1)
+      expect(container.querySelectorAll('.preview-display br')).toHaveLength(1)
+    }, { timeout: 500 })
+  })
+})
