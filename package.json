@@ -2,8 +2,17 @@
   "name": "tols-monorepo",
   "version": "0.0.0",
   "private": true,
+  "description": "Monorepo for tols: 30 developer tools as a website and a zero-dependency CLI.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arasovic/dev-utilities.git"
+  },
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "test": "npm test --workspaces --if-present",
     "check": "npm run check -w apps/web",

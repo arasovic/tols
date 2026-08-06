@@ -1,5 +1,5 @@
 {
-  "name": "dev-utilities",
+  "name": "tols-web",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -29,5 +29,6 @@
   "dependencies": {
     "lucide-svelte": "^0.577.0",
     "tols": "*"
-  }
+  },
+  "description": "The tols website: 30 developer tools running entirely in the browser."
 }
