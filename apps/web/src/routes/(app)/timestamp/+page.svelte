@@ -3,8 +3,8 @@
 
   const pageTitle = 'Timestamp Converter - tols | Unix Timestamp to Date'
   const pageDescription = 'Free online timestamp converter tool for developers. Convert Unix timestamps to human-readable dates and times instantly with full timezone support online.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/timestamp'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/timestamp'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "ISO 8601 output"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

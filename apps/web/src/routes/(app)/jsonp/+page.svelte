@@ -3,8 +3,8 @@
 
   const pageTitle = 'JSONP Tester - tols | JSONP Request Simulator'
   const pageDescription = 'Free online JSONP tester tool for developers. Simulate JSONP requests and parse responses instantly with full callback function support for cross-domain.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/jsonp'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/jsonp'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Query parameter support"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

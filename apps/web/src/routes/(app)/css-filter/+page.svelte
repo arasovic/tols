@@ -3,8 +3,8 @@
 
   const pageTitle = 'CSS Filter Generator - tols | Apply Visual Filters'
   const pageDescription = 'Free online CSS filter generator tool with visual controls. Create blur, brightness, contrast, and other filter effects with live preview and CSS code output.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/css-filter'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/css-filter'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

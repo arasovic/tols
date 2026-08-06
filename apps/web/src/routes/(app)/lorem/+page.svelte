@@ -3,8 +3,8 @@
 
   const pageTitle = 'Lorem Ipsum Generator - tols | Free Placeholder Text'
   const pageDescription = 'Generate Lorem Ipsum placeholder text for your designs and mockups. Customize word count, paragraphs, and HTML output. Free online dummy text generator.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/lorem'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/lorem'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

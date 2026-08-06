@@ -13,7 +13,7 @@ const config = {
       strict: true
     }),
     paths: {
-      base: '/dev-utilities'
+      base: ''
     },
     prerender: {
       handleMissingId: 'ignore',

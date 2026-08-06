@@ -3,8 +3,8 @@
 
   const pageTitle = 'XML Formatter - tols | XML Beautifier & Validator'
   const pageDescription = 'Free online XML formatter and validator tool for developers. Format, validate, and minify XML data instantly with CDATA, comment, and syntax support online.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/xml'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/xml'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

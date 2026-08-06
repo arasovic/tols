@@ -3,8 +3,8 @@
 
   const pageTitle = 'SQL Formatter - tols | SQL Beautifier'
   const pageDescription = 'Free online SQL formatter and beautifier tool for developers. Format SQL queries instantly with proper indentation, keyword casing, and readable output.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/sql'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/sql'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Auto-save"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

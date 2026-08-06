@@ -3,8 +3,8 @@
 
   const pageTitle = 'Password Generator - tols | Secure Password Creator'
   const pageDescription = 'Generate secure, random passwords with customizable options. Includes strength analysis and entropy calculation for maximum security for your accounts.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/password'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/password'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

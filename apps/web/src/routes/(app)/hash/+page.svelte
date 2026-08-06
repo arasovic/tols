@@ -3,8 +3,8 @@
 
   const pageTitle = 'Hash Calculator - tols | Online MD5, SHA Generator'
   const pageDescription = 'Calculate cryptographic hashes online. Generate MD5, SHA-1, SHA-256, SHA-512 hashes instantly. Free hash calculator for developers and security professionals.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/hash'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/hash'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Copy hash to clipboard"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

@@ -3,8 +3,8 @@
 
   const pageTitle = 'CSS Formatter - tols | CSS Beautifier & Minifier'
   const pageDescription = 'Free online CSS formatter and optimizer tool for web developers. Beautify and minify CSS code instantly with proper indentation and whitespace optimization.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/css'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/css'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Error detection"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

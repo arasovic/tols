@@ -3,8 +3,8 @@
 
   const pageTitle = 'HTML Formatter - tols | HTML Beautifier & Minifier'
   const pageDescription = 'Free online HTML formatter and optimizer tool for developers. Beautify and minify HTML code instantly with comment removal, attribute quoting, and formatting.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/html'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/html'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Auto-save"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

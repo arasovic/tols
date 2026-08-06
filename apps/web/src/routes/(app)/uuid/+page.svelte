@@ -3,8 +3,8 @@
 
   const pageTitle = 'UUID Generator - tols | Free UUID v4 Generator'
   const pageDescription = 'Free online UUID generator tool for web developers. Create version 4 UUIDs instantly for unique identifiers in databases and distributed software apps.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/uuid'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/uuid'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Auto-save preferences"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

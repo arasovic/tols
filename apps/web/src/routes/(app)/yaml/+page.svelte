@@ -3,8 +3,8 @@
 
   const pageTitle = 'YAML Formatter - tols | Online YAML Validator & Converter'
   const pageDescription = 'Free online YAML formatter and validator tool. Format, validate, and convert YAML to JSON instantly with full nested structure and array support included.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/yaml'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/yaml'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -41,7 +41,7 @@
       "Error highlighting"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

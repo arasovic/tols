@@ -1,8 +1,7 @@
 # tols
 
-Dev utilities in your terminal. 29 tools, one zero-dependency CLI — the same
-engines that power the [tols web tools](https://arasovic.github.io/dev-utilities/),
-extracted into a browser-safe core with a pipe-friendly CLI on top.
+29 developer tools in one CLI, with no runtime dependencies. The same core
+runs the web tools at [tols.arasmehmet.com](https://tols.arasmehmet.com/).
 
 ```sh
 tols json fmt @config.json
@@ -11,10 +10,10 @@ tols qr gen "https://example.com"
 tols hash sha256 <<< "secret"
 ```
 
-- **Zero runtime dependencies.** Node >= 20, ESM only.
-- **Pipe-friendly.** stdout carries only results; diagnostics go to stderr.
-- **Machine output.** `--json` everywhere: `{"ok":true,"result":...}`.
-- **Programmatic API.** Every core module is importable: `import { base64, json } from 'tols'`.
+- No runtime dependencies. Node >= 20, ESM only.
+- Results go to stdout and diagnostics to stderr, so commands pipe cleanly.
+- `--json` works on every command and returns `{"ok":true,"result":...}`.
+- Every core module is importable: `import { base64, json } from 'tols'`.
 
 ## Install
 
@@ -141,8 +140,8 @@ same code runs in the CLI and in a browser bundle.
 - `diff`: Myers with full trace is quadratic, so inputs above ~3500
   lines per side are rejected with an error instead of exhausting
   memory.
-- `placeholder`: emits SVG (the web draws a canvas PNG); functional
-  parity, different format.
+- `placeholder`: emits SVG. The web tool draws a canvas PNG instead, so
+  the options are the same but the output format differs.
 
 ## Development
 

@@ -3,8 +3,8 @@
 
   const pageTitle = 'JSON Formatter - tols | Online JSON Validator & Beautifier'
   const pageDescription = 'Free online JSON formatter, validator, and minifier. Format, validate, and beautify JSON data instantly with syntax error highlighting support included.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/json'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/json'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Copy formatted output"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

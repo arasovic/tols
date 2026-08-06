@@ -3,8 +3,8 @@
 
   const pageTitle = 'JWT Encoder - tols | Create and Sign JWT Tokens'
   const pageDescription = 'Free online JWT encoder tool for web developers. Create and sign JSON Web Tokens instantly with HS256 algorithm for securely signing web app authentication.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/jwt-encoder'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/jwt-encoder'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Validation"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

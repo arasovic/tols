@@ -3,8 +3,8 @@
 
   const pageTitle = 'Gzip Calculator - tols | Estimate Compression Size'
   const pageDescription = 'Free online Gzip compression calculator tool for web developers. Estimate gzip compression size and analyze bandwidth savings for content optimization.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/gzip'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/gzip'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Performance insights"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

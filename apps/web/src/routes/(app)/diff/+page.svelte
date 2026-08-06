@@ -3,8 +3,8 @@
 
   const pageTitle = 'Diff Checker - tols | Compare Text Differences'
   const pageDescription = 'Free online diff checker comparison tool for developers. Compare two texts side-by-side instantly, find differences, and see unified diff output online today.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/diff'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/diff'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Clear inputs"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

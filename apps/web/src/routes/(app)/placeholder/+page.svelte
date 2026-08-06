@@ -3,8 +3,8 @@
 
   const pageTitle = 'Image Placeholder - tols | Generate Placeholder Images'
   const pageDescription = 'Free online placeholder image generator tool for designers. Create colored placeholder images instantly for mockups, prototypes, and website design projects.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/placeholder'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/placeholder'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Copy URL"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

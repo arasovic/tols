@@ -3,8 +3,8 @@
 
   const pageTitle = 'QR Code Generator - tols | Free QR Code Creator'
   const pageDescription = 'Free online QR code generator tool for everyone. Create QR codes from text and URLs instantly with size controls, error correction, and download options.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/qrcode'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/qrcode'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "High quality"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

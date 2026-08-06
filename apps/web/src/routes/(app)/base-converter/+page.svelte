@@ -3,8 +3,8 @@
 
   const pageTitle = 'Number Base Converter - tols | Decimal Binary Hex'
   const pageDescription = 'Free online number base converter tool for developers. Convert between decimal, binary, hexadecimal, and octal number systems instantly with full support.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/base-converter'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/base-converter'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Large numbers"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

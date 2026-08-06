@@ -3,8 +3,8 @@
 
   const pageTitle = 'Regex Tester - tols | Online Regular Expression Tool'
   const pageDescription = 'Test and debug regular expressions online. Match, replace, and split with regex. Real-time pattern matching with highlighted matches. Free regex tester tool.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/regex'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/regex'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Error detection"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

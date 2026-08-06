@@ -3,8 +3,8 @@
 
   const pageTitle = 'Data URI Generator - tols | Convert Files to Data URIs'
   const pageDescription = 'Convert files to Data URIs for inline embedding in web projects instantly. Supports images, fonts, and other file types with automatic MIME type detection.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/data-uri'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/data-uri'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

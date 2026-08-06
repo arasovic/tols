@@ -3,7 +3,7 @@ import { tools } from '$lib/config/registry.js'
 
 export const prerender = true
 
-const siteUrl = process.env.PUBLIC_SITE_URL || 'https://arasovic.github.io'
+const siteUrl = process.env.PUBLIC_SITE_URL || 'https://tols.arasmehmet.com'
 
 // Home + every tool route, derived from the registry so the sitemap can
 // never drift from the tool list again.

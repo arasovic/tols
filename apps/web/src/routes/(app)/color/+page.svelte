@@ -3,8 +3,8 @@
 
   const pageTitle = 'Color Converter - tols | HEX, RGB, HSL Color Tool'
   const pageDescription = 'Free online color converter tool for web developers and designers. Convert instantly between HEX, RGB, and HSL color formats for professional projects.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/color'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/color'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Real-time preview"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

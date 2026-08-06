@@ -3,8 +3,8 @@
 
   const pageTitle = 'Unicode Inspector - tols | Explore Unicode Characters'
   const pageDescription = 'Free online Unicode inspector tool for developers. Explore Unicode characters, codepoints, categories, and special symbols instantly with search included.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/unicode'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/unicode'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "One-click copy"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

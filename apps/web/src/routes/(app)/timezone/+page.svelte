@@ -3,8 +3,8 @@
 
   const pageTitle = 'Time Zone Converter - tols | Convert Time Zones'
   const pageDescription = 'Free online time zone converter tool for scheduling. Convert times instantly between different time zones worldwide with automatic daylight saving support.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/timezone'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/timezone'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Multiple formats"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

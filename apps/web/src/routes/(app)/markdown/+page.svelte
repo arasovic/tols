@@ -3,8 +3,8 @@
 
   const pageTitle = 'Markdown Previewer - tols | Live Markdown Preview'
   const pageDescription = 'Free online Markdown previewer and converter tool for web developers. Live preview and convert Markdown to HTML with syntax highlighting support included.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/markdown'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/markdown'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "HTML output"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

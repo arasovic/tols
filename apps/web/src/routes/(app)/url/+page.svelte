@@ -3,8 +3,8 @@
 
   const pageTitle = 'URL Encoder/Decoder - tols | Online URL Converter'
   const pageDescription = 'Free online URL encoder and decoder tool for web developers. Encode and decode URL components instantly with full character support for all development.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/url'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/url'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Copy to clipboard"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

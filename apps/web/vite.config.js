@@ -9,7 +9,7 @@ if (process.env.VITEST) process.env.TZ = 'UTC'
 
 export default defineConfig({
   plugins: [sveltekit()],
-  base: '/dev-utilities/',
+  base: '/',
   // Vitest only: apply the 'browser' condition so `import { onMount } from
   // 'svelte'` resolves to the DOM runtime. Without it svelte resolves to its
   // SSR runtime where lifecycle hooks are silent no-ops. Must NOT apply to

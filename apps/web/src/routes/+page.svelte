@@ -19,8 +19,8 @@
 
   const pageTitle = 'tols - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 
   const tools = registryTools.map(tool => ({
     path: tool.id,

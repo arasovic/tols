@@ -141,7 +141,7 @@ describe('qrcode core — jsQR round-trip (decode proof)', () => {
     ['A', 'L'],
     ['0123456789', 'Q'],
     ['ABC $%*+-./:XYZ', 'H'],
-    ['https://arasovic.github.io/dev-utilities/', 'M'],
+    ['https://tols.arasmehmet.com/', 'M'],
     ['https://example.com/path?query=value&other=123#frag', 'H'],
     ['türkçe karakterler: ğüşiöçĞÜŞİÖÇ', 'M'],
     ['中文测试 日本語テスト 한국어', 'Q'],
@@ -159,7 +159,7 @@ describe('qrcode core — jsQR round-trip (decode proof)', () => {
   }
 
   it('all four EC levels decode the same payload', () => {
-    const text = 'https://arasovic.github.io/dev-utilities/ — round trip';
+    const text = 'https://tols.arasmehmet.com/ — round trip';
     for (const ec of ['L', 'M', 'Q', 'H']) {
       const { decoded } = roundTrip(text, ec);
       expect(decoded, `failed at ${ec}`).not.toBeNull();

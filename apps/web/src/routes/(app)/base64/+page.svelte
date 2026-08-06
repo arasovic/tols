@@ -3,8 +3,8 @@
 
   const pageTitle = 'Base64 Encoder/Decoder - tols | Online Base64 Converter'
   const pageDescription = 'Free online Base64 encoder and decoder tool for developers. Encode and decode Base64 text instantly with full UTF-8 support for web development projects.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/base64'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/base64'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Auto-save input"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 

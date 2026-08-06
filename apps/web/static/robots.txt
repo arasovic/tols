@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://arasovic.github.io/dev-utilities/sitemap.xml
+Sitemap: https://tols.arasmehmet.com/sitemap.xml

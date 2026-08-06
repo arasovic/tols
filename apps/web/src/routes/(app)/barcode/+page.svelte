@@ -3,8 +3,8 @@
 
   const pageTitle = 'Barcode Generator - tols | Create Barcodes'
   const pageDescription = 'Free online barcode generator tool. Create Code128 barcodes instantly for products, labels, inventory management, and retail business purposes online today.'
-  const canonicalUrl = 'https://arasovic.github.io/dev-utilities/barcode'
-  const ogImage = 'https://arasovic.github.io/dev-utilities/og-image.svg'
+  const canonicalUrl = 'https://tols.arasmehmet.com/barcode'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
 </script>
 
 <svelte:head>
@@ -42,7 +42,7 @@
       "Print ready"
     ],
     "url": canonicalUrl,
-    "provider": { "@type": "Organization", "name": "tols", "url": "https://arasovic.github.io/dev-utilities" }
+    "provider": { "@type": "Organization", "name": "tols", "url": "https://tols.arasmehmet.com" }
   })}</script>`}
 </svelte:head>
 
