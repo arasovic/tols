@@ -26,7 +26,8 @@ describe('SqlTool', () => {
   it('should have input and output areas', () => {
     render(SqlTool)
     expect(screen.getByLabelText('SQL Input')).toBeInTheDocument()
-    expect(screen.getByText('Formatted SQL')).toBeInTheDocument()
+    expect(screen.getByLabelText('stdin')).toBeInTheDocument()
+    expect(screen.getByLabelText('stdout')).toBeInTheDocument()
   })
 
   it('should format SQL input', async () => {
@@ -35,7 +36,7 @@ describe('SqlTool', () => {
     await fireEvent.input(textarea, { target: { value: 'select * from users' } })
 
     await waitFor(() => {
-      const output = screen.getByText(/SELECT/i)
+      const output = screen.getByText(/SELECT\s+\*\s+FROM\s+users/i, { selector: 'pre' })
       expect(output).toBeInTheDocument()
     }, { timeout: 500 })
   })
@@ -91,12 +92,12 @@ describe('SqlTool', () => {
     }, { timeout: 500 })
   })
 
-  it('should show character count', async () => {
+  it('should show byte count', async () => {
     render(SqlTool)
-    // There are two char-count elements (input and output), so check for at least one
+    // There are two panel metas (input and output), so check for at least one
     await waitFor(() => {
-      const charCounts = screen.getAllByText(/\d+ chars/)
-      expect(charCounts.length).toBeGreaterThanOrEqual(1)
+      const metas = screen.getAllByText(/\d+ B|\d+ KB/)
+      expect(metas.length).toBeGreaterThanOrEqual(1)
     }, { timeout: 500 })
   })
 

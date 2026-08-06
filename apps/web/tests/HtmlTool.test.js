@@ -217,7 +217,7 @@ describe('HtmlTool', () => {
     })
   })
 
-  it('should update character count', async () => {
+  it('should update byte count', async () => {
     const { container } = render(HtmlTool)
 
     const textarea = container.querySelector('.editor-textarea')
@@ -225,9 +225,9 @@ describe('HtmlTool', () => {
     await fireEvent.input(textarea, { target: { value: '<div>Test</div>' } })
 
     await waitFor(() => {
-      const charCounts = container.querySelectorAll('.char-count')
-      expect(charCounts.length).toBeGreaterThan(0)
-      expect(charCounts[0].textContent).toContain('15')
+      const metas = container.querySelectorAll('.panel-meta')
+      expect(metas.length).toBeGreaterThan(0)
+      expect(metas[0].textContent).toContain('15')
     })
   })
 

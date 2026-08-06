@@ -2,7 +2,9 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
+  import Workbench from '$lib/ui/Workbench.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -379,75 +381,63 @@ This is a **bold** text and this is *italic*.
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="markdown">
-    <svelte:fragment slot="actions">
-      <ShareButton getState={() => ({ input })} />
-      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
-      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M12 6v6l4 2"/>
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-      </button>
-    </svelte:fragment>
-  </ToolHeader>
+  <ToolHeader toolId="markdown" />
 
-  {#if error}
-    <div class="error-display" role="alert" aria-live="polite">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <span>{error}</span>
-    </div>
-  {/if}
+  <Workbench
+    toolId="markdown"
+    action="html"
+    {input}
+    output={htmlOutput}
+    onRun={process}
+  >
+    <textarea
+      slot="input"
+      bind:value={input}
+      on:input={debouncedProcess}
+      use:fileDrop={{ onText: (text) => { input = text; process() } }}
+      placeholder="Type markdown here..."
+      class="editor-textarea"
+      spellcheck="false"
+      aria-label="Markdown input"
+    ></textarea>
 
-  <div class="workspace">
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">Markdown</span>
-        <span class="char-count">{input.length} chars</span>
-      </div>
-      <textarea 
-        bind:value={input} 
-        on:input={debouncedProcess} 
-        use:fileDrop={{ onText: (text) => { input = text; process() } }}
-        placeholder="Type markdown here..." 
-        class="editor-textarea" 
-        spellcheck="false"
-        aria-label="Markdown input"
-      ></textarea>
-    </div>
-
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">Preview</span>
-        <div class="editor-meta">
+    <svelte:fragment slot="output">
+      {#if error}
+        <div class="error-display" role="alert" aria-live="polite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>{error}</span>
+        </div>
+      {:else}
+        <div
+          class="preview-display"
+          role="region"
+          aria-label="Preview"
+          aria-live="polite"
+        >
           {#if htmlOutput}
-            <CopyButton text={htmlOutput} />
+            {@html htmlOutput}
+          {:else}
+            <span class="placeholder">Preview will appear here...</span>
           {/if}
         </div>
-      </div>
-      <div 
-        class="preview-display" 
-        role="region" 
-        aria-label="Preview"
-        aria-live="polite"
-      >
-        {#if htmlOutput}
-          {@html htmlOutput}
-        {:else}
-          <span class="placeholder">Preview will appear here...</span>
-        {/if}
-      </div>
-    </div>
-  </div>
+      {/if}
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail">
+      <Button class="icon-btn" aria-label="Load Markdown example" title="Load Example" on:click={loadExample}>example</Button>
+      <Button class="icon-btn" aria-label="Clear input and output" title="Clear" on:click={clear}>clear</Button>
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail-end">
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
+      {#if htmlOutput}<CopyButton text={htmlOutput} />{/if}
+      <ShareButton getState={() => ({ input })} />
+    </svelte:fragment>
+  </Workbench>
 
   {#if htmlOutput}
     <div class="html-output">
@@ -461,104 +451,43 @@ This is a **bold** text and this is *italic*.
 </div>
 
 <style>
+  /*
+    Everything the two-column grid, the pane boxes, the pane headers and the
+    icon buttons used to own now belongs to Workbench / Panel / ActionRail /
+    Button. What is genuinely specific to the Markdown tool: the rendered
+    preview, its typography, the error readout, and the raw HTML source block.
+  */
   .tool { 
     display: flex; 
     flex-direction: column; 
-    gap: var(--space-5); 
+    gap: var(--space-4); 
     width: 100%;
-    animation: fadeIn var(--transition) var(--ease-out); 
   }
-  
-  @keyframes fadeIn { 
-    from { opacity: 0; transform: translateY(4px); } 
-    to { opacity: 1; transform: translateY(0); } 
-  }
-  
-  .icon-btn { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    width: 32px; 
-    height: 32px; 
-    border-radius: var(--radius); 
-    background: transparent; 
-    color: var(--text-tertiary); 
-    border: none; 
-    cursor: pointer; 
-    transition: all var(--transition-fast) var(--ease-out); 
-  }
-  
-  .icon-btn:hover { 
-    background: var(--bg-hover); 
-    color: var(--text-primary); 
-  }
-  
+
   .error-display {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    min-height: var(--pane-min-height);
     padding: var(--space-3) var(--space-4);
     background: var(--error-soft);
     color: var(--error-text);
     border-radius: var(--radius-md);
   }
-  
-  .workspace { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: var(--space-4); 
-  }
-  
-  .editor { 
-    display: flex; 
-    flex-direction: column; 
-    background: var(--bg-surface); 
-    border: 1px solid var(--border-subtle); 
-    border-radius: var(--radius-md); 
-    overflow: hidden; 
-    min-height: 400px; 
-  }
-  
-  .editor-header { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: var(--space-2) var(--space-3); 
-    background: var(--bg-elevated); 
-    border-bottom: 1px solid var(--border-subtle); 
-  }
-  
-  .editor-label { 
-    font-size: var(--text-xs); 
-    font-weight: var(--font-semibold); 
-    text-transform: uppercase; 
-    letter-spacing: var(--tracking-wide); 
-    color: var(--text-tertiary); 
-  }
-  
-  .editor-meta { 
-    display: flex; 
-    align-items: center; 
-    gap: var(--space-2); 
-  }
-  
-  .char-count { 
-    font-size: var(--text-xs); 
-    color: var(--text-muted); 
-    font-family: var(--font-mono); 
-  }
-  
+
   .editor-textarea { 
-    flex: 1; 
+    width: 100%;
+    height: 100%;
+    min-height: var(--pane-min-height);
     padding: var(--space-3); 
-    border: none; 
-    background: var(--bg-surface); 
     color: var(--text-primary); 
     font-family: var(--font-mono); 
     font-size: var(--text-sm); 
     line-height: var(--leading-snug); 
+    background: transparent; 
+    border: none; 
     resize: none; 
-    outline: none; 
+    tab-size: 2;
   }
   
   .editor-textarea::placeholder { 
@@ -566,9 +495,10 @@ This is a **bold** text and this is *italic*.
   }
   
   .preview-display { 
-    flex: 1; 
+    height: 100%;
+    min-height: var(--pane-min-height);
     padding: var(--space-3); 
-    background: var(--bg-surface); 
+    background: transparent; 
     color: var(--text-primary); 
     overflow: auto; 
   }
@@ -691,11 +621,5 @@ This is a **bold** text and this is *italic*.
     word-wrap: break-word; 
     overflow: auto; 
     max-height: 200px; 
-  }
-  
-  @media (max-width: 768px) { 
-    .workspace { 
-      grid-template-columns: 1fr; 
-    } 
   }
 </style>

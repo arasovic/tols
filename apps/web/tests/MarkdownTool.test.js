@@ -134,14 +134,14 @@ describe('MarkdownTool', () => {
     expect(textarea?.value).toContain('# Markdown Example')
   })
 
-  it('should show character count', async () => {
+  it('should show byte count', async () => {
     const { container } = render(MarkdownTool)
 
     const textarea = container.querySelector('.editor-textarea')
     await fireEvent.input(textarea, { target: { value: 'test' } })
 
     await waitFor(() => {
-      expect(container.textContent).toContain('4 chars')
+      expect(container.textContent).toContain('4 B')
     }, { timeout: 500 })
   })
 

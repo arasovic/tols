@@ -177,32 +177,32 @@ describe('XmlTool', () => {
     expect(textarea?.value).toContain('<?xml version="1.0"')
   })
 
-  it('should show character count', async () => {
+  it('should show byte count', async () => {
     const { container } = render(XmlTool)
 
     await waitFor(() => {
-      expect(container.textContent).toContain('chars')
+      expect(container.textContent).toMatch(/\d+ [K]?B/)
     }, { timeout: 500 })
   })
 
-  it('should update character count on input', async () => {
+  it('should update byte count on input', async () => {
     const { container } = render(XmlTool)
 
     const textarea = container.querySelector('.editor-textarea')
     await fireEvent.input(textarea, { target: { value: '<a/>' } })
     await waitForDebounce()
 
-    const charCount = container.textContent.match(/(\d+)\s+chars/)
-    expect(charCount).toBeTruthy()
-    expect(parseInt(charCount[1])).toBeGreaterThan(0)
+    const byteCount = container.textContent.match(/(\d+)\s+[K]?B/)
+    expect(byteCount).toBeTruthy()
+    expect(parseInt(byteCount[1])).toBeGreaterThan(0)
 
-    // Update input and check count changes
+    // Update input and check the count changes
     await fireEvent.input(textarea, { target: { value: '<root><child/></root>' } })
     await waitForDebounce()
 
-    const newCharCount = container.textContent.match(/(\d+)\s+chars/)
-    expect(newCharCount).toBeTruthy()
-    expect(parseInt(newCharCount[1])).toBeGreaterThan(parseInt(charCount[1]))
+    const newByteCount = container.textContent.match(/(\d+)\s+[K]?B/)
+    expect(newByteCount).toBeTruthy()
+    expect(parseInt(newByteCount[1])).toBeGreaterThan(parseInt(byteCount[1]))
   })
 
   it('should handle self-closing tags', async () => {

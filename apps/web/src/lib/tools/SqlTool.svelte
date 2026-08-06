@@ -1,6 +1,8 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import Workbench from '$lib/ui/Workbench.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_SQL = `SELECT u.id, u.name, u.email, COUNT(o.id) as order_count, SUM(o.total) as total_spent
@@ -40,6 +42,12 @@ LIMIT 100;`
   let errorMessage = ''
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let errorTimeout
+
+  // Declared once so the visible command and the ⌘⇧C payload cannot drift:
+  // writing `keywordCase === 'uppercase' ? 'upper' : 'lower'` a second time is
+  // how a renamed flag value ends up displayed in one place and copied in
+  // another. The CLI reads the flag as `--keyword-case=upper|lower`.
+  $: cliFlags = { 'keyword-case': keywordCase === 'uppercase' ? 'upper' : 'lower' }
 
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
@@ -447,73 +455,69 @@ LIMIT 100;`
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="sql">
-    <svelte:fragment slot="actions">
-      <ShareButton getState={() => ({ input, keywordCase })} />
-      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
+  <ToolHeader toolId="sql" />
+
+  <Workbench
+    toolId="sql"
+    action="fmt"
+    flags={cliFlags}
+    {input}
+    {output}
+    onRun={process}
+  >
+    <textarea
+      slot="input"
+      bind:value={input}
+      on:input={debouncedProcess}
+      use:fileDrop={{ onText: (text) => { input = text; process() } }}
+      placeholder="Paste SQL query here..."
+      class="editor-textarea"
+      spellcheck="false"
+      aria-label="SQL Input"
+    ></textarea>
+
+    <svelte:fragment slot="output">
+      {#if errorMessage}
+        <div class="error-banner" role="alert" aria-live="polite">{errorMessage}</div>
+      {:else}
+        <pre class="output-display" aria-live="polite">{output || 'Output will appear here...'}</pre>
+      {/if}
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail">
+      <!--
+        The segments carry NO aria-label. Their visible text already is the
+        accessible name, and an aria-label that does not contain the visible
+        text breaks WCAG 2.5.3 (label in name) for speech-input users.
+      -->
       <div class="segmented">
         <button type="button" class="segment" class:active={keywordCase === 'uppercase'} on:click={() => setKeywordCase('uppercase')}>UPPER</button>
         <button type="button" class="segment" class:active={keywordCase === 'lowercase'} on:click={() => setKeywordCase('lowercase')}>lower</button>
       </div>
-      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load Example">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </button>
+      <Button class="icon-btn" aria-label="Load Example" title="Load Example" on:click={loadExample}>example</Button>
+      <Button class="icon-btn" aria-label="Clear" title="Clear" on:click={clear}>clear</Button>
     </svelte:fragment>
-  </ToolHeader>
 
-  {#if errorMessage}
-    <div class="error-banner" role="alert">
-      {errorMessage}
-    </div>
-  {/if}
-
-  <div class="workspace">
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">SQL Input</span>
-        <span class="char-count">{input.length} chars</span>
-      </div>
-      <textarea
-        bind:value={input}
-        on:input={debouncedProcess}
-        use:fileDrop={{ onText: (text) => { input = text; process() } }}
-        placeholder="Paste SQL query here..."
-        class="editor-textarea"
-        spellcheck="false"
-        aria-label="SQL Input"
-      ></textarea>
-    </div>
-
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">Formatted SQL</span>
-        <div class="editor-meta">
-          {#if output}
-            <span class="char-count">{output.length} chars</span>
-            <CopyButton text={output} />
-          {/if}
-        </div>
-      </div>
-      <pre class="output-display" aria-live="polite">{output || 'Output will appear here...'}</pre>
-    </div>
-  </div>
+    <svelte:fragment slot="rail-end">
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
+      {#if output}<CopyButton text={output} />{/if}
+      <ShareButton getState={() => ({ input, keywordCase })} />
+    </svelte:fragment>
+  </Workbench>
 </div>
 
 <style>
+  /*
+    Everything the two-column grid, the pane boxes, the pane headers and the
+    icon buttons used to own now belongs to Workbench / Panel / ActionRail /
+    Button. What is genuinely specific to the SQL tool: the pane contents, the
+    UPPER/lower keyword-case switch, and the error readout.
+  */
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
+    gap: var(--space-4);
     width: 100%;
-    animation: fadeIn var(--transition) var(--ease-out);
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   .segmented {
@@ -549,30 +553,6 @@ LIMIT 100;`
     box-shadow: var(--shadow-xs);
   }
 
-  .icon-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text-tertiary);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-fast) var(--ease-out);
-  }
-
-  .icon-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .icon-btn:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
   .error-banner {
     background: var(--error-bg, #fef2f2);
     color: var(--error-text, #dc2626);
@@ -582,62 +562,19 @@ LIMIT 100;`
     font-size: var(--text-sm);
   }
 
-  .workspace {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-  }
-
-  .editor {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    min-height: 400px;
-  }
-
-  .editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-2) var(--space-3);
-    background: var(--bg-elevated);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .editor-label {
-    font-size: var(--text-xs);
-    font-weight: var(--font-semibold);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-    color: var(--text-tertiary);
-  }
-
-  .editor-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .char-count {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-  }
-
   .editor-textarea {
-    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: var(--pane-min-height);
     padding: var(--space-3);
-    border: none;
-    background: var(--bg-surface);
     color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: var(--text-sm);
     line-height: var(--leading-snug);
+    background: transparent;
+    border: none;
     resize: none;
-    outline: none;
+    tab-size: 2;
   }
 
   .editor-textarea:focus {
@@ -649,24 +586,16 @@ LIMIT 100;`
   }
 
   .output-display {
-    flex: 1;
+    height: 100%;
+    min-height: var(--pane-min-height);
     margin: 0;
     padding: var(--space-3);
-    background: var(--bg-surface);
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: var(--text-sm);
     line-height: var(--leading-snug);
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow: auto;
-  }
-
-  .output-display:not(:empty):not(:only-child) {
-    color: var(--text-primary);
-  }
-
-  @media (max-width: 768px) {
-    .workspace { grid-template-columns: 1fr; }
   }
 </style>

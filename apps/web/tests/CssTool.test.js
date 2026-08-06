@@ -26,8 +26,8 @@ describe('CssTool', () => {
   it('should have input and output areas', () => {
     render(CssTool)
 
-    expect(screen.getByText('CSS Input')).toBeInTheDocument()
-    expect(screen.getByText('CSS Output')).toBeInTheDocument()
+    expect(screen.getByLabelText('stdin')).toBeInTheDocument()
+    expect(screen.getByLabelText('stdout')).toBeInTheDocument()
   })
 
   it('should beautify CSS input', async () => {
@@ -81,11 +81,12 @@ describe('CssTool', () => {
     expect(textarea?.value).toContain('.container')
   })
 
-  it('should show character count', async () => {
+  it('should show byte count', async () => {
     const { container } = render(CssTool)
 
     await waitFor(() => {
-      expect(container.textContent).toContain('chars')
+      const metas = [...container.querySelectorAll('.panel-meta')].map((n) => n.textContent.trim())
+      expect(metas.some((m) => /\d+ B|\d+ KB/.test(m))).toBe(true)
     }, { timeout: 500 })
   })
 

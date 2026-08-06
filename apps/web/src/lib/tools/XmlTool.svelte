@@ -2,7 +2,9 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
+  import Workbench from '$lib/ui/Workbench.svelte'
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
+  import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -39,6 +41,11 @@
   let saveTimeout = null
   /** @type {ReturnType<typeof setTimeout> | null} */
   let modeTimeout = null
+
+  // Declared once so the visible command and the ⌘⇧C payload cannot drift:
+  // writing `mode === 'format' ? 'fmt' : 'min'` a second time is how a renamed
+  // action ends up displayed in one place and copied in another.
+  $: cliAction = mode === 'format' ? 'fmt' : 'min'
 
   function loadState() {
     try {
@@ -382,83 +389,75 @@
 </script>
 
 <div class="tool">
-  <ToolHeader toolId="xml">
-    <svelte:fragment slot="actions">
-      <ShareButton getState={() => ({ input, mode })} />
-      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
+  <ToolHeader toolId="xml" />
+
+  <Workbench
+    toolId="xml"
+    action={cliAction}
+    {input}
+    {output}
+    onRun={process}
+  >
+    <textarea
+      slot="input"
+      bind:value={input}
+      on:input={debouncedProcess}
+      use:fileDrop={{ onText: (text) => { input = text; process() } }}
+      placeholder="Paste XML here..."
+      class="editor-textarea"
+      spellcheck="false"
+      aria-label="XML Input"
+    ></textarea>
+
+    <svelte:fragment slot="output">
+      {#if error}
+        <div class="error-display" role="alert" aria-live="polite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>{error}</span>
+        </div>
+      {:else}
+        <pre class="output-display" role="region" aria-label="XML Output">{output || 'Output will appear here...'}</pre>
+      {/if}
+    </svelte:fragment>
+
+    <svelte:fragment slot="rail">
+      <!--
+        The segments carry NO aria-label. Their visible text already is the
+        accessible name, and an aria-label that does not contain the visible
+        text breaks WCAG 2.5.3 (label in name) for speech-input users.
+      -->
       <div class="segmented">
         <button type="button" class="segment" class:active={mode === 'format'} on:click={() => setMode('format')}>Format</button>
         <button type="button" class="segment" class:active={mode === 'minify'} on:click={() => setMode('minify')}>Minify</button>
       </div>
-      <button type="button" class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example XML">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M12 6v6l4 2"/>
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear input">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-      </button>
+      <Button class="icon-btn" aria-label="Load example XML" title="Load Example" on:click={loadExample}>example</Button>
+      <Button class="icon-btn" aria-label="Clear input" title="Clear" on:click={clear}>clear</Button>
     </svelte:fragment>
-  </ToolHeader>
 
-  {#if error}
-    <div class="error-display" role="alert" aria-live="polite">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <span>{error}</span>
-    </div>
-  {/if}
-
-  <div class="workspace">
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">XML Input</span>
-        <span class="char-count">{input.length} chars</span>
-      </div>
-      <textarea 
-        bind:value={input} 
-        on:input={debouncedProcess} 
-        use:fileDrop={{ onText: (text) => { input = text; process() } }}
-        placeholder="Paste XML here..." 
-        class="editor-textarea" 
-        spellcheck="false"
-        aria-label="XML Input"
-      ></textarea>
-    </div>
-
-    <div class="editor">
-      <div class="editor-header">
-        <span class="editor-label">XML Output</span>
-        <div class="editor-meta">
-          {#if output}
-            <span class="char-count">{output.length} chars</span>
-            <CopyButton text={output} />
-          {/if}
-        </div>
-      </div>
-      <pre class="output-display" role="region" aria-label="XML Output">{output || 'Output will appear here...'}</pre>
-    </div>
-  </div>
+    <svelte:fragment slot="rail-end">
+      <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
+      {#if output}<CopyButton text={output} />{/if}
+      <ShareButton getState={() => ({ input, mode })} />
+    </svelte:fragment>
+  </Workbench>
 </div>
 
 <style>
+  /*
+    Everything the two-column grid, the pane boxes, the pane headers and the
+    icon buttons used to own now belongs to Workbench / Panel / ActionRail /
+    Button. What is genuinely specific to the XML tool: the pane contents and
+    the format/minify mode switch.
+  */
   .tool { 
     display: flex; 
     flex-direction: column; 
-    gap: var(--space-5); 
+    gap: var(--space-4); 
     width: 100%;
-    animation: fadeIn var(--transition) var(--ease-out); 
-  }
-  
-  @keyframes fadeIn { 
-    from { opacity: 0; transform: translateY(4px); } 
-    to { opacity: 1; transform: translateY(0); } 
   }
   
   .segmented { 
@@ -494,91 +493,30 @@
     box-shadow: var(--shadow-xs); 
   }
   
-  .icon-btn { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    width: 32px; 
-    height: 32px; 
-    border-radius: var(--radius); 
-    background: transparent; 
-    color: var(--text-tertiary); 
-    border: none; 
-    cursor: pointer; 
-    transition: all var(--transition-fast) var(--ease-out); 
-  }
-  
-  .icon-btn:hover { 
-    background: var(--bg-hover); 
-    color: var(--text-primary); 
-  }
-  
   .error-display {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    min-height: var(--pane-min-height);
     padding: var(--space-3) var(--space-4);
     background: var(--error-soft);
     color: var(--error-text);
     border-radius: var(--radius-md);
   }
   
-  .workspace { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: var(--space-4); 
-  }
-  
-  .editor { 
-    display: flex; 
-    flex-direction: column; 
-    background: var(--bg-surface); 
-    border: 1px solid var(--border-subtle); 
-    border-radius: var(--radius-md); 
-    overflow: hidden; 
-    min-height: 400px; 
-  }
-  
-  .editor-header { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: var(--space-2) var(--space-3); 
-    background: var(--bg-elevated); 
-    border-bottom: 1px solid var(--border-subtle); 
-  }
-  
-  .editor-label { 
-    font-size: var(--text-xs); 
-    font-weight: var(--font-semibold); 
-    text-transform: uppercase; 
-    letter-spacing: var(--tracking-wide); 
-    color: var(--text-tertiary); 
-  }
-  
-  .editor-meta { 
-    display: flex; 
-    align-items: center; 
-    gap: var(--space-2); 
-  }
-  
-  .char-count { 
-    font-size: var(--text-xs); 
-    color: var(--text-muted); 
-    font-family: var(--font-mono); 
-  }
-  
   .editor-textarea { 
-    flex: 1; 
+    width: 100%;
+    height: 100%;
+    min-height: var(--pane-min-height);
     padding: var(--space-3); 
-    border: none; 
-    background: var(--bg-surface); 
     color: var(--text-primary); 
     font-family: var(--font-mono); 
     font-size: var(--text-sm); 
     line-height: var(--leading-snug); 
+    background: transparent; 
+    border: none; 
     resize: none; 
-    outline: none; 
+    tab-size: 2;
   }
   
   .editor-textarea::placeholder { 
@@ -586,26 +524,16 @@
   }
   
   .output-display { 
-    flex: 1; 
+    height: 100%;
+    min-height: var(--pane-min-height);
     margin: 0; 
     padding: var(--space-3); 
-    background: var(--bg-surface); 
-    color: var(--text-secondary); 
+    color: var(--text-primary); 
     font-family: var(--font-mono); 
     font-size: var(--text-sm); 
     line-height: var(--leading-snug); 
     white-space: pre-wrap; 
     word-wrap: break-word; 
     overflow: auto; 
-  }
-  
-  .output-display:not(:empty):not(:only-child) { 
-    color: var(--text-primary); 
-  }
-  
-  @media (max-width: 768px) { 
-    .workspace { 
-      grid-template-columns: 1fr; 
-    } 
   }
 </style>
