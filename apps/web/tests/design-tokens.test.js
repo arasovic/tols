@@ -93,13 +93,48 @@ describe('design tokens', () => {
     expect(z('--z-popover')).toBeGreaterThan(z('--z-modal'))
   })
 
-  it('keeps body text readable in both themes', () => {
-    const dark = blockFor(':root')
-    const light = blockFor('[data-theme="light"]')
-    expect(contrast(hexOf(dark, '--text-primary'), hexOf(dark, '--bg-base'))).toBeGreaterThanOrEqual(4.5)
-    expect(contrast(hexOf(dark, '--text-secondary'), hexOf(dark, '--bg-base'))).toBeGreaterThanOrEqual(4.5)
-    expect(contrast(hexOf(light, '--text-primary'), hexOf(light, '--bg-base'))).toBeGreaterThanOrEqual(4.5)
-    expect(contrast(hexOf(light, '--text-secondary'), hexOf(light, '--bg-base'))).toBeGreaterThanOrEqual(4.5)
+  // Every rung of the text ramp that renders body text, against every background
+  // body text is painted on. --text-disabled is excluded on purpose: WCAG 1.4.3
+  // exempts inactive controls, and holding it to 4.5:1 would make disabled state
+  // indistinguishable from enabled. Everything else is in.
+  const BODY_TEXT_TOKENS = ['--text-primary', '--text-secondary', '--text-tertiary', '--text-muted']
+  // --bg-elevated is not optional: app.css's global `code` rule paints it, so
+  // .tool-cmd and every inline <code> sit on it, and in dark it is the tightest
+  // of the three. Checking only base and surface is what let --text-muted ship
+  // at 2.53:1 on 35 tool cards.
+  const TEXT_BACKGROUNDS = ['--bg-base', '--bg-surface', '--bg-elevated']
+
+  it('keeps body text readable on every background in both themes', () => {
+    /** @type {string[]} */
+    const failures = []
+    for (const [theme, block] of [
+      ['dark', blockFor(':root')],
+      ['light', blockFor('[data-theme="light"]')]
+    ]) {
+      for (const token of BODY_TEXT_TOKENS) {
+        for (const bg of TEXT_BACKGROUNDS) {
+          const r = contrast(hexOf(block, token), hexOf(block, bg))
+          if (r < 4.5) failures.push(`${theme} ${token} on ${bg}: ${r.toFixed(2)}:1`)
+        }
+      }
+    }
+    expect(failures).toEqual([])
+  })
+
+  it('keeps the text ramp monotonic so muted stays quieter than tertiary', () => {
+    // A token can be pushed over 4.5:1 and still be wrong: if --text-muted ends up
+    // with more contrast than --text-tertiary the ramp inverts and "muted" is no
+    // longer muted. Ordering is by contrast against --bg-base, which is direction-
+    // agnostic and so holds for both themes.
+    for (const [theme, block] of [
+      ['dark', blockFor(':root')],
+      ['light', blockFor('[data-theme="light"]')]
+    ]) {
+      const bg = hexOf(block, '--bg-base')
+      const ratios = BODY_TEXT_TOKENS.map((t) => contrast(hexOf(block, t), bg))
+      const sorted = [...ratios].sort((a, b) => b - a)
+      expect(ratios, `${theme} text ramp is not monotonically decreasing`).toEqual(sorted)
+    }
   })
 
   it('keeps the signature accent usable as a UI colour in both themes', () => {
