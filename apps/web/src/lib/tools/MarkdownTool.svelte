@@ -27,7 +27,7 @@ This is a **bold** text and this is *italic*.
 
 > This is a blockquote.
 
-[Link to DevUtils](#)`
+[Link to tols](#)`
 
   const DEBOUNCE_DELAY = 300
   const SAVE_DELAY = 500

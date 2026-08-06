@@ -4,7 +4,7 @@
   const pageTitle = 'Barcode Generator - tols | Create Barcodes'
   const pageDescription = 'Free online barcode generator tool. Create Code128 barcodes instantly for products, labels, inventory management, and retail business purposes online today.'
   const canonicalUrl = 'https://tols.arasmehmet.com/barcode'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

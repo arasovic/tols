@@ -4,7 +4,7 @@
   const pageTitle = 'JSON Formatter - tols | Online JSON Validator & Beautifier'
   const pageDescription = 'Free online JSON formatter, validator, and minifier. Format, validate, and beautify JSON data instantly with syntax error highlighting support included.'
   const canonicalUrl = 'https://tols.arasmehmet.com/json'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

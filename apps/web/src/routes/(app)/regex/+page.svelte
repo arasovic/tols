@@ -4,7 +4,7 @@
   const pageTitle = 'Regex Tester - tols | Online Regular Expression Tool'
   const pageDescription = 'Test and debug regular expressions online. Match, replace, and split with regex. Real-time pattern matching with highlighted matches. Free regex tester tool.'
   const canonicalUrl = 'https://tols.arasmehmet.com/regex'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

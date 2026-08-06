@@ -4,7 +4,7 @@
   const pageTitle = 'Color Converter - tols | HEX, RGB, HSL Color Tool'
   const pageDescription = 'Free online color converter tool for web developers and designers. Convert instantly between HEX, RGB, and HSL color formats for professional projects.'
   const canonicalUrl = 'https://tols.arasmehmet.com/color'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

@@ -4,7 +4,7 @@
   const pageTitle = 'Gzip Calculator - tols | Estimate Compression Size'
   const pageDescription = 'Free online Gzip compression calculator tool for web developers. Estimate gzip compression size and analyze bandwidth savings for content optimization.'
   const canonicalUrl = 'https://tols.arasmehmet.com/gzip'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

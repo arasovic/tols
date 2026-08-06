@@ -4,7 +4,7 @@
   const pageTitle = 'SQL Formatter - tols | SQL Beautifier'
   const pageDescription = 'Free online SQL formatter and beautifier tool for developers. Format SQL queries instantly with proper indentation, keyword casing, and readable output.'
   const canonicalUrl = 'https://tols.arasmehmet.com/sql'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

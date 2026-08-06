@@ -4,7 +4,7 @@
   const pageTitle = 'Cron Expression Parser - tols | Validate & Parse Cron'
   const pageDescription = 'Free online cron expression parser tool for developers. Validate cron syntax instantly, get human descriptions, and calculate next execution times online.'
   const canonicalUrl = 'https://tols.arasmehmet.com/cron'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

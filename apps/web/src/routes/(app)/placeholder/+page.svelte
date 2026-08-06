@@ -4,7 +4,7 @@
   const pageTitle = 'Image Placeholder - tols | Generate Placeholder Images'
   const pageDescription = 'Free online placeholder image generator tool for designers. Create colored placeholder images instantly for mockups, prototypes, and website design projects.'
   const canonicalUrl = 'https://tols.arasmehmet.com/placeholder'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

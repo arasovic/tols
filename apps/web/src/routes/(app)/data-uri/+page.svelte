@@ -4,7 +4,7 @@
   const pageTitle = 'Data URI Generator - tols | Convert Files to Data URIs'
   const pageDescription = 'Convert files to Data URIs for inline embedding in web projects instantly. Supports images, fonts, and other file types with automatic MIME type detection.'
   const canonicalUrl = 'https://tols.arasmehmet.com/data-uri'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

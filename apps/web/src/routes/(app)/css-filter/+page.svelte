@@ -4,7 +4,7 @@
   const pageTitle = 'CSS Filter Generator - tols | Apply Visual Filters'
   const pageDescription = 'Free online CSS filter generator tool with visual controls. Create blur, brightness, contrast, and other filter effects with live preview and CSS code output.'
   const canonicalUrl = 'https://tols.arasmehmet.com/css-filter'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

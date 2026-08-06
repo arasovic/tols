@@ -4,7 +4,7 @@
   const pageTitle = 'HTML Formatter - tols | HTML Beautifier & Minifier'
   const pageDescription = 'Free online HTML formatter and optimizer tool for developers. Beautify and minify HTML code instantly with comment removal, attribute quoting, and formatting.'
   const canonicalUrl = 'https://tols.arasmehmet.com/html'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

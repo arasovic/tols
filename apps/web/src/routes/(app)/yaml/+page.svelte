@@ -4,7 +4,7 @@
   const pageTitle = 'YAML Formatter - tols | Online YAML Validator & Converter'
   const pageDescription = 'Free online YAML formatter and validator tool. Format, validate, and convert YAML to JSON instantly with full nested structure and array support included.'
   const canonicalUrl = 'https://tols.arasmehmet.com/yaml'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

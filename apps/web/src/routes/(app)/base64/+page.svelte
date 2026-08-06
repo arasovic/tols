@@ -4,7 +4,7 @@
   const pageTitle = 'Base64 Encoder/Decoder - tols | Online Base64 Converter'
   const pageDescription = 'Free online Base64 encoder and decoder tool for developers. Encode and decode Base64 text instantly with full UTF-8 support for web development projects.'
   const canonicalUrl = 'https://tols.arasmehmet.com/base64'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

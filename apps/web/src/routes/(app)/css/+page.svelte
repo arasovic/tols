@@ -4,7 +4,7 @@
   const pageTitle = 'CSS Formatter - tols | CSS Beautifier & Minifier'
   const pageDescription = 'Free online CSS formatter and optimizer tool for web developers. Beautify and minify CSS code instantly with proper indentation and whitespace optimization.'
   const canonicalUrl = 'https://tols.arasmehmet.com/css'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

@@ -4,7 +4,7 @@
   const pageTitle = 'Unicode Inspector - tols | Explore Unicode Characters'
   const pageDescription = 'Free online Unicode inspector tool for developers. Explore Unicode characters, codepoints, categories, and special symbols instantly with search included.'
   const canonicalUrl = 'https://tols.arasmehmet.com/unicode'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

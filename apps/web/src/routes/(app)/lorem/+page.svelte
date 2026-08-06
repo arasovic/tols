@@ -4,7 +4,7 @@
   const pageTitle = 'Lorem Ipsum Generator - tols | Free Placeholder Text'
   const pageDescription = 'Generate Lorem Ipsum placeholder text for your designs and mockups. Customize word count, paragraphs, and HTML output. Free online dummy text generator.'
   const canonicalUrl = 'https://tols.arasmehmet.com/lorem'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

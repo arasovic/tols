@@ -4,7 +4,7 @@
   const pageTitle = 'UUID Generator - tols | Free UUID v4 Generator'
   const pageDescription = 'Free online UUID generator tool for web developers. Create version 4 UUIDs instantly for unique identifiers in databases and distributed software apps.'
   const canonicalUrl = 'https://tols.arasmehmet.com/uuid'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

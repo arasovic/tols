@@ -4,7 +4,7 @@
   const pageTitle = 'Timestamp Converter - tols | Unix Timestamp to Date'
   const pageDescription = 'Free online timestamp converter tool for developers. Convert Unix timestamps to human-readable dates and times instantly with full timezone support online.'
   const canonicalUrl = 'https://tols.arasmehmet.com/timestamp'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

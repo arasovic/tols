@@ -4,7 +4,7 @@
   const pageTitle = 'Diff Checker - tols | Compare Text Differences'
   const pageDescription = 'Free online diff checker comparison tool for developers. Compare two texts side-by-side instantly, find differences, and see unified diff output online today.'
   const canonicalUrl = 'https://tols.arasmehmet.com/diff'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

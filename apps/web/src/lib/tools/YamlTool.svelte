@@ -10,7 +10,7 @@
   import { onMount, onDestroy } from 'svelte'
   import { parse as parseYAML, stringify as stringifyYAML } from 'tols/core/yaml'
 
-  const EXAMPLE_YAML = `name: DevUtils
+  const EXAMPLE_YAML = `name: tols
 version: 1.0.0
 features:
   - JSON formatter
@@ -21,7 +21,7 @@ config:
   timeout: 30`
 
   const EXAMPLE_JSON = {
-    name: "DevUtils",
+    name: "tols",
     version: "1.0.0",
     features: ["JSON formatter", "Base64 encoder", "UUID generator"],
     config: { debug: true, timeout: 30 }

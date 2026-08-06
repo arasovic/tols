@@ -67,6 +67,21 @@ describe('canonical URLs', () => {
     expect(offenders).toEqual([])
   })
 
+  it('point og:image at a raster file, never at the SVG artwork', () => {
+    // Every route shipped `og-image.svg` for months and no link preview
+    // anywhere rendered an image, because Slack, Twitter, LinkedIn, Facebook
+    // and iMessage all discard an og:image they cannot decode rather than
+    // falling back to one they can. Nothing failed: the file existed, the URL
+    // resolved, and the defect was only visible by pasting a link somewhere.
+    const offenders = pageRoutes().flatMap((file) => {
+      const source = readFileSync(file, 'utf8')
+      return (source.match(/https?:\/\/\S+\.svg/g) || []).map(
+        (url) => `${file.slice(SRC.length + 1)}: ${url}`
+      )
+    })
+    expect(offenders).toEqual([])
+  })
+
   it('counts a second tag rather than merely detecting one', () => {
     // The mutation the first two tests exist for: a route that keeps its own
     // canonical AND gets a second one back. A presence check (`toMatch`) passes

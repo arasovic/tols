@@ -4,7 +4,7 @@
   const pageTitle = 'JSONP Tester - tols | JSONP Request Simulator'
   const pageDescription = 'Free online JSONP tester tool for developers. Simulate JSONP requests and parse responses instantly with full callback function support for cross-domain.'
   const canonicalUrl = 'https://tols.arasmehmet.com/jsonp'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

@@ -4,7 +4,7 @@
   const pageTitle = 'JWT Decoder - tols | Online JSON Web Token Inspector'
   const pageDescription = 'Free online JWT decoder tool for web developers. Decode JSON Web Tokens instantly to view header, payload, and verify token signatures for debugging now.'
   const canonicalUrl = 'https://tols.arasmehmet.com/jwt'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

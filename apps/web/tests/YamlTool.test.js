@@ -24,14 +24,14 @@ describe('YamlTool', () => {
     render(YamlTool)
 
     const textarea = document.querySelector('.editor-textarea')
-    await fireEvent.input(textarea, { target: { value: 'name: DevUtils\nversion: 1.0.0' } })
+    await fireEvent.input(textarea, { target: { value: 'name: tols\nversion: 1.0.0' } })
 
     await waitForDebounce(400)
 
     await waitFor(() => {
       const output = document.querySelector('.output-display')
       expect(output?.textContent).toContain('name')
-      expect(output?.textContent).toContain('DevUtils')
+      expect(output?.textContent).toContain('tols')
     })
   })
 
@@ -71,7 +71,7 @@ describe('YamlTool', () => {
 
     // First input some YAML
     const textarea = document.querySelector('.editor-textarea')
-    await fireEvent.input(textarea, { target: { value: 'name: DevUtils\nversion: 1.0.0' } })
+    await fireEvent.input(textarea, { target: { value: 'name: tols\nversion: 1.0.0' } })
     await waitForDebounce(400)
 
     // Then switch to minify mode
@@ -84,7 +84,7 @@ describe('YamlTool', () => {
       const output = document.querySelector('.output-display')
       const text = output?.textContent || ''
       expect(text).not.toContain('\n  ')
-      expect(text).toMatch(/name:\s*DevUtils/)
+      expect(text).toMatch(/name:\s*tols/)
     })
   })
 

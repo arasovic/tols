@@ -12,29 +12,18 @@ function walk(dir) {
   })
 }
 
-// Phase A must not touch lib/tools/ — feat/tols is rewriting those <script>
-// blocks and has already changed their output behaviour, so editing a one-word
-// example payload there would buy a merge conflict in the worst possible place.
-// These two keep their DevUtils example payloads until Phase B converts them.
-// JsonTool is NOT on this list: Task 10 sanctions editing it.
-const DEFERRED_TO_PHASE_B = ['src/lib/tools/YamlTool.svelte', 'src/lib/tools/MarkdownTool.svelte']
-
 describe('brand', () => {
   it('has no DevUtils references left in the app source', () => {
+    // This used to carry an allowlist: YamlTool and MarkdownTool kept DevUtils
+    // in their example payloads because Phase A could not touch lib/tools/
+    // while the CLI branch was rewriting those same <script> blocks. Phase B
+    // has landed, the payloads say tols, and the allowlist is gone, so the
+    // check is now absolute. An allowlist nobody prunes is a leak.
     const offenders = walk(join(ROOT, 'src'))
       .filter((f) => /\.(svelte|js|html|css)$/.test(f))
       .filter((f) => readFileSync(f, 'utf8').includes('DevUtils'))
       .map((f) => f.slice(ROOT.length + 1))
-      .filter((f) => !DEFERRED_TO_PHASE_B.includes(f))
     expect(offenders).toEqual([])
-  })
-
-  // Pins the debt: if Phase B rebrands these, this test fails and the
-  // allowlist above must shrink. An allowlist nobody prunes is a leak.
-  it('still carries exactly the deferred DevUtils payloads', () => {
-    for (const file of DEFERRED_TO_PHASE_B) {
-      expect(readFileSync(join(ROOT, file), 'utf8'), `${file} rebranded`).toContain('DevUtils')
-    }
   })
 
   it('does not reference the retired violet in app.html', () => {
@@ -47,7 +36,11 @@ describe('brand', () => {
       'favicon-16x16.png',
       'favicon-32x32.png',
       'apple-touch-icon.png',
-      'og-image.svg'
+      // Both: the PNG is what og:image points at, because no social platform
+      // rasterises an SVG preview, and the SVG is the artwork that
+      // scripts/generate-icons.js renders it from.
+      'og-image.svg',
+      'og-image.png'
     ]) {
       expect(existsSync(join(ROOT, 'static', asset)), `${asset} missing`).toBe(true)
     }

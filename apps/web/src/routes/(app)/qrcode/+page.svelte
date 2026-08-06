@@ -4,7 +4,7 @@
   const pageTitle = 'QR Code Generator - tols | Free QR Code Creator'
   const pageDescription = 'Free online QR code generator tool for everyone. Create QR codes from text and URLs instantly with size controls, error correction, and download options.'
   const canonicalUrl = 'https://tols.arasmehmet.com/qrcode'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

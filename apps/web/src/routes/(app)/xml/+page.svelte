@@ -4,7 +4,7 @@
   const pageTitle = 'XML Formatter - tols | XML Beautifier & Validator'
   const pageDescription = 'Free online XML formatter and validator tool for developers. Format, validate, and minify XML data instantly with CDATA, comment, and syntax support online.'
   const canonicalUrl = 'https://tols.arasmehmet.com/xml'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

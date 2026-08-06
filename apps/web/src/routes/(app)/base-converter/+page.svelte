@@ -4,7 +4,7 @@
   const pageTitle = 'Number Base Converter - tols | Decimal Binary Hex'
   const pageDescription = 'Free online number base converter tool for developers. Convert between decimal, binary, hexadecimal, and octal number systems instantly with full support.'
   const canonicalUrl = 'https://tols.arasmehmet.com/base-converter'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

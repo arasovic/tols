@@ -4,7 +4,7 @@
   const pageTitle = 'URL Encoder/Decoder - tols | Online URL Converter'
   const pageDescription = 'Free online URL encoder and decoder tool for web developers. Encode and decode URL components instantly with full character support for all development.'
   const canonicalUrl = 'https://tols.arasmehmet.com/url'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

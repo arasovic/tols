@@ -4,7 +4,7 @@
   const pageTitle = 'Password Generator - tols | Secure Password Creator'
   const pageDescription = 'Generate secure, random passwords with customizable options. Includes strength analysis and entropy calculation for maximum security for your accounts.'
   const canonicalUrl = 'https://tols.arasmehmet.com/password'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>

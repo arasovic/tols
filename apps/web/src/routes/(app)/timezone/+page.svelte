@@ -4,7 +4,7 @@
   const pageTitle = 'Time Zone Converter - tols | Convert Time Zones'
   const pageDescription = 'Free online time zone converter tool for scheduling. Convert times instantly between different time zones worldwide with automatic daylight saving support.'
   const canonicalUrl = 'https://tols.arasmehmet.com/timezone'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.svg'
+  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
 </script>
 
 <svelte:head>
