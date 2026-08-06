@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render } from '@testing-library/svelte'
+import { render, fireEvent } from '@testing-library/svelte'
 import HomePage from '../src/routes/+page.svelte'
 import { tools } from '$lib/config/registry.js'
 
@@ -55,5 +55,39 @@ describe('landing page', () => {
       .find((el) => el.textContent.includes('Tools'))
       .querySelector('.hero-stat-value').textContent
     expect(headline).toBe(stat)
+  })
+
+  /**
+   * Lighthouse's `heading-order` audit: every heading may go down at most one
+   * level from the previous one. Returns the offending transitions so a
+   * failure names the pair, not just a boolean.
+   * @param {Element} root
+   */
+  function headingSkips(root) {
+    const levels = [...root.querySelectorAll('h1, h2, h3, h4, h5, h6')]
+    return levels
+      .map((el, i) => [levels[i - 1], el])
+      .filter(([prev, el]) => prev && Number(el.tagName[1]) - Number(prev.tagName[1]) > 1)
+      .map(([prev, el]) => `${prev.tagName} -> ${el.tagName} ("${el.textContent.trim()}")`)
+  }
+
+  it('never skips a heading level in the default state', () => {
+    // The privacy banner rendered an <h3> straight after the hero <h1>, which
+    // was the last Accessibility failure on /. The tool cards are h2s, so the
+    // banner is their sibling, not their child.
+    const { container } = render(HomePage)
+    expect(headingSkips(container)).toEqual([])
+  })
+
+  it('never skips a heading level in the empty-search state', () => {
+    // `showPopular` is false whenever a query is set, so this state hides every
+    // tool card: the outline collapses to h1 -> banner h2 -> no-results h3.
+    // That is why .no-results-title stays an h3.
+    const { container } = render(HomePage)
+    const input = container.querySelector('.search-input')
+    return fireEvent.input(input, { target: { value: 'zzzznotatool' } }).then(() => {
+      expect(container.querySelector('.no-results-title')).toBeTruthy()
+      expect(headingSkips(container)).toEqual([])
+    })
   })
 })

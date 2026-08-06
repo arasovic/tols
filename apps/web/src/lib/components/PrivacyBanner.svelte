@@ -8,7 +8,10 @@
       <Shield size={24} />
     </div>
     <div class="privacy-banner-text">
-      <h3>Privacy & Speed</h3>
+      <!-- h2, not h3: this banner sits directly under the landing page's only
+           <h1>, so an h3 here skips a level (WCAG 1.3.1 / Lighthouse
+           heading-order). It is a sibling of the tool-card h2s below it. -->
+      <h2>Privacy & Speed</h2>
       <p>Your data never leaves your browser</p>
     </div>
     <div class="privacy-banner-tags">
@@ -59,7 +62,7 @@
     flex: 1;
   }
 
-  .privacy-banner-text h3 {
+  .privacy-banner-text h2 {
     font-size: var(--text-base);
     font-weight: var(--font-semibold);
     color: var(--text-primary);
