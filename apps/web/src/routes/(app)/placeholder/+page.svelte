@@ -46,70 +46,68 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <PlaceholderTool />
+<article>
+  <PlaceholderTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is Image Placeholder Generator?</h2>
-      <p>
-        Image Placeholder Generator creates simple colored placeholder images for use in wireframes,
-        mockups, and prototypes. These placeholder images help designers and developers visualize
-        layout and spacing without needing actual content images, speeding up the design process.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is Image Placeholder Generator?</h2>
+    <p>
+      Image Placeholder Generator creates simple colored placeholder images for use in wireframes,
+      mockups, and prototypes. These placeholder images help designers and developers visualize
+      layout and spacing without needing actual content images, speeding up the design process.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Image Placeholder Generator</h2>
-      <ol>
-        <li><strong>Set dimensions</strong> - Enter the width and height for your placeholder</li>
-        <li><strong>Choose color</strong> - Select a background color for the placeholder</li>
-        <li><strong>Add text (optional)</strong> - Include custom text on the placeholder</li>
-        <li><strong>Generate and download</strong> - Create and save your placeholder image</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Image Placeholder Generator</h2>
+    <ol>
+      <li><strong>Set dimensions</strong> - Enter the width and height for your placeholder</li>
+      <li><strong>Choose color</strong> - Select a background color for the placeholder</li>
+      <li><strong>Add text (optional)</strong> - Include custom text on the placeholder</li>
+      <li><strong>Generate and download</strong> - Create and save your placeholder image</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Image Placeholder Generator Features</h2>
-      <ul>
-        <li><strong>Custom dimensions</strong> - Any width and height combination</li>
-        <li><strong>Color selection</strong> - Choose any background color</li>
-        <li><strong>Custom text</strong> - Add dimension labels or custom text</li>
-        <li><strong>PNG output</strong> - Download as high-quality PNG images</li>
-        <li><strong>Instant generation</strong> - Create placeholders in seconds</li>
-        <li><strong>Copy URL</strong> - Get a data URL for direct use in HTML/CSS</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Image Placeholder Generator Features</h2>
+    <ul>
+      <li><strong>Custom dimensions</strong> - Any width and height combination</li>
+      <li><strong>Color selection</strong> - Choose any background color</li>
+      <li><strong>Custom text</strong> - Add dimension labels or custom text</li>
+      <li><strong>PNG output</strong> - Download as high-quality PNG images</li>
+      <li><strong>Instant generation</strong> - Create placeholders in seconds</li>
+      <li><strong>Copy URL</strong> - Get a data URL for direct use in HTML/CSS</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>Why use placeholder images?</h3>
-      <p>
-        Placeholder images help designers and developers create layouts before final content is ready.
-        They allow you to test responsive designs, verify image aspect ratios, and present prototypes
-        to clients without waiting for actual photography or graphics to be completed.
-      </p>
+    <h3>Why use placeholder images?</h3>
+    <p>
+      Placeholder images help designers and developers create layouts before final content is ready.
+      They allow you to test responsive designs, verify image aspect ratios, and present prototypes
+      to clients without waiting for actual photography or graphics to be completed.
+    </p>
 
-      <h3>What size should I make my placeholders?</h3>
-      <p>
-        Create placeholders at the exact dimensions they will appear in your design. This helps you
-        verify that images fit correctly in their containers and maintain proper aspect ratios.
-        Common sizes include 1920x1080 for hero images, 800x600 for content images, and 400x400
-        for thumbnails or avatars.
-      </p>
+    <h3>What size should I make my placeholders?</h3>
+    <p>
+      Create placeholders at the exact dimensions they will appear in your design. This helps you
+      verify that images fit correctly in their containers and maintain proper aspect ratios.
+      Common sizes include 1920x1080 for hero images, 800x600 for content images, and 400x400
+      for thumbnails or avatars.
+    </p>
 
-      <h3>Can I use these placeholders in production?</h3>
-      <p>
-        While placeholder images are primarily intended for development and prototyping, you can
-        technically use them in production. However, it's recommended to replace them with actual
-        content before launch. Placeholders are most useful during the design and development phases.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Can I use these placeholders in production?</h3>
+    <p>
+      While placeholder images are primarily intended for development and prototyping, you can
+      technically use them in production. However, it's recommended to replace them with actual
+      content before launch. Placeholders are most useful during the design and development phases.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

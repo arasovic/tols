@@ -46,70 +46,68 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <SqlTool />
+<article>
+  <SqlTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is SQL Formatter?</h2>
-      <p>
-        SQL Formatter beautifies and standardizes SQL queries for better readability. It adds proper
-        indentation, line breaks, and consistent capitalization to make complex queries easier to
-        understand and maintain. Whether you're working with MySQL, PostgreSQL, SQLite, or other
-        SQL dialects, this tool helps you format your queries consistently.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is SQL Formatter?</h2>
+    <p>
+      SQL Formatter beautifies and standardizes SQL queries for better readability. It adds proper
+      indentation, line breaks, and consistent capitalization to make complex queries easier to
+      understand and maintain. Whether you're working with MySQL, PostgreSQL, SQLite, or other
+      SQL dialects, this tool helps you format your queries consistently.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use SQL Formatter</h2>
-      <ol>
-        <li><strong>Paste your SQL</strong> - Copy and paste your SQL query into the editor</li>
-        <li><strong>Select dialect</strong> - Choose your SQL dialect if needed</li>
-        <li><strong>Format</strong> - Click the format button to beautify your query</li>
-        <li><strong>Copy result</strong> - Copy the formatted SQL to use in your project</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use SQL Formatter</h2>
+    <ol>
+      <li><strong>Paste your SQL</strong> - Copy and paste your SQL query into the editor</li>
+      <li><strong>Select dialect</strong> - Choose your SQL dialect if needed</li>
+      <li><strong>Format</strong> - Click the format button to beautify your query</li>
+      <li><strong>Copy result</strong> - Copy the formatted SQL to use in your project</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">SQL Formatter Features</h2>
-      <ul>
-        <li><strong>Standard formatting</strong> - Consistent indentation and spacing</li>
-        <li><strong>Keyword capitalization</strong> - Uppercase SQL keywords</li>
-        <li><strong>Multiple dialects</strong> - Support for various SQL flavors</li>
-        <li><strong>Query validation</strong> - Basic syntax checking</li>
-        <li><strong>One-click copy</strong> - Copy formatted SQL instantly</li>
-        <li><strong>Auto-save</strong> - Saves your work automatically</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">SQL Formatter Features</h2>
+    <ul>
+      <li><strong>Standard formatting</strong> - Consistent indentation and spacing</li>
+      <li><strong>Keyword capitalization</strong> - Uppercase SQL keywords</li>
+      <li><strong>Multiple dialects</strong> - Support for various SQL flavors</li>
+      <li><strong>Query validation</strong> - Basic syntax checking</li>
+      <li><strong>One-click copy</strong> - Copy formatted SQL instantly</li>
+      <li><strong>Auto-save</strong> - Saves your work automatically</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>Which SQL dialects are supported?</h3>
-      <p>
-        This formatter supports standard SQL syntax that works across most major databases including
-        MySQL, PostgreSQL, SQLite, SQL Server, and Oracle. Some database-specific features may not
-        be formatted exactly according to each dialect's conventions.
-      </p>
+    <h3>Which SQL dialects are supported?</h3>
+    <p>
+      This formatter supports standard SQL syntax that works across most major databases including
+      MySQL, PostgreSQL, SQLite, SQL Server, and Oracle. Some database-specific features may not
+      be formatted exactly according to each dialect's conventions.
+    </p>
 
-      <h3>Will formatting change my query logic?</h3>
-      <p>
-        No, formatting only changes whitespace, indentation, and keyword casing. It does not modify
-        your query's logic, structure, or execution. The formatted query will produce identical
-        results to the original.
-      </p>
+    <h3>Will formatting change my query logic?</h3>
+    <p>
+      No, formatting only changes whitespace, indentation, and keyword casing. It does not modify
+      your query's logic, structure, or execution. The formatted query will produce identical
+      results to the original.
+    </p>
 
-      <h3>Can I use this for complex queries with subqueries?</h3>
-      <p>
-        Yes, the formatter handles complex queries including nested subqueries, CTEs (Common Table
-        Expressions), JOINs, and window functions. It intelligently indents nested structures to
-        make them more readable.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Can I use this for complex queries with subqueries?</h3>
+    <p>
+      Yes, the formatter handles complex queries including nested subqueries, CTEs (Common Table
+      Expressions), JOINs, and window functions. It intelligently indents nested structures to
+      make them more readable.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

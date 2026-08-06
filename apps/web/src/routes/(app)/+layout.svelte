@@ -71,7 +71,21 @@
       </div>
     </header>
 
-    <main class="content">
+    <!--
+      The one <main> of every tool document. The 30 tool routes used to render
+      their own <main id="main-content"> inside this one, which is invalid (a
+      document has at most one), so the id lives here now and each route
+      contributes its bare <article>.
+
+      tabindex="-1" is what actually moves focus. <main> is not focusable by
+      default, so activating the skip link would only relocate the sequential
+      focus starting point — the next Tab lands inside, but activeElement stays
+      on <body>, which means no focus ring and nothing for a screen reader to
+      announce. (Chrome alone would paper over it here: `overflow-y: auto` makes
+      this a scroll container, and Chrome focuses scroll containers. That is
+      Chrome-only and it disappears the moment the content fits.)
+    -->
+    <main class="content" id="main-content" tabindex="-1">
       <slot />
     </main>
   </div>

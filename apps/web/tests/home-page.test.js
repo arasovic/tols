@@ -29,13 +29,16 @@ vi.mock('$lib/stores/recentTools.js', async () => {
 
 describe('landing page', () => {
   it('provides the target app.html’s skip link points at', () => {
-    // app.html renders <a href="#main-content">. All 30 tool routes give their
-    // <main> that id; the landing page did not, so the link went nowhere and
-    // Lighthouse reported "No skip link target".
+    // app.html renders <a href="#main-content">. Tool routes get that id from
+    // the single <main> in the (app) layout; the landing page is outside that
+    // group and carries its own, which it did not until Lighthouse reported
+    // "No skip link target".
     const { container } = render(HomePage)
     const main = container.querySelector('#main-content')
     expect(main).toBeTruthy()
     expect(main.tagName).toBe('MAIN')
+    // Focusable, or the link relocates the tab order without moving focus.
+    expect(main.getAttribute('tabindex')).toBe('-1')
   })
 
   it('states the real registry tool count in the headline', () => {

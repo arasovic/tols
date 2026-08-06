@@ -46,70 +46,68 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <ColorTool />
+<article>
+  <ColorTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is Color Converter?</h2>
-      <p>
-        Color Converter is a tool that helps you convert between different color formats used in web
-        development and design. It supports HEX (hexadecimal), RGB (Red, Green, Blue), and HSL
-        (Hue, Saturation, Lightness) color formats, making it easy to work with colors in CSS,
-        HTML, and design applications.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is Color Converter?</h2>
+    <p>
+      Color Converter is a tool that helps you convert between different color formats used in web
+      development and design. It supports HEX (hexadecimal), RGB (Red, Green, Blue), and HSL
+      (Hue, Saturation, Lightness) color formats, making it easy to work with colors in CSS,
+      HTML, and design applications.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Color Converter</h2>
-      <ol>
-        <li><strong>Enter a color</strong> - Type a HEX code, RGB values, or HSL values</li>
-        <li><strong>See conversions</strong> - All other formats are calculated automatically</li>
-        <li><strong>Use the picker</strong> - Click the color input to use the browser color picker</li>
-        <li><strong>Copy CSS</strong> - Copy the CSS code for your preferred format</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Color Converter</h2>
+    <ol>
+      <li><strong>Enter a color</strong> - Type a HEX code, RGB values, or HSL values</li>
+      <li><strong>See conversions</strong> - All other formats are calculated automatically</li>
+      <li><strong>Use the picker</strong> - Click the color input to use the browser color picker</li>
+      <li><strong>Copy CSS</strong> - Copy the CSS code for your preferred format</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Color Converter Features</h2>
-      <ul>
-        <li><strong>Multiple formats</strong> - Convert between HEX, RGB, and HSL</li>
-        <li><strong>Color picker</strong> - Use the native browser color picker</li>
-        <li><strong>Real-time conversion</strong> - Instant results as you type</li>
-        <li><strong>CSS output</strong> - Get ready-to-use CSS color codes</li>
-        <li><strong>Color preview</strong> - See your color displayed live</li>
-        <li><strong>Auto-save</strong> - Saves your last used color</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Color Converter Features</h2>
+    <ul>
+      <li><strong>Multiple formats</strong> - Convert between HEX, RGB, and HSL</li>
+      <li><strong>Color picker</strong> - Use the native browser color picker</li>
+      <li><strong>Real-time conversion</strong> - Instant results as you type</li>
+      <li><strong>CSS output</strong> - Get ready-to-use CSS color codes</li>
+      <li><strong>Color preview</strong> - See your color displayed live</li>
+      <li><strong>Auto-save</strong> - Saves your last used color</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is the difference between RGB and HSL?</h3>
-      <p>
-        RGB defines colors by their red, green, and blue components (0-255 each). HSL uses
-        Hue (color wheel position), Saturation (color intensity), and Lightness (brightness).
-        HSL is often more intuitive for adjusting colors.
-      </p>
+    <h3>What is the difference between RGB and HSL?</h3>
+    <p>
+      RGB defines colors by their red, green, and blue components (0-255 each). HSL uses
+      Hue (color wheel position), Saturation (color intensity), and Lightness (brightness).
+      HSL is often more intuitive for adjusting colors.
+    </p>
 
-      <h3>What is HEX color format?</h3>
-      <p>
-        HEX (hexadecimal) is a 6-digit code representing RGB values in base-16 format.
-        Each pair of digits represents red, green, and blue (00-FF). For example,
-        #FF0000 is pure red.
-      </p>
+    <h3>What is HEX color format?</h3>
+    <p>
+      HEX (hexadecimal) is a 6-digit code representing RGB values in base-16 format.
+      Each pair of digits represents red, green, and blue (00-FF). For example,
+      #FF0000 is pure red.
+    </p>
 
-      <h3>Which format should I use in CSS?</h3>
-      <p>
-        All formats work in modern CSS. HEX is compact and widely used. RGB is useful when
-        you need to adjust individual channels. HSL is great for programmatic color adjustments
-        like lightening or darkening.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Which format should I use in CSS?</h3>
+    <p>
+      All formats work in modern CSS. HEX is compact and widely used. RGB is useful when
+      you need to adjust individual channels. HSL is great for programmatic color adjustments
+      like lightening or darkening.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

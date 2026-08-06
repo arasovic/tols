@@ -46,70 +46,68 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <CssTool />
+<article>
+  <CssTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is CSS Formatter?</h2>
-      <p>
-        CSS Formatter is a tool that helps you clean up and standardize your CSS code. It can beautify
-        minified CSS by adding proper indentation and line breaks, or minify CSS by removing unnecessary
-        whitespace for production use. This makes your stylesheets more readable during development
-        and more efficient for deployment.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is CSS Formatter?</h2>
+    <p>
+      CSS Formatter is a tool that helps you clean up and standardize your CSS code. It can beautify
+      minified CSS by adding proper indentation and line breaks, or minify CSS by removing unnecessary
+      whitespace for production use. This makes your stylesheets more readable during development
+      and more efficient for deployment.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use CSS Formatter</h2>
-      <ol>
-        <li><strong>Paste your CSS</strong> - Copy and paste your CSS code into the input area</li>
-        <li><strong>Choose format</strong> - Select beautify (pretty) or minify (compact) mode</li>
-        <li><strong>Process</strong> - Click the format button to transform your CSS</li>
-        <li><strong>Copy result</strong> - Copy the formatted CSS to your clipboard</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use CSS Formatter</h2>
+    <ol>
+      <li><strong>Paste your CSS</strong> - Copy and paste your CSS code into the input area</li>
+      <li><strong>Choose format</strong> - Select beautify (pretty) or minify (compact) mode</li>
+      <li><strong>Process</strong> - Click the format button to transform your CSS</li>
+      <li><strong>Copy result</strong> - Copy the formatted CSS to your clipboard</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">CSS Formatter Features</h2>
-      <ul>
-        <li><strong>Beautify mode</strong> - Add proper indentation and line breaks</li>
-        <li><strong>Minify mode</strong> - Remove whitespace for smaller file sizes</li>
-        <li><strong>Syntax preservation</strong> - Maintains CSS validity during formatting</li>
-        <li><strong>Real-time preview</strong> - See formatted output instantly</li>
-        <li><strong>One-click copy</strong> - Copy formatted CSS instantly</li>
-        <li><strong>Error detection</strong> - Identifies common CSS syntax issues</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">CSS Formatter Features</h2>
+    <ul>
+      <li><strong>Beautify mode</strong> - Add proper indentation and line breaks</li>
+      <li><strong>Minify mode</strong> - Remove whitespace for smaller file sizes</li>
+      <li><strong>Syntax preservation</strong> - Maintains CSS validity during formatting</li>
+      <li><strong>Real-time preview</strong> - See formatted output instantly</li>
+      <li><strong>One-click copy</strong> - Copy formatted CSS instantly</li>
+      <li><strong>Error detection</strong> - Identifies common CSS syntax issues</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>Why should I minify CSS?</h3>
-      <p>
-        Minifying CSS reduces file size by removing whitespace, comments, and unnecessary characters.
-        This leads to faster page load times and reduced bandwidth usage. Minified CSS should be used
-        for production, while beautified CSS is better for development and debugging.
-      </p>
+    <h3>Why should I minify CSS?</h3>
+    <p>
+      Minifying CSS reduces file size by removing whitespace, comments, and unnecessary characters.
+      This leads to faster page load times and reduced bandwidth usage. Minified CSS should be used
+      for production, while beautified CSS is better for development and debugging.
+    </p>
 
-      <h3>Will this fix broken CSS?</h3>
-      <p>
-        This formatter focuses on code formatting rather than fixing syntax errors. While it may
-        handle some minor issues, it won't correct invalid properties or broken selectors. For
-        validation, use a dedicated CSS validator alongside this tool.
-      </p>
+    <h3>Will this fix broken CSS?</h3>
+    <p>
+      This formatter focuses on code formatting rather than fixing syntax errors. While it may
+      handle some minor issues, it won't correct invalid properties or broken selectors. For
+      validation, use a dedicated CSS validator alongside this tool.
+    </p>
 
-      <h3>Does this support CSS preprocessors?</h3>
-      <p>
-        This tool is designed for standard CSS. While it may work with some SCSS or LESS syntax,
-        it's recommended to compile preprocessor code to CSS first, then use this formatter for
-        consistent output formatting.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Does this support CSS preprocessors?</h3>
+    <p>
+      This tool is designed for standard CSS. While it may work with some SCSS or LESS syntax,
+      it's recommended to compile preprocessor code to CSS first, then use this formatter for
+      consistent output formatting.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

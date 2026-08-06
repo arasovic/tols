@@ -45,71 +45,69 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <YamlTool />
+<article>
+  <YamlTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is YAML Formatter?</h2>
-      <p>
-        YAML Formatter validates, formats, and converts YAML data. YAML (YAML Ain't Markup Language)
-        is a human-readable data serialization standard commonly used for configuration files, API
-        specifications, and data exchange. This tool helps you ensure your YAML is valid and properly
-        formatted, and can convert between YAML and JSON formats.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is YAML Formatter?</h2>
+    <p>
+      YAML Formatter validates, formats, and converts YAML data. YAML (YAML Ain't Markup Language)
+      is a human-readable data serialization standard commonly used for configuration files, API
+      specifications, and data exchange. This tool helps you ensure your YAML is valid and properly
+      formatted, and can convert between YAML and JSON formats.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use YAML Formatter</h2>
-      <ol>
-        <li><strong>Paste your YAML</strong> - Copy and paste your YAML into the editor</li>
-        <li><strong>Validate</strong> - The tool automatically checks for syntax errors</li>
-        <li><strong>Format</strong> - Click prettify to format with proper indentation</li>
-        <li><strong>Convert</strong> - Convert between YAML and JSON as needed</li>
-        <li><strong>Copy result</strong> - Copy the formatted or converted output</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use YAML Formatter</h2>
+    <ol>
+      <li><strong>Paste your YAML</strong> - Copy and paste your YAML into the editor</li>
+      <li><strong>Validate</strong> - The tool automatically checks for syntax errors</li>
+      <li><strong>Format</strong> - Click prettify to format with proper indentation</li>
+      <li><strong>Convert</strong> - Convert between YAML and JSON as needed</li>
+      <li><strong>Copy result</strong> - Copy the formatted or converted output</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">YAML Formatter Features</h2>
-      <ul>
-        <li><strong>Real-time validation</strong> - Instantly checks YAML syntax</li>
-        <li><strong>Prettify mode</strong> - Proper indentation and formatting</li>
-        <li><strong>Minify mode</strong> - Compact YAML output</li>
-        <li><strong>YAML to JSON</strong> - Convert YAML to JSON format</li>
-        <li><strong>JSON to YAML</strong> - Convert JSON to YAML format</li>
-        <li><strong>Error highlighting</strong> - Shows exact location of syntax errors</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">YAML Formatter Features</h2>
+    <ul>
+      <li><strong>Real-time validation</strong> - Instantly checks YAML syntax</li>
+      <li><strong>Prettify mode</strong> - Proper indentation and formatting</li>
+      <li><strong>Minify mode</strong> - Compact YAML output</li>
+      <li><strong>YAML to JSON</strong> - Convert YAML to JSON format</li>
+      <li><strong>JSON to YAML</strong> - Convert JSON to YAML format</li>
+      <li><strong>Error highlighting</strong> - Shows exact location of syntax errors</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is YAML used for?</h3>
-      <p>
-        YAML is commonly used for configuration files in applications like Docker, Kubernetes,
-        Ansible, and CI/CD pipelines. It's also used for API specifications (OpenAPI), data
-        serialization, and anywhere human-readable structured data is needed.
-      </p>
+    <h3>What is YAML used for?</h3>
+    <p>
+      YAML is commonly used for configuration files in applications like Docker, Kubernetes,
+      Ansible, and CI/CD pipelines. It's also used for API specifications (OpenAPI), data
+      serialization, and anywhere human-readable structured data is needed.
+    </p>
 
-      <h3>Should I use YAML or JSON?</h3>
-      <p>
-        Choose YAML when human readability and editing are priorities. YAML supports comments,
-        has a cleaner syntax without braces, and is easier for non-technical users. Use JSON
-        when you need strict parsing, wide language support, or when working with web APIs.
-      </p>
+    <h3>Should I use YAML or JSON?</h3>
+    <p>
+      Choose YAML when human readability and editing are priorities. YAML supports comments,
+      has a cleaner syntax without braces, and is easier for non-technical users. Use JSON
+      when you need strict parsing, wide language support, or when working with web APIs.
+    </p>
 
-      <h3>Why is my YAML showing errors?</h3>
-      <p>
-        Common YAML errors include incorrect indentation (spaces, not tabs), missing colons after
-        keys, unquoted strings that look like other types, and special characters in unquoted strings.
-        The error message will indicate the line number where the problem was detected.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Why is my YAML showing errors?</h3>
+    <p>
+      Common YAML errors include incorrect indentation (spaces, not tabs), missing colons after
+      keys, unquoted strings that look like other types, and special characters in unquoted strings.
+      The error message will indicate the line number where the problem was detected.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

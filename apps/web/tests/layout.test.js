@@ -89,4 +89,28 @@ describe('(app) layout header title', () => {
     const { container } = render(Layout)
     expect(labelInNameViolations(container)).toEqual([])
   })
+
+  it('owns the single <main> and the skip-link target for every tool route', () => {
+    // Each of the 30 tool routes used to render its own <main id="main-content">
+    // inside this layout's <main class="content">, which is invalid HTML — a
+    // document has at most one <main>. The id lives here now.
+    const { container } = render(Layout)
+    const mains = container.querySelectorAll('main')
+    expect(mains.length).toBe(1)
+    expect(mains[0].id).toBe('main-content')
+    expect(mains[0].classList.contains('content')).toBe(true)
+  })
+
+  it('makes the skip-link target focusable', () => {
+    // Without tabindex the target exists but focus never lands on it: <main> is
+    // not focusable, so activating the link only relocates the sequential focus
+    // starting point — activeElement stays on <body>, so there is no focus ring
+    // and nothing for a screen reader to announce. Verified in Chrome on the
+    // landing page, which had the same shape.
+    const { container } = render(Layout)
+    const main = container.querySelector('#main-content')
+    expect(main.tabIndex).toBe(-1)
+    main.focus()
+    expect(document.activeElement).toBe(main)
+  })
 })

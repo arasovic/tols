@@ -46,72 +46,70 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <BaseConverterTool />
+<article>
+  <BaseConverterTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is Number Base Converter?</h2>
-      <p>
-        Number Base Converter is a tool for converting numbers between different numeral systems.
-        It supports binary (base-2), octal (base-8), decimal (base-10), and hexadecimal (base-16)
-        conversions. This is essential for programming, digital electronics, and computer science
-        work where different bases are commonly used.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is Number Base Converter?</h2>
+    <p>
+      Number Base Converter is a tool for converting numbers between different numeral systems.
+      It supports binary (base-2), octal (base-8), decimal (base-10), and hexadecimal (base-16)
+      conversions. This is essential for programming, digital electronics, and computer science
+      work where different bases are commonly used.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Number Base Converter</h2>
-      <ol>
-        <li><strong>Enter a number</strong> - Type your number in any supported base</li>
-        <li><strong>See conversions</strong> - View the number converted to all other bases instantly</li>
-        <li><strong>Copy results</strong> - Click copy buttons to copy any base representation</li>
-        <li><strong>Input validation</strong> - Tool validates input for each number base</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Number Base Converter</h2>
+    <ol>
+      <li><strong>Enter a number</strong> - Type your number in any supported base</li>
+      <li><strong>See conversions</strong> - View the number converted to all other bases instantly</li>
+      <li><strong>Copy results</strong> - Click copy buttons to copy any base representation</li>
+      <li><strong>Input validation</strong> - Tool validates input for each number base</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Number Base Converter Features</h2>
-      <ul>
-        <li><strong>Four bases</strong> - Binary, octal, decimal, and hexadecimal support</li>
-        <li><strong>Real-time conversion</strong> - Instant results as you type</li>
-        <li><strong>Input validation</strong> - Validates characters for each base</li>
-        <li><strong>Prefix options</strong> - Optional 0x, 0b, 0o prefixes for programming</li>
-        <li><strong>One-click copy</strong> - Copy any base result instantly</li>
-        <li><strong>Large numbers</strong> - Supports numbers up to JavaScript's safe integer limit</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Number Base Converter Features</h2>
+    <ul>
+      <li><strong>Four bases</strong> - Binary, octal, decimal, and hexadecimal support</li>
+      <li><strong>Real-time conversion</strong> - Instant results as you type</li>
+      <li><strong>Input validation</strong> - Validates characters for each base</li>
+      <li><strong>Prefix options</strong> - Optional 0x, 0b, 0o prefixes for programming</li>
+      <li><strong>One-click copy</strong> - Copy any base result instantly</li>
+      <li><strong>Large numbers</strong> - Supports numbers up to JavaScript's safe integer limit</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What are number bases used for?</h3>
-      <p>
-        Different number bases are used in various computing contexts. Binary (base-2) is the
-        fundamental language of computers. Hexadecimal (base-16) is used in programming for
-        memory addresses, color codes, and binary data representation. Octal (base-8) was
-        historically used in Unix systems for file permissions.
-      </p>
+    <h3>What are number bases used for?</h3>
+    <p>
+      Different number bases are used in various computing contexts. Binary (base-2) is the
+      fundamental language of computers. Hexadecimal (base-16) is used in programming for
+      memory addresses, color codes, and binary data representation. Octal (base-8) was
+      historically used in Unix systems for file permissions.
+    </p>
 
-      <h3>Why is hexadecimal used in programming?</h3>
-      <p>
-        Hexadecimal is compact and maps directly to binary - each hex digit represents exactly
-        4 binary bits. This makes it much easier to read and write binary data. For example,
-        the binary value 111100001010 is F0A in hex, which is far more readable. It's used for
-        color codes (#RRGGBB), memory addresses, and byte values.
-      </p>
+    <h3>Why is hexadecimal used in programming?</h3>
+    <p>
+      Hexadecimal is compact and maps directly to binary - each hex digit represents exactly
+      4 binary bits. This makes it much easier to read and write binary data. For example,
+      the binary value 111100001010 is F0A in hex, which is far more readable. It's used for
+      color codes (#RRGGBB), memory addresses, and byte values.
+    </p>
 
-      <h3>What is the largest number this converter supports?</h3>
-      <p>
-        This converter supports numbers up to JavaScript's safe integer limit of 9,007,199,254,740,991
-        (2^53 - 1). Beyond this limit, precision may be lost. For most practical programming and
-        computing purposes, this range is sufficient. The tool validates inputs to ensure accuracy.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>What is the largest number this converter supports?</h3>
+    <p>
+      This converter supports numbers up to JavaScript's safe integer limit of 9,007,199,254,740,991
+      (2^53 - 1). Beyond this limit, precision may be lost. For most practical programming and
+      computing purposes, this range is sufficient. The tool validates inputs to ensure accuracy.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

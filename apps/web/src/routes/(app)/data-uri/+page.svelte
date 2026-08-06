@@ -46,71 +46,69 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <DataUriTool />
+<article>
+  <DataUriTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is a Data URI?</h2>
-      <p>
-        A Data URI (Uniform Resource Identifier) is a scheme that allows you to embed data directly
-        into a document, rather than referencing an external file. It's commonly used to embed
-        small images, fonts, or other resources directly in CSS or HTML, reducing HTTP requests
-        and improving page load performance.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is a Data URI?</h2>
+    <p>
+      A Data URI (Uniform Resource Identifier) is a scheme that allows you to embed data directly
+      into a document, rather than referencing an external file. It's commonly used to embed
+      small images, fonts, or other resources directly in CSS or HTML, reducing HTTP requests
+      and improving page load performance.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Data URI Generator</h2>
-      <ol>
-        <li><strong>Upload a file</strong> - Drag and drop or select a file from your device</li>
-        <li><strong>Automatic conversion</strong> - The file is converted to base64 and wrapped in a data URI</li>
-        <li><strong>View output</strong> - See the complete data URI string ready for use</li>
-        <li><strong>Copy to clipboard</strong> - Copy the data URI to use in your CSS or HTML</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Data URI Generator</h2>
+    <ol>
+      <li><strong>Upload a file</strong> - Drag and drop or select a file from your device</li>
+      <li><strong>Automatic conversion</strong> - The file is converted to base64 and wrapped in a data URI</li>
+      <li><strong>View output</strong> - See the complete data URI string ready for use</li>
+      <li><strong>Copy to clipboard</strong> - Copy the data URI to use in your CSS or HTML</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Data URI Generator Features</h2>
-      <ul>
-        <li><strong>Drag and drop</strong> - Easy file upload with drag-and-drop support</li>
-        <li><strong>Multiple formats</strong> - Supports images, fonts, and other file types</li>
-        <li><strong>Automatic MIME type</strong> - Detects and sets the correct MIME type</li>
-        <li><strong>Size display</strong> - Shows original and encoded sizes</li>
-        <li><strong>CSS ready</strong> - Output formatted for CSS background-image use</li>
-        <li><strong>One-click copy</strong> - Copy the data URI instantly</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Data URI Generator Features</h2>
+    <ul>
+      <li><strong>Drag and drop</strong> - Easy file upload with drag-and-drop support</li>
+      <li><strong>Multiple formats</strong> - Supports images, fonts, and other file types</li>
+      <li><strong>Automatic MIME type</strong> - Detects and sets the correct MIME type</li>
+      <li><strong>Size display</strong> - Shows original and encoded sizes</li>
+      <li><strong>CSS ready</strong> - Output formatted for CSS background-image use</li>
+      <li><strong>One-click copy</strong> - Copy the data URI instantly</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>When should I use Data URIs?</h3>
-      <p>
-        Use Data URIs for small files like icons, small images, or fonts that are used on every page.
-        They eliminate HTTP requests, which can improve initial page load. However, avoid using them
-        for large images as they increase HTML/CSS file size and can't be cached separately.
-      </p>
+    <h3>When should I use Data URIs?</h3>
+    <p>
+      Use Data URIs for small files like icons, small images, or fonts that are used on every page.
+      They eliminate HTTP requests, which can improve initial page load. However, avoid using them
+      for large images as they increase HTML/CSS file size and can't be cached separately.
+    </p>
 
-      <h3>Do Data URIs affect caching?</h3>
-      <p>
-        Yes, Data URIs are embedded in the HTML or CSS, so they're cached along with the parent document.
-        This means they can't be cached separately or reused across pages. For assets used on multiple
-        pages, external files with proper caching headers are usually more efficient.
-      </p>
+    <h3>Do Data URIs affect caching?</h3>
+    <p>
+      Yes, Data URIs are embedded in the HTML or CSS, so they're cached along with the parent document.
+      This means they can't be cached separately or reused across pages. For assets used on multiple
+      pages, external files with proper caching headers are usually more efficient.
+    </p>
 
-      <h3>What file size is too big for Data URIs?</h3>
-      <p>
-        As a general rule, keep Data URIs under 2-3KB for best performance. Base64 encoding increases
-        file size by about 33%, so a 2KB image becomes ~2.7KB when encoded. Very large Data URIs
-        can make your HTML/CSS files unwieldy and slow to parse. Consider external files for anything
-        larger than small icons and UI elements.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>What file size is too big for Data URIs?</h3>
+    <p>
+      As a general rule, keep Data URIs under 2-3KB for best performance. Base64 encoding increases
+      file size by about 33%, so a 2KB image becomes ~2.7KB when encoded. Very large Data URIs
+      can make your HTML/CSS files unwieldy and slow to parse. Consider external files for anything
+      larger than small icons and UI elements.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

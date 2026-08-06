@@ -125,9 +125,12 @@
     </div>
   </header>
 
-  <!-- id is load-bearing: app.html's skip link targets #main-content, and all
-       30 tool routes already provide it. Without it the link goes nowhere here. -->
-  <main id="main-content" class="home-main">
+  <!-- id is load-bearing: app.html's skip link targets #main-content, which the
+       (app) layout provides for every tool route. This page is outside that
+       group, so it carries its own — and tabindex="-1", without which focus
+       never actually lands here (measured in Chrome: activeElement stayed on
+       <body> after activating the link). -->
+  <main id="main-content" class="home-main" tabindex="-1">
     <HomeHero stats={heroStats} {toolCount} />
 
     <HomeSearch bind:query={searchQuery} bind:selected={selectedCategory} />

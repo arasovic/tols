@@ -46,73 +46,71 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <BarcodeTool />
+<article>
+  <BarcodeTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What is Barcode Generator?</h2>
-      <p>
-        Barcode Generator creates scannable barcode images from text input. It supports Code 128,
-        a high-density linear barcode symbology that can encode all 128 ASCII characters. This makes
-        it ideal for inventory management, product labeling, and asset tracking where alphanumeric
-        data needs to be encoded.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What is Barcode Generator?</h2>
+    <p>
+      Barcode Generator creates scannable barcode images from text input. It supports Code 128,
+      a high-density linear barcode symbology that can encode all 128 ASCII characters. This makes
+      it ideal for inventory management, product labeling, and asset tracking where alphanumeric
+      data needs to be encoded.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Barcode Generator</h2>
-      <ol>
-        <li><strong>Enter text</strong> - Type the data you want to encode in the barcode</li>
-        <li><strong>Generate barcode</strong> - The barcode is created automatically as you type</li>
-        <li><strong>Customize appearance</strong> - Adjust width, height, and display options</li>
-        <li><strong>Download or copy</strong> - Save the barcode as an image or copy it</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Barcode Generator</h2>
+    <ol>
+      <li><strong>Enter text</strong> - Type the data you want to encode in the barcode</li>
+      <li><strong>Generate barcode</strong> - The barcode is created automatically as you type</li>
+      <li><strong>Customize appearance</strong> - Adjust width, height, and display options</li>
+      <li><strong>Download or copy</strong> - Save the barcode as an image or copy it</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Barcode Generator Features</h2>
-      <ul>
-        <li><strong>Code 128 support</strong> - Full ASCII character encoding</li>
-        <li><strong>Real-time generation</strong> - Barcode updates as you type</li>
-        <li><strong>Customizable size</strong> - Adjust barcode width and height</li>
-        <li><strong>Display options</strong> - Show or hide the text below the barcode</li>
-        <li><strong>PNG download</strong> - Download barcode as a PNG image</li>
-        <li><strong>Print ready</strong> - Generate high-quality barcodes for printing</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Barcode Generator Features</h2>
+    <ul>
+      <li><strong>Code 128 support</strong> - Full ASCII character encoding</li>
+      <li><strong>Real-time generation</strong> - Barcode updates as you type</li>
+      <li><strong>Customizable size</strong> - Adjust barcode width and height</li>
+      <li><strong>Display options</strong> - Show or hide the text below the barcode</li>
+      <li><strong>PNG download</strong> - Download barcode as a PNG image</li>
+      <li><strong>Print ready</strong> - Generate high-quality barcodes for printing</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What is Code 128?</h3>
-      <p>
-        Code 128 is a high-density linear barcode symbology that can encode all 128 ASCII characters.
-        It's widely used in shipping, packaging, and inventory management. Code 128 offers excellent
-        density and reliability, making it suitable for encoding alphanumeric data like product
-        IDs, serial numbers, and tracking codes.
-      </p>
+    <h3>What is Code 128?</h3>
+    <p>
+      Code 128 is a high-density linear barcode symbology that can encode all 128 ASCII characters.
+      It's widely used in shipping, packaging, and inventory management. Code 128 offers excellent
+      density and reliability, making it suitable for encoding alphanumeric data like product
+      IDs, serial numbers, and tracking codes.
+    </p>
 
-      <h3>How do I ensure my barcode will scan correctly?</h3>
-      <p>
-        For reliable scanning, ensure adequate quiet zones (white space) on both sides of the barcode,
-        use sufficient height, and print at high resolution. Test with your intended scanner before
-        mass production. Avoid stretching the barcode too wide or printing too small. The human-readable
-        text below helps verify the encoded data.
-      </p>
+    <h3>How do I ensure my barcode will scan correctly?</h3>
+    <p>
+      For reliable scanning, ensure adequate quiet zones (white space) on both sides of the barcode,
+      use sufficient height, and print at high resolution. Test with your intended scanner before
+      mass production. Avoid stretching the barcode too wide or printing too small. The human-readable
+      text below helps verify the encoded data.
+    </p>
 
-      <h3>What can I encode in a Code 128 barcode?</h3>
-      <p>
-        Code 128 can encode all standard ASCII characters including uppercase letters, lowercase
-        letters, numbers, and special characters. This makes it versatile for various applications
-        like product SKUs, asset tags, shipping labels, and inventory tracking. However, the more
-        characters you encode, the wider the barcode becomes.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>What can I encode in a Code 128 barcode?</h3>
+    <p>
+      Code 128 can encode all standard ASCII characters including uppercase letters, lowercase
+      letters, numbers, and special characters. This makes it versatile for various applications
+      like product SKUs, asset tags, shipping labels, and inventory tracking. However, the more
+      characters you encode, the wider the barcode becomes.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {

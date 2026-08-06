@@ -46,69 +46,67 @@
   })}</script>`}
 </svelte:head>
 
-<main id="main-content">
-  <article>
-    <RegexTool />
+<article>
+  <RegexTool />
 
-    <div class="seo-section">
-    <section class="seo-content" aria-labelledby="what-is">
-      <h2 id="what-is">What are Regular Expressions?</h2>
-      <p>
-        Regular expressions (regex or regexp) are patterns used to match character combinations in strings.
-        They are powerful tools for text processing, validation, and manipulation. Regex is supported in
-        virtually all programming languages and is essential for tasks like form validation, search and replace,
-        and data extraction.
-      </p>
-    </section>
+  <div class="seo-section">
+  <section class="seo-content" aria-labelledby="what-is">
+    <h2 id="what-is">What are Regular Expressions?</h2>
+    <p>
+      Regular expressions (regex or regexp) are patterns used to match character combinations in strings.
+      They are powerful tools for text processing, validation, and manipulation. Regex is supported in
+      virtually all programming languages and is essential for tasks like form validation, search and replace,
+      and data extraction.
+    </p>
+  </section>
 
-    <section class="seo-content" aria-labelledby="how-to-use">
-      <h2 id="how-to-use">How to Use Regex Tester</h2>
-      <ol>
-        <li><strong>Enter your pattern</strong> - Type your regular expression in the pattern field</li>
-        <li><strong>Add test text</strong> - Paste the text you want to test against in the input area</li>
-        <li><strong>Set flags</strong> - Enable flags like 'g' (global), 'i' (case-insensitive), 'm' (multiline)</li>
-        <li><strong>View matches</strong> - Matches are highlighted in real-time with match count</li>
-      </ol>
-    </section>
+  <section class="seo-content" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use Regex Tester</h2>
+    <ol>
+      <li><strong>Enter your pattern</strong> - Type your regular expression in the pattern field</li>
+      <li><strong>Add test text</strong> - Paste the text you want to test against in the input area</li>
+      <li><strong>Set flags</strong> - Enable flags like 'g' (global), 'i' (case-insensitive), 'm' (multiline)</li>
+      <li><strong>View matches</strong> - Matches are highlighted in real-time with match count</li>
+    </ol>
+  </section>
 
-    <section class="seo-content" aria-labelledby="features">
-      <h2 id="features">Regex Tester Features</h2>
-      <ul>
-        <li><strong>Real-time matching</strong> - See matches as you type your pattern</li>
-        <li><strong>Match highlighting</strong> - Visual indication of matched text</li>
-        <li><strong>Flag support</strong> - Enable global, case-insensitive, and multiline modes</li>
-        <li><strong>Match details</strong> - View all matches and captured groups</li>
-        <li><strong>Error handling</strong> - Get clear error messages for invalid patterns</li>
-        <li><strong>Replace mode</strong> - Test find-and-replace operations</li>
-      </ul>
-    </section>
+  <section class="seo-content" aria-labelledby="features">
+    <h2 id="features">Regex Tester Features</h2>
+    <ul>
+      <li><strong>Real-time matching</strong> - See matches as you type your pattern</li>
+      <li><strong>Match highlighting</strong> - Visual indication of matched text</li>
+      <li><strong>Flag support</strong> - Enable global, case-insensitive, and multiline modes</li>
+      <li><strong>Match details</strong> - View all matches and captured groups</li>
+      <li><strong>Error handling</strong> - Get clear error messages for invalid patterns</li>
+      <li><strong>Replace mode</strong> - Test find-and-replace operations</li>
+    </ul>
+  </section>
 
-    <section class="seo-content" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+  <section class="seo-content" aria-labelledby="faq">
+    <h2 id="faq">Frequently Asked Questions</h2>
 
-      <h3>What regex flavor does this tool use?</h3>
-      <p>
-        This tool uses JavaScript's regular expression engine, which is based on the ECMAScript standard.
-        It supports most common regex features including lookahead, lookbehind (in modern browsers),
-        and named capture groups.
-      </p>
+    <h3>What regex flavor does this tool use?</h3>
+    <p>
+      This tool uses JavaScript's regular expression engine, which is based on the ECMAScript standard.
+      It supports most common regex features including lookahead, lookbehind (in modern browsers),
+      and named capture groups.
+    </p>
 
-      <h3>What are regex flags?</h3>
-      <p>
-        Flags modify regex behavior: 'g' (global) finds all matches, 'i' (case-insensitive) ignores case,
-        'm' (multiline) makes ^ and $ match line starts/ends. You can combine multiple flags.
-      </p>
+    <h3>What are regex flags?</h3>
+    <p>
+      Flags modify regex behavior: 'g' (global) finds all matches, 'i' (case-insensitive) ignores case,
+      'm' (multiline) makes ^ and $ match line starts/ends. You can combine multiple flags.
+    </p>
 
-      <h3>Why is my regex not working?</h3>
-      <p>
-        Common issues include unescaped special characters, incorrect character classes, or missing flags.
-        The tool shows error messages for invalid patterns. Start simple and build up your pattern
-        incrementally.
-      </p>
-    </section>
-    </div>
-  </article>
-</main>
+    <h3>Why is my regex not working?</h3>
+    <p>
+      Common issues include unescaped special characters, incorrect character classes, or missing flags.
+      The tool shows error messages for invalid patterns. Start simple and build up your pattern
+      incrementally.
+    </p>
+  </section>
+  </div>
+</article>
 
 <style>
   .seo-section {
