@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy, tick } from 'svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
 
   let barcodeText = 'CODE128'
   let barcodeType = 'CODE128'
@@ -357,12 +358,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">Barcode Generator</h1>
-      <p class="tool-desc">Generate Code128 barcodes</p>
-    </div>
-    <div class="tool-actions">
+  <ToolHeader toolId="barcode">
+    <svelte:fragment slot="actions">
       <button type="button"
         class="icon-btn"
         on:click={loadExample}
@@ -383,8 +380,8 @@
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   {#if error}
     <div class="error-display" role="alert" aria-live="polite">
@@ -436,11 +433,6 @@
 <style>
   .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .tool-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-subtle); }
-  .tool-meta { display: flex; flex-direction: column; gap: var(--space-1); }
-  .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
-  .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
-  .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
   .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
@@ -454,5 +446,5 @@
   .barcode-preview canvas { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
   .download-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-size: var(--text-sm); font-weight: var(--font-medium); color: white; background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .download-btn:hover { background: var(--accent-hover); }
-  @media (max-width: 768px) { .barcode-input { flex-direction: column; } .type-group { width: 100%; } .tool-header { flex-direction: column; align-items: flex-start; } .tool-actions { width: 100%; justify-content: flex-end; } }
+  @media (max-width: 768px) { .barcode-input { flex-direction: column; } .type-group { width: 100%; } }
 </style>

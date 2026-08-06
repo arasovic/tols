@@ -1,5 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const DEFAULT_DECIMAL = '255'
@@ -292,20 +293,16 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">Number Base Converter</h1>
-      <p class="tool-desc">Convert between decimal, binary, hexadecimal, and octal</p>
-    </div>
-    <div class="tool-actions">
+  <ToolHeader toolId="base-converter">
+    <svelte:fragment slot="actions">
       <button type="button" class="icon-btn" on:click={loadExample} title="Load Example" aria-label="Load example value">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
       </button>
       <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear all fields">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   {#if error}
     <div class="error-state" role="alert" aria-live="polite">
@@ -403,11 +400,6 @@
 <style>
   .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .tool-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-subtle); }
-  .tool-meta { display: flex; flex-direction: column; gap: var(--space-1); }
-  .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
-  .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
-  .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
   .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .converter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
@@ -423,5 +415,5 @@
   .conv-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .conv-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-dim); }
   .error-state { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft, rgba(239, 68, 68, 0.1)); border: 1px solid var(--error, #EF4444); border-radius: var(--radius); color: var(--error); font-size: var(--text-sm); }
-  @media (max-width: 768px) { .converter-grid { grid-template-columns: 1fr; } .conversion-grid { grid-template-columns: repeat(2, 1fr); } .tool-header { flex-direction: column; align-items: flex-start; } .tool-actions { width: 100%; justify-content: flex-end; } }
+  @media (max-width: 768px) { .converter-grid { grid-template-columns: 1fr; } .conversion-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>

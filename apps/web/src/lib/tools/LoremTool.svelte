@@ -1,5 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   let paragraphs = 3
@@ -142,19 +143,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-bar">
-    <div class="tool-title">
-      <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <polyline points="14 2 14 8 20 8"></polyline>
-        <line x1="16" y1="13" x2="8" y2="13"></line>
-        <line x1="16" y1="17" x2="8" y2="17"></line>
-        <polyline points="10 9 9 9 8 9"></polyline>
-      </svg>
-      <h1 class="tool-title-text">Lorem Ipsum Generator</h1>
-    </div>
-    
-    <div class="tool-actions">
+  <ToolHeader toolId="lorem">
+    <svelte:fragment slot="actions">
       <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 6v6l4 2"/>
@@ -167,8 +157,8 @@
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   <div class="controls-card">
     <div class="controls-grid">
@@ -284,43 +274,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .tool-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .tool-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-  }
-
-  .tool-title-text {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    margin: 0;
-    color: inherit;
-  }
-
-  .tool-icon {
-    width: 18px;
-    height: 18px;
-    color: var(--accent);
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
   }
 
   .btn-ghost {
@@ -601,17 +554,6 @@
   }
 
   @media (max-width: 768px) {
-    .tool-bar {
-      flex-direction: column;
-      gap: var(--space-3);
-      align-items: flex-start;
-    }
-
-    .tool-actions {
-      width: 100%;
-      justify-content: flex-end;
-    }
-
     .controls-grid {
       flex-direction: column;
       align-items: flex-start;

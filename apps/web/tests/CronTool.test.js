@@ -10,7 +10,7 @@ describe('CronTool', () => {
 
   it('should initialize with tool header', () => {
     render(CronTool)
-    expect(screen.getByText('Cron Expression Parser')).toBeInTheDocument()
+    expect(screen.getByText('Cron Parser')).toBeInTheDocument()
   })
 
   it('should have cron parts display', () => {

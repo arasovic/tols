@@ -2,6 +2,7 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { onMount, onDestroy } from 'svelte'
 
@@ -284,21 +285,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-bar">
-    <div class="tool-title">
-      <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="13.5" cy="6.5" r="2.5"></circle>
-        <circle cx="19" cy="17" r="2"></circle>
-        <circle cx="6" cy="12" r="3"></circle>
-        <path d="M13.5 9v4l3 3"></path>
-        <path d="M9 6h.01"></path>
-        <path d="M15 12h.01"></path>
-        <path d="M18 15h.01"></path>
-      </svg>
-      <h1 class="tool-title-text">Color Converter</h1>
-    </div>
-
-    <div class="tool-actions">
+  <ToolHeader toolId="color">
+    <svelte:fragment slot="actions">
       <ShareButton getState={() => ({ hex })} />
       <PasteButton on:text={(e) => handleHexInput({ currentTarget: { value: e.detail.text } })} />
       <button type="button"
@@ -323,8 +311,8 @@
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   <div class="preview-card">
     <div
@@ -431,43 +419,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .tool-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .tool-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-  }
-
-  .tool-title-text {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    margin: 0;
-    color: inherit;
-  }
-
-  .tool-icon {
-    width: 18px;
-    height: 18px;
-    color: var(--accent);
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
   }
 
   .btn-ghost {
@@ -660,17 +611,6 @@
   }
 
   @media (max-width: 768px) {
-    .tool-bar {
-      flex-direction: column;
-      gap: var(--space-3);
-      align-items: flex-start;
-    }
-
-    .tool-actions {
-      width: 100%;
-      justify-content: flex-end;
-    }
-
     .formats-grid {
       grid-template-columns: 1fr;
     }

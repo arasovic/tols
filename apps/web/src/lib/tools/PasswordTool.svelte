@@ -1,5 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const MIN_LENGTH = 8
@@ -169,20 +170,16 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">Password Generator</h1>
-      <p class="tool-desc">Generate secure random passwords</p>
-    </div>
-    <div class="tool-actions">
+  <ToolHeader toolId="password">
+    <svelte:fragment slot="actions">
       <button type="button" class="icon-btn" on:click={handleRegenerate} aria-label="Regenerate password" title="Regenerate">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       </button>
       <button type="button" class="icon-btn" on:click={handleClear} aria-label="Clear password" title="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   <div class="options-section">
     <div class="option-row">
@@ -241,11 +238,6 @@
 <style>
   .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .tool-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-subtle); }
-  .tool-meta { display: flex; flex-direction: column; gap: var(--space-1); }
-  .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
-  .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
-  .tool-actions { display: flex; align-items: center; gap: var(--space-2); }
   .icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); background: transparent; color: var(--text-tertiary); border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
   .icon-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -268,7 +260,5 @@
 
   @media (max-width: 768px) {
     .checkboxes { grid-template-columns: 1fr; }
-    .tool-header { flex-direction: column; align-items: flex-start; }
-    .tool-actions { width: 100%; justify-content: flex-end; }
   }
 </style>

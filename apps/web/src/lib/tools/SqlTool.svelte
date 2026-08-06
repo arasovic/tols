@@ -1,5 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { onMount, onDestroy } from 'svelte'
 
   const EXAMPLE_SQL = `SELECT u.id, u.name, u.email, COUNT(o.id) as order_count, SUM(o.total) as total_spent
@@ -446,12 +447,8 @@ LIMIT 100;`
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">SQL Formatter</h1>
-      <p class="tool-desc">Format and beautify SQL queries</p>
-    </div>
-    <div class="tool-actions">
+  <ToolHeader toolId="sql">
+    <svelte:fragment slot="actions">
       <ShareButton getState={() => ({ input, keywordCase })} />
       <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
       <div class="segmented">
@@ -464,8 +461,8 @@ LIMIT 100;`
       <button type="button" class="icon-btn" on:click={clear} title="Clear" aria-label="Clear">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   {#if errorMessage}
     <div class="error-banner" role="alert">
@@ -517,41 +514,6 @@ LIMIT 100;`
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
-  }
-
-  .tool-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .tool-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .tool-name {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    letter-spacing: var(--tracking-tight);
-    margin: 0;
-  }
-
-  .tool-desc {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-    margin: 0;
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
   }
 
   .segmented {
@@ -706,7 +668,5 @@ LIMIT 100;`
 
   @media (max-width: 768px) {
     .workspace { grid-template-columns: 1fr; }
-    .tool-header { flex-direction: column; align-items: flex-start; }
-    .tool-actions { width: 100%; justify-content: flex-end; }
   }
 </style>

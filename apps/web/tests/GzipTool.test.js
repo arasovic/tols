@@ -21,7 +21,7 @@ describe('GzipTool', () => {
 
   it('should initialize with tool header', () => {
     render(GzipTool)
-    expect(screen.getByText('Gzip Compression Calculator')).toBeInTheDocument()
+    expect(screen.getByText('Gzip Calculator')).toBeInTheDocument()
   })
 
   it('should have input textarea', () => {

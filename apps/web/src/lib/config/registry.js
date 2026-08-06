@@ -124,7 +124,7 @@ export const tools = [
     id: 'diff',
     name: 'Diff Checker',
     label: 'Diff',
-    description: 'Compare two texts and find differences',
+    description: 'Compare two texts with word-level precision',
     category: 'data',
     icon: GitCompare,
     aliases: ['diff', 'compare', 'difference', 'text compare', 'checker']
@@ -191,7 +191,7 @@ export const tools = [
     id: 'gzip',
     name: 'Gzip Calculator',
     label: 'Gzip',
-    description: 'Estimate compression size for Gzip',
+    description: 'Calculate gzip compression size and analyze bandwidth savings',
     category: 'encoding',
     icon: FileBarChart,
     aliases: ['gzip', 'compression', 'size', 'estimate', 'zip']
@@ -314,7 +314,7 @@ export const tools = [
     id: 'cron',
     name: 'Cron Parser',
     label: 'Cron',
-    description: 'Validate cron expressions and see next execution times',
+    description: 'Validate, parse, and get next execution times for cron expressions',
     category: 'converters',
     icon: Timer,
     aliases: ['cron', 'crontab', 'schedule', 'parser', 'expression']
@@ -341,7 +341,7 @@ export const tools = [
     id: 'css-filter',
     name: 'CSS Filter Generator',
     label: 'CSS Filter',
-    description: 'Apply visual CSS filters',
+    description: 'Visual controls for CSS image filters',
     category: 'converters',
     icon: Zap,
     aliases: ['css', 'filter', 'blur', 'brightness', 'contrast', 'effect']

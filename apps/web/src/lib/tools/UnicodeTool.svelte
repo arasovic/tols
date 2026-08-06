@@ -1,5 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { onMount } from 'svelte'
 
   const STORAGE_KEY = 'devutils-unicode-search'
@@ -166,12 +167,7 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">Unicode Inspector</h1>
-      <p class="tool-desc">Explore Unicode characters and their properties</p>
-    </div>
-  </div>
+  <ToolHeader toolId="unicode" />
 
   <div class="search-section">
     <input type="text" bind:value={searchChar} on:input={debouncedSearch} placeholder="Type a character or search..." class="search-input" maxlength="10" />
@@ -222,10 +218,6 @@
 <style>
   .tool { display: flex; flex-direction: column; gap: var(--space-5); width: 100%; animation: fadeIn var(--transition) var(--ease-out); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .tool-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-subtle); }
-  .tool-meta { display: flex; flex-direction: column; gap: var(--space-1); }
-  .tool-name { font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary); letter-spacing: var(--tracking-tight); margin: 0; }
-  .tool-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin: 0; }
   .search-section { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .search-input { width: 100%; padding: var(--space-3); font-size: var(--text-lg); text-align: center; border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); outline: none; }
   .search-input:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }

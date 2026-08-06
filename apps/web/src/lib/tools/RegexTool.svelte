@@ -2,6 +2,7 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -331,16 +332,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-bar">
-    <div class="tool-title">
-      <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
-        <path d="m15 5 4 4"></path>
-      </svg>
-      <h1 class="tool-title-text">Regex Tester</h1>
-    </div>
-
-    <div class="tool-actions">
+  <ToolHeader toolId="regex">
+    <svelte:fragment slot="actions">
       <ShareButton getState={() => ({ pattern, input, flags })} />
       <PasteButton on:text={(e) => { input = e.detail.text; performMatch() }} />
       <button type="button" class="btn-ghost" on:click={loadExample} title="Load Example">
@@ -355,8 +348,8 @@
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   {#if persistentError}
     <div class="persistent-error">
@@ -526,43 +519,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .tool-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .tool-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-  }
-
-  .tool-title-text {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    margin: 0;
-    color: inherit;
-  }
-
-  .tool-icon {
-    width: 18px;
-    height: 18px;
-    color: var(--accent);
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
   }
 
   .btn-ghost {
@@ -1021,17 +977,6 @@
   }
 
   @media (max-width: 768px) {
-    .tool-bar {
-      flex-direction: column;
-      gap: var(--space-3);
-      align-items: flex-start;
-    }
-
-    .tool-actions {
-      width: 100%;
-      justify-content: flex-end;
-    }
-
     .panels-grid {
       grid-template-columns: 1fr;
     }

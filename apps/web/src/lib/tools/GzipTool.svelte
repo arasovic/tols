@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte'
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
 
   const DEBOUNCE_WAIT = 150
   const SAVE_DELAY = 500
@@ -169,12 +170,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">Gzip Compression Calculator</h1>
-      <p class="tool-desc">Calculate gzip compression size and analyze bandwidth savings</p>
-    </div>
-    <div class="tool-actions">
+  <ToolHeader toolId="gzip">
+    <svelte:fragment slot="actions">
       <button type="button"
         class="icon-btn"
         on:click={clearInput}
@@ -185,8 +182,8 @@
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   <div class="content-grid">
     <div class="input-section">
@@ -249,41 +246,6 @@
     flex-direction: column;
     gap: var(--space-5);
     width: 100%;
-  }
-
-  .tool-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .tool-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .tool-name {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    letter-spacing: var(--tracking-tight);
-    margin: 0;
-  }
-
-  .tool-desc {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-    margin: 0;
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
   }
 
   .icon-btn {
@@ -431,16 +393,6 @@
   @media (max-width: 768px) {
     .content-grid {
       grid-template-columns: 1fr;
-    }
-
-    .tool-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .tool-actions {
-      width: 100%;
-      justify-content: flex-end;
     }
   }
 </style>

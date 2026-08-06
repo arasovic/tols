@@ -2,6 +2,7 @@
   import CopyButton from '$lib/components/CopyButton.svelte'
   import ShareButton from '$lib/components/ShareButton.svelte'
   import PasteButton from '$lib/components/PasteButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
@@ -381,12 +382,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">XML Formatter</h1>
-      <p class="tool-desc">Format, validate, and minify XML data</p>
-    </div>
-    <div class="tool-actions">
+  <ToolHeader toolId="xml">
+    <svelte:fragment slot="actions">
       <ShareButton getState={() => ({ input, mode })} />
       <PasteButton on:text={(e) => { input = e.detail.text; process() }} />
       <div class="segmented">
@@ -404,8 +401,8 @@
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   {#if error}
     <div class="error-display" role="alert" aria-live="polite">
@@ -462,41 +459,6 @@
   @keyframes fadeIn { 
     from { opacity: 0; transform: translateY(4px); } 
     to { opacity: 1; transform: translateY(0); } 
-  }
-  
-  .tool-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: flex-start; 
-    gap: var(--space-4); 
-    padding-bottom: var(--space-4); 
-    border-bottom: 1px solid var(--border-subtle); 
-  }
-  
-  .tool-meta { 
-    display: flex; 
-    flex-direction: column; 
-    gap: var(--space-1); 
-  }
-  
-  .tool-name { 
-    font-size: var(--text-xl); 
-    font-weight: var(--font-semibold); 
-    color: var(--text-primary); 
-    letter-spacing: var(--tracking-tight); 
-    margin: 0; 
-  }
-  
-  .tool-desc { 
-    font-size: var(--text-sm); 
-    color: var(--text-tertiary); 
-    margin: 0; 
-  }
-  
-  .tool-actions { 
-    display: flex; 
-    align-items: center; 
-    gap: var(--space-2); 
   }
   
   .segmented { 
@@ -644,16 +606,6 @@
   @media (max-width: 768px) { 
     .workspace { 
       grid-template-columns: 1fr; 
-    } 
-    
-    .tool-header { 
-      flex-direction: column; 
-      align-items: flex-start; 
-    } 
-    
-    .tool-actions { 
-      width: 100%; 
-      justify-content: flex-end; 
     } 
   }
 </style>

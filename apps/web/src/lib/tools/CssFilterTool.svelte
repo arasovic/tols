@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte'
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
 
   const DEBOUNCE_WAIT = 50
   const SAVE_DELAY = 300
@@ -204,12 +205,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-header">
-    <div class="tool-meta">
-      <h1 class="tool-name">CSS Filter Generator</h1>
-      <p class="tool-desc">Visual controls for CSS image filters</p>
-    </div>
-    <div class="tool-actions">
+  <ToolHeader toolId="css-filter">
+    <svelte:fragment slot="actions">
       <button type="button"
         class="icon-btn"
         on:click={reset}
@@ -220,8 +217,8 @@
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   <div class="preview-section">
     <div class="preview-image" style="filter: {filterString}; transition: {prefersReducedMotion ? 'none' : 'filter 0.1s'}">
@@ -382,41 +379,6 @@
     }
   }
 
-  .tool-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .tool-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .tool-name {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    letter-spacing: var(--tracking-tight);
-    margin: 0;
-  }
-
-  .tool-desc {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-    margin: 0;
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
   .icon-btn {
     display: flex;
     align-items: center;
@@ -501,16 +463,6 @@
   @media (max-width: 768px) {
     .controls-grid {
       grid-template-columns: 1fr;
-    }
-
-    .tool-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .tool-actions {
-      width: 100%;
-      justify-content: flex-end;
     }
   }
 </style>

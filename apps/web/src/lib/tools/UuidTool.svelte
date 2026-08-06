@@ -1,5 +1,6 @@
 <script>
   import CopyButton from '$lib/components/CopyButton.svelte'
+  import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import { validateCount, sanitizeCount, generate as coreGenerate } from 'tols/core/uuid'
   import { onMount, onDestroy } from 'svelte'
 
@@ -133,17 +134,8 @@
 </script>
 
 <div class="tool">
-  <div class="tool-bar">
-    <div class="tool-title">
-      <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-        <line x1="3" y1="9" x2="21" y2="9"></line>
-        <line x1="9" y1="21" x2="9" y2="9"></line>
-      </svg>
-      <h1 class="tool-title-text">UUID Generator</h1>
-    </div>
-
-    <div class="tool-actions">
+  <ToolHeader toolId="uuid">
+    <svelte:fragment slot="actions">
       <button type="button" class="btn-primary" on:click={generate} aria-label="Generate UUIDs">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
           <polyline points="23 4 23 10 17 10"></polyline>
@@ -163,8 +155,8 @@
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
       </button>
-    </div>
-  </div>
+    </svelte:fragment>
+  </ToolHeader>
 
   <div class="controls-card">
     <div class="count-control">
@@ -272,43 +264,6 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-  }
-
-  .tool-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .tool-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-  }
-
-  .tool-title-text {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    margin: 0;
-    color: inherit;
-  }
-
-  .tool-icon {
-    width: 18px;
-    height: 18px;
-    color: var(--accent);
-  }
-
-  .tool-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
   }
 
   .btn-primary {
@@ -587,17 +542,6 @@
   }
 
   @media (max-width: 768px) {
-    .tool-bar {
-      flex-direction: column;
-      gap: var(--space-3);
-      align-items: flex-start;
-    }
-
-    .tool-actions {
-      width: 100%;
-      justify-content: flex-end;
-    }
-
     .info-bar {
       flex-direction: column;
       align-items: flex-start;
