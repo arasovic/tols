@@ -49,7 +49,17 @@
   }
 }} />
 
-<aside class="sidebar" class:open={isOpen}>
+<!--
+  A closed sidebar is off-canvas by `transform` alone, which hides it from the
+  eye but not from the keyboard: its 32 focusables stayed in the tab order, so
+  focus vanished off the left edge for 32 presses on every tool route
+  (WCAG 2.4.3 + 2.4.7). `inert` is what removes both the tab stops and the
+  accessibility-tree entries; `aria-hidden` would do only the second and would
+  then be a violation in its own right, since it must not contain focusables.
+  Svelte 4 lists `inert` in its boolean-attribute table, so `inert={!isOpen}`
+  emits the bare attribute when closed and removes it entirely when open.
+-->
+<aside class="sidebar" class:open={isOpen} inert={!isOpen}>
   <div class="sidebar-header">
     <a href="{base}/" class="logo" on:click={closeDrawer}>
       <div class="logo-icon">
@@ -288,8 +298,17 @@
     justify-content: center;
   }
 
+  /* A fixed character-cell column, not a content-sized box. Sizing to content
+     let the three-character aliases push their labels 7px right, so 24 of the
+     30 labels started at x=41 and 6 at x=48 — a visibly ragged left edge down
+     the whole list. `ch` resolves against this element's own font, so the mono
+     face is declared here rather than inherited; 3ch is the widest alias the
+     ladder in aliases.js can produce and aliases.test.js pins that. Widths in
+     ch are the human-ruled character-cell exception to the 4px grid. */
   .nav-alias {
     flex-shrink: 0;
+    width: 3ch;
+    justify-content: flex-start;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     font-weight: var(--font-semibold);
