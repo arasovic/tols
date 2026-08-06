@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Please report security issues privately through
-[GitHub's advisory form](https://github.com/arasovic/dev-utilities/security/advisories/new)
+[GitHub's advisory form](https://github.com/arasovic/tols/security/advisories/new)
 rather than opening a public issue. I will confirm receipt within a few days and
 tell you either a fix timeline or why I think it is not an issue.
 

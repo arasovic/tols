@@ -6,7 +6,7 @@
   import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
 
-  const DEFAULT_URL = 'https://github.com/arasovic/dev-utilities'
+  const DEFAULT_URL = 'https://github.com/arasovic/tols'
   const OLD_DEFAULT_URL = 'https://devutils.tools'
 
   let qrText = DEFAULT_URL

@@ -1,6 +1,6 @@
 # tols
 
-[![Deploy](https://github.com/arasovic/dev-utilities/actions/workflows/deploy.yml/badge.svg)](https://github.com/arasovic/dev-utilities/actions/workflows/deploy.yml)
+[![Deploy](https://github.com/arasovic/tols/actions/workflows/deploy.yml/badge.svg)](https://github.com/arasovic/tols/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Thirty developer tools, available both as a website and as a command line
@@ -101,8 +101,8 @@ paragraph bug, and each had to be fixed separately.
 ## Development
 
 ```sh
-git clone https://github.com/arasovic/dev-utilities.git
-cd dev-utilities
+git clone https://github.com/arasovic/tols.git
+cd tols
 npm install
 npm run dev
 ```

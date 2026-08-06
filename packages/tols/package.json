@@ -48,11 +48,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arasovic/dev-utilities.git",
+    "url": "git+https://github.com/arasovic/tols.git",
     "directory": "packages/tols"
   },
-  "homepage": "https://github.com/arasovic/dev-utilities/tree/main/packages/tols#readme",
+  "homepage": "https://github.com/arasovic/tols/tree/main/packages/tols#readme",
   "bugs": {
-    "url": "https://github.com/arasovic/dev-utilities/issues"
+    "url": "https://github.com/arasovic/tols/issues"
   }
 }

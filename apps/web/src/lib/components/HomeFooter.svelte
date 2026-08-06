@@ -1,6 +1,6 @@
 <footer class="home-footer">
   <div class="footer-links">
-    <a href="https://github.com/arasovic/dev-utilities" target="_blank" rel="noopener noreferrer" class="footer-link">
+    <a href="https://github.com/arasovic/tols" target="_blank" rel="noopener noreferrer" class="footer-link">
       GitHub
     </a>
   </div>

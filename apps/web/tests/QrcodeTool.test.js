@@ -169,7 +169,7 @@ describe('QrcodeTool', () => {
     const { container } = render(QrcodeTool)
 
     const textInput = container.querySelector('input[type="text"]')
-    expect(textInput?.value).toBe('https://github.com/arasovic/dev-utilities')
+    expect(textInput?.value).toBe('https://github.com/arasovic/tols')
   })
 
   it('should have size slider with min and max', () => {
@@ -277,7 +277,7 @@ describe('QrcodeTool', () => {
 
     // Should use the new GitHub URL, not the old one
     // Note: onMount doesn't run in test environment, so we check the default
-    expect(textInput?.value).toBe('https://github.com/arasovic/dev-utilities')
+    expect(textInput?.value).toBe('https://github.com/arasovic/tols')
   })
 
   it('should show error for text exceeding capacity', async () => {
