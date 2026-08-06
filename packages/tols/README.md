@@ -43,7 +43,7 @@ Exit codes: `0` success, `1` tool error, `2` usage error.
 | `base64` (b64) | **enc**, dec |
 | `url` | **enc**, dec, analyze |
 | `json` (js) | **fmt**, min, val |
-| `yaml` (yml) | **fmt**, json |
+| `yaml` (yml) | **fmt**, json, min |
 | `diff` | **run** |
 | `timestamp` (ts) | now, **conv**, parse |
 | `cron` (cr) | **parse**, next, val |

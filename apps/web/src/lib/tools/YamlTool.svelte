@@ -8,7 +8,11 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
-  import { parse as parseYAML, stringify as stringifyYAML } from 'tols/core/yaml'
+  import {
+    parse as parseYAML,
+    stringify as stringifyYAML,
+    stringifyFlow as flowYAML
+  } from 'tols/core/yaml'
 
   const EXAMPLE_YAML = `name: tols
 version: 1.0.0
@@ -49,14 +53,14 @@ config:
   // re-serializing, which is exactly what JSON→YAML does here — YAML is a
   // superset of JSON, so the CLI reaches the same output from the same input.
   //
-  // Minify has no command, so it shows none rather than a wrong one. The CLI
-  // has no `min` for YAML on purpose: this tool's minify collapses newlines to
-  // spaces, and `a: 1\nb: 2` collapsed to `a: 1 b: 2` re-parses as the single
-  // key `a` with the rest swallowed into its value. There is no command that
-  // produces that because it is not a YAML document. See the note in the
-  // Phase B tracker — the mode itself needs a decision, not a label.
-  $: cliAction = mode === 'yaml-to-json' ? 'json' : 'fmt'
-  $: cliToolId = mode === 'minify' ? '' : 'yaml'
+  // `min` collapses to YAML flow style (`{a: 1, b: [2, 3]}`), which is a real
+  // YAML document and parses back to what went in. It used to collapse the
+  // block output's newlines to spaces, and `a: 1\nb: 2` flattened to `a: 1 b: 2`
+  // re-parses as the single key `a` with the rest swallowed into its value —
+  // silent data loss, and no CLI command could be shown because no command
+  // produced it.
+  $: cliAction = mode === 'yaml-to-json' ? 'json' : mode === 'minify' ? 'min' : 'fmt'
+  $: cliToolId = 'yaml'
 
   function loadState() {
     try {
@@ -134,7 +138,7 @@ config:
         output = stringifyYAML(parsed).trim()
       } else if (mode === 'minify') {
         const parsed = parseYAML(input)
-        output = stringifyYAML(parsed).replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim()
+        output = flowYAML(parsed)
       }
     } catch (/** @type {any} */ e) {
       error = e.message || 'Invalid format'

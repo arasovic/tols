@@ -13,5 +13,9 @@ export default {
       description: 'convert YAML to JSON',
       run: (input) => JSON.stringify(core.parse(input), null, 2),
     },
+    min: {
+      description: 'collapse YAML to one line using flow style',
+      run: (input) => core.stringifyFlow(core.parse(input)),
+    },
   },
 };

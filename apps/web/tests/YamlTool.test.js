@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte'
 import YamlTool from '$lib/tools/YamlTool.svelte'
+import { parse as parseYAML } from 'tols/core/yaml'
 
 function waitForDebounce(ms = 400) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -66,26 +67,50 @@ describe('YamlTool', () => {
     })
   })
 
-  it('should minify YAML', async () => {
+  /** Drive the tool: type `input`, switch to `label`, return the output text. */
+  async function runMode(input, label) {
     render(YamlTool)
-
-    // First input some YAML
     const textarea = document.querySelector('.editor-textarea')
-    await fireEvent.input(textarea, { target: { value: 'name: tols\nversion: 1.0.0' } })
+    await fireEvent.input(textarea, { target: { value: input } })
+    await waitForDebounce(400)
+    await fireEvent.click(screen.getByText(label))
     await waitForDebounce(400)
 
-    // Then switch to minify mode
-    const minifyButton = screen.getByText('Minify')
-    await fireEvent.click(minifyButton)
-
-    await waitForDebounce(400)
-
+    let text = ''
     await waitFor(() => {
-      const output = document.querySelector('.output-display')
-      const text = output?.textContent || ''
-      expect(text).not.toContain('\n  ')
-      expect(text).toMatch(/name:\s*tols/)
+      text = document.querySelector('.output-display')?.textContent || ''
+      expect(text.length).toBeGreaterThan(0)
     })
+    return text
+  }
+
+  it('should minify YAML to a single line', async () => {
+    const text = await runMode('name: tols\nversion: 1.0.0', 'Minify')
+    expect(text.trim()).not.toContain('\n')
+  })
+
+  // The point of minify is a *smaller document that is still the document*.
+  // Asserting the text merely looks collapsed passed against the old
+  // implementation too, which collapsed newlines to spaces and produced
+  // `name: tols version: 1.0.0` — one key that had eaten the rest of the file.
+  // Parsing the output is what tells those two apart.
+  it('minified output parses back to the input document', async () => {
+    const source = 'name: tols\nversion: 1.0.0\ntools:\n  - json\n  - yaml\nmeta:\n  zero_deps: true'
+    const text = await runMode(source, 'Minify')
+
+    expect(parseYAML(text.trim())).toEqual(parseYAML(source))
+  })
+
+  it('minified output keeps every top-level key', async () => {
+    const source = 'a: 1\nb: 2\nc: 3'
+    const text = await runMode(source, 'Minify')
+
+    expect(Object.keys(parseYAML(text.trim()))).toEqual(['a', 'b', 'c'])
+  })
+
+  it('shows the matching CLI command for minify', async () => {
+    await runMode('name: tols', 'Minify')
+    expect(document.body.textContent).toContain('tols yaml min')
   })
 
   it('should clear content when clear button clicked', async () => {

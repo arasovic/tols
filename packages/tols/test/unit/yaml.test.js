@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parse, stringify } from '../../src/core/yaml.js';
+import { parse, stringify, stringifyFlow } from '../../src/core/yaml.js';
 
 describe('yaml core', () => {
   it('parses scalars with types', () => {
@@ -156,5 +156,70 @@ describe('yaml deep-pass fixes', () => {
 
   it('empty value with shallower follower is null', () => {
     expect(parse('a:\nb: 2')).toEqual({ a: null, b: 2 });
+  });
+});
+
+describe('flow style (yaml min)', () => {
+  // Every case here is asserted by parsing the output, not by matching its
+  // text. Minify's job is to make the document smaller while it stays the same
+  // document; only a round-trip can tell that apart from a shorter string.
+  const roundTrips = {
+    'flat mapping': { name: 'tols', version: '0.1.0' },
+    'sequence value': { name: 'tols', tools: ['json', 'yaml'] },
+    'nested mappings': { a: { b: { c: 1 } } },
+    'sequence of mappings': { items: [{ id: 1 }, { id: 2 }] },
+    'nested sequences': { grid: [[1, 2], [3, 4]] },
+    'empty collections': { obj: {}, arr: [], nil: null },
+    'scalar types': { n: 42, f: 1.5, t: true, f2: false },
+    'keys and values needing quotes': { 'key: with colon': 'a, b', plain: 'hello world' },
+    'values that look like keywords': { yes: 'yes', dash: '- x', hash: 'a # b' },
+    'embedded newline': { note: 'line one\nline two' },
+    'top-level sequence': [1, 'two', { three: 3 }],
+    'deeply mixed': { a: [{ b: [1, { c: 'd, e' }] }] },
+    'backslashes': { path: 'C:\\tmp\\x' },
+    'braces inside a string': { tpl: '{{ var }}' },
+  };
+
+  for (const [label, value] of Object.entries(roundTrips)) {
+    it(`round-trips ${label}`, () => {
+      expect(parse(stringifyFlow(value))).toEqual(value);
+    });
+  }
+
+  it('emits one line', () => {
+    const flow = stringifyFlow({ a: 1, b: { c: [2, 3] } });
+    expect(flow).not.toContain('\n');
+    expect(flow).toBe('{a: 1, b: {c: [2, 3]}}');
+  });
+
+  it('keeps every key, unlike collapsing block output', () => {
+    const value = { a: 1, b: 2, c: 3 };
+    // The old minify did `stringify(v).replace(/\n+/g, ' ')`, which yields
+    // `a: 1 b: 2 c: 3` — a single key whose value ate the rest.
+    const collapsed = stringify(value).replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+    expect(Object.keys(parse(collapsed))).toEqual(['a']);
+    expect(Object.keys(parse(stringifyFlow(value)))).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('flow collections parse as structures', () => {
+  it('parses a whole document written in flow style', () => {
+    expect(parse('{a: 1, b: [2, 3]}')).toEqual({ a: 1, b: [2, 3] });
+    expect(parse('[1, 2, 3]')).toEqual([1, 2, 3]);
+  });
+
+  it('recurses into nested flow values instead of leaving them as text', () => {
+    expect(parse('k: {a: {b: 1}}')).toEqual({ k: { a: { b: 1 } } });
+    expect(parse('k: [[1, 2], [3]]')).toEqual({ k: [[1, 2], [3]] });
+    expect(parse('k: [{id: 1}, {id: 2}]')).toEqual({ k: [{ id: 1 }, { id: 2 }] });
+  });
+
+  it('splits on the colon outside quotes', () => {
+    expect(parse('{"a: b": 1}')).toEqual({ 'a: b': 1 });
+  });
+
+  it('leaves a quoted flow-looking scalar as a string', () => {
+    expect(parse('k: "{not a map}"')).toEqual({ k: '{not a map}' });
+    expect(parse('k: "[not a list]"')).toEqual({ k: '[not a list]' });
   });
 });

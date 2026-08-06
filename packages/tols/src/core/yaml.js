@@ -33,6 +33,19 @@ function getIndent(line) {
 export function parse(yaml) {
   if (!yaml.trim()) return {}
 
+  // A whole document can be one flow collection: `{a: 1, b: [2, 3]}`. Without
+  // this it falls through to the block parser, which reads the line as an
+  // ordinary `key: value` pair whose key is `{a` and whose value swallows the
+  // rest. That is the shape `yaml min` emits, so it has to round-trip.
+  const document = yaml.trim()
+  if (
+    !document.includes('\n') &&
+    ((document.startsWith('{') && document.endsWith('}')) ||
+      (document.startsWith('[') && document.endsWith(']')))
+  ) {
+    return /** @type {any} */ (parseValue(document))
+  }
+
   const lines = yaml.split('\n')
 
   // Top-level documents may be sequences: detect from the first meaningful
@@ -313,7 +326,8 @@ export function parse(yaml) {
 
 /**
  * @param {string} value
- * @returns {string | number | boolean | null}
+ * @returns {unknown} a scalar, or a nested structure when the value is a flow
+ *   collection
  */
 function parseValue(value) {
   value = stripComment(value)
@@ -325,6 +339,16 @@ function parseValue(value) {
   if (/^-?\d+\.?\d*(?:[eE][+-]?\d+)?$/.test(value)) return parseFloat(value)
   if (value.startsWith('"') || value.startsWith("'")) {
     return readQuoted(value).text
+  }
+  // Flow collections nest. Recursing here (parseValue -> parseInlineObject /
+  // parseArray -> splitInlinePairs -> parseValue) is what makes `{a: {b: 1}}`
+  // parse to a structure instead of a map whose value is the literal string
+  // "{b: 1}". The quoted check above runs first so `"{not a map}"` stays text.
+  if (value.startsWith('{') && value.endsWith('}')) {
+    return parseInlineObject(value)
+  }
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return parseArray(value)
   }
   return value
 }
@@ -527,14 +551,42 @@ function parseInlineObject(str) {
   const result = {}
   const pairs = splitInlinePairs(content)
   for (const pair of pairs) {
-    const colonIndex = pair.indexOf(':')
+    const colonIndex = indexOfUnquoted(pair, ':')
     if (colonIndex > 0) {
-      const key = pair.slice(0, colonIndex).trim()
+      const rawKey = pair.slice(0, colonIndex).trim()
+      // A key gets quoted for the same reasons a value does, so it has to be
+      // unquoted the same way: `{"a: b": 1}` has the key `a: b`, not `"a: b"`.
+      const key =
+        rawKey.startsWith('"') || rawKey.startsWith("'") ? readQuoted(rawKey).text : rawKey
       const value = pair.slice(colonIndex + 1).trim()
       result[key] = parseValue(value)
     }
   }
   return result
+}
+
+/**
+ * Index of the first `char` that is not inside a quoted scalar. A quoted key
+ * may contain the separator itself (`"key: with colon": v`), and indexOf would
+ * split on that one.
+ * @param {string} str
+ * @param {string} char
+ */
+function indexOfUnquoted(str, char) {
+  /** @type {string | null} */
+  let quote = null
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i]
+    if (quote) {
+      if (c === '\\') i++
+      else if (c === quote) quote = null
+    } else if (c === '"' || c === "'") {
+      quote = c
+    } else if (c === char) {
+      return i
+    }
+  }
+  return -1
 }
 
 /**
@@ -630,6 +682,49 @@ function stringifyItems(arr, indent) {
       }
     }
   return result
+}
+
+/**
+ * Escape a string for a double-quoted flow scalar. Backslash must go first or
+ * it re-escapes the escapes added after it.
+ * @param {string} str
+ */
+function quoteFlow(str) {
+  return `"${str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\t/g, '\\t')}"`
+}
+
+/**
+ * Serialize to single-line YAML flow style: `{a: 1, b: [x, y]}`.
+ *
+ * This exists because the obvious way to "minify" YAML — take the block output
+ * and collapse its newlines to spaces — does not produce YAML. `a: 1\nb: 2`
+ * collapsed to `a: 1 b: 2` re-parses as one key whose value swallowed the rest
+ * of the document, silently. Flow style is the form YAML actually defines for
+ * this, and it round-trips: parse(stringifyFlow(v)) equals v.
+ *
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function stringifyFlow(value) {
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'boolean' || typeof value === 'number') return String(value)
+  if (typeof value === 'string') {
+    return value.includes('\n') || needsQuoting(value) ? quoteFlow(value) : value
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stringifyFlow(item)).join(', ')}]`
+  }
+  if (typeof value === 'object') {
+    const pairs = Object.entries(value).map(
+      ([key, val]) => `${needsQuoting(key) ? quoteFlow(key) : key}: ${stringifyFlow(val)}`
+    )
+    return `{${pairs.join(', ')}}`
+  }
+  return String(value)
 }
 
 /**
