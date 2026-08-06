@@ -10,6 +10,7 @@
   "main": "src/index.js",
   "exports": {
     ".": "./src/index.js",
+    "./core/*.js": "./src/core/*.js",
     "./core/*": "./src/core/*.js"
   },
   "engines": {
