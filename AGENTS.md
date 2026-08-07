@@ -170,6 +170,13 @@ A guard that needs a build belongs in `tests-built/`, must **fail** when the
 build is missing, and needs its own CI step after the build. A skipping guard
 is worse than no guard, because it still reports success.
 
+Then wire it into **both** workflows. Two of them build this repo —
+`deploy.yml` on a push to `main`, `release.yml` on a tag — and `test:built`
+first went into `deploy.yml` alone, so a tag could publish off a build no guard
+had read while `release.yml`'s own comment claimed the two gates were the same.
+Their step lists now match deliberately. A step added to one and not the other
+leaves both workflows green and says nothing.
+
 ### DO NOT assume a static host can redirect
 
 `adapter-static` writes flat files, so `build/xml.html` answers 200 at both
