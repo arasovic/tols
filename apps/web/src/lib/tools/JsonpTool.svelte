@@ -6,6 +6,7 @@
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
+  import { isValidUrl, isValidCallback } from 'tols-cli/core/jsonp'
 
   const EXAMPLE_URL = 'https://api.example.com/data'
   const EXAMPLE_CALLBACK = 'myCallback'
@@ -33,6 +34,7 @@
   let urlInputId = 'jsonp-url'
   let callbackInputId = 'jsonp-callback'
   let responseTextareaId = 'jsonp-response'
+  let error = ''
 
   function isLocalStorageAvailable() {
     try {
@@ -56,27 +58,6 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#x27;')
-  }
-
-  /**
-   * @param {string} value
-   */
-  function validateUrl(value) {
-    if (!value) return true
-    try {
-      new URL(value)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  /**
-   * @param {string} value
-   */
-  function validateCallbackName(value) {
-    if (!value) return true
-    return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)
   }
 
   function loadState() {
@@ -123,6 +104,24 @@
   })
 
   function generateScript() {
+    // The report flagged the web's validators as dead code; the core's
+    // isValidUrl/isValidCallback are now the gate — an invalid URL or
+    // callback name would otherwise produce a broken (if harmless, since
+    // values are HTML-escaped) script tag.
+    generatedScript = ''
+    error = ''
+
+    if (!isValidUrl(url)) {
+      error = 'Invalid URL. Enter a full URL, e.g. https://api.example.com/data'
+      parsedResult = null
+      return
+    }
+    if (!isValidCallback(callback)) {
+      error = 'Invalid callback name. Use letters, digits, _ or $ (must not start with a digit)'
+      parsedResult = null
+      return
+    }
+
     const sanitizedUrl = sanitizeForHtml(url)
     const sanitizedCallback = sanitizeForHtml(callback)
     generatedScript = `<script src="${sanitizedUrl}?callback=${sanitizedCallback}"><\/script>`
@@ -155,6 +154,7 @@
     response = ''
     generatedScript = ''
     parsedResult = null
+    error = ''
     if (!isLocalStorageAvailable()) return
     try {
       localStorage.removeItem('devutils-jsonp-url')
@@ -202,6 +202,12 @@
         <textarea id={responseTextareaId} bind:value={response} on:input={debouncedGenerate} placeholder='{"{\"key\": \"value\"}"}' class="response-textarea"></textarea>
       </div>
     </div>
+
+    {#if error}
+      <div class="error-display" role="alert" aria-live="polite">
+        <span>{error}</span>
+      </div>
+    {/if}
 
     {#if generatedScript}
       <PanelGroup columns={1}>
@@ -258,6 +264,7 @@
   .response-textarea:focus { border-color: var(--accent); }
   .code-block { margin: 0; padding: var(--space-3) var(--space-4); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); overflow-x: auto; }
   .result-display { padding: var(--space-4); }
+  .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); font-size: var(--text-sm); }
   .result-display.success { background: rgba(34, 197, 94, 0.1); }
   .result-display.error { background: rgba(239, 68, 68, 0.1); color: var(--error); }
   .result-display pre { margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); }

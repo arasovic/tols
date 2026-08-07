@@ -144,7 +144,7 @@ describe('JsonpTool', () => {
     const callbackInput = container.querySelectorAll('input[type="text"]')[1]
 
     await fireEvent.input(urlInput, { target: { value: 'https://api.com/<script>alert(1)</script>' } })
-    await fireEvent.input(callbackInput, { target: { value: 'callback" onclick="evil()' } })
+    await fireEvent.input(callbackInput, { target: { value: 'safeCallback' } })
 
     await waitForDebounce(DEBOUNCE_DELAY)
 
@@ -152,6 +152,24 @@ describe('JsonpTool', () => {
     const content = scriptOutput?.textContent || ''
     expect(content).not.toContain('<script>')
     expect(content).toContain('&lt;')
+  })
+
+  it('should reject invalid URL and callback (validators now live)', async () => {
+    // The report flagged the web's validateUrl/validateCallbackName as dead
+    // code; they now come from the core and gate tag generation.
+    const urlInput = container.querySelector('input[type="text"]')
+    const callbackInput = container.querySelectorAll('input[type="text"]')[1]
+
+    await fireEvent.input(urlInput, { target: { value: 'not a url' } })
+    await waitForDebounce(DEBOUNCE_DELAY)
+    expect(container.querySelector('.code-block')).toBeNull()
+    expect(container.querySelector('.error-display')?.textContent).toContain('Invalid URL')
+
+    await fireEvent.input(urlInput, { target: { value: 'https://api.example.com/data' } })
+    await fireEvent.input(callbackInput, { target: { value: 'callback" onclick="evil()' } })
+    await waitForDebounce(DEBOUNCE_DELAY)
+    expect(container.querySelector('.code-block')).toBeNull()
+    expect(container.querySelector('.error-display')?.textContent).toContain('Invalid callback')
   })
 
   it('should handle very long JSON response', async () => {
@@ -201,9 +219,9 @@ describe('JsonpTool', () => {
   it('should debounce input with stable timing', async () => {
     const urlInput = container.querySelector('input[type="text"]')
 
-    await fireEvent.input(urlInput, { target: { value: 'a' } })
-    await fireEvent.input(urlInput, { target: { value: 'ab' } })
-    await fireEvent.input(urlInput, { target: { value: 'abc' } })
+    await fireEvent.input(urlInput, { target: { value: 'https://test.com/a' } })
+    await fireEvent.input(urlInput, { target: { value: 'https://test.com/ab' } })
+    await fireEvent.input(urlInput, { target: { value: 'https://test.com/abc' } })
 
     const scriptOutputBefore = container.querySelector('.code-block')
     const beforeContent = scriptOutputBefore?.textContent
