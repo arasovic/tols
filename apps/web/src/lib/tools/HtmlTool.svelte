@@ -8,6 +8,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
+  import { format, minify } from 'tols-cli/core/html'
 
   const EXAMPLE_HTML = `<!DOCTYPE html>
 <html>
@@ -95,218 +96,6 @@
     if (saveTimeout) clearTimeout(saveTimeout)
   })
 
-  // Void elements that don't need closing tags
-  const VOID_ELEMENTS = new Set([
-    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta',
-    'param', 'source', 'track', 'wbr'
-  ])
-
-  // Elements where whitespace is significant
-  const PRESERVE_WHITESPACE = new Set(['pre', 'code', 'textarea', 'script', 'style'])
-
-  /**
-   * @typedef {(
-   *   | { type: 'comment' | 'doctype' | 'text', content: string }
-   *   | { type: 'close', name: string }
-   *   | { type: 'open' | 'self-closing', name: string, content: string }
-   * )} HtmlToken
-   */
-
-  /**
-   * @param {string} html
-   */
-  function formatHTML(html) {
-    let formatted = ''
-    let indent = 0
-    const tab = '  '
-    
-    // Tokenize HTML
-    /** @type {HtmlToken[]} */
-    const tokens = []
-    let i = 0
-    
-    while (i < html.length) {
-      if (html[i] === '<') {
-        if (html.substring(i, i + 4) === '<!--') {
-          // Comment
-          const end = html.indexOf('-->', i)
-          if (end === -1) {
-            tokens.push({ type: 'comment', content: html.substring(i) })
-            break
-          }
-          tokens.push({ type: 'comment', content: html.substring(i, end + 3) })
-          i = end + 3
-        } else if (html.substring(i, i + 9).toLowerCase() === '<!doctype' || html.substring(i, i + 9).toUpperCase() === '<!DOCTYPE') {
-          // DOCTYPE - case insensitive match
-          const end = html.indexOf('>', i)
-          if (end === -1) {
-            tokens.push({ type: 'doctype', content: html.substring(i) })
-            break
-          }
-          tokens.push({ type: 'doctype', content: html.substring(i, end + 1) })
-          i = end + 1
-        } else if (html.substring(i, i + 2) === '</') {
-          // Closing tag
-          const end = html.indexOf('>', i)
-          if (end === -1) {
-            tokens.push({ type: 'text', content: html.substring(i) })
-            break
-          }
-          const tagName = html.substring(i + 2, end).trim().split(/\s+/)[0].toLowerCase()
-          tokens.push({ type: 'close', name: tagName })
-          i = end + 1
-        } else {
-          // Opening or self-closing tag
-          const end = html.indexOf('>', i)
-          if (end === -1) {
-            tokens.push({ type: 'text', content: html.substring(i) })
-            break
-          }
-          const tagContent = html.substring(i + 1, end)
-          const isSelfClosing = tagContent.endsWith('/') || VOID_ELEMENTS.has(tagContent.split(/\s+/)[0].toLowerCase())
-          const actualContent = isSelfClosing && tagContent.endsWith('/') ? tagContent.slice(0, -1).trim() : tagContent.trim()
-          const tagName = actualContent.split(/\s+/)[0].toLowerCase()
-          
-          tokens.push({ 
-            type: isSelfClosing ? 'self-closing' : 'open', 
-            name: tagName,
-            content: html.substring(i, end + 1)
-          })
-          i = end + 1
-        }
-      } else {
-        // Text content
-        const nextTag = html.indexOf('<', i)
-        let text
-        if (nextTag === -1) {
-          text = html.substring(i)
-          i = html.length
-        } else {
-          text = html.substring(i, nextTag)
-          i = nextTag
-        }
-        if (text) {
-          tokens.push({ type: 'text', content: text })
-        }
-      }
-    }
-    
-    // Format tokens
-    const tagStack = []
-    for (let j = 0; j < tokens.length; j++) {
-      const token = tokens[j]
-      
-      switch (token.type) {
-        case 'doctype':
-          formatted += token.content + '\n'
-          break
-        case 'comment':
-          formatted += tab.repeat(indent) + token.content + '\n'
-          break
-        case 'open':
-          formatted += tab.repeat(indent) + token.content + '\n'
-          tagStack.push(token.name)
-          if (!PRESERVE_WHITESPACE.has(token.name)) {
-            indent++
-          }
-          break
-        case 'close':
-          if (tagStack.length > 0 && tagStack[tagStack.length - 1] === token.name) {
-            tagStack.pop()
-            if (!PRESERVE_WHITESPACE.has(token.name)) {
-              indent = Math.max(0, indent - 1)
-            }
-          } else {
-            // Mismatched tag - find matching tag in stack
-            const stackIndex = tagStack.lastIndexOf(token.name)
-            if (stackIndex !== -1) {
-              // Remove all tags from stackIndex onwards and adjust indent
-              const tagsToRemove = tagStack.length - stackIndex
-              for (let k = stackIndex; k < tagStack.length; k++) {
-                if (!PRESERVE_WHITESPACE.has(tagStack[k])) {
-                  indent = Math.max(0, indent - 1)
-                }
-              }
-              tagStack.splice(stackIndex)
-            }
-            // If not found, keep current indent
-          }
-          formatted += tab.repeat(Math.max(0, indent)) + '</' + token.name + '>\n'
-          break
-        case 'self-closing':
-          formatted += tab.repeat(indent) + token.content + '\n'
-          break
-        case 'text':
-          const trimmed = token.content.trim()
-          if (trimmed) {
-            if (tagStack.length > 0 && PRESERVE_WHITESPACE.has(tagStack[tagStack.length - 1])) {
-              formatted += token.content
-            } else {
-              // Text content should NOT be escaped - it's already plain text
-              formatted += tab.repeat(indent) + trimmed + '\n'
-            }
-          }
-          break
-      }
-    }
-    
-    return formatted.trim() || escapeHtml(html)
-  }
-
-  /**
-   * @param {string} str
-   */
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-  }
-
-  /**
-   * @param {string} html
-   */
-  function minifyHTML(html) {
-    // Protect whitespace-sensitive elements during minification
-    /** @type {{ placeholder: string, content: string }[]} */
-    const protectedBlocks = []
-    let protectedIndex = 0
-    
-    // Replace whitespace-sensitive content with placeholders
-    const WHITESPACE_SENSITIVE = /<(pre|code|textarea|script|style)[^>]*>[\s\S]*?<\/\1>/gi
-    /** @param {string} match */
-    let protectedHtml = html.replace(WHITESPACE_SENSITIVE, (match) => {
-      const placeholder = `___PROTECTED_${protectedIndex}___`
-      protectedBlocks.push({ placeholder, content: match })
-      protectedIndex++
-      return placeholder
-    })
-    
-    let minified = protectedHtml
-      .replace(/>\s+</g, '><')
-      .replace(/\s{2,}/g, ' ')
-      .replace(/\n/g, ' ')
-
-    if (removeComments) {
-      minified = minified.replace(/<!--[\s\S]*?-->/g, '')
-    }
-
-    if (removeWhitespace) {
-      minified = minified
-        .replace(/\s+/g, ' ')
-        .replace(/>\s+</g, '><')
-        .replace(/\s*>/g, '>')
-        .replace(/<\s*/g, '<')
-    }
-    
-    // Restore protected blocks
-    protectedBlocks.forEach(({ placeholder, content }) => {
-      minified = minified.replace(placeholder, content)
-    })
-
-    return minified.trim()
-  }
-
   function process() {
     error = ''
     output = ''
@@ -322,11 +111,9 @@
     }
 
     try {
-      if (mode === 'beautify') {
-        output = formatHTML(input)
-      } else {
-        output = minifyHTML(input)
-      }
+      output = mode === 'beautify'
+        ? format(input)
+        : minify(input, { removeComments, removeWhitespace })
       saveState()
     } catch (/** @type {any} */ e) {
       error = 'Error processing HTML: ' + (e.message || 'Unknown error')
