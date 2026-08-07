@@ -1,14 +1,14 @@
 <script>
-  import { page } from '$app/stores'
   import { seo } from '$lib/config/seo.js'
 
   export let data
 
-  $: tool = $page.params.tool
-  // `$page.params.tool` is typed `string | undefined` in the store, and
-  // indexing `seo` with undefined is a type error. The ternary narrows `tool`
-  // to string; the `{#if toolSeo}` below already guards the no-such-tool case.
-  $: toolSeo = tool ? seo[tool] : undefined
+  // Keyed off `data.id`, not `$page.params.tool`: the raw param is "xml.html"
+  // when someone lands on the flat file GitHub Pages also serves, and looking
+  // the head up by that would render no title and no canonical on exactly the
+  // page that most needs one. `load()` resolves the id and 404s if it is not
+  // a real tool, so this is always a hit.
+  $: toolSeo = seo[data.id]
 </script>
 
 <svelte:head>

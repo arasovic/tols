@@ -56,13 +56,27 @@ const loaders = {
 // code-splitting pattern; on the client the same loader re-imports only the
 // matched chunk, so a visitor still downloads just their tool.
 export async function load({ params }) {
-  const tool = getTool(params.tool)
+  // adapter-static writes flat files, so the build emits `xml.html` and
+  // GitHub Pages serves it at BOTH /xml and /xml.html. Only /xml is ours —
+  // canonical, sitemap and every internal link use it — but the .html form
+  // is live whether we like it or not, and it cannot be redirected: Pages is
+  // a file server, the file exists, and it answers 200. A visitor landing
+  // there gets the correct prerendered page and then, on hydration, a 404 —
+  // because `params.tool` is "xml.html" and no tool has that id. Stripping
+  // the extension makes the page keep rendering. The duplicate URL is
+  // handled the way an unredirectable duplicate always is, by the canonical
+  // tag in the head, which already points at /xml.
+  const id = params.tool.replace(/\.html$/, '')
+  const tool = getTool(id)
   if (!tool) {
     // An unknown slug must 404, not render an empty shell. Without this check
     // a typo like /xmll would match [tool] and emit a blank page with a
     // valid-looking canonical — a new indexable garbage page for every typo.
     throw error(404, `No tool named "${params.tool}"`)
   }
-  const mod = await loaders[params.tool]()
-  return { component: mod.default }
+  const mod = await loaders[id]()
+  // `id` goes to the page so the head is keyed off the resolved tool rather
+  // than the raw param. Deriving it twice would mean the head silently
+  // emptied itself on /xml.html while the body rendered fine.
+  return { component: mod.default, id }
 }
