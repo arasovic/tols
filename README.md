@@ -3,7 +3,7 @@
 [![Deploy](https://github.com/arasovic/tols/actions/workflows/deploy.yml/badge.svg)](https://github.com/arasovic/tols/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Thirty developer tools, available both as a website and as a command line
+Developer tools, available both as a website and as a command line
 program. The web version runs entirely in your browser: there is no backend, no
 account, and nothing is sent anywhere. The CLI has no runtime dependencies.
 

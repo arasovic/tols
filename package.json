@@ -2,7 +2,7 @@
   "name": "tols-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "Monorepo for tols: 30 developer tools as a website and a zero-dependency CLI.",
+  "description": "Monorepo for tols: developer tools as a website and a zero-dependency CLI.",
   "license": "MIT",
   "repository": {
     "type": "git",

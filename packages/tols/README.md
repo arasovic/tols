@@ -1,6 +1,6 @@
 # tols
 
-29 developer tools in one CLI, with no runtime dependencies. Format, encode,
+One CLI, with no runtime dependencies. Format, encode,
 hash, generate and convert, from the shell or from a pipe.
 
 ```sh

@@ -30,5 +30,5 @@
     "lucide-svelte": "^0.577.0",
     "tols-cli": "*"
   },
-  "description": "The tols website: 30 developer tools running entirely in the browser."
+  "description": "The tols website: developer tools running entirely in the browser."
 }
