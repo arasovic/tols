@@ -92,11 +92,11 @@ APIs, so the same files are imported by the CLI and bundled into the site. The
 CLI adapters in `packages/tols/src/tools/` wrap them in argument parsing, and
 the Svelte components in `apps/web/src/lib/tools/` wrap them in a UI.
 
-That consolidation is partway done: 11 of the 30 web tools import the shared
-core today, and the other 19 still carry their own implementation next to the
-CLI's. Moving one onto the core is a good first contribution. Markdown is the
-worked example of why it is worth doing: both copies had drifted into the same
-paragraph bug, and each had to be fixed separately.
+All 30 web tools import the shared core, so a fix lands in both places at once.
+Getting there was worth it for what it turned up: the two copies had drifted,
+and in eight tools the browser version was the wrong one. The site was handing
+out QR codes built by an encoder that ignored half the specification, and a
+barcode encoder that turned `12345` into `123405`.
 
 ## Development
 

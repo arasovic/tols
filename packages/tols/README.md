@@ -15,7 +15,8 @@ tols hash sha256 <<< "secret"
 - `--json` works on every command and returns `{"ok":true,"result":...}`.
 - Every core module is importable: `import { base64, json } from 'tols-cli'`.
 - Every tool here also runs in the browser at
-  [tols.arasmehmet.com](https://tols.arasmehmet.com/), with nothing uploaded.
+  [tols.arasmehmet.com](https://tols.arasmehmet.com/), from these same core
+  modules, with nothing uploaded.
 
 ## Install
 
