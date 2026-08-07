@@ -6,6 +6,7 @@
   import PanelGroup from '$lib/ui/PanelGroup.svelte'
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
+  import { gzip } from 'tols-cli/core/gzip'
 
   const DEBOUNCE_WAIT = 150
   const SAVE_DELAY = 500
@@ -58,37 +59,6 @@
     }
   }
 
-  /**
-   * @param {string} text
-   * @returns {Promise<Uint8Array>}
-   */
-  async function compressData(text) {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(text)
-    const stream = new CompressionStream('gzip')
-    const writer = stream.writable.getWriter()
-    writer.write(data)
-    writer.close()
-
-    const reader = stream.readable.getReader()
-    /** @type {Uint8Array[]} */
-    const chunks = []
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      chunks.push(value)
-    }
-
-    const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-    const result = new Uint8Array(totalLength)
-    let offset = 0
-    for (const chunk of chunks) {
-      result.set(chunk, offset)
-      offset += chunk.length
-    }
-    return result
-  }
-
   async function process() {
     if (!input) {
       compressedBytes = null
@@ -100,7 +70,7 @@
     error = ''
 
     try {
-      compressedBytes = await compressData(input)
+      compressedBytes = await gzip(input)
     } catch (/** @type {any} */ e) {
       error = 'Compression failed: ' + e.message
       compressedBytes = null

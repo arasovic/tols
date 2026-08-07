@@ -45,7 +45,7 @@ export async function gzip(text) {
   return runStream(new CompressionStream('gzip'), data);
 }
 
-/** @param {Uint8Array} bytes */
+/** @param {Uint8Array<ArrayBuffer>} bytes */
 export async function gunzip(bytes) {
   return runStream(new DecompressionStream('gzip'), bytes);
 }
@@ -57,7 +57,7 @@ export async function gunzip(bytes) {
  * readable side, which we translate into a stable message.
  *
  * @param {CompressionStream | DecompressionStream} stream
- * @param {Uint8Array} data
+ * @param {Uint8Array<ArrayBuffer>} data
  */
 async function runStream(stream, data) {
   const reader = stream.readable.getReader();
