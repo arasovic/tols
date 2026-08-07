@@ -31,14 +31,16 @@ tols/
 │   └── test/                 # 63 files, 529 tests
 └── apps/web/                 # SvelteKit site, static build, GitHub Pages
     ├── src/app.css           # 130 CSS custom properties (tokens)
-    ├── src/routes/(app)/     # 30 tool routes + the tool page shell
+    ├── src/routes/(app)/[tool]/     # ONE route for all 30 tools + page shell
     ├── src/routes/+page.svelte      # homepage — sits OUTSIDE the (app) shell
     ├── src/lib/config/registry.js   # single source of web tool metadata
+    ├── src/lib/config/seo.js        # per-tool <head> metadata, keyed by id
     ├── src/lib/cli/          # builds the command strip's `tols` command
     ├── src/lib/ui/           # shared primitives — ToolShell, Workbench, Panel…
     ├── src/lib/tools/        # one Svelte component per tool
     ├── src/lib/components/   # Sidebar, SearchOverlay, ToolCard…
-    └── tests/                # 69 files, 1185 tests + 7 skipped
+    ├── tests/                # 70 files, 1186 tests + 7 skipped
+    └── tests-built/          # guards that read build/ — `npm run test:built`
 ```
 
 **Two files are called `registry.js`.** `packages/tols/src/registry.js` registers
@@ -59,12 +61,15 @@ Nothing flows the other way. The core never imports from a surface.
 ## Commands
 
 - **Both suites:** `npm test`
+- **The built-output guards:** `npm run build && npm run test:built`. They are
+  deliberately outside `npm test` so the normal suite never needs a build, and
+  they fail rather than skip when `build/` is missing.
 - **One workspace:** `npm test -w apps/web` or `npm test -w packages/tols`
 - **One test file** (from the workspace directory):
   `node ../../node_modules/vitest/dist/cli.js --run tests/canonical.test.js`
 - **Type check:** `npm run check` — must be 0 errors before committing
 - **Build:** `npm run build` — static output into `apps/web/build/`
-- Baseline as of 2026-08-07, after the Svelte 5 upgrade (`f718c5a`): web 1185
+- Baseline as of 2026-08-08, after the route collapse (`a1e7f41`): web 1186
   passed / 7 skipped, CLI 529 passed, `check` 0 errors with 3 warnings — the
   line-clamp one in `ToolCard.svelte` plus two `a11y_consider_explicit_label`
   in `LoremTool.svelte` that svelte-check 4 newly surfaces on pre-existing
@@ -150,6 +155,20 @@ link. Use a raster PNG.
 `<svelte:head>` does not deduplicate. `app.html` was stamping a canonical on
 every page while all 31 routes declared their own.
 `apps/web/tests/canonical.test.js` locks this.
+
+### DO NOT gate a guard on a condition CI never meets
+
+`canonical.test.js` was moved onto the built pages and wrapped in
+`describe.skipIf(!existsSync(build))` so `npm test` would stay green without a
+build. Locally, with a stale `build/` lying around, it showed five passing
+tests. In CI it never ran once: `deploy.yml` runs `npm test` before
+`npm run build`, and `build/` is gitignored. The guard covering this repo's two
+most expensive shipped bugs was dead on the only machine whose verdict ships,
+and the suite reported green.
+
+A guard that needs a build belongs in `tests-built/`, must **fail** when the
+build is missing, and needs its own CI step after the build. A skipping guard
+is worse than no guard, because it still reports success.
 
 ### DO NOT trust a green suite on an encoder change
 
