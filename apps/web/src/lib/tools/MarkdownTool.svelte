@@ -8,6 +8,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
+  import { toHtml } from 'tols-cli/core/markdown'
 
   const EXAMPLE_MARKDOWN = `# Markdown Example
 
@@ -33,8 +34,6 @@ This is a **bold** text and this is *italic*.
   const SAVE_DELAY = 500
   const MAX_INPUT_SIZE = 1024 * 1024 // 1MB
 
-  const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:', 'tel:']
-
   let input = ''
   let htmlOutput = ''
   let error = ''
@@ -42,40 +41,6 @@ This is a **bold** text and this is *italic*.
   let processTimeout = null
   /** @type {ReturnType<typeof setTimeout> | null} */
   let saveTimeout = null
-
-  /**
-   * @param {string} url
-   * @returns {boolean}
-   */
-  function isSafeUrl(url) {
-    if (!url || url.startsWith('#') || url.startsWith('/')) {
-      return true
-    }
-    try {
-      const parsed = new URL(url, window.location.href)
-      return ALLOWED_PROTOCOLS.includes(parsed.protocol)
-    } catch {
-      return false
-    }
-  }
-
-  /**
-   * @param {string} url
-   * @returns {string}
-   */
-  function sanitizeUrl(url) {
-    if (!url || url.startsWith('#') || url.startsWith('/')) {
-      return url
-    }
-    try {
-      const parsed = new URL(url, window.location.href)
-      if (ALLOWED_PROTOCOLS.includes(parsed.protocol)) {
-        return url
-      }
-    } catch {
-    }
-    return '#'
-  }
 
   function loadState() {
     try {
@@ -119,243 +84,6 @@ This is a **bold** text and this is *italic*.
     if (saveTimeout) clearTimeout(saveTimeout)
   })
 
-  /**
-   * @param {string} text
-   */
-  function escapeHtml(text) {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-  }
-
-  /**
-   * @param {string} md
-   */
-  function markdownToHTML(md) {
-    let html = md
-    const lines = html.split('\n')
-    const result = []
-    let inCodeBlock = false
-    let codeBlockLang = ''
-    let codeBlockContent = []
-    let inList = false
-    let listItems = []
-    let listType = ''
-    let inBlockquote = false
-    let blockquoteLines = []
-    /** @type {string[]} */
-    let paragraphLines = []
-
-    // Consecutive non-blank lines are ONE paragraph, joined by the newline
-    // between them. Emitting a <p> per line, which is what this did, split
-    // every column-wrapped document into a paragraph per line. Joining also
-    // hands parseInline the whole paragraph, which is what its two-space
-    // hard-break rule needs in order to fire at all. Mirrors
-    // tols/core/markdown.js, which had the same defect.
-    const flushParagraph = () => {
-      if (paragraphLines.length) {
-        result.push(`<p>${parseInline(paragraphLines.join('\n'))}</p>`)
-        paragraphLines = []
-      }
-    }
-
-    for (let i = 0; i < lines.length; i++) {
-      let line = lines[i]
-
-      if (line.startsWith('```')) {
-        flushParagraph()
-        if (inCodeBlock) {
-          result.push(`<pre><code${codeBlockLang ? ` class="language-${escapeHtml(codeBlockLang)}"` : ''}>${escapeHtml(codeBlockContent.join('\n'))}</code></pre>`)
-          inCodeBlock = false
-          codeBlockLang = ''
-          codeBlockContent = []
-        } else {
-          inCodeBlock = true
-          codeBlockLang = line.slice(3).trim()
-        }
-        continue
-      }
-
-      if (inCodeBlock) {
-        codeBlockContent.push(line)
-        continue
-      }
-
-      if (/^(---|___|\*\*\*)$/.test(line.trim())) {
-        flushParagraph()
-        if (inList) {
-          result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-          inList = false
-          listItems = []
-          listType = ''
-        }
-        if (inBlockquote) {
-          result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
-          inBlockquote = false
-          blockquoteLines = []
-        }
-        result.push('<hr>')
-        continue
-      }
-
-      const headerMatch = line.match(/^(#{1,6})\s+(.+)$/)
-      if (headerMatch) {
-        flushParagraph()
-        if (inList) {
-          result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-          inList = false
-          listItems = []
-          listType = ''
-        }
-        if (inBlockquote) {
-          result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
-          inBlockquote = false
-          blockquoteLines = []
-        }
-        const level = headerMatch[1].length
-        const content = parseInline(headerMatch[2])
-        result.push(`<h${level}>${content}</h${level}>`)
-        continue
-      }
-
-      const quoteMatch = line.match(/^>\s?(.*)$/)
-      if (quoteMatch) {
-        flushParagraph()
-        if (inList) {
-          result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-          inList = false
-          listItems = []
-          listType = ''
-        }
-        inBlockquote = true
-        blockquoteLines.push(quoteMatch[1])
-        continue
-      } else if (inBlockquote) {
-        result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
-        inBlockquote = false
-        blockquoteLines = []
-      }
-
-      const ulMatch = line.match(/^(\s*)[-*+]\s+(.+)$/)
-      const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/)
-      
-      if (ulMatch || olMatch) {
-        flushParagraph()
-        const lineMatch = /** @type {RegExpMatchArray} */ (ulMatch || olMatch)
-        const isOrdered = !!olMatch
-        const newListType = isOrdered ? 'ol' : 'ul'
-        const content = parseInline(lineMatch[2])
-        
-        if (!inList || listType !== newListType) {
-          if (inList) {
-            result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-          }
-          inList = true
-          listType = newListType
-          listItems = []
-        }
-        listItems.push(`<li>${content}</li>`)
-        continue
-      } else if (inList && line.trim() === '') {
-        const nextLine = lines[i + 1]
-        const nextUlMatch = nextLine && nextLine.match(/^(\s*)[-*+]\s+(.+)$/)
-        const nextOlMatch = nextLine && nextLine.match(/^(\s*)\d+\.\s+(.+)$/)
-        
-        if (!nextUlMatch && !nextOlMatch) {
-          result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-          inList = false
-          listItems = []
-          listType = ''
-        } else {
-          const nextIsOrdered = !!nextOlMatch
-          const nextListType = nextIsOrdered ? 'ol' : 'ul'
-          
-          if (listType !== nextListType) {
-            result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-            inList = false
-            listItems = []
-            listType = ''
-          }
-        }
-        continue
-      } else if (inList) {
-        result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-        inList = false
-        listItems = []
-        listType = ''
-      }
-
-      if (line.startsWith('    ')) {
-        flushParagraph()
-        const codeLines = []
-        while (i < lines.length) {
-          const currentLine = lines[i]
-          if (currentLine.startsWith('    ')) {
-            codeLines.push(currentLine.slice(4))
-            i++
-          } else if (currentLine.trim() === '') {
-            codeLines.push('')
-            i++
-          } else {
-            break
-          }
-        }
-        i--
-        result.push(`<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`)
-        continue
-      }
-
-      if (line.trim()) {
-        paragraphLines.push(line)
-      } else {
-        flushParagraph()
-      }
-    }
-
-    flushParagraph()
-    if (inList) {
-      result.push(`<${listType}>${listItems.join('')}</${listType}>`)
-    }
-    if (inBlockquote) {
-      result.push(`<blockquote>${parseInline(blockquoteLines.join('\n'))}</blockquote>`)
-    }
-
-    return result.join('\n')
-  }
-
-  /**
-   * @param {string} text
-   */
-  function parseInline(text) {
-    let html = escapeHtml(text)
-
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
-
-    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>')
-
-    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    html = html.replace(/_([^_]+)_/g, '<em>$1</em>')
-
-    html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>')
-
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (/** @type {string} */ match, /** @type {string} */ alt, /** @type {string} */ src) => {
-      const safeSrc = sanitizeUrl(src)
-      return `<img src="${safeSrc}" alt="${alt}">`
-    })
-
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (/** @type {string} */ match, /** @type {string} */ label, /** @type {string} */ url) => {
-      const safeUrl = sanitizeUrl(url)
-      return `<a href="${safeUrl}">${label}</a>`
-    })
-
-    html = html.replace(/  $/gm, '<br>')
-
-    return html
-  }
-
   function process() {
     error = ''
 
@@ -371,7 +99,7 @@ This is a **bold** text and this is *italic*.
     }
 
     try {
-      htmlOutput = markdownToHTML(input)
+      htmlOutput = toHtml(input)
     } catch (/** @type {any} */ e) {
       error = 'Error parsing markdown: ' + (e.message || 'Unknown error')
       htmlOutput = ''

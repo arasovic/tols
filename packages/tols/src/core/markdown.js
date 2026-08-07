@@ -89,11 +89,14 @@ export function toHtml(md) {
   const result = [];
   let inCodeBlock = false;
   let codeBlockLang = '';
+  /** @type {string[]} */
   let codeBlockContent = [];
   let inList = false;
+  /** @type {string[]} */
   let listItems = [];
   let listType = '';
   let inBlockquote = false;
+  /** @type {string[]} */
   let blockquoteLines = [];
   /** @type {string[]} */
   let paragraphLines = [];
