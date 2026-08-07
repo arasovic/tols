@@ -158,7 +158,7 @@ function formatWithNewlines(tokens, keywordCase, indentation) {
   let indentLevel = 0;
   let currentLine = '';
 
-  const cased = (word) => {
+  const cased = (/** @type {string} */ word) => {
     const upper = word.toUpperCase();
     if (keywordCase === 'uppercase') return upper;
     if (keywordCase === 'lowercase') return upper.toLowerCase();
@@ -261,6 +261,7 @@ export function minify(sql) {
   if (!sql.trim()) return '';
   const tokens = tokenize(sql);
   const result = [];
+  /** @type {string[]} */
   const strings = [];
   for (const token of tokens) {
     if (token.type === 'COMMENT') continue;
