@@ -32,6 +32,10 @@ jobs:
       - run: npm test
       - run: npm run check
       - run: npm run build
+      # Guards that read build/. Kept out of `npm test` so the normal suite
+      # never depends on a build, which is why they have to be run explicitly
+      # here — and why they fail rather than skip when build/ is missing.
+      - run: npm run test:built
       - uses: actions/upload-pages-artifact@v4
         with:
           path: apps/web/build
