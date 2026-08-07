@@ -49,6 +49,51 @@ describe('QrcodeTool', () => {
     }, { timeout: 500 })
   })
 
+  it('rasterizes exactly the core matrix to the canvas', async () => {
+    // The encoder lives in tols-cli/core/qrcode; the component's only job is
+    // to paint each dark module. Capture the fillRect calls and verify they
+    // match the core matrix cell-for-cell (this is the web-side equivalent of
+    // the CLI's jsQR round-trip, since jsdom has no real canvas). The default
+    // prototype mock returns a fresh ctx per call, so install a stable one
+    // before rendering.
+    const { generateMatrix } = await import('tols-cli/core/qrcode')
+    /** @type {number[][]} */
+    let fillCalls = []
+    const mockGetContext = vi.fn(() => ({
+      fillRect: /** @param {...number} args */ (...args) => { fillCalls.push(args) },
+      fillStyle: '',
+      getImageData: vi.fn(() => ({ data: new Uint8ClampedArray(100).fill(0).map((_, i) => i % 4 === 3 ? 255 : i % 50) })),
+      clearRect: vi.fn()
+    }))
+    Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', { value: mockGetContext, configurable: true })
+
+    const { container } = render(QrcodeTool)
+
+    await waitFor(() => {
+      expect(fillCalls.length).toBeGreaterThan(1)
+    }, { timeout: 500 })
+
+    const textInput = container.querySelector('input[type="text"]')
+    const text = /** @type {HTMLInputElement} */ (textInput).value || ''
+    const canvas = /** @type {HTMLCanvasElement} */ (container.querySelector('canvas'))
+    const { matrix, size } = generateMatrix(text, { ecLevel: 'M' })
+    const cellSize = canvas.width / size
+
+    // Drop the white background fill; the rest are module paints.
+    const calls = fillCalls.filter(
+      ([x, y, w, h]) => !(x === 0 && y === 0 && w === canvas.width && h === canvas.height)
+    )
+
+    const expectedDark = matrix.reduce((sum, row) => sum + row.filter(c => c === 1).length, 0)
+    expect(calls.length).toBe(expectedDark)
+
+    for (const [x, y] of calls) {
+      const col = Math.round(x / cellSize)
+      const row = Math.round(y / cellSize)
+      expect(matrix[row][col]).toBe(1)
+    }
+  })
+
   it('should clear content when clear button clicked', async () => {
     const { container } = render(QrcodeTool)
 
