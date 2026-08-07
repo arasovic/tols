@@ -42,15 +42,10 @@ jobs:
             }
           ' "$(npm --version)"
 
-      # A release must not be able to skip what a normal push runs: the same
-      # gate as deploy.yml, minus the Pages artifact.
-      - run: npm ci
-      - run: npm test
-      - run: npm run check
-      - run: npm run build
-
       # npm versions are immutable: publishing 0.1.1's contents under tag
-      # v0.1.2 would be silent and permanent. Fail early if they disagree.
+      # v0.1.2 would be silent and permanent. This runs before the gate below
+      # because it needs nothing but the checkout — a mistyped tag should cost
+      # seconds, not a full test and build cycle.
       - name: Verify tag matches packages/tols version
         run: |
           tag="${GITHUB_REF_NAME#v}"
@@ -60,6 +55,13 @@ jobs:
             echo "::error::Tag ${GITHUB_REF_NAME} names version ${tag}, but packages/tols/package.json is version ${pkg_version}. npm versions are immutable; refusing to publish."
             exit 1
           fi
+
+      # A release must not be able to skip what a normal push runs: the same
+      # gate as deploy.yml, minus the Pages artifact.
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - run: npm run build
 
       # --provenance puts a verified supply-chain badge on the npm page tying
       # the tarball to this exact commit and workflow run. --access public is
