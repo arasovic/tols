@@ -27,12 +27,6 @@ export default defineConfig({
         inline: [/svelte/]
       }
     },
-    pool: 'threads',
-    poolOptions: {
-      threads: {
-        minThreads: 1,
-        maxThreads: 2
-      }
-    }
+    pool: 'threads'
   }
 })
