@@ -22,7 +22,7 @@ npm-debug.log*
 coverage
 
 # Local planning docs (never commit)
-docs/
+docs/*
 
 # Legacy build output (deploy uses build/)
 dist
