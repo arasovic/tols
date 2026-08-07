@@ -11,7 +11,8 @@ npm install    # workspace root — installs both packages
 npm run dev    # site on localhost
 ```
 
-Node 20 or newer. `node_modules/tols-cli` is a workspace symlink to
+Node `^22.22.2 || ^24.15.0 || >=26` — jsdom 30 sets that floor, and CI runs 24.
+`node_modules/tols-cli` is a workspace symlink to
 `packages/tols`, so editing the core reaches the web build immediately — no
 publish, no reinstall.
 
@@ -63,9 +64,12 @@ Nothing flows the other way. The core never imports from a surface.
   `node ../../node_modules/vitest/dist/cli.js --run tests/canonical.test.js`
 - **Type check:** `npm run check` — must be 0 errors before committing
 - **Build:** `npm run build` — static output into `apps/web/build/`
-- Baseline as of 2026-08-07: web 1185 passed / 7 skipped, CLI 529 passed,
-  `check` 0 errors with 1 line-clamp warning in `ToolCard.svelte`. Record your
-  own baseline before changing anything; if it differs, say so before you start.
+- Baseline as of 2026-08-07, after the Svelte 5 upgrade (`f718c5a`): web 1185
+  passed / 7 skipped, CLI 529 passed, `check` 0 errors with 3 warnings — the
+  line-clamp one in `ToolCard.svelte` plus two `a11y_consider_explicit_label`
+  in `LoremTool.svelte` that svelte-check 4 newly surfaces on pre-existing
+  code. Record your own baseline before changing anything; if it differs, say
+  so before you start.
 - **Never create tags.** `git tag vX.Y.Z && git push origin vX.Y.Z` publishes to
   npm through GitHub Actions OIDC. Do not bump the version in
   `packages/tols/package.json` either.
