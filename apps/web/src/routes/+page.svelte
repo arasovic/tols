@@ -37,8 +37,8 @@
     .map(id => tools.find(tool => tool.path === id))
     .filter(/** @returns {tool is typeof tools[number]} */ (tool) => tool !== undefined)
 
-  // One value feeds both the headline and the `Tools` stat, which sit in the
-  // same viewport at every width. Two independent literals is how they drifted.
+  // Derived, never a literal: a hardcoded count is how the stat row once
+  // ended up disagreeing with the headline that sat right above it.
   const toolCount = tools.length
 
   const heroStats = [
@@ -131,7 +131,7 @@
        never actually lands here (measured in Chrome: activeElement stayed on
        <body> after activating the link). -->
   <main id="main-content" class="home-main" tabindex="-1">
-    <HomeHero stats={heroStats} {toolCount} />
+    <HomeHero stats={heroStats} />
 
     <HomeSearch bind:query={searchQuery} bind:selected={selectedCategory} />
 

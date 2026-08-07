@@ -41,23 +41,26 @@ describe('landing page', () => {
     expect(main.getAttribute('tabindex')).toBe('-1')
   })
 
-  it('states the real registry tool count in the headline', () => {
-    // The headline and the `Tools` stat sit in one viewport at every width.
-    // Compared against the registry, not a literal, so adding a tool cannot
-    // leave the headline behind the way a hardcoded 28 did.
+  it('keeps a tool count out of the headline', () => {
+    // The website has 30 tools and the CLI has 29, so a number in a headline
+    // that also says "One command" would pair the web's count with a claim
+    // about the CLI. Asserting on digits, not on the exact wording, so the
+    // copy can be reworded without quietly letting a count back in.
     const { container } = render(HomePage)
-    expect(container.querySelector('.hero-title').textContent).toBe(
-      `${tools.length} dev tools. One command.`
-    )
+    const headline = container.querySelector('.hero-title').textContent
+    expect(headline).toBe('Dev tools. One command.')
+    expect(headline).not.toMatch(/\d/)
   })
 
-  it('shows the same count in the headline and in the stat row', () => {
+  it('derives the Tools stat from the registry', () => {
+    // The stat stays: it is labelled `Tools`, it sits on the website, and 30
+    // is the website's real number. It must come from the registry, never a
+    // literal — that is how it once drifted from the headline above it.
     const { container } = render(HomePage)
-    const headline = container.querySelector('.hero-title').textContent.match(/^\d+/)[0]
     const stat = [...container.querySelectorAll('.hero-stat')]
       .find((el) => el.textContent.includes('Tools'))
       .querySelector('.hero-stat-value').textContent
-    expect(headline).toBe(stat)
+    expect(stat).toBe(String(tools.length))
   })
 
   /**
