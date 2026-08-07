@@ -8,6 +8,7 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
+  import { format, minify } from 'tols-cli/core/xml'
 
   const EXAMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <catalog>
@@ -95,196 +96,6 @@
   })
 
   /**
-   * @typedef {(
-   *   | { type: 'comment' | 'cdata' | 'pi' | 'doctype' | 'text', content: string }
-   *   | { type: 'close', name: string }
-   *   | { type: 'open' | 'self-closing', name: string, attrs: string, full: string }
-   * )} XmlToken
-   */
-
-  /**
-   * @param {string} xml
-   */
-  function formatXML(xml) {
-    let formatted = ''
-    let indent = 0
-    const tab = '  '
-    /** @type {string[]} */
-    const tagStack = []
-    const mismatches = []
-    
-    // Tokenize XML - handle tags, text, CDATA, comments, and processing instructions
-    /** @type {XmlToken[]} */
-    const tokens = []
-    let i = 0
-    const xmlLength = xml.length
-    
-    while (i < xmlLength) {
-      if (xml[i] === '<') {
-        // Check for various types of tags
-        if (i + 4 <= xmlLength && xml.substring(i, i + 4) === '<!--') {
-          // Comment
-          const end = xml.indexOf('-->', i)
-          if (end === -1) {
-            mismatches.push('Unclosed comment starting at position ' + i)
-            break
-          }
-          tokens.push({ type: 'comment', content: xml.substring(i, end + 3) })
-          i = end + 3
-        } else if (i + 9 <= xmlLength && xml.substring(i, i + 9) === '<![CDATA[') {
-          // CDATA
-          const end = xml.indexOf(']]>', i)
-          if (end === -1) {
-            mismatches.push('Unclosed CDATA section starting at position ' + i)
-            break
-          }
-          tokens.push({ type: 'cdata', content: xml.substring(i, end + 3) })
-          i = end + 3
-        } else if (i + 2 <= xmlLength && xml.substring(i, i + 2) === '<?') {
-          // Processing instruction
-          const end = xml.indexOf('?>', i)
-          if (end === -1) {
-            mismatches.push('Unclosed processing instruction starting at position ' + i)
-            break
-          }
-          tokens.push({ type: 'pi', content: xml.substring(i, end + 2) })
-          i = end + 2
-        } else if (i + 9 <= xmlLength && xml.substring(i, i + 9).toUpperCase() === '<!DOCTYPE') {
-          // DOCTYPE declaration
-          const end = xml.indexOf('>', i)
-          if (end === -1) {
-            mismatches.push('Unclosed DOCTYPE declaration starting at position ' + i)
-            break
-          }
-          tokens.push({ type: 'doctype', content: xml.substring(i, end + 1) })
-          i = end + 1
-        } else if (i + 2 <= xmlLength && xml.substring(i, i + 2) === '</') {
-          // Closing tag
-          const end = xml.indexOf('>', i)
-          if (end === -1) {
-            mismatches.push('Unclosed end tag starting at position ' + i)
-            break
-          }
-          const tagName = xml.substring(i + 2, end).trim().split(/\s+/)[0]
-          // Check for tag mismatch
-          if (tagStack.length > 0 && tagStack[tagStack.length - 1] !== tagName) {
-            mismatches.push(`Tag mismatch: expected </${tagStack[tagStack.length - 1]}> but found </${tagName}>`)
-          }
-          tokens.push({ type: 'close', name: tagName })
-          i = end + 1
-        } else {
-          // Opening or self-closing tag
-          const end = xml.indexOf('>', i)
-          if (end === -1) {
-            mismatches.push('Unclosed tag starting at position ' + i)
-            break
-          }
-          const tagContent = xml.substring(i + 1, end)
-          const isSelfClosing = tagContent.endsWith('/')
-          const actualContent = isSelfClosing ? tagContent.slice(0, -1).trim() : tagContent.trim()
-          const tagName = actualContent.split(/\s+/)[0]
-          const attrs = actualContent.substring(tagName.length).trim()
-          
-          tokens.push({ 
-            type: isSelfClosing ? 'self-closing' : 'open', 
-            name: tagName,
-            attrs: attrs,
-            full: xml.substring(i, end + 1)
-          })
-          i = end + 1
-        }
-      } else if (i < xmlLength && !xml.substring(i).trim()) {
-        // Skip whitespace at end
-        break
-      } else {
-        // Text content
-        const nextTag = xml.indexOf('<', i)
-        let text
-        if (nextTag === -1) {
-          text = xml.substring(i)
-          i = xmlLength
-        } else {
-          text = xml.substring(i, nextTag)
-          i = nextTag
-        }
-        if (text.trim()) {
-          tokens.push({ type: 'text', content: text.trim() })
-        }
-      }
-    }
-    
-    // Check for unclosed tags
-    if (tagStack.length > 0) {
-      mismatches.push(`Unclosed tags: ${tagStack.join(', ')}`)
-    }
-    
-    // Format tokens
-    for (let j = 0; j < tokens.length; j++) {
-      const token = tokens[j]
-      
-      switch (token.type) {
-        case 'pi':
-        case 'comment':
-          formatted += tab.repeat(indent) + token.content + '\n'
-          break
-        case 'cdata':
-          formatted += tab.repeat(indent) + token.content + '\n'
-          break
-        case 'doctype':
-          formatted += tab.repeat(indent) + token.content + '\n'
-          break
-        case 'open':
-          formatted += tab.repeat(indent) + token.full + '\n'
-          tagStack.push(token.name)
-          indent++
-          break
-        case 'close':
-          if (tagStack.length > 0 && tagStack[tagStack.length - 1] === token.name) {
-            tagStack.pop()
-            indent = Math.max(0, indent - 1)
-          }
-          formatted += tab.repeat(indent) + '</' + token.name + '>\n'
-          break
-        case 'self-closing':
-          formatted += tab.repeat(indent) + token.full + '\n'
-          break
-        case 'text':
-          // Text nodes should NOT be escaped - they're already plain text
-          formatted += tab.repeat(indent) + token.content + '\n'
-          break
-      }
-    }
-    
-    if (mismatches.length > 0) {
-      throw new Error('XML structure error: ' + mismatches.join('; '))
-    }
-    
-    return formatted.trim() || xml
-  }
-
-  /**
-   * @param {string} str
-   */
-  function escapeXml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&apos;')
-  }
-
-  /**
-   * @param {string} xml
-   */
-  function minifyXML(xml) {
-    return xml
-      .replace(/>[\t\n\r ]+</g, '><')
-      .replace(/[\t\n\r ]{2,}/g, ' ')
-      .trim()
-  }
-
-  /**
    * @param {string} xml
    * @returns {string | null}
    */
@@ -340,9 +151,9 @@
 
     try {
       if (mode === 'format') {
-        output = formatXML(input)
+        output = format(input)
       } else {
-        output = minifyXML(input)
+        output = minify(input)
       }
     } catch (/** @type {any} */ e) {
       error = 'Error processing XML: ' + (e.message || 'Unknown error')
