@@ -24,13 +24,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # jsdom 30 requires Node ^22.22.2 || ^24.15.0 || >=26. Node 24 also
+          # matches release.yml and ships npm >= 11.
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm test
       - run: npm run check
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: apps/web/build
 

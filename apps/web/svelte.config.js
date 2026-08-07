@@ -4,6 +4,14 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
+  // Legacy component API (Svelte 4-style classes with $on/$set). Temporary
+  // compatibility shim for the existing Svelte 4 component files and their
+  // tests until the redesign migrates them to runes. See ADR-0004.
+  compilerOptions: {
+    compatibility: {
+      componentApi: 4
+    }
+  },
   kit: {
     adapter: adapter({
       pages: 'build',

@@ -501,6 +501,10 @@ describe('DiffTool', () => {
       }, { timeout: 1000 })
     })
 
+    // Timeout 15000ms: this test diffs and renders 10k truncated lines; the
+    // Svelte 5 legacy componentApi shim adds per-component overhead, so under
+    // full-suite parallel load it can exceed vitest's 5000ms default. In
+    // isolation it finishes in ~3s. Raised to avoid a flaky CI timeout.
     it('should show truncation warning for oversized inputs', async () => {
       const { container } = render(DiffTool)
       const textareas = container.querySelectorAll('.diff-textarea')
@@ -512,7 +516,7 @@ describe('DiffTool', () => {
         const warning = container.querySelector('.truncation-warning')
         expect(warning).toBeInTheDocument()
       }, { timeout: 1000 })
-    })
+    }, 15000)
   })
 
   describe('Myers Algorithm Edge Cases', () => {
