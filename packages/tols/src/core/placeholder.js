@@ -20,6 +20,7 @@ export function getLuminance(hexColor) {
   const r = parseInt(hexColor.slice(1, 3), 16) / 255;
   const g = parseInt(hexColor.slice(3, 5), 16) / 255;
   const b = parseInt(hexColor.slice(5, 7), 16) / 255;
+  /** @param {number} c */
   const gammaCorrect = (c) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
   return 0.2126 * gammaCorrect(r) + 0.7152 * gammaCorrect(g) + 0.0722 * gammaCorrect(b);
 }
@@ -33,7 +34,10 @@ export function getContrastRatio(color1, color2) {
   return (brightest + 0.05) / (darkest + 0.05);
 }
 
-/** Font size scaling, same thresholds as the web canvas renderer. */
+/** Font size scaling, same thresholds as the web canvas renderer.
+ * @param {number} width
+ * @param {number} height
+ */
 export function fontSizeFor(width, height) {
   if (width < 150 || height < 100) return 12;
   if (width < 250 || height < 150) return 16;
@@ -41,7 +45,10 @@ export function fontSizeFor(width, height) {
   return 24;
 }
 
-/** Approximate canvas measureText: average advance ~0.55em for sans-serif. */
+/** Approximate canvas measureText: average advance ~0.55em for sans-serif.
+ * @param {string} text
+ * @param {number} fontSize
+ */
 export function estimateTextWidth(text, fontSize) {
   return text.length * fontSize * 0.55;
 }

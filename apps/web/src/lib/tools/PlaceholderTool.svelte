@@ -4,6 +4,7 @@
   import ToolShell from '$lib/ui/ToolShell.svelte'
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
+  import { clamp, getLuminance, getContrastRatio, fontSizeFor, MIN_DIMENSION, MAX_DIMENSION, MAX_TEXT_LENGTH } from 'tols-cli/core/placeholder'
 
   let width = 400
   let height = 300
@@ -18,9 +19,6 @@
   let saveTimeout
   let canvasReady = false
   let errorMessage = ''
-  const MAX_TEXT_LENGTH = 100
-  const MIN_DIMENSION = 50
-  const MAX_DIMENSION = 2000
 
   // The CLI mirrors the five controls as flags, --text-color for the hyphenated
   // flag name (packages/tols/src/tools/placeholder.js). The text is only
@@ -32,16 +30,6 @@
     bg: bgColor,
     'text-color': textColor,
     text: placeholderText || undefined
-  }
-
-  /**
-   * @param {number} value
-   * @param {number} min
-   * @param {number} max
-   * @returns {number}
-   */
-  function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max)
   }
 
   /**
@@ -117,30 +105,6 @@
     clearTimeout(saveTimeout)
   })
 
-  /**
-   * @param {string} hexColor
-   */
-  function getLuminance(hexColor) {
-    const r = parseInt(hexColor.slice(1, 3), 16) / 255
-    const g = parseInt(hexColor.slice(3, 5), 16) / 255
-    const b = parseInt(hexColor.slice(5, 7), 16) / 255
-    /** @param {number} c */
-    const gammaCorrect = (c) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
-    return 0.2126 * gammaCorrect(r) + 0.7152 * gammaCorrect(g) + 0.0722 * gammaCorrect(b)
-  }
-
-  /**
-   * @param {string} color1
-   * @param {string} color2
-   */
-  function getContrastRatio(color1, color2) {
-    const lum1 = getLuminance(color1)
-    const lum2 = getLuminance(color2)
-    const brightest = Math.max(lum1, lum2)
-    const darkest = Math.min(lum1, lum2)
-    return (brightest + 0.05) / (darkest + 0.05)
-  }
-
   function drawPlaceholder() {
     if (!canvas || !canvasReady) return
     const ctx = canvas.getContext('2d')
@@ -164,14 +128,7 @@
     const contrastRatio = getContrastRatio(bgColor, textColor)
     const hasLowContrast = contrastRatio < 4.5
 
-    let fontSize = 24
-    if (width < 150 || height < 100) {
-      fontSize = 12
-    } else if (width < 250 || height < 150) {
-      fontSize = 16
-    } else if (width > 800 || height > 600) {
-      fontSize = 32
-    }
+    const fontSize = fontSizeFor(width, height)
 
     ctx.fillStyle = textColor
     ctx.font = `bold ${fontSize}px sans-serif`
