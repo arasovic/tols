@@ -6,6 +6,7 @@
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
+  import { inferMimeType } from 'tols-cli/core/datauri'
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
   const MAX_FILE_SIZE_MB = 10
@@ -26,33 +27,6 @@
   /** @type {FileReader | null} */
   let currentReader = null
   let truncatedDataUrl = ''
-
-  /**
-   * @param {string} filename
-   * @returns {string}
-   */
-  function inferMimeTypeFromExtension(filename) {
-    const ext = (filename.split('.').pop() || '').toLowerCase()
-    const mimeMap = /** @type {Record<string, string>} */ ({
-      'png': 'image/png',
-      'jpg': 'image/jpeg',
-      'jpeg': 'image/jpeg',
-      'gif': 'image/gif',
-      'svg': 'image/svg+xml',
-      'webp': 'image/webp',
-      'pdf': 'application/pdf',
-      'mp4': 'video/mp4',
-      'webm': 'video/webm',
-      'mp3': 'audio/mpeg',
-      'wav': 'audio/wav',
-      'txt': 'text/plain',
-      'json': 'application/json',
-      'html': 'text/html',
-      'css': 'text/css',
-      'js': 'application/javascript'
-    })
-    return mimeMap[ext] || 'application/octet-stream'
-  }
 
   function loadState() {
     try {
@@ -123,7 +97,7 @@
       if (typeof result !== 'string') return
       dataUrl = result
       truncatedDataUrl = getTruncatedDataUrl(dataUrl)
-      mimeType = file.type || inferMimeTypeFromExtension(file.name)
+      mimeType = file.type || inferMimeType(file.name)
       fileSize = formatFileSize(file.size)
       isLoading = false
       currentReader = null

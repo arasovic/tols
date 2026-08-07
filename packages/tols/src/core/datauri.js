@@ -26,7 +26,7 @@ const MIME_MAP = {
 /** @param {string} filename */
 export function inferMimeType(filename) {
   const ext = (String(filename).split('.').pop() || '').toLowerCase();
-  return MIME_MAP[ext] || 'application/octet-stream';
+  return /** @type {Record<string, string>} */ (MIME_MAP)[ext] || 'application/octet-stream';
 }
 
 /** @param {Uint8Array} bytes */
