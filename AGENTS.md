@@ -39,7 +39,7 @@ tols/
     ├── src/lib/ui/           # shared primitives — ToolShell, Workbench, Panel…
     ├── src/lib/tools/        # one Svelte component per tool
     ├── src/lib/components/   # Sidebar, SearchOverlay, ToolCard…
-    ├── tests/                # 70 files, 1186 tests + 7 skipped
+    ├── tests/                # 71 files, 1190 tests + 7 skipped
     └── tests-built/          # guards that read build/ — `npm run test:built`
 ```
 
@@ -69,8 +69,8 @@ Nothing flows the other way. The core never imports from a surface.
   `node ../../node_modules/vitest/dist/cli.js --run tests/canonical.test.js`
 - **Type check:** `npm run check` — must be 0 errors before committing
 - **Build:** `npm run build` — static output into `apps/web/build/`
-- Baseline as of 2026-08-08, after the route collapse (`a1e7f41`): web 1186
-  passed / 7 skipped, CLI 529 passed, `check` 0 errors with 3 warnings — the
+- Baseline as of 2026-08-08 (`d2b04ca`): web 1190 passed / 7 skipped, CLI 529
+  passed, `npm run test:built` 4 passed, `check` 0 errors with 3 warnings — the
   line-clamp one in `ToolCard.svelte` plus two `a11y_consider_explicit_label`
   in `LoremTool.svelte` that svelte-check 4 newly surfaces on pre-existing
   code. Record your own baseline before changing anything; if it differs, say
@@ -169,6 +169,19 @@ and the suite reported green.
 A guard that needs a build belongs in `tests-built/`, must **fail** when the
 build is missing, and needs its own CI step after the build. A skipping guard
 is worse than no guard, because it still reports success.
+
+### DO NOT assume a static host can redirect
+
+`adapter-static` writes flat files, so `build/xml.html` answers 200 at both
+`/xml` and `/xml.html`. GitHub Pages is a file server: it cannot redirect away
+from a file that exists, and a `redirect()` inside a client-side `load()` emits
+no HTTP status at all — a crawler never sees a 3xx there. The only correct
+handling for that duplicate is the canonical tag, which is what
+`$lib/config/seo.js` already provides.
+
+The `[tool]` route therefore strips a trailing `.html` and renders. It briefly
+did not, which produced the worst of both: the prerendered page painted, then
+hydration replaced it with a 404.
 
 ### DO NOT trust a green suite on an encoder change
 
