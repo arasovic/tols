@@ -7,6 +7,7 @@
   import ToolShell from '$lib/ui/ToolShell.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { readShareFragment } from '$lib/utils/share.js'
+  import { hexToRgb, rgbToHsl, hslToRgb, parseRgbInput, parseHslInput, rgbToHex } from 'tols-cli/core/color'
   import { onMount, onDestroy } from 'svelte'
 
   const STORAGE_KEY = 'devutils:color-tool:hex'
@@ -32,83 +33,6 @@
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  /**
-   * @param {string} hexInput
-   * @returns {{ r: number, g: number, b: number } | null}
-   */
-  function hexToRgb(hexInput) {
-    let clean = hexInput.replace(/[^0-9A-Fa-f]/g, '')
-    if (clean.length === 3) {
-      clean = clean.split('').map(c => c + c).join('')
-    }
-    if (clean.length !== 6) return null
-
-    const r = parseInt(clean.substring(0, 2), 16)
-    const g = parseInt(clean.substring(2, 4), 16)
-    const b = parseInt(clean.substring(4, 6), 16)
-
-    if (isNaN(r) || isNaN(g) || isNaN(b)) return null
-
-    return { r, g, b }
-  }
-
-  /**
-   * @param {number} r
-   * @param {number} g
-   * @param {number} b
-   * @returns {{ h: number, s: number, l: number }}
-   */
-  function rgbToHsl(r, g, b) {
-    r /= 255
-    g /= 255
-    b /= 255
-
-    const max = Math.max(r, g, b)
-    const min = Math.min(r, g, b)
-    let h = 0
-    let s = 0
-    const l = (max + min) / 2
-
-    if (max === min) {
-      h = s = 0
-    } else {
-      const d = max - min
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-
-      switch (max) {
-        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break
-        case g: h = ((b - r) / d + 2) / 6; break
-        case b: h = ((r - g) / d + 4) / 6; break
-      }
-    }
-
-    return {
-      h: Math.round(h * 360),
-      s: Math.round(s * 100),
-      l: Math.round(l * 100)
-    }
-  }
-
-  /**
-   * @param {number} h
-   * @param {number} s
-   * @param {number} l
-   * @returns {{ r: number, g: number, b: number }}
-   */
-  function hslToRgb(h, s, l) {
-    s /= 100
-    l /= 100
-    /** @param {number} n */
-    const k = n => (n + h / 30) % 12
-    const a = s * Math.min(l, 1 - l)
-    /** @param {number} n */
-    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
-    const r = Math.round(255 * f(0))
-    const g = Math.round(255 * f(8))
-    const b = Math.round(255 * f(4))
-    return { r, g, b }
-  }
-
   function updateColor() {
     if (!hex) {
       rgb = ''
@@ -131,7 +55,7 @@
     const hslObj = rgbToHsl(rgbObj.r, rgbObj.g, rgbObj.b)
     hsl = `hsl(${hslObj.h}, ${hslObj.s}%, ${hslObj.l}%)`
 
-    const properHex = [rgbObj.r, rgbObj.g, rgbObj.b].map(v => v.toString(16).padStart(2, '0')).join('')
+    const properHex = rgbToHex(rgbObj)
     colorPreview = `#${properHex}`
     errorMessage = ''
   }
@@ -197,23 +121,6 @@
   }
 
   /**
-   * @param {string} value
-   * @returns {{ r: number, g: number, b: number } | null}
-   */
-  function parseRgbInput(value) {
-    const rgbaMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/)
-    if (rgbaMatch) {
-      const r = parseInt(rgbaMatch[1])
-      const g = parseInt(rgbaMatch[2])
-      const b = parseInt(rgbaMatch[3])
-      if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
-        return { r, g, b }
-      }
-    }
-    return null
-  }
-
-  /**
    * @param {{ currentTarget: { value: string } }} e
    */
   function handleRgbInput(e) {
@@ -224,30 +131,12 @@
     }
     const rgbObj = parseRgbInput(value)
     if (rgbObj) {
-      hex = [rgbObj.r, rgbObj.g, rgbObj.b].map(v => v.toString(16).padStart(2, '0')).join('')
+      hex = rgbToHex(rgbObj)
       updateColor()
       saveState()
     } else {
       errorMessage = 'Invalid RGB format. Expected: rgb(255, 0, 0)'
     }
-  }
-
-  /**
-   * @param {string} value
-   * @returns {{ h: number, s: number, l: number } | null}
-   */
-  function parseHslInput(value) {
-    const hslaMatch = value.match(/^hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)$/)
-    if (hslaMatch) {
-      let h = parseInt(hslaMatch[1])
-      const s = parseInt(hslaMatch[2])
-      const l = parseInt(hslaMatch[3])
-      if (h === 360) h = 0
-      if (h >= 0 && h < 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100) {
-        return { h, s, l }
-      }
-    }
-    return null
   }
 
   /**
@@ -262,7 +151,7 @@
     const hslObj = parseHslInput(value)
     if (hslObj) {
       const rgbObj = hslToRgb(hslObj.h, hslObj.s, hslObj.l)
-      hex = [rgbObj.r, rgbObj.g, rgbObj.b].map(v => v.toString(16).padStart(2, '0')).join('')
+      hex = rgbToHex(rgbObj)
       updateColor()
       saveState()
     } else {

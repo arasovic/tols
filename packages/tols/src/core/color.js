@@ -50,8 +50,10 @@ export function rgbToHsl(r, g, b) {
 export function hslToRgb(h, s, l) {
   s /= 100;
   l /= 100;
+  /** @param {number} n */
   const k = (n) => (n + h / 30) % 12;
   const a = s * Math.min(l, 1 - l);
+  /** @param {number} n */
   const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
   return { r: Math.round(255 * f(0)), g: Math.round(255 * f(8)), b: Math.round(255 * f(4)) };
 }
@@ -106,6 +108,7 @@ export function parse(input) {
   return fromRgb(rgb);
 }
 
+/** @param {{ r: number, g: number, b: number }} rgb */
 function fromRgb(rgb) {
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
   return {
