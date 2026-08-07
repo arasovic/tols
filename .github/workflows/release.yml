@@ -1,0 +1,69 @@
+name: Publish tols-cli to npm
+
+# Publish the CLI via npm's OIDC trusted publisher: GitHub proves this job's
+# identity to npm with a short-lived token, so no npm credential lives in the
+# repo or on a maintainer's machine. Only a tag push can start a release, and
+# creating a tag needs write access, so only a maintainer can trigger this.
+#
+# Tags never match the `branches: [main]` filter in deploy.yml, so the two
+# workflows cannot collide on the same push.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24 vendors npm >= 11.5.1 (verified 11.17.0 on the v24.x
+          # branch), which is the minimum for OIDC trusted publishing. Node 20
+          # (used by deploy.yml) ships npm 10 — too old. The step below still
+          # fails loudly rather than trusting the runner's default.
+          node-version: 24
+          cache: npm
+
+      - name: Verify npm >= 11.5.1 (OIDC trusted publishing)
+        run: |
+          npm --version
+          node -e '
+            const v = process.argv[1].split(".").map(Number);
+            const ok = v[0] > 11 || (v[0] === 11 && (v[1] > 5 || (v[1] === 5 && v[2] >= 1)));
+            if (!ok) {
+              console.error("npm " + process.argv[1] + " is too old for OIDC trusted publishing (need >= 11.5.1)");
+              process.exit(1);
+            }
+          ' "$(npm --version)"
+
+      # A release must not be able to skip what a normal push runs: the same
+      # gate as deploy.yml, minus the Pages artifact.
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - run: npm run build
+
+      # npm versions are immutable: publishing 0.1.1's contents under tag
+      # v0.1.2 would be silent and permanent. Fail early if they disagree.
+      - name: Verify tag matches packages/tols version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg_version="$(node -p "JSON.parse(require('fs').readFileSync('packages/tols/package.json','utf8')).version")"
+          echo "tag: ${GITHUB_REF_NAME}  packages/tols/package.json version: ${pkg_version}"
+          if [ "$tag" != "$pkg_version" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} names version ${tag}, but packages/tols/package.json is version ${pkg_version}. npm versions are immutable; refusing to publish."
+            exit 1
+          fi
+
+      # --provenance puts a verified supply-chain badge on the npm page tying
+      # the tarball to this exact commit and workflow run. --access public is
+      # required for a new public package. No NPM_TOKEN: the trusted publisher
+      # exchanges this job's OIDC id-token for a short-lived npm token.
+      - name: Publish tols-cli to npm
+        run: npm publish -w packages/tols --provenance --access public
