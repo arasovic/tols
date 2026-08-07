@@ -25,7 +25,10 @@ export const FILTER_LIMITS = {
   sepia: { min: 0, max: 100 },
 };
 
-/** Clamp to the filter's limits; non-numbers become 0 (web parity). */
+/** Clamp to the filter's limits; non-numbers become 0 (web parity).
+ * @param {keyof typeof FILTER_LIMITS} name
+ * @param {string | number} value
+ */
 export function clampValue(name, value) {
   const limits = FILTER_LIMITS[name];
   const num = Number(value) || 0;
@@ -40,7 +43,9 @@ export function clampValue(name, value) {
  */
 export function buildFilter(values = {}) {
   const v = { ...DEFAULTS };
-  for (const key of Object.keys(DEFAULTS)) {
+  /** @type {(keyof typeof DEFAULTS)[]} */
+  const keys = /** @type {(keyof typeof DEFAULTS)[]} */ (Object.keys(DEFAULTS));
+  for (const key of keys) {
     if (values[key] !== undefined) v[key] = clampValue(key, values[key]);
   }
   const filters = [];

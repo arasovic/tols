@@ -4,6 +4,7 @@
   import ToolHeader from '$lib/ui/ToolHeader.svelte'
   import ToolShell from '$lib/ui/ToolShell.svelte'
   import Button from '$lib/ui/Button.svelte'
+  import { DEFAULTS, clampValue, buildFilter } from 'tols-cli/core/cssfilter'
 
   const DEBOUNCE_WAIT = 50
   const SAVE_DELAY = 300
@@ -39,43 +40,8 @@
   }
   $: cliOutput = `filter: ${filterString};`
 
-  /**
-   * @typedef {'blur' | 'brightness' | 'contrast' | 'grayscale' | 'hueRotate' | 'invert' | 'saturate' | 'sepia'} FilterName
-   */
-
-  const FILTER_LIMITS = {
-    blur: { min: 0, max: 20 },
-    brightness: { min: 0, max: 200 },
-    contrast: { min: 0, max: 200 },
-    grayscale: { min: 0, max: 100 },
-    hueRotate: { min: 0, max: 360 },
-    invert: { min: 0, max: 100 },
-    saturate: { min: 0, max: 200 },
-    sepia: { min: 0, max: 100 }
-  }
-
-  /**
-   * @param {FilterName} name
-   * @param {string | number} value
-   * @returns {number}
-   */
-  function validateValue(name, value) {
-    const limits = FILTER_LIMITS[name]
-    if (!limits) return Number(value)
-    return Math.max(limits.min, Math.min(limits.max, Number(value) || 0))
-  }
-
   function updateFilter() {
-    const filters = []
-    if (blur > 0) filters.push(`blur(${blur}px)`)
-    if (brightness !== 100) filters.push(`brightness(${brightness}%)`)
-    if (contrast !== 100) filters.push(`contrast(${contrast}%)`)
-    if (grayscale > 0) filters.push(`grayscale(${grayscale}%)`)
-    if (hueRotate !== 0) filters.push(`hue-rotate(${hueRotate}deg)`)
-    if (invert > 0) filters.push(`invert(${invert}%)`)
-    if (saturate !== 100) filters.push(`saturate(${saturate}%)`)
-    if (sepia > 0) filters.push(`sepia(${sepia}%)`)
-    filterString = filters.join(' ') || 'none'
+    filterString = buildFilter({ blur, brightness, contrast, grayscale, hueRotate, invert, saturate, sepia })
     debouncedSave()
   }
 
@@ -108,14 +74,14 @@
 
   function loadState() {
     try {
-      blur = validateValue('blur', localStorage.getItem('devutils-cssfilter-blur') || 0)
-      brightness = validateValue('brightness', localStorage.getItem('devutils-cssfilter-brightness') || 100)
-      contrast = validateValue('contrast', localStorage.getItem('devutils-cssfilter-contrast') || 100)
-      grayscale = validateValue('grayscale', localStorage.getItem('devutils-cssfilter-grayscale') || 0)
-      hueRotate = validateValue('hueRotate', localStorage.getItem('devutils-cssfilter-hueRotate') || 0)
-      invert = validateValue('invert', localStorage.getItem('devutils-cssfilter-invert') || 0)
-      saturate = validateValue('saturate', localStorage.getItem('devutils-cssfilter-saturate') || 100)
-      sepia = validateValue('sepia', localStorage.getItem('devutils-cssfilter-sepia') || 0)
+      blur = clampValue('blur', localStorage.getItem('devutils-cssfilter-blur') || 0)
+      brightness = clampValue('brightness', localStorage.getItem('devutils-cssfilter-brightness') || 100)
+      contrast = clampValue('contrast', localStorage.getItem('devutils-cssfilter-contrast') || 100)
+      grayscale = clampValue('grayscale', localStorage.getItem('devutils-cssfilter-grayscale') || 0)
+      hueRotate = clampValue('hueRotate', localStorage.getItem('devutils-cssfilter-hueRotate') || 0)
+      invert = clampValue('invert', localStorage.getItem('devutils-cssfilter-invert') || 0)
+      saturate = clampValue('saturate', localStorage.getItem('devutils-cssfilter-saturate') || 100)
+      sepia = clampValue('sepia', localStorage.getItem('devutils-cssfilter-sepia') || 0)
     } catch (/** @type {any} */ e) {
       console.warn('Failed to load from localStorage:', e)
     }
@@ -123,14 +89,14 @@
   }
 
   function reset() {
-    blur = 0
-    brightness = 100
-    contrast = 100
-    grayscale = 0
-    hueRotate = 0
-    invert = 0
-    saturate = 100
-    sepia = 0
+    blur = DEFAULTS.blur
+    brightness = DEFAULTS.brightness
+    contrast = DEFAULTS.contrast
+    grayscale = DEFAULTS.grayscale
+    hueRotate = DEFAULTS.hueRotate
+    invert = DEFAULTS.invert
+    saturate = DEFAULTS.saturate
+    sepia = DEFAULTS.sepia
     updateFilter()
   }
 
@@ -138,7 +104,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleBlurInput(event) {
-    blur = validateValue('blur', event.currentTarget.value)
+    blur = clampValue('blur', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -146,7 +112,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleBrightnessInput(event) {
-    brightness = validateValue('brightness', event.currentTarget.value)
+    brightness = clampValue('brightness', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -154,7 +120,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleContrastInput(event) {
-    contrast = validateValue('contrast', event.currentTarget.value)
+    contrast = clampValue('contrast', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -162,7 +128,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleGrayscaleInput(event) {
-    grayscale = validateValue('grayscale', event.currentTarget.value)
+    grayscale = clampValue('grayscale', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -170,7 +136,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleHueRotateInput(event) {
-    hueRotate = validateValue('hueRotate', event.currentTarget.value)
+    hueRotate = clampValue('hueRotate', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -178,7 +144,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleInvertInput(event) {
-    invert = validateValue('invert', event.currentTarget.value)
+    invert = clampValue('invert', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -186,7 +152,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleSaturateInput(event) {
-    saturate = validateValue('saturate', event.currentTarget.value)
+    saturate = clampValue('saturate', event.currentTarget.value)
     debouncedUpdate()
   }
 
@@ -194,7 +160,7 @@
    * @param {Event & { currentTarget: HTMLInputElement }} event
    */
   function handleSepiaInput(event) {
-    sepia = validateValue('sepia', event.currentTarget.value)
+    sepia = clampValue('sepia', event.currentTarget.value)
     debouncedUpdate()
   }
 
