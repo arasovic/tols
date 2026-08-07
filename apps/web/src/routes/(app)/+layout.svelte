@@ -5,7 +5,6 @@
   import SearchOverlay from '$lib/components/SearchOverlay.svelte'
   import Kbd from '$lib/ui/Kbd.svelte'
   import { dispatchShortcut } from '$lib/ui/shortcuts.js'
-  import { toolTitles } from '$lib/config/tools.js'
   import { getTool } from '$lib/config/registry.js'
   import { addRecent } from '$lib/stores/recentTools.js'
   import { stripBase } from '$lib/utils/paths.js'
@@ -29,7 +28,7 @@
   // tool segment can be stripped in every environment.
   $: pathWithoutBase = stripBase(base, $page.url.pathname)
   $: currentPath = pathWithoutBase.slice(1) || ''
-  $: title = toolTitles[currentPath] || 'tols'
+  $: title = getTool(currentPath)?.name || 'tols'
 
   // Visiting a tool page counts as recent usage, no matter how the user got there
   $: if (browser && currentPath && getTool(currentPath)) {
