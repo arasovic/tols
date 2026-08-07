@@ -153,6 +153,7 @@ export function encodeCode128(text) {
 }
 
 /** Escape for embedding text in an SVG document. */
+/** @param {string} s */
 export function escapeXml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
