@@ -192,7 +192,7 @@ describe('BaseConverterTool', () => {
     await waitFor(() => {
       const errorElement = screen.getByRole('alert')
       expect(errorElement).toBeInTheDocument()
-      expect(errorElement.textContent).toContain('contain')
+      expect(errorElement.textContent).toContain('Invalid binary number')
     })
   })
 
@@ -206,7 +206,7 @@ describe('BaseConverterTool', () => {
     await waitFor(() => {
       const errorElement = screen.getByRole('alert')
       expect(errorElement).toBeInTheDocument()
-      expect(errorElement.textContent).toContain('contain')
+      expect(errorElement.textContent).toContain('Invalid octal number')
     })
   })
 
@@ -220,7 +220,7 @@ describe('BaseConverterTool', () => {
     await waitFor(() => {
       const errorElement = screen.getByRole('alert')
       expect(errorElement).toBeInTheDocument()
-      expect(errorElement.textContent).toContain('contain')
+      expect(errorElement.textContent).toContain('Invalid hexadecimal number')
     })
   })
 
@@ -235,6 +235,22 @@ describe('BaseConverterTool', () => {
       const errorElement = screen.getByRole('alert')
       expect(errorElement).toBeInTheDocument()
       expect(errorElement.textContent).toContain('maximum safe integer')
+    })
+  })
+
+  it('should reject binary input with trailing garbage (round-trip check)', async () => {
+    render(BaseConverterTool)
+
+    // The web's old validators accepted '101-01' and parseInt silently
+    // dropped the tail, reporting 5. The core's round-trip check rejects it.
+    const binaryInput = screen.getByLabelText('Binary number input')
+    await fireEvent.input(binaryInput, { target: { value: '101-01' } })
+
+    vi.advanceTimersByTime(400)
+    await waitFor(() => {
+      const errorElement = screen.getByRole('alert')
+      expect(errorElement).toBeInTheDocument()
+      expect(errorElement.textContent).toContain('Invalid binary number')
     })
   })
 

@@ -47,9 +47,14 @@ export function parse(value, from) {
   return num;
 }
 
+/**
+ * A value round-trips when formatting it back in the same base yields the
+ * input again (ignoring leading zeros and case).
+ * @param {string} trimmed
+ * @param {number} num
+ * @param {BaseName} from
+ */
 function roundTrips(trimmed, num, from) {
-  // A value round-trips when formatting it back in the same base yields the
-  // input again (ignoring leading zeros and case).
   const sign = trimmed.startsWith('-') ? '-' : '';
   const body = trimmed.replace(/^-/, '').replace(/^0+(?=.)/, '');
   const back = Math.abs(num).toString(RADIX[from]);
@@ -81,7 +86,7 @@ export function formatAll(num) {
  */
 export function convert(input, { from } = {}) {
   const detected = detect(input);
-  const base = from ?? detected.base;
+  const base = /** @type {BaseName} */ (from ?? detected.base);
   // Prefixes are stripped even with an explicit --from (0xff --from=hex):
   // the prefix is syntax, the --from flag decides the radix.
   const num = parse(detected.value, base);

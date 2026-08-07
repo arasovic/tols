@@ -4,6 +4,7 @@
   import ToolShell from '$lib/ui/ToolShell.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
+  import { convert as convertBase } from 'tols-cli/core/base'
 
   const DEFAULT_DECIMAL = '255'
   const DEFAULT_BINARY = '11111111'
@@ -11,7 +12,6 @@
   const DEFAULT_OCTAL = '377'
   const DEBOUNCE_MS = 300
   const SAVE_DEBOUNCE_MS = 500
-  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER
 
   const STORAGE_KEY = 'devutils-base-decimal'
 
@@ -50,63 +50,42 @@
     : ''
 
   const baseConverters = {
-    decimal: { convert: convertFromDecimal, validate: validateDecimal },
-    binary: { convert: convertFromBinary, validate: validateBinary },
-    hex: { convert: convertFromHex, validate: validateHex },
-    octal: { convert: convertFromOctal, validate: validateOctal }
+    decimal: { convert: () => convertFromField('decimal') },
+    binary: { convert: () => convertFromField('binary') },
+    hex: { convert: () => convertFromField('hex') },
+    octal: { convert: () => convertFromField('octal') }
   }
 
   /**
-   * @param {string} value
-   * @returns {{ valid: boolean, error: string }}
+   * Convert the active field through the shared core. The core rejects
+   * trailing garbage via a round-trip check (the web's regexes accepted
+   * e.g. '101-01' and parseInt silently dropped the tail, reporting 5).
+   * @param {BaseField} field
    */
-  function validateDecimal(value) {
-    if (!value || value === '-') return { valid: true, error: '' }
-    const num = parseInt(value, 10)
-    if (isNaN(num)) return { valid: false, error: 'Invalid decimal number' }
-    if (num > MAX_SAFE_INTEGER) return { valid: false, error: `Number exceeds maximum safe integer (${MAX_SAFE_INTEGER})` }
-    return { valid: true, error: '' }
-  }
-
-  /**
-   * @param {string} value
-   * @returns {{ valid: boolean, error: string }}
-   */
-  function validateBinary(value) {
-    if (!value) return { valid: true, error: '' }
-    if (!/^[01]*-?[01]*$/.test(value)) return { valid: false, error: 'Binary can only contain 0 and 1' }
-    return { valid: true, error: '' }
-  }
-
-  /**
-   * @param {string} value
-   * @returns {{ valid: boolean, error: string }}
-   */
-  function validateHex(value) {
-    if (!value) return { valid: true, error: '' }
-    if (!/^[0-9A-Fa-f]*-?[0-9A-Fa-f]*$/.test(value)) return { valid: false, error: 'Hex can only contain 0-9 and A-F' }
-    return { valid: true, error: '' }
-  }
-
-  /**
-   * @param {string} value
-   * @returns {{ valid: boolean, error: string }}
-   */
-  function validateOctal(value) {
-    if (!value) return { valid: true, error: '' }
-    if (!/^[0-7]*-?[0-7]*$/.test(value)) return { valid: false, error: 'Octal can only contain 0-7' }
-    return { valid: true, error: '' }
+  function convertFromField(field) {
+    const trimmed = getFieldValue(field).trim()
+    if (trimmed === '' || trimmed === '-') {
+      clearOtherFields(field)
+      return
+    }
+    try {
+      const result = convertBase(trimmed, { from: /** @type {'dec'|'bin'|'hex'|'oct'} */ (BASE_TO_CLI[field]) })
+      error = ''
+      decimal = result.dec
+      binary = result.bin
+      hex = result.hex
+      octal = result.oct
+    } catch (/** @type {any} */ e) {
+      error = e.message || 'Invalid number'
+    }
   }
 
   function loadState() {
     try {
       const savedDecimal = localStorage.getItem(STORAGE_KEY)
       if (savedDecimal && savedDecimal.trim() !== '') {
-        const validation = validateDecimal(savedDecimal.trim())
-        if (validation.valid) {
-          decimal = savedDecimal.trim()
-          convertFromDecimal()
-        }
+        decimal = savedDecimal.trim()
+        convertFromDecimal()
       } else {
         setDefaults()
       }
@@ -149,87 +128,19 @@
   loadState()
 
   function convertFromDecimal() {
-    const trimmed = decimal.trim()
-    if (trimmed === '' || trimmed === '-') {
-      clearOtherFields('decimal')
-      return
-    }
-    const dec = parseInt(trimmed, 10)
-    if (isNaN(dec)) {
-      error = 'Invalid decimal number'
-      return
-    }
-    if (dec > MAX_SAFE_INTEGER) {
-      error = `Number exceeds maximum safe integer (${MAX_SAFE_INTEGER})`
-      return
-    }
-    error = ''
-    binary = dec.toString(2)
-    hex = dec.toString(16).toUpperCase()
-    octal = dec.toString(8)
+    convertFromField('decimal')
   }
 
   function convertFromBinary() {
-    const trimmed = binary.trim()
-    if (trimmed === '') {
-      clearOtherFields('binary')
-      return
-    }
-    const bin = parseInt(trimmed, 2)
-    if (isNaN(bin)) {
-      error = 'Invalid binary number'
-      return
-    }
-    if (bin > MAX_SAFE_INTEGER) {
-      error = `Number exceeds maximum safe integer (${MAX_SAFE_INTEGER})`
-      return
-    }
-    error = ''
-    decimal = bin.toString(10)
-    hex = bin.toString(16).toUpperCase()
-    octal = bin.toString(8)
+    convertFromField('binary')
   }
 
   function convertFromHex() {
-    const trimmed = hex.trim()
-    if (trimmed === '') {
-      clearOtherFields('hex')
-      return
-    }
-    const h = parseInt(trimmed, 16)
-    if (isNaN(h)) {
-      error = 'Invalid hexadecimal number'
-      return
-    }
-    if (h > MAX_SAFE_INTEGER) {
-      error = `Number exceeds maximum safe integer (${MAX_SAFE_INTEGER})`
-      return
-    }
-    error = ''
-    decimal = h.toString(10)
-    binary = h.toString(2)
-    octal = h.toString(8)
+    convertFromField('hex')
   }
 
   function convertFromOctal() {
-    const trimmed = octal.trim()
-    if (trimmed === '') {
-      clearOtherFields('octal')
-      return
-    }
-    const oct = parseInt(trimmed, 8)
-    if (isNaN(oct)) {
-      error = 'Invalid octal number'
-      return
-    }
-    if (oct > MAX_SAFE_INTEGER) {
-      error = `Number exceeds maximum safe integer (${MAX_SAFE_INTEGER})`
-      return
-    }
-    error = ''
-    decimal = oct.toString(10)
-    binary = oct.toString(2)
-    hex = oct.toString(16).toUpperCase()
+    convertFromField('octal')
   }
 
   /**
@@ -253,14 +164,10 @@
     timeout = setTimeout(() => {
       const baseHandler = baseConverters[field]
       if (baseHandler) {
-        const value = getFieldValue(field)
-        const validation = baseHandler.validate(value)
-        if (!validation.valid) {
-          error = validation.error
-          return
-        }
         baseHandler.convert()
-        saveState()
+        if (!error) {
+          saveState()
+        }
       }
     }, DEBOUNCE_MS)
   }
