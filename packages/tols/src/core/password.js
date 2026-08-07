@@ -27,6 +27,7 @@ export function buildCharset(opts) {
 }
 
 /** Unbiased index in [0, max) via rejection sampling (web parity). */
+/** @param {number} max */
 export function randomIndex(max) {
   const buf = new Uint32Array(1);
   const maxValid = Math.floor(2 ** 32 / max) * max;

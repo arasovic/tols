@@ -4,15 +4,13 @@
   import ToolShell from '$lib/ui/ToolShell.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
-
-  const MIN_LENGTH = 8
-  const MAX_LENGTH = 64
-  const DEFAULT_LENGTH = 16
-
-  const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'
-  const NUMBERS = '0123456789'
-  const SYMBOLS = '!@#$%^&*()_+-=[]{}|;:,.<>?'
+  import {
+    generate as generatePassword,
+    entropyLabel as entropyLabelText,
+    MIN_LENGTH,
+    MAX_LENGTH,
+    DEFAULT_LENGTH
+  } from 'tols-cli/core/password'
 
   let length = DEFAULT_LENGTH
   let includeUppercase = true
@@ -69,49 +67,35 @@
     }, 500)
   }
 
-  /**
-   * @param {number} max
-   */
-  function getSecureRandomIndex(max) {
-    const randomBytes = new Uint32Array(1)
-    const maxValid = Math.floor((2 ** 32) / max) * max
-    do {
-      crypto.getRandomValues(randomBytes)
-    } while (randomBytes[0] >= maxValid)
-    return randomBytes[0] % max
-  }
-
   function generate() {
-    let charset = ''
-    if (includeLowercase) charset += LOWERCASE
-    if (includeUppercase) charset += UPPERCASE
-    if (includeNumbers) charset += NUMBERS
-    if (includeSymbols) charset += SYMBOLS
-
-    if (charset === '') {
+    // The core throws on an empty charset (cleaner library contract); map
+    // that to the existing UI error state.
+    try {
+      const result = generatePassword(length, {
+        upper: includeUppercase,
+        lower: includeLowercase,
+        numbers: includeNumbers,
+        symbols: includeSymbols
+      })
+      generatedPassword = result.password
+      entropy = result.entropy
+      errorMessage = ''
+    } catch (/** @type {any} */ e) {
       generatedPassword = ''
       entropy = 0
-      errorMessage = 'Please select at least one character type'
-      return
+      errorMessage = e.message || 'Please select at least one character type'
     }
-
-    errorMessage = ''
-    let password = ''
-
-    for (let i = 0; i < length; i++) {
-      password += charset[getSecureRandomIndex(charset.length)]
-    }
-
-    generatedPassword = password
-    entropy = Math.log2(charset.length) * length
   }
 
-  function getEntropyLabel() {
-    if (entropy < 50) return { text: 'Weak', color: 'var(--error)' }
-    if (entropy < 80) return { text: 'Fair', color: 'var(--warning)' }
-    if (entropy < 120) return { text: 'Strong', color: 'var(--success)' }
-    return { text: 'Very Strong', color: 'var(--success)' }
+  const STRENGTH_COLORS = {
+    Weak: 'var(--error)',
+    Fair: 'var(--warning)',
+    Strong: 'var(--success)',
+    'Very Strong': 'var(--success)'
   }
+  // Reactive (the web computed this once at init, so the label never moved
+  // off 'Weak' after generation).
+  $: entropyLabel = { text: entropyLabelText(entropy), color: STRENGTH_COLORS[/** @type {keyof typeof STRENGTH_COLORS} */ (entropyLabelText(entropy))] }
 
   function handleRegenerate() {
     generate()
@@ -179,8 +163,6 @@
   onDestroy(() => {
     clearTimeout(saveTimeout)
   })
-
-  const entropyLabel = getEntropyLabel()
 </script>
 
 <div class="tool">
