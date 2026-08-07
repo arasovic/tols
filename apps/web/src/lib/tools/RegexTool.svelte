@@ -11,13 +11,13 @@
   import { readShareFragment } from '$lib/utils/share.js'
   import { fileDrop } from '$lib/utils/fileDrop.js'
   import { onMount, onDestroy } from 'svelte'
+  import { VALID_FLAGS, validateFlags } from 'tols-cli/core/regex'
 
   const EXAMPLE_REGEX = '\\d+'
   const EXAMPLE_TEXT = 'There are 42 apples and 123 oranges'
   const REGEX_TIMEOUT_MS = 5000
   const DEBOUNCE_DELAY_MS = 150
   const SAVE_DELAY_MS = 500
-  const VALID_FLAGS = new Set(['g', 'i', 'm', 's', 'u', 'y'])
 
   let input = ''
   let pattern = ''
@@ -161,17 +161,6 @@
       .replace(/'/g, '&#039;')
       .replace(/`/g, '&#96;')
       .replace(/\0/g, '&#0;')
-  }
-
-  /**
-   * @param {string} flagString
-   * @returns {string}
-   */
-  function validateFlags(flagString) {
-    if (!flagString) return ''
-    const uniqueFlags = [...new Set(flagString.split(''))]
-    const validOnly = uniqueFlags.filter(f => VALID_FLAGS.has(f))
-    return validOnly.join('')
   }
 
   /**

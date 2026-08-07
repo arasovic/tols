@@ -7,7 +7,9 @@
 
 export const VALID_FLAGS = new Set(['g', 'i', 'm', 's', 'u', 'y']);
 
-/** Dedupe and drop invalid flags, same as the web. */
+/** Dedupe and drop invalid flags, same as the web.
+ * @param {string} flagString
+ */
 export function validateFlags(flagString) {
   if (!flagString) return '';
   const uniqueFlags = [...new Set(String(flagString).split(''))];
@@ -21,7 +23,7 @@ export function validateFlags(flagString) {
 export function compile(pattern, flags) {
   try {
     return new RegExp(pattern, validateFlags(flags));
-  } catch (e) {
+  } catch (/** @type {any} */ e) {
     throw new Error(`Invalid regex pattern: ${e.message}`);
   }
 }
