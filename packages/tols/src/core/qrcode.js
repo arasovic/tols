@@ -588,7 +588,7 @@ export function getPenaltyScore(matrix) {
   };
 
   for (let y = 0; y < qrsize; y++) scanLine((x) => matrix[y][x]);
-  for (let x = 0; x < qrsize; x++) scanLine((y) => matrix[x][y]);
+  for (let x = 0; x < qrsize; x++) scanLine((y) => matrix[y][x]);
 
   // 2x2 same-color blocks
   for (let y = 0; y < qrsize - 1; y++) {

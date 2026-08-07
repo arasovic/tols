@@ -215,4 +215,14 @@ describe('qrcode core — rendering', () => {
     expect(lines[0].trim()).toBe('');
     expect(lines[lines.length - 1].trim()).toBe('');
   });
+
+  // The penalty score scans every row and every column, so transposing a
+  // matrix must not change it. Scanning one axis twice still decodes (the
+  // mask is signalled in the format info) and still passes every decode
+  // test here, but picks a worse mask; this invariant is what catches it.
+  it('penalty score is unchanged by transposing the matrix', () => {
+    const { matrix } = qr.generateMatrix('https://tols.arasmehmet.com/');
+    const transposed = matrix[0].map((_, col) => matrix.map((row) => row[col]));
+    expect(qr.getPenaltyScore(transposed)).toBe(qr.getPenaltyScore(matrix));
+  });
 });
