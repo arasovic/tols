@@ -7,6 +7,7 @@
   import Panel from '$lib/ui/Panel.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { onMount, onDestroy } from 'svelte'
+  import { generate as generateLorem } from 'tols-cli/core/lorem'
 
   let paragraphs = 3
   let words = 50
@@ -23,27 +24,6 @@
   $: cliFlags = startWithLorem
     ? { paragraphs, words }
     : { paragraphs, words, 'random-start': true }
-
-  /**
-   * @param {number} max
-   */
-  function getRandomWordIndex(max) {
-    const array = new Uint32Array(1)
-    crypto.getRandomValues(array)
-    return array[0] % max
-  }
-
-  const loremWords = [
-    'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
-    'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore',
-    'magna', 'aliqua', 'enim', 'ad', 'minim', 'veniam', 'quis', 'nostrud',
-    'exercitation', 'ullamco', 'laboris', 'nisi', 'ut', 'aliquip', 'ex', 'ea',
-    'commodo', 'consequat', 'duis', 'aute', 'irure', 'dolor', 'in', 'reprehenderit',
-    'in', 'voluptate', 'velit', 'esse', 'cillum', 'dolore', 'eu', 'fugiat',
-    'nulla', 'pariatur', 'excepteur', 'sint', 'occaecat', 'cupidatat', 'non',
-    'proident', 'sunt', 'in', 'culpa', 'qui', 'officia', 'deserunt', 'mollit',
-    'anim', 'id', 'est', 'laborum'
-  ]
 
   function loadState() {
     try {
@@ -77,31 +57,7 @@
   })
 
   function generate() {
-    output = ''
-
-    const validParagraphs = Math.min(Math.max(paragraphs, 0), 50)
-    const validWords = Math.min(Math.max(words, 0), 500)
-
-    if (validParagraphs < 1) {
-      return
-    }
-
-    const paragraphTexts = []
-
-    for (let p = 0; p < validParagraphs; p++) {
-      const paragraphWords = []
-      const wordCount = validWords === 0 ? Math.floor(Math.random() * 20) + 10 : validWords
-
-      for (let i = 0; i < wordCount; i++) {
-        const wordIndex = getRandomWordIndex(loremWords.length)
-        paragraphWords.push(loremWords[wordIndex])
-      }
-
-      const text = paragraphWords.join(' ')
-      paragraphTexts.push(text.charAt(0).toUpperCase() + text.slice(1) + '.')
-    }
-
-    output = paragraphTexts.join('\n\n')
+    output = generateLorem({ paragraphs, words, startWithLorem })
   }
 
   function debouncedGenerate() {

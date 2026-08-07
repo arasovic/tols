@@ -59,11 +59,24 @@ describe('LoremTool', () => {
     }, { timeout: 400 })
   })
 
+  async function disableStartWithLorem() {
+    // The core now applies the "Start with Lorem" toggle (the web's old
+    // generate() never read it). These word-count tests measure the word
+    // settings, so turn the opener off explicitly and keep their assertions
+    // meaningful. The opener itself is covered by a dedicated test below.
+    const toggle = /** @type {HTMLInputElement | null} */ (document.querySelector('.toggle input[type="checkbox"]'))
+    if (toggle && toggle.checked) {
+      await fireEvent.click(toggle)
+      vi.advanceTimersByTime(200)
+    }
+  }
+
   it('should generate specified words per paragraph', async () => {
     const paragraphsInputs = screen.getAllByRole('spinbutton')
     const wordsInput = paragraphsInputs[1]
     const paragraphsInput = paragraphsInputs[0]
 
+    await disableStartWithLorem()
     await fireEvent.input(wordsInput, { target: { value: '10' } })
     vi.advanceTimersByTime(200)
     await fireEvent.input(paragraphsInput, { target: { value: '1' } })
@@ -75,6 +88,19 @@ describe('LoremTool', () => {
       const text = outputBox?.textContent || ''
       const words = text.match(/\b\w+\b/g)
       expect(words?.length).toBe(10)
+    }, { timeout: 400 })
+  })
+
+  it('should start with the classic opener when Start with Lorem is on', async () => {
+    const paragraphsInputs = screen.getAllByRole('spinbutton')
+    const paragraphsInput = paragraphsInputs[0]
+
+    await fireEvent.input(paragraphsInput, { target: { value: '1' } })
+    vi.advanceTimersByTime(200)
+
+    await waitFor(() => {
+      const outputBox = document.querySelector('.output-content')
+      expect(outputBox?.textContent).toContain('Lorem ipsum dolor sit amet, consectetur adipiscing elit.')
     }, { timeout: 400 })
   })
 
@@ -144,6 +170,7 @@ describe('LoremTool', () => {
     const paragraphsInput = paragraphsInputs[0]
     const wordsInput = paragraphsInputs[1]
 
+    await disableStartWithLorem()
     await fireEvent.input(wordsInput, { target: { value: '0' } })
     vi.advanceTimersByTime(200)
     await fireEvent.input(paragraphsInput, { target: { value: '1' } })
@@ -202,6 +229,7 @@ describe('LoremTool', () => {
     const wordsInput = paragraphsInputs[1]
     const paragraphsInput = paragraphsInputs[0]
 
+    await disableStartWithLorem()
     await fireEvent.input(wordsInput, { target: { value: '600' } })
     vi.advanceTimersByTime(200)
     await fireEvent.input(paragraphsInput, { target: { value: '1' } })
