@@ -19,14 +19,19 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Node 24 vendors npm >= 11.5.1 (verified 11.17.0 on the v24.x
           # branch), which is the minimum for OIDC trusted publishing. Node 20
-          # (used by deploy.yml) ships npm 10 — too old. The step below still
-          # fails loudly rather than trusting the runner's default.
+          # ships npm 10 — too old. The step below still fails loudly rather
+          # than trusting the runner's default.
+          #
+          # No `registry-url` here on purpose. Setting it makes setup-node
+          # write an auth line into .npmrc, which is for the NPM_TOKEN flow we
+          # are deliberately not using; npm resolves the OIDC exchange itself
+          # at publish time from the `id-token: write` permission above.
           node-version: 24
           cache: npm
 
