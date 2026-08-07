@@ -62,11 +62,14 @@ jobs:
           fi
 
       # A release must not be able to skip what a normal push runs: the same
-      # gate as deploy.yml, minus the Pages artifact.
+      # gate as deploy.yml, minus the Pages artifact. Keep the two lists
+      # identical — a step added to one and not the other leaves a hole that
+      # nothing reports, because both workflows still go green.
       - run: npm ci
       - run: npm test
       - run: npm run check
       - run: npm run build
+      - run: npm run test:built
 
       # --provenance puts a verified supply-chain badge on the npm page tying
       # the tarball to this exact commit and workflow run. --access public is
