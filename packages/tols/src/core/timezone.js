@@ -20,6 +20,7 @@ export const ZONES = [
 ];
 
 /** Throws a stable error for unknown IANA zone names. */
+/** @param {string} zone */
 export function validateZone(zone) {
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: zone });
@@ -80,6 +81,8 @@ export function parseWallFields(input) {
  * Wall-clock offset (ms) of a zone at a given instant. Computed via
  * formatToParts + Date.UTC so the result does not depend on the machine's
  * own time zone (the toLocaleString-parse trick re-introduces it).
+ * @param {number} instantMs
+ * @param {string} zone
  */
 function wallOffset(instantMs, zone) {
   const dtf = new Intl.DateTimeFormat('en-US', {
@@ -136,7 +139,10 @@ export function formatFull(date, zone) {
   });
 }
 
-/** Current wall-clock time in a zone (web's common-zones panel). */
+/** Current wall-clock time in a zone (web's common-zones panel).
+ * @param {string} zone
+ * @param {Date} [now]
+ */
 export function zoneNow(zone, now = new Date()) {
   validateZone(zone);
   return {

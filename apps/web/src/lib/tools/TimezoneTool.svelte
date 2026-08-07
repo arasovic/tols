@@ -4,11 +4,12 @@
   import ToolShell from '$lib/ui/ToolShell.svelte'
   import Button from '$lib/ui/Button.svelte'
   import { onMount } from 'svelte'
+  import { ZONES, convert as convertTime, zoneNow } from 'tols-cli/core/timezone'
 
   let baseDate = new Date()
   let fromZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   let toZone = 'UTC'
-  /** @type {{ result: Date, offset: string, formatted: string } | null} */
+  /** @type {{ offset: string, formatted: string } | null} */
   let convertedTime = null
   /** @type {{ name: string, time: string, date: string }[]} */
   let commonZones = []
@@ -21,22 +22,6 @@
   // CLI converts "now" when no input is given, which is all this tool ever does
   // (packages/tols/src/tools/timezone.js).
   $: cliFlags = { from: fromZone, to: toZone }
-
-  const ZONES = [
-    { name: 'UTC', offset: '+00:00' },
-    { name: 'America/New_York', label: 'New York' },
-    { name: 'America/Los_Angeles', label: 'Los Angeles' },
-    { name: 'America/Chicago', label: 'Chicago' },
-    { name: 'Europe/London', label: 'London' },
-    { name: 'Europe/Paris', label: 'Paris' },
-    { name: 'Europe/Berlin', label: 'Berlin' },
-    { name: 'Asia/Tokyo', label: 'Tokyo' },
-    { name: 'Asia/Shanghai', label: 'Shanghai' },
-    { name: 'Asia/Singapore', label: 'Singapore' },
-    { name: 'Asia/Dubai', label: 'Dubai' },
-    { name: 'Australia/Sydney', label: 'Sydney' },
-    { name: 'Pacific/Auckland', label: 'Auckland' },
-  ]
 
   function loadState() {
     try {
@@ -67,25 +52,10 @@
 
   function convert() {
     try {
-      const date = new Date(baseDate)
-      const fromTime = new Date(date.toLocaleString('en-US', { timeZone: fromZone }))
-      const toTime = new Date(date.toLocaleString('en-US', { timeZone: toZone }))
-      const diffMs = toTime.getTime() - fromTime.getTime()
-      const diffHours = diffMs / (1000 * 60 * 60)
-
+      const c = convertTime(new Date(baseDate), fromZone, toZone)
       convertedTime = {
-        result: toTime,
-        offset: diffHours >= 0 ? `+${diffHours.toFixed(1)}` : diffHours.toFixed(1),
-        formatted: toTime.toLocaleString('en-US', {
-          timeZone: toZone,
-          weekday: 'short',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        })
+        offset: c.offset,
+        formatted: c.toFormatted
       }
     } catch (/** @type {any} */ e) {
       convertedTime = null
@@ -93,22 +63,7 @@
   }
 
   function updateCommonZones() {
-    commonZones = ZONES.map(zone => {
-      const now = new Date()
-      return {
-        name: zone.label || zone.name,
-        time: now.toLocaleString('en-US', {
-          timeZone: zone.name,
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        date: now.toLocaleString('en-US', {
-          timeZone: zone.name,
-          month: 'short',
-          day: 'numeric'
-        })
-      }
-    })
+    commonZones = ZONES.map(zone => zoneNow(zone.name))
   }
 
   function debouncedConvert() {
