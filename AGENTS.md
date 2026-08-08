@@ -60,7 +60,10 @@ Nothing flows the other way. The core never imports from a surface.
 
 ## Commands
 
-- **Both suites:** `npm test`
+- **Fast local suites:** `npm test`
+- **Shipping coverage gate:** `npm run test:coverage` — runs both suites
+  sequentially and enforces independent global CLI and web floors. Normal
+  feature work adds behavior tests; it does not edit thresholds.
 - **The built-output guards:** `npm run build && npm run test:built`. They are
   deliberately outside `npm test` so the normal suite never needs a build, and
   they fail rather than skip when `build/` is missing.

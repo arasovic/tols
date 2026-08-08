@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
-      - run: npm test
+      - run: npm run test:coverage
       - run: npm run check
       - run: npm run build
       - run: npm run test:built

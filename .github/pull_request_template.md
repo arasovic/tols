@@ -5,7 +5,7 @@
 ## How it was verified
 
 <!--
-`npm test` and `npm run check` run in CI, so no need to say they pass.
+`npm run test:coverage` and `npm run check` run in CI, so no need to say they pass.
 
 Worth saying:
 - for a bug fix, the test that fails without it

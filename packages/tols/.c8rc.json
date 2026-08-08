@@ -9,5 +9,10 @@
     "json-summary",
     "lcov"
   ],
-  "reports-dir": "../../coverage/cli"
+  "reports-dir": "../../coverage/cli",
+  "check-coverage": true,
+  "statements": 83,
+  "branches": 79,
+  "functions": 93,
+  "lines": 83
 }

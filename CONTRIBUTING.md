@@ -8,9 +8,10 @@ failing test.
 
 ```sh
 npm install
-npm run dev      # site on localhost
-npm test         # both suites
-npm run check    # svelte-check
+npm run dev             # site on localhost
+npm test                # fast local suites
+npm run test:coverage   # pre-PR shipping gate
+npm run check           # svelte-check
 ```
 
 Development requires Node ^22.22.2, ^24.15.0, or >=26. CI and `.nvmrc` use
@@ -67,6 +68,18 @@ rather than to work around the pattern it is looking for. If you are confident
 the guard is wrong, say so in the pull request and change the guard in the same
 commit, with a comment explaining what it now allows.
 
+## Coverage
+
+`npm run test:coverage` runs the CLI and web suites sequentially and enforces a
+separate global floor for each workspace. New JavaScript and Svelte source is
+included automatically. For normal feature work, add behavior tests and leave
+the threshold configuration unchanged.
+
+Thresholds change only when the measured product boundary changes, such as a
+new shipped source extension or a deliberate frontend rewrite. That change
+needs a clean Node 24 baseline and must not use exclusions, skips, or per-file
+exceptions to preserve an artificial percentage.
+
 ## Testing layout
 
 **jsdom computes no layout.** `getBoundingClientRect` returns zeros for
@@ -93,8 +106,9 @@ commits in this repository get this wrong; they are not the example to follow.
 
 ## Pull requests
 
-Please make sure `npm test` and `npm run check` both pass. CI runs them on every
-push and the site does not deploy if either fails.
+Please make sure `npm run test:coverage` and `npm run check` both pass. CI runs
+the coverage suites once on every pull request, and the site and CLI do not
+ship below their independent global floors.
 
 Describe what changed and how you verified it. If you fixed a bug, a test that
 fails without the fix is worth more than a paragraph about it.
