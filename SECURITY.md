@@ -9,7 +9,7 @@ tell you either a fix timeline or why I think it is not an issue.
 
 ## Supported versions
 
-The latest published version of the `tols` npm package, and the current
+The latest published version of the `tols-cli` npm package, and the current
 deployment of the website. There are no long term support branches.
 
 ## What the threat model is

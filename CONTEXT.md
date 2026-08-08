@@ -11,7 +11,7 @@ one implementation of its logic.
 
 **Core** — `packages/tols/src/core/`. The single implementation of every tool's
 logic. Zero runtime dependencies, browser-safe, no Node-only APIs. Both
-surfaces import it; all 30 web tools do.
+surfaces import it; every web tool does.
 
 **Surface** — a way of reaching a tool. There are two: the **web surface**
 (`apps/web`) and the **CLI surface** (`packages/tols/bin`). Neither owns tool
@@ -37,10 +37,9 @@ design.
 **Pane** — one region of a workbench, labelled `stdin` or `stdout` and carrying
 a byte count.
 
-**Command strip** — the runnable `tols` command derived live from the tool's
-current state, shown above the panes. It is the reason the web surface exists:
-every screen teaches its own CLI invocation, so anything done on the site can
-be put in a script.
+**Command strip** — the exact runnable `tols` command derived live from the
+tool's current state when the current web action has a CLI equivalent. A
+surface-specific action omits the strip instead of advertising an approximation.
 
 **Action rail** — the row of controls beneath the panes: mode segments,
 example, clear, paste, copy, share.
@@ -66,8 +65,9 @@ guard moves with it.
 **Behaviour test** — checks what a tool produces: formatted output, encoded
 bytes, a hash digest. A change to presentation is never a reason to change one.
 
-## Counts
+## Surface cardinality
 
-The web surface has 30 tools and the CLI has 29, because the web splits `jwt`
-into a decoder page and an encoder page. Both numbers are correct in their own
-context, which is why neither is printed as a claim about the product.
+The web surface and the CLI are intentionally not one-to-one, because the web
+exposes JWT encode and decode as separate pages. The web therefore has one more
+surface entry than the CLI. Each number is correct in its own surface, so the
+project does not publish one product-wide tool count.

@@ -18,6 +18,12 @@ export default defineConfig({
   ...(process.env.VITEST ? { resolve: { conditions: ['browser'] } } : {}),
   test: {
     env: { TZ: 'UTC' },
+    // Node 25+ exposes Web Storage on globalThis by default. That getter
+    // shadows jsdom's localStorage when Vitest copies browser globals into a
+    // worker, leaving tests with `localStorage === undefined`. The web app
+    // tests exercise jsdom's storage, so disable Node's competing global in
+    // workers on every supported Node version.
+    execArgv: ['--no-experimental-webstorage'],
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.js'],

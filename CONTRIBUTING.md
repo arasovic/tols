@@ -13,8 +13,9 @@ npm test         # both suites
 npm run check    # svelte-check
 ```
 
-Node 20 or newer. The repository is an npm workspace with two packages, and
-`npm install` at the root installs both.
+Development requires Node ^22.22.2, ^24.15.0, or >=26. CI and `.nvmrc` use
+Node 24. Run `npm install` at the repository root to install both workspaces.
+The published CLI has a separate Node >=20 runtime contract.
 
 ## The one rule that shapes everything
 
@@ -29,22 +30,24 @@ that way. Data files are fine, packages are not.
 
 ## Adding a tool
 
-A tool touches seven files. In order:
+In order, a tool touches these responsibilities:
 
-1. `packages/tols/src/core/<name>.js`: the actual logic, as plain functions.
-2. `packages/tols/test/unit/<name>.test.js`: tests for those functions.
-3. `packages/tols/src/tools/<name>.js`: the CLI adapter, a default export
-   carrying `name`, `aliases`, `actions` and flag parsing.
-4. `packages/tols/src/tools/index.js`: import and register it.
-5. `apps/web/src/lib/config/registry.js`: id, name, description, category,
-   icon. Every surface on the site derives from this entry: the homepage grid,
-   the sidebar, `⌘K` search, the page title and the sitemap.
-6. `apps/web/src/routes/(app)/<id>/+page.svelte`: the route. Copy an existing
-   one; it carries the canonical URL, the Open Graph tags and the JSON-LD block.
-7. `apps/web/src/lib/cli/templates.js`: which CLI tool and actions the page's
-   command strip should render.
+1. `packages/tols/src/core/<name>.js`: browser-safe logic.
+2. `packages/tols/test/unit/<name>.test.js`: core behavior tests.
+3. `packages/tols/src/tools/<name>.js`: CLI actions and flags.
+4. `packages/tols/src/tools/index.js`: import and register the CLI adapter.
+5. `apps/web/src/lib/config/registry.js`: web metadata.
+6. `apps/web/src/lib/config/seo.js`: dynamic-route head metadata.
+7. `apps/web/src/lib/tools/<Name>Tool.svelte`: UI adapter.
+8. `apps/web/src/routes/(app)/[tool]/+page.js`: static lazy-import loader; no
+   per-tool route directory.
+9. `apps/web/src/lib/cli/templates.js`: only real CLI commands/actions.
+10. Relevant CLI and web behavior tests.
 
-Step 7 is checked against the real CLI by `apps/web/tests/cli-command.test.js`,
+Registry coverage, SEO coverage, route resolution, and CLI-command guards report
+missing integration points.
+
+Step 9 is checked against the real CLI by `apps/web/tests/cli-command.test.js`,
 which imports every tool definition and fails if a template names a command that
 does not exist. If you rename a CLI action, that test tells you.
 

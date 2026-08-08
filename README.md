@@ -10,8 +10,8 @@ account, and nothing is sent anywhere. The CLI has no runtime dependencies.
 - **Web:** [tols.arasmehmet.com](https://tols.arasmehmet.com/)
 - **CLI:** `npm install -g tols-cli`
 
-Each web page shows the CLI command that does the same job, so anything you can
-do on the site you can also put in a script.
+When a web action has a CLI equivalent, the page shows its exact runnable
+command; a surface-specific action does not advertise an approximation.
 
 ```sh
 tols json fmt @config.json
@@ -75,7 +75,7 @@ Run `tols <tool> help` for a tool's flags, or `tols help` for the full list.
 
 ## Web features
 
-- Shareable links for 15 of the tools, with the tool's state encoded in the URL
+- Shareable links for supported tools, with the tool's state encoded in the URL
 - Favourites and recent tools, kept in your browser
 - `⌘K` to search, `⌘B` to toggle the sidebar
 - Light and dark themes
@@ -92,7 +92,7 @@ APIs, so the same files are imported by the CLI and bundled into the site. The
 CLI adapters in `packages/tols/src/tools/` wrap them in argument parsing, and
 the Svelte components in `apps/web/src/lib/tools/` wrap them in a UI.
 
-All 30 web tools import the shared core, so a fix lands in both places at once.
+Every web tool imports the shared core, so a fix lands in both places at once.
 Getting there was worth it for what it turned up: the two copies had drifted,
 and in eight tools the browser version was the wrong one. The site was handing
 out QR codes built by an encoder that ignored half the specification, and a
@@ -110,7 +110,7 @@ npm run dev
 | Command | Effect |
 |---|---|
 | `npm run dev` | Start the site on a local dev server |
-| `npm test` | Run both test suites, over 1,600 tests |
+| `npm test` | Run both test suites |
 | `npm run check` | Type check the Svelte app with svelte-check |
 | `npm run build` | Static production build into `apps/web/build/` |
 
@@ -120,7 +120,9 @@ deploying, so a red suite never reaches the site.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and new tools are both
-welcome; a new tool is one registry entry, one route and one core module.
+welcome. A new tool is wired through the shared core, the CLI registry, the web
+registry, the SEO metadata, the command template, and the dynamic route; see the
+checklist there.
 
 ## License
 
