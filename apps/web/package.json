@@ -10,6 +10,7 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --fail-on-warnings",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
     "test": "vitest --run",
+    "test:coverage": "vitest --run --coverage --maxWorkers=50%",
     "test:built": "vitest --run --config vitest.built.config.js",
     "test:watch": "vitest --watch"
   },
@@ -19,6 +20,7 @@
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/svelte": "^5.4.2",
+    "@vitest/coverage-v8": "4.1.10",
     "jsdom": "^30.0.1",
     "sharp": "^0.35.3",
     "svelte": "^5.56.8",
