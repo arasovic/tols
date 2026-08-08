@@ -28,6 +28,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.js'],
     include: ['src/**/*.{test,spec}.{js,ts}', 'tests/**/*.{test,spec}.{js,ts}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{js,svelte}'],
+      reporter: ['text-summary', 'json-summary', 'lcov'],
+      reportsDirectory: '../../coverage/web'
+    },
     server: {
       deps: {
         inline: [/svelte/]

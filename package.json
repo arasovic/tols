@@ -19,6 +19,7 @@
   ],
   "scripts": {
     "test": "npm test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage -w packages/tols && npm run test:coverage -w apps/web",
     "test:built": "npm run test:built -w apps/web",
     "check": "npm run check -w apps/web",
     "build": "npm run build -w apps/web",
