@@ -126,7 +126,7 @@
         <div class="control-group">
           <span class="control-label">Paragraphs</span>
           <div class="counter">
-            <button type="button" class="counter-btn" on:click={decrementParagraphs} disabled={paragraphs <= 1}>
+            <button type="button" class="counter-btn" on:click={decrementParagraphs} disabled={paragraphs <= 1} aria-label="Decrease paragraph count">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
@@ -145,7 +145,7 @@
               max="50"
               class="counter-input"
             />
-            <button type="button" class="counter-btn" on:click={incrementParagraphs} disabled={paragraphs >= 50}>
+            <button type="button" class="counter-btn" on:click={incrementParagraphs} disabled={paragraphs >= 50} aria-label="Increase paragraph count">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>

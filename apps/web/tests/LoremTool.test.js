@@ -28,6 +28,11 @@ describe('LoremTool', () => {
     vi.unstubAllGlobals()
   })
 
+  it('should expose accessible names for paragraph stepper buttons', () => {
+    expect(screen.getByRole('button', { name: 'Decrease paragraph count' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Increase paragraph count' })).toBeInTheDocument()
+  })
+
   it('should generate lorem ipsum text when input is made', async () => {
     const paragraphsInputs = screen.getAllByRole('spinbutton')
     const paragraphsInput = paragraphsInputs[0]
