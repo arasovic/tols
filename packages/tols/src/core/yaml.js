@@ -667,7 +667,7 @@ function stringifyItems(arr, indent) {
         if (item.includes('\n')) {
           result += `${spaces}- |\n${item.split('\n').map(l => spaces + '  ' + l).join('\n')}\n`
         } else if (needsQuoting(item)) {
-          result += `${spaces}- "${item.replace(/"/g, '\\"')}"\n`
+          result += `${spaces}- ${quoteFlow(item)}\n`
         } else {
           result += `${spaces}- ${item}\n`
         }
@@ -734,7 +734,7 @@ export function stringifyFlow(value) {
  */
 export function stringify(obj, indent = 0) {
   if (obj === null || typeof obj !== 'object') {
-    if (typeof obj === 'string' && needsQuoting(obj)) return `"${obj.replace(/"/g, '\\"')}"\n`
+    if (typeof obj === 'string' && needsQuoting(obj)) return `${quoteFlow(obj)}\n`
     return `${obj}\n`
   }
   if (Array.isArray(obj)) return stringifyItems(obj, indent)
@@ -752,7 +752,7 @@ export function stringify(obj, indent = 0) {
       if (value.includes('\n')) {
         result += `${spaces}${key}: |\n${value.split('\n').map(l => spaces + '  ' + l).join('\n')}\n`
       } else if (needsQuoting(value)) {
-        result += `${spaces}${key}: "${value.replace(/"/g, '\\"')}"\n`
+        result += `${spaces}${key}: ${quoteFlow(value)}\n`
       } else {
         result += `${spaces}${key}: ${value}\n`
       }

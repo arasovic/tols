@@ -170,6 +170,42 @@ export function format(html) {
 }
 
 /**
+ * Remove complete HTML comments without joining the surrounding fragments
+ * into a new comment opener. Unclosed comments are preserved.
+ * @param {string} value
+ */
+function removeHtmlComments(value) {
+  let result = '';
+  let cursor = 0;
+
+  /** @param {string} part */
+  const append = (part) => {
+    if ((result.slice(-3) + part.slice(0, 3)).includes('<!--')) {
+      result += ' ';
+    }
+    result += part;
+  };
+
+  while (cursor < value.length) {
+    const start = value.indexOf('<!--', cursor);
+    if (start === -1) {
+      append(value.slice(cursor));
+      break;
+    }
+
+    append(value.slice(cursor, start));
+    const end = value.indexOf('-->', start + 4);
+    if (end === -1) {
+      result += value.slice(start);
+      break;
+    }
+    cursor = end + 3;
+  }
+
+  return result;
+}
+
+/**
  * @param {string} html
  * @param {{ removeComments?: boolean, removeWhitespace?: boolean }} opts
  */
@@ -195,7 +231,7 @@ export function minify(html, opts = {}) {
     .replace(/\n/g, ' ');
 
   if (removeComments) {
-    minified = minified.replace(/<!--[\s\S]*?-->/g, '');
+    minified = removeHtmlComments(minified);
   }
 
   if (removeWhitespace) {

@@ -23,20 +23,6 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
 // If tests fail due to lifecycle issues, consider using @testing-library/svelte helpers
 // or ensure proper component mounting in the test setup.
 
-// Mock crypto.getRandomValues for password generation tests
-if (!global.crypto.getRandomValues) {
-  Object.defineProperty(global.crypto, 'getRandomValues', {
-    value: function(array) {
-      for (let i = 0; i < array.length; i++) {
-        array[i] = Math.floor(Math.random() * 256)
-      }
-      return array
-    },
-    writable: true,
-    configurable: true
-  })
-}
-
 // Mock crypto.subtle for hash tests
 Object.defineProperty(global.crypto, 'subtle', {
   value: {
