@@ -2,7 +2,7 @@
   import { createEventDispatcher } from 'svelte'
   import { copyToClipboard } from '$lib/utils/clipboard'
   import Toast from './Toast.svelte'
-  import { Copy, Check } from 'lucide-svelte'
+  import { Copy, Check } from '@lucide/svelte'
 
   export let text = ''
   export let disabled = false

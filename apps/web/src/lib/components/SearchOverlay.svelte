@@ -3,7 +3,7 @@
   import { base } from '$app/paths'
   import { browser } from '$app/environment'
   import { tick } from 'svelte'
-  import { Search, ArrowRight, X } from 'lucide-svelte'
+  import { Search, ArrowRight, X } from '@lucide/svelte'
   import { searchTools, searchToolsFuzzy } from '$lib/config/searchConfig.js'
   import { recentTools, addRecent } from '$lib/stores/recentTools.js'
   import { escapeHtml } from '$lib/utils/html.js'

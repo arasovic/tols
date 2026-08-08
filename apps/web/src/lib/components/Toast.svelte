@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte'
-  import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-svelte'
+  import { CheckCircle, XCircle, AlertTriangle, Info, X } from '@lucide/svelte'
 
   export let duration = 3000
   export let position = 'bottom-right'

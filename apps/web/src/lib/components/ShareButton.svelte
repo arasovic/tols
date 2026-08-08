@@ -5,7 +5,7 @@
    */
   import { copyToClipboard } from '$lib/utils/clipboard.js'
   import { encodeShareState, buildShareUrl } from '$lib/utils/share.js'
-  import { Share2, Check, Unlink } from 'lucide-svelte'
+  import { Share2, Check, Unlink } from '@lucide/svelte'
 
   /** Returns the shareable state of the host tool, e.g. () => ({ input }). */
   /** @type {() => Record<string, string>} */

@@ -8,7 +8,7 @@
   import { stripBase } from '$lib/utils/paths.js'
   import { aliasFor } from '$lib/ui/aliases.js'
   import { onMount } from 'svelte'
-  import { Sun, Moon, Star } from 'lucide-svelte'
+  import { Sun, Moon, Star } from '@lucide/svelte'
 
   export let isOpen = false
 

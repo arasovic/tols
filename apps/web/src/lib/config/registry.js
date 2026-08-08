@@ -34,7 +34,7 @@ import {
   FileDigit,
   FileBarChart,
   Zap
-} from 'lucide-svelte'
+} from '@lucide/svelte'
 
 /**
  * Tool categories, in display order.

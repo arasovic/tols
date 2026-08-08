@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, fireEvent } from '@testing-library/svelte'
 import ToolCard from '$lib/components/ToolCard.svelte'
-import { Code } from 'lucide-svelte'
+import { Code } from '@lucide/svelte'
 import { templateFor } from '$lib/cli/templates.js'
 
 const tool = {

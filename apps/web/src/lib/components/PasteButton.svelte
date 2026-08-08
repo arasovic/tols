@@ -4,7 +4,7 @@
    * Kept dumb on purpose: the tool decides where the text lands.
    */
   import { createEventDispatcher } from 'svelte'
-  import { ClipboardPaste, Check, TriangleAlert } from 'lucide-svelte'
+  import { ClipboardPaste, Check, TriangleAlert } from '@lucide/svelte'
 
   const dispatch = createEventDispatcher()
 

@@ -4,7 +4,7 @@
    * Category chips are built from the registry; 'all' is prepended.
    */
   import { categories } from '$lib/config/registry.js'
-  import { Search, X } from 'lucide-svelte'
+  import { Search, X } from '@lucide/svelte'
 
   /** Two-way: current search text. */
   export let query = ''

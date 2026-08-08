@@ -1,5 +1,5 @@
 <script>
-  import { Shield } from 'lucide-svelte'
+  import { Shield } from '@lucide/svelte'
 </script>
 
 <section class="privacy-banner">

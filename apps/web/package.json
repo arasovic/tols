@@ -28,7 +28,7 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "lucide-svelte": "^1.0.1",
+    "@lucide/svelte": "^1.30.0",
     "tols-cli": "*"
   },
   "description": "The tols website: developer tools running entirely in the browser."

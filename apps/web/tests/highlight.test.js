@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, fireEvent, waitFor } from '@testing-library/svelte'
 import ToolCard from '$lib/components/ToolCard.svelte'
 import SearchOverlay from '$lib/components/SearchOverlay.svelte'
-import { Code } from 'lucide-svelte'
+import { Code } from '@lucide/svelte'
 import { escapeHtml } from '$lib/utils/html.js'
 
 vi.mock('$app/navigation', () => ({
@@ -14,7 +14,7 @@ vi.mock('$app/environment', () => ({
 }))
 
 vi.mock('$lib/config/searchConfig.js', async () => {
-  const { Code } = await import('lucide-svelte')
+  const { Code } = await import('@lucide/svelte')
   const searchTools = [
     {
       id: 'evil',

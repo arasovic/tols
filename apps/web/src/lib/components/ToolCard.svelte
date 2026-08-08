@@ -5,7 +5,7 @@
    */
   import { base } from '$app/paths'
   import { createEventDispatcher } from 'svelte'
-  import { ChevronRight, Star } from 'lucide-svelte'
+  import { ChevronRight, Star } from '@lucide/svelte'
   import { escapeHtml } from '$lib/utils/html.js'
   import { templateFor } from '$lib/cli/templates.js'
 

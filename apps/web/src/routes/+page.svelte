@@ -15,7 +15,7 @@
   import PrivacyBanner from '$lib/components/PrivacyBanner.svelte'
   import ToolCard from '$lib/components/ToolCard.svelte'
   import HomeFooter from '$lib/components/HomeFooter.svelte'
-  import { Sun, Moon, SearchX } from 'lucide-svelte'
+  import { Sun, Moon, SearchX } from '@lucide/svelte'
 
   const pageTitle = 'tols - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
