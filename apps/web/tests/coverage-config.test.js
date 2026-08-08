@@ -14,7 +14,13 @@ const coverageBlock = `    coverage: {
       provider: 'v8',
       include: ['src/**/*.{js,svelte}'],
       reporter: ['text-summary', 'json-summary', 'lcov'],
-      reportsDirectory: '../../coverage/web'
+      reportsDirectory: '../../coverage/web',
+      thresholds: {
+        statements: 87,
+        branches: 71,
+        functions: 88,
+        lines: 87
+      }
     },`
 
 describe('web coverage configuration', () => {
@@ -26,9 +32,10 @@ describe('web coverage configuration', () => {
     expect(webPackageJson.dependencies?.['@vitest/coverage-v8']).toBeUndefined()
   })
 
-  it('includes JavaScript and Svelte sources in an isolated report', () => {
+  it('includes all web sources and enforces global workspace floors', () => {
     expect(viteConfig).toContain(coverageBlock)
-    expect(viteConfig).not.toContain('thresholds:')
+    expect(viteConfig).not.toContain('perFile:')
+    expect(viteConfig).not.toContain('autoUpdate:')
   })
 
   it('runs the two workspace measurements sequentially from the root', () => {

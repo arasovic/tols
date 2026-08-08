@@ -27,7 +27,7 @@ describe('pull request quality workflow', () => {
     expect(source).toMatch(/- uses: actions\/setup-node@v7\n        with:\n          node-version: 24/)
     expect(commands).toEqual([
       'npm ci',
-      'npm test',
+      'npm run test:coverage',
       'npm run check',
       'npm run build',
       'npm run test:built'

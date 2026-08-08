@@ -21,13 +21,13 @@ describe('CLI coverage configuration', () => {
     expect(c8Config['reports-dir']).toBe('../../coverage/cli');
   });
 
-  it('emits reusable reports without enforcing a threshold', () => {
+  it('emits reusable reports and enforces global workspace floors', () => {
     expect(c8Config.reporter).toEqual(['text-summary', 'json-summary', 'lcov']);
-    expect(c8Config['check-coverage']).toBeUndefined();
+    expect(c8Config['check-coverage']).toBe(true);
+    expect(c8Config.statements).toBe(83);
+    expect(c8Config.branches).toBe(79);
+    expect(c8Config.functions).toBe(93);
+    expect(c8Config.lines).toBe(83);
     expect(c8Config['per-file']).toBeUndefined();
-    expect(c8Config.lines).toBeUndefined();
-    expect(c8Config.functions).toBeUndefined();
-    expect(c8Config.branches).toBeUndefined();
-    expect(c8Config.statements).toBeUndefined();
   });
 });

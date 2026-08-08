@@ -32,7 +32,13 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.{js,svelte}'],
       reporter: ['text-summary', 'json-summary', 'lcov'],
-      reportsDirectory: '../../coverage/web'
+      reportsDirectory: '../../coverage/web',
+      thresholds: {
+        statements: 87,
+        branches: 71,
+        functions: 88,
+        lines: 87
+      }
     },
     server: {
       deps: {

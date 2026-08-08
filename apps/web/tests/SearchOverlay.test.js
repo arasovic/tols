@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { render, waitFor } from '@testing-library/svelte'
+import { render, waitFor, fireEvent } from '@testing-library/svelte'
+import { tick } from 'svelte'
 import SearchOverlay from '$lib/components/SearchOverlay.svelte'
 import { templateFor } from '$lib/cli/templates.js'
 import { aliasFor } from '$lib/ui/aliases.js'
@@ -46,6 +47,31 @@ describe('SearchOverlay', () => {
       const overlay = container.querySelector('.search-overlay')
       expect(overlay).toBeInTheDocument()
     })
+  })
+
+  it('ignores outside clicks while opening and closes after the guard', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const { component, container } = render(SearchOverlay)
+
+      component.open()
+      await tick()
+
+      const backdrop = container.querySelector('.overlay-backdrop')
+      expect(backdrop).toBeInTheDocument()
+
+      await fireEvent.click(backdrop)
+      expect(container.querySelector('.search-overlay')).toBeInTheDocument()
+
+      await vi.advanceTimersByTimeAsync(100)
+      await fireEvent.click(backdrop)
+      await tick()
+
+      expect(container.querySelector('.search-overlay')).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('should show overlay backdrop when open', async () => {
