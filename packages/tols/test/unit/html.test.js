@@ -70,4 +70,10 @@ describe('html deep-review fixes', () => {
     expect(html.minify('<div><pre>price $& more</pre></div>')).toBe('<div><pre>price $& more</pre></div>');
     expect(html.minify("<pre>$'x $$ \$1</pre>")).toBe("<pre>$'x $$ \$1</pre>");
   });
+
+  it('removeComments never creates a comment opener at a removed boundary', () => {
+    expect(html.minify('<<!---->!--', { removeComments: true })).toBe('< !--')
+    expect(html.minify('<!<!--x-->-->', { removeComments: true })).toBe('<! -->')
+    expect(html.minify('a<!--x--><!--y-->b', { removeComments: true })).toBe('ab')
+  });
 });

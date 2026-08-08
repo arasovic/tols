@@ -17,6 +17,20 @@ const BUILD = join(dirname(fileURLToPath(import.meta.url)), '../build')
  * places would be the real fix.
  */
 const SITE_ORIGIN = 'https://tols.arasmehmet.com'
+const SCHEMA_ORIGIN = 'https://schema.org'
+
+/**
+ * Whether a URL lives on an origin the head may legitimately reference. The
+ * two allowed origins are the live site and the JSON-LD schema.org namespace.
+ */
+function hasAllowedHeadOrigin(value) {
+  try {
+    const origin = new URL(value).origin
+    return origin === SITE_ORIGIN || origin === SCHEMA_ORIGIN
+  } catch {
+    return false
+  }
+}
 
 const CANONICAL = /rel="canonical"/g
 
@@ -49,6 +63,14 @@ function builtPages() {
  * bugs never ran at all.
  */
 describe('canonical URLs (built pages)', () => {
+  it('rejects hostname suffixes that only share an allowed prefix', () => {
+    expect(hasAllowedHeadOrigin(`${SITE_ORIGIN}/json`)).toBe(true)
+    expect(hasAllowedHeadOrigin('https://schema.org/SoftwareApplication')).toBe(true)
+    expect(hasAllowedHeadOrigin(`${SITE_ORIGIN}.x`)).toBe(false)
+    expect(hasAllowedHeadOrigin('https://schema.org.x')).toBe(false)
+    expect(hasAllowedHeadOrigin('not a URL')).toBe(false)
+  })
+
   it('has a build to check', () => {
     // Fails, never skips. `npm run test:built` runs after `npm run build`; if
     // the build is absent, the guard has not run and the caller must know.
@@ -85,8 +107,7 @@ describe('canonical URLs (built pages)', () => {
       const source = readFileSync(file, 'utf8')
       const head = source.match(/<head>([\s\S]*?)<\/head>/)?.[1] ?? ''
       return (head.match(/https?:\/\/[^'"\s)]+/g) || [])
-        .filter((url) => !url.startsWith(SITE_ORIGIN))
-        .filter((url) => !url.startsWith('https://schema.org'))
+        .filter((url) => !hasAllowedHeadOrigin(url))
         .map((url) => `${file.slice(BUILD.length + 1)}: ${url}`)
     })
     expect(offenders).toEqual([])

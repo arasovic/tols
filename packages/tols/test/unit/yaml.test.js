@@ -157,6 +157,13 @@ describe('yaml deep-pass fixes', () => {
   it('empty value with shallower follower is null', () => {
     expect(parse('a:\nb: 2')).toEqual({ a: null, b: 2 });
   });
+
+  it('block stringify escapes backslashes in quoted scalars', () => {
+    const value = '#\\n'
+    expect(parse(stringify(value))).toBe(value)
+    expect(parse(stringify([value]))).toEqual([value])
+    expect(parse(stringify({ value }))).toEqual({ value })
+  });
 });
 
 describe('flow style (yaml min)', () => {
