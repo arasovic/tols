@@ -247,12 +247,12 @@ export const seo = {
   },
   "unicode": {
     pageTitle: "Unicode Inspector - tols | Explore Unicode Characters",
-    pageDescription: "Free online Unicode inspector tool for developers. Explore Unicode characters, codepoints, categories, and special symbols instantly with search included.",
+    pageDescription: "Inspect a single Unicode code point or search the built-in common-character table. View decimal, hexadecimal, HTML, CSS, and JavaScript escapes instantly.",
     canonicalUrl: "https://tols.arasmehmet.com/unicode",
     ogImage: "https://tols.arasmehmet.com/og-image.png",
     keywords: "Unicode inspector, Unicode characters, codepoint lookup, Unicode search",
     name: "Unicode Inspector",
-    featureList: ["Character details","Block information","Escape sequences","Multi-character analysis","Search functionality","One-click copy"]
+    featureList: ["Single-codepoint inspection","Decimal and hexadecimal values","HTML escape","CSS escape","JavaScript escape","Common-character search"]
   },
   "url": {
     pageTitle: "URL Encoder/Decoder - tols | Online URL Converter",

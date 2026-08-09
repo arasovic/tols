@@ -50,6 +50,17 @@ describe('seo.js covers the registry', () => {
     expect(offenders).toEqual([])
   })
 
+  it('describes Unicode as single-codepoint inspection and common-table search', () => {
+    const entry = seo.unicode
+    const publicCopy = [entry.pageDescription, ...entry.featureList].join(' ')
+    expect(publicCopy).toContain('single Unicode code point')
+    expect(publicCopy).toContain('common-character table')
+    expect(entry.featureList).toContain('Single-codepoint inspection')
+    expect(entry.featureList).toContain('Common-character search')
+    expect(publicCopy).not.toContain('Block information')
+    expect(publicCopy).not.toContain('Multi-character analysis')
+  })
+
   it('derives each canonical from the tool id', () => {
     // A copy-paste of the wrong canonical points a page at another tool and
     // deindexes it. This is the failure the flat seo.js makes easy and the old
