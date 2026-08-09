@@ -128,8 +128,9 @@ same code runs in the CLI and in a browser bundle.
   The web tool uses DOMParser for full parse checking.
 - `regex`: runs synchronously; pathological patterns can block (the web
   sandboxed them in a Worker with a 5s timeout).
-- `html` / `xml`: hand-rolled tag scanner; a `>` inside a quoted
-  attribute value ends the tag.
+- `html` / `xml`: pragmatic structural formatters, not full browser parsers.
+  Their scanner preserves quoted delimiters and document type contents; XML
+  validation checks structural balance rather than full schema semantics.
 - `yaml`: pragmatic subset parser. Anchors/aliases/tags are rejected
   with an error. Top-level sequences and scalars, nested/chained
   sequences (`- - x`), quoted-scalar escapes (`\"`, `\\`, `''`),
