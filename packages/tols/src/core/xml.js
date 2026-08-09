@@ -5,6 +5,8 @@
  * what a zero-dependency CLI can offer.
  */
 
+import { findTagEnd, findDoctypeEnd } from '../internal/markup-boundaries.js';
+
 /** @param {string} str */
 export function escapeXml(str) {
   return str
@@ -54,18 +56,20 @@ export function tokenize(xml) {
         }
         tokens.push({ type: 'pi', content: xml.substring(i, end + 2) });
         i = end + 2;
-      } else if (i + 9 <= xmlLength && xml.substring(i, i + 9).toUpperCase() === '<!DOCTYPE') {
-        const end = xml.indexOf('>', i);
+    } else if (i + 9 <= xmlLength && xml.substring(i, i + 9).toUpperCase() === '<!DOCTYPE') {
+        const end = findDoctypeEnd(xml, i);
         if (end === -1) {
           mismatches.push('Unclosed DOCTYPE declaration starting at position ' + i);
+          tokens.push({ type: 'text', content: xml.substring(i) });
           break;
         }
         tokens.push({ type: 'doctype', content: xml.substring(i, end + 1) });
         i = end + 1;
       } else if (i + 2 <= xmlLength && xml.substring(i, i + 2) === '</') {
-        const end = xml.indexOf('>', i);
+        const end = findTagEnd(xml, i);
         if (end === -1) {
           mismatches.push('Unclosed end tag starting at position ' + i);
+          tokens.push({ type: 'text', content: xml.substring(i) });
           break;
         }
         const tagName = xml.substring(i + 2, end).trim().split(/\s+/)[0];
@@ -77,9 +81,10 @@ export function tokenize(xml) {
         tokens.push({ type: 'close', name: tagName });
         i = end + 1;
       } else {
-        const end = xml.indexOf('>', i);
+        const end = findTagEnd(xml, i);
         if (end === -1) {
           mismatches.push('Unclosed tag starting at position ' + i);
+          tokens.push({ type: 'text', content: xml.substring(i) });
           break;
         }
         const tagContent = xml.substring(i + 1, end);
@@ -172,13 +177,99 @@ export function format(xml) {
 }
 
 /**
- * Minify markup by dropping whitespace-only runs between tags. Whitespace
- * inside text nodes and attribute values is left untouched (the previous
- * blanket collapse rewrote attribute values and significant text).
- * @param {string} xml
- */
+  * Minify markup by dropping whitespace-only runs between tags. Whitespace
+  * inside text nodes and attribute values is left untouched (the previous
+  * blanket collapse rewrote attribute values and significant text).
+  * @param {string} xml
+  */
 export function minify(xml) {
-  return xml.replace(/>[\t\n\r ]+</g, '><').trim();
+  let minified = '';
+  let i = 0;
+  const xmlLength = xml.length;
+  let pendingWhitespace = '';
+
+  while (i < xmlLength) {
+    if (xml[i] !== '<') {
+      const nextTag = xml.indexOf('<', i);
+      const text = nextTag === -1 ? xml.substring(i) : xml.substring(i, nextTag);
+      if (text.trim()) {
+        pendingWhitespace = '';
+        minified += text;
+      } else {
+        pendingWhitespace += text;
+      }
+      i = nextTag === -1 ? xmlLength : nextTag;
+      continue;
+    }
+
+    const prefixWhitespace = pendingWhitespace;
+    pendingWhitespace = '';
+
+    if (i + 4 <= xmlLength && xml.substring(i, i + 4) === '<!--') {
+      const end = xml.indexOf('-->', i);
+      if (end === -1) {
+        minified += prefixWhitespace + xml.substring(i);
+        break;
+      }
+      minified += xml.substring(i, end + 3);
+      i = end + 3;
+      continue;
+    }
+
+    if (i + 9 <= xmlLength && xml.substring(i, i + 9) === '<![CDATA[') {
+      const end = xml.indexOf(']]>', i);
+      if (end === -1) {
+        minified += prefixWhitespace + xml.substring(i);
+        break;
+      }
+      minified += xml.substring(i, end + 3);
+      i = end + 3;
+      continue;
+    }
+
+    if (i + 2 <= xmlLength && xml.substring(i, i + 2) === '<?') {
+      const end = xml.indexOf('?>', i);
+      if (end === -1) {
+        minified += prefixWhitespace + xml.substring(i);
+        break;
+      }
+      minified += xml.substring(i, end + 2);
+      i = end + 2;
+      continue;
+    }
+
+    if (i + 9 <= xmlLength && xml.substring(i, i + 9).toUpperCase() === '<!DOCTYPE') {
+      const end = findDoctypeEnd(xml, i);
+      if (end === -1) {
+        minified += prefixWhitespace + xml.substring(i);
+        break;
+      }
+      minified += xml.substring(i, end + 1);
+      i = end + 1;
+      continue;
+    }
+
+    if (i + 2 <= xmlLength && xml.substring(i, i + 2) === '</') {
+      const end = findTagEnd(xml, i);
+      if (end === -1) {
+        minified += prefixWhitespace + xml.substring(i);
+        break;
+      }
+      minified += xml.substring(i, end + 1);
+      i = end + 1;
+      continue;
+    }
+
+    const end = findTagEnd(xml, i);
+    if (end === -1) {
+      minified += prefixWhitespace + xml.substring(i);
+      break;
+    }
+    minified += xml.substring(i, end + 1);
+    i = end + 1;
+  }
+
+  return minified.trim();
 }
 
 /**
