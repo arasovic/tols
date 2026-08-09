@@ -75,6 +75,12 @@ separate global floor for each workspace. New JavaScript and Svelte source is
 included automatically. For normal feature work, add behavior tests and leave
 the threshold configuration unchanged.
 
+Codecov uploads the two CI-generated reports on pull requests and main
+branch builds. It is informational during bootstrap and requires no local
+login or upload command. Ordinary feature work does not edit codecov.yml;
+change it only when a workspace or report boundary changes, or when the
+reporting policy is deliberately reviewed.
+
 Thresholds change only when the measured product boundary changes, such as a
 new shipped source extension or a deliberate frontend rewrite. That change
 needs a clean Node 24 baseline and must not use exclusions, skips, or per-file

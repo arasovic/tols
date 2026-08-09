@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           # jsdom 30 requires Node ^22.22.2 || ^24.15.0 || >=26. Node 24 also
@@ -30,6 +32,30 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:coverage
+      - name: Upload CLI coverage
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          use_oidc: true
+          fail_ci_if_error: false
+          disable_search: true
+          files: coverage/cli/lcov.info
+          flags: cli
+          name: cli
+          root_dir: packages/tols
+          network_prefix: packages/tols/
+      - name: Upload web coverage
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          use_oidc: true
+          fail_ci_if_error: false
+          disable_search: true
+          files: coverage/web/lcov.info
+          flags: web
+          name: web
+          root_dir: apps/web
+          network_prefix: apps/web/
       - run: npm run check
       - run: npm run build
       # Guards that read build/. Kept out of `npm test` so the normal suite

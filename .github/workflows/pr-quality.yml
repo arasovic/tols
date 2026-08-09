@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: pr-quality-${{ github.event.pull_request.number }}
@@ -25,6 +26,30 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npm run test:coverage
+      - name: Upload CLI coverage
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          use_oidc: true
+          fail_ci_if_error: false
+          disable_search: true
+          files: coverage/cli/lcov.info
+          flags: cli
+          name: cli
+          root_dir: packages/tols
+          network_prefix: packages/tols/
+      - name: Upload web coverage
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          use_oidc: true
+          fail_ci_if_error: false
+          disable_search: true
+          files: coverage/web/lcov.info
+          flags: web
+          name: web
+          root_dir: apps/web
+          network_prefix: apps/web/
       - run: npm run check
       - run: npm run build
       - run: npm run test:built
