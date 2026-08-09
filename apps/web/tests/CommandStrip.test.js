@@ -23,6 +23,19 @@ describe('CommandStrip', () => {
       .toBe(`tols json fmt '{"a":1}'`)
   })
 
+  it('shows and copies the canonical Diff file command', async () => {
+    const { container } = render(CommandStrip, {
+      props: { toolId: 'diff', action: 'run' }
+    })
+    const expected = 'tols diff @old.txt @new.txt'
+    expect(container.querySelector('.command-text')?.textContent?.trim()).toBe(expected)
+
+    await fireEvent.click(container.querySelector('.command-copy'))
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expected)
+    })
+  })
+
   it('shows a prompt marker that is not part of the copied text', async () => {
     const { container } = render(CommandStrip, {
       props: { toolId: 'json', action: 'fmt', input: '{}' }
