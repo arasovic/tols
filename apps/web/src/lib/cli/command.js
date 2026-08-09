@@ -57,6 +57,23 @@ function renderFlags(flags) {
 }
 
 /**
+ * Renders canonical positional arguments as `@file` references in order.
+ * @param {Array<{ type: 'file', name: string }>} positionalArgs
+ * @returns {string[]}
+ */
+function renderPositionalArgs(positionalArgs) {
+  return positionalArgs.map((arg) => {
+    if (arg.type !== 'file') {
+      throw new TypeError(`Unsupported positional argument type: ${String(arg.type)}`)
+    }
+    if (typeof arg.name !== 'string' || arg.name.trim().length === 0) {
+      throw new TypeError('File positional argument requires a non-empty name')
+    }
+    return quote(`@${arg.name}`)
+  })
+}
+
+/**
  * Builds the runnable `tols` command that matches the current tool state.
  *
  * @param {object} spec
@@ -65,11 +82,34 @@ function renderFlags(flags) {
  * @param {string} [spec.input] Current tool input
  * @param {Record<string, unknown>} [spec.flags] Flag values
  * @param {string} [spec.inputName] File name used by the `@file` fallback
+ * @param {Array<{ type: 'file', name: string }>} [spec.positionalArgs]
+ * @param {string} [spec.defaultAction]
+ * @param {boolean} [spec.omitDefaultAction]
  * @returns {string} Command line without a leading prompt character
  */
-export function buildCommand({ tool, action, input = '', flags = {}, inputName = 'input.txt' }) {
-  const command = ['tols', tool, action]
+export function buildCommand({
+  tool,
+  action,
+  input = '',
+  flags = {},
+  inputName = 'input.txt',
+  positionalArgs = [],
+  defaultAction = '',
+  omitDefaultAction = false
+}) {
+  if (positionalArgs.length > 0 && input.length > 0) {
+    throw new TypeError('Canonical positional arguments cannot be combined with legacy input')
+  }
+  if (omitDefaultAction && action !== defaultAction) {
+    throw new TypeError('Only the default action may be omitted')
+  }
+
+  const command = ['tols', tool]
+  if (!omitDefaultAction) command.push(action)
+  const positional = renderPositionalArgs(positionalArgs)
   const flagArgs = renderFlags(flags)
+
+  if (positional.length > 0) return [...command, ...positional, ...flagArgs].join(' ')
 
   if (input.length === 0) return [...command, ...flagArgs].join(' ')
 

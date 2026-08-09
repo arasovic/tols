@@ -294,20 +294,9 @@ console.log(greet(user));`
 <div class="tool">
   <ToolHeader toolId="diff" />
 
-  <!--
-    No command, for now. `tols diff run` takes two positional inputs
-    (`tols diff @old.txt @new.txt`) and errors with a usage message given one —
-    but `buildCommand` renders a single input, so the strip was showing
-    `tols diff run @a.txt`, a command that does not run. Diff is the only
-    two-input tool in the registry, so teaching the builder a second positional
-    is a deliberate change rather than a side effect of this migration. Until
-    then it shows nothing, on the same rule as YamlTool's minify mode: the
-    nearest wrong command is worse than none.
-  -->
   <ToolShell
-    toolId=""
+    toolId="diff"
     action="run"
-    input={leftInput}
     output={diffText}
     onRun={computeDiff}
   >

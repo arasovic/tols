@@ -1,11 +1,14 @@
 // apps/web/src/lib/cli/templates.js
 
 /**
+ * @typedef {{ type: 'file', name: string }} PositionalArg
  * @typedef {Object} CommandTemplate
  * @property {string} tool CLI tool name
  * @property {string[]} actions Available CLI actions
  * @property {string} defaultAction Action used when the UI has no explicit mode
- * @property {string} inputName File name used by the `@file` fallback
+ * @property {string} [inputName] File name used by the `@file` fallback
+ * @property {PositionalArg[]} [positionalArgs] Canonical positional file arguments
+ * @property {boolean} [omitDefaultAction] Omit the action when it equals `defaultAction`
  */
 
 /** @type {Record<string, CommandTemplate>} */
@@ -26,7 +29,16 @@ const TEMPLATES = {
   jwt: { tool: 'jwt', actions: ['dec'], defaultAction: 'dec', inputName: 'token.txt' },
   'jwt-encoder': { tool: 'jwt', actions: ['enc'], defaultAction: 'enc', inputName: 'payload.json' },
   hash: { tool: 'hash', actions: ['md5', 'sha1', 'sha256', 'sha512'], defaultAction: 'sha256', inputName: 'input.txt' },
-  diff: { tool: 'diff', actions: ['run'], defaultAction: 'run', inputName: 'a.txt' },
+  diff: {
+    tool: 'diff',
+    actions: ['run'],
+    defaultAction: 'run',
+    positionalArgs: [
+      { type: 'file', name: 'old.txt' },
+      { type: 'file', name: 'new.txt' }
+    ],
+    omitDefaultAction: true
+  },
   timestamp: { tool: 'timestamp', actions: ['now', 'conv', 'parse'], defaultAction: 'conv', inputName: 'input.txt' },
   timezone: { tool: 'timezone', actions: ['conv'], defaultAction: 'conv', inputName: 'input.txt' },
   cron: { tool: 'cron', actions: ['parse', 'next', 'val'], defaultAction: 'parse', inputName: 'expr.txt' },

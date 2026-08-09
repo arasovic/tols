@@ -95,6 +95,54 @@ describe('buildCommand', () => {
     expect(buildCommand({ tool: 'base64', action: 'enc', input: '--' }))
       .toBe(`printf '%s' '--' | tols base64 enc`)
   })
+
+  it('renders canonical positional files and omits the declared default action', () => {
+    expect(buildCommand({
+      tool: 'diff',
+      action: 'run',
+      defaultAction: 'run',
+      omitDefaultAction: true,
+      positionalArgs: [
+        { type: 'file', name: 'old.txt' },
+        { type: 'file', name: 'new.txt' }
+      ]
+    })).toBe('tols diff @old.txt @new.txt')
+  })
+
+  it('rejects unsupported positional argument types', () => {
+    expect(() => buildCommand({
+      tool: 'diff',
+      action: 'run',
+      positionalArgs: [{ type: 'literal', name: 'old.txt' }]
+    })).toThrow('Unsupported positional argument type: literal')
+  })
+
+  it('rejects empty positional file names', () => {
+    expect(() => buildCommand({
+      tool: 'diff',
+      action: 'run',
+      positionalArgs: [{ type: 'file', name: '  ' }]
+    })).toThrow('File positional argument requires a non-empty name')
+  })
+
+  it('rejects canonical positional arguments mixed with legacy input', () => {
+    expect(() => buildCommand({
+      tool: 'diff',
+      action: 'run',
+      input: 'left',
+      positionalArgs: [{ type: 'file', name: 'old.txt' }]
+    })).toThrow('Canonical positional arguments cannot be combined with legacy input')
+  })
+
+  it('rejects omission of a non-default action', () => {
+    expect(() => buildCommand({
+      tool: 'diff',
+      action: 'other',
+      defaultAction: 'run',
+      omitDefaultAction: true,
+      positionalArgs: [{ type: 'file', name: 'old.txt' }]
+    })).toThrow('Only the default action may be omitted')
+  })
 })
 
 describe('templateFor', () => {
@@ -158,6 +206,19 @@ describe('templateFor', () => {
       actions: ['fmt', 'min', 'val'],
       defaultAction: 'fmt',
       inputName: 'input.json'
+    })
+  })
+
+  it('maps Diff to canonical positional files', () => {
+    expect(templateFor('diff')).toEqual({
+      tool: 'diff',
+      actions: ['run'],
+      defaultAction: 'run',
+      positionalArgs: [
+        { type: 'file', name: 'old.txt' },
+        { type: 'file', name: 'new.txt' }
+      ],
+      omitDefaultAction: true
     })
   })
 })

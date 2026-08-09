@@ -41,6 +41,19 @@ describe('DiffTool', () => {
         expect(charCounts[1].textContent).toMatch(/^\d+ chars$/)
       }, { timeout: 500 })
     })
+
+    it('shows a stable agent-friendly command across edits and swaps', async () => {
+      const { container } = render(DiffTool)
+      const expected = 'tols diff @old.txt @new.txt'
+      const command = () => container.querySelector('.command-text')?.textContent?.trim()
+
+      expect(command()).toBe(expected)
+      const textareas = container.querySelectorAll('.diff-textarea')
+      await fireEvent.input(textareas[0], { target: { value: 'inline old value' } })
+      await fireEvent.input(textareas[1], { target: { value: 'inline new value' } })
+      await fireEvent.click(screen.getByLabelText('Swap Sides'))
+      expect(command()).toBe(expected)
+    })
   })
 
   describe('Diff Results', () => {

@@ -24,16 +24,26 @@
     failed = status === 'failed'
   })
 
+  let command = ''
+
   $: template = templateFor(toolId)
-  $: command = template
-    ? buildCommand({
-        tool: template.tool,
-        action: action || template.defaultAction,
-        input,
-        flags,
-        inputName: template.inputName
-      })
-    : ''
+  $: {
+    const resolvedAction = template ? action || template.defaultAction : ''
+    const omitDefaultAction = template?.omitDefaultAction === true
+      && resolvedAction === template.defaultAction
+    command = template
+      ? buildCommand({
+          tool: template.tool,
+          action: resolvedAction,
+          defaultAction: template.defaultAction,
+          omitDefaultAction,
+          positionalArgs: template.positionalArgs,
+          input,
+          flags,
+          inputName: template.inputName
+        })
+      : ''
+  }
 
   // Exported so Workbench can bind:this and wire ⌘⇧C to the *same* command
   // string the strip displays, instead of rebuilding it from its own state.
