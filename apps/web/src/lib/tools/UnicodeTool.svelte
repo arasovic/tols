@@ -5,7 +5,8 @@
   import { onMount } from 'svelte'
   import { COMMON_CHARS, analyzeChar, searchCommon } from 'tols-cli/core/unicode'
 
-  const STORAGE_KEY = 'devutils-unicode-search'
+  const INPUT_STORAGE_KEY = 'devutils-unicode-search'
+  const MODE_STORAGE_KEY = 'devutils-unicode-mode'
 
   /**
    * @typedef {{
@@ -21,58 +22,73 @@
    * }} UnicodeResult
    */
 
-  let searchChar = ''
+  let mode = 'info'
+  let input = ''
+  /** @type {ReturnType<typeof analyzeChar>} */
+  let inspectResult = null
+  /** @type {typeof COMMON_CHARS} */
+  let searchResults = []
+
   /** @type {UnicodeResult[]} */
   let results = []
-  /** @type {ReturnType<typeof setTimeout> | null} */
-  let timeout = null
 
-  /**
-   * @param {string} text
-   */
-  function escapeHtml(text) {
-    if (!text) return ''
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
+  $: results = mode === 'info' ? (inspectResult ? [inspectResult] : []) : searchResults
+
+  function process() {
+    inspectResult = null
+    searchResults = []
+    if (input === '') return
+    if (mode === 'info') inspectResult = analyzeChar(input)
+    else searchResults = searchCommon(input)
   }
 
-  function search() {
-    if (!searchChar) {
-      results = []
-      return
+  function saveState() {
+    try {
+      localStorage.setItem(INPUT_STORAGE_KEY, input)
+      localStorage.setItem(MODE_STORAGE_KEY, mode)
+    } catch (/** @type {any} */ e) {
+      console.warn('Failed to save Unicode state to localStorage:', e)
     }
-
-    const analyzed = analyzeChar(searchChar)
-    const filtered = searchCommon(searchChar)
-
-    results = analyzed ? [analyzed, ...filtered] : filtered
   }
 
-  function debouncedSearch() {
-    if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      search()
-      try {
-        localStorage.setItem(STORAGE_KEY, searchChar)
-      } catch (/** @type {any} */ e) {
-        console.warn('Failed to save search to localStorage:', e)
-      }
-    }, 300)
+  /** @param {string} value */
+  function firstCodePoint(value) {
+    return analyzeChar(value)?.char ?? ''
+  }
+
+  /** @param {Event} event */
+  function handleInput(event) {
+    const value = /** @type {HTMLInputElement} */ (event.currentTarget).value
+    input = mode === 'info' ? firstCodePoint(value) : value
+    process()
+    saveState()
+  }
+
+  /** @param {'info' | 'search'} nextMode */
+  function setMode(nextMode) {
+    mode = nextMode
+    if (mode === 'info') input = firstCodePoint(input)
+    process()
+    saveState()
+  }
+
+  /** @param {string} char */
+  function selectCommon(char) {
+    mode = 'info'
+    input = char
+    process()
+    saveState()
   }
 
   onMount(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        searchChar = saved
-        search()
-      }
+      const savedMode = localStorage.getItem(MODE_STORAGE_KEY)
+      const savedInput = localStorage.getItem(INPUT_STORAGE_KEY)
+      if (savedMode === 'info' || savedMode === 'search') mode = savedMode
+      if (savedInput) input = mode === 'info' ? firstCodePoint(savedInput) : savedInput
+      process()
     } catch (/** @type {any} */ e) {
-      console.warn('Failed to load search from localStorage:', e)
+      console.warn('Failed to load Unicode state from localStorage:', e)
     }
   })
 
@@ -87,15 +103,41 @@
 </script>
 
 <div class="tool">
-  <!-- toolId is deliberately empty: this tool escapes and unescapes text, while
-       the CLI's `unicode info`/`unicode search` inspect a codepoint or query a
-       character table — a different tool, so no command is the honest mirror
-       (see BRIEF.md). -->
   <ToolHeader toolId="unicode" />
 
-  <ToolShell toolId="">
+  <ToolShell toolId="unicode" action={mode} {input} onRun={process}>
+    <div class="mode-toggle" role="tablist" aria-label="Unicode mode">
+      <button
+        type="button"
+        class="mode-btn"
+        class:active={mode === 'info'}
+        role="tab"
+        aria-selected={mode === 'info'}
+        on:click={() => setMode('info')}
+      >
+        Inspect
+      </button>
+      <button
+        type="button"
+        class="mode-btn"
+        class:active={mode === 'search'}
+        role="tab"
+        aria-selected={mode === 'search'}
+        on:click={() => setMode('search')}
+      >
+        Search
+      </button>
+    </div>
+
     <div class="search-section">
-      <input type="text" bind:value={searchChar} on:input={debouncedSearch} placeholder="Type a character or search..." class="search-input" maxlength="10" />
+      <input
+        type="text"
+        value={input}
+        on:input={handleInput}
+        placeholder={mode === 'info' ? 'Enter a Unicode code point...' : 'Search common characters by name or category...'}
+        aria-label={mode === 'info' ? 'Unicode code point' : 'Common character search'}
+        class="search-input"
+      />
     </div>
 
     {#if results.length > 0}
@@ -109,10 +151,12 @@
                 <span class="category">{char.category}</span>
                 <span class="codepoint">{char.codepoint}</span>
               </div>
-              {#if char.decimal && char.html && char.js}
+              {#if mode === 'info' && char.decimal !== undefined}
                 <div class="char-codes">
                   <span>Dec: {char.decimal}</span>
-                  <span>HTML: {escapeHtml(char.html)}</span>
+                  <span>Hex: {char.hex}</span>
+                  <span>HTML: {char.html}</span>
+                  <span>CSS: {char.css}</span>
                   <span>JS: {char.js}</span>
                 </div>
               {/if}
@@ -124,15 +168,15 @@
           </div>
         {/each}
       </div>
-    {:else if searchChar}
-      <div class="empty">No characters found</div>
+    {:else if mode === 'search' && input}
+      <div class="empty">No matching common characters</div>
     {/if}
 
     <div class="common-section">
       <h3>Common Characters</h3>
       <div class="char-grid">
         {#each COMMON_CHARS.slice(0, 24) as char}
-          <button type="button" class="char-btn" on:click={() => { searchChar = char.char; search(); }} title="{char.name}">
+          <button type="button" class="char-btn" on:click={() => selectCommon(char.char)} title="{char.name}">
             {char.char}
           </button>
         {/each}
@@ -143,6 +187,10 @@
 
 <style>
   .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .mode-toggle { display: flex; background: var(--bg-elevated); border-radius: var(--radius); padding: 3px; border: 1px solid var(--border-subtle); }
+  .mode-btn { padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: transparent; transition: all var(--transition) var(--ease-out); border: none; cursor: pointer; }
+  .mode-btn:hover { color: var(--text-primary); }
+  .mode-btn.active { background: var(--accent); color: var(--bg-base); box-shadow: var(--shadow-accent-sm); }
   .search-section { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .search-input { width: 100%; padding: var(--space-3); font-size: var(--text-lg); text-align: center; border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); outline: none; }
   .search-input:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }

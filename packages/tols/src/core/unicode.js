@@ -1,8 +1,5 @@
 /**
- * Unicode core — behavior ported from apps/web UnicodeTool.svelte.
- * analyzeChar mirrors the web fields (codepoint/decimal/hex/html/css/js).
- * One deliberate improvement: for astral codepoints (> U+FFFF) the JS
- * escape uses the correct \u{...} form instead of the web's truncated \uXXXX.
+ * Unicode analysis shared by the zero-dependency CLI and browser surfaces.
  */
 
 export const COMMON_CHARS = [
