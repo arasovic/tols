@@ -1,6 +1,6 @@
 {
   "name": "tols-cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Zero-dependency CLI: format, encode, hash, generate, convert. Pipe-friendly, --json everywhere.",
   "license": "MIT",
   "type": "module",
