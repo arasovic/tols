@@ -1,76 +1,19 @@
 <script>
-  /**
-   * Homepage. Tool data comes from the registry; presentation is split into
-   * HomeHero / HomeSearch / PrivacyBanner / ToolCard / HomeFooter.
-   */
   import { base } from '$app/paths'
-  import { theme } from '$lib/stores/theme'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
-  import { tools as registryTools, categories, getCategoryLabel } from '$lib/config/registry.js'
-  import { favorites, toggleFavorite } from '$lib/stores/favorites.js'
-  import { recentTools } from '$lib/stores/recentTools.js'
-  import HomeHero from '$lib/components/HomeHero.svelte'
-  import HomeSearch from '$lib/components/HomeSearch.svelte'
-  import PrivacyBanner from '$lib/components/PrivacyBanner.svelte'
-  import ToolCard from '$lib/components/ToolCard.svelte'
-  import HomeFooter from '$lib/components/HomeFooter.svelte'
-  import { Sun, Moon, SearchX } from '@lucide/svelte'
+  import { ArrowRight, ExternalLink, Moon, Sun } from '@lucide/svelte'
+  import { tools as registryTools } from '$lib/config/registry.js'
+  import { theme } from '$lib/stores/theme'
+  import Button from '$lib/ui/Button.svelte'
+  import wordmarkBlack from '../../../../assets/brand/tols-wordmark.svg?url'
+  import wordmarkWhite from '../../../../assets/brand/tols-wordmark-white.svg?url'
 
   const pageTitle = 'tols - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
   const canonicalUrl = 'https://tols.arasmehmet.com/'
   const ogImage = 'https://tols.arasmehmet.com/og-image.png'
-
-  const tools = registryTools.map(tool => ({
-    path: tool.id,
-    name: tool.name,
-    desc: tool.description,
-    category: tool.category,
-    popular: tool.popular === true
-  }))
-
-  const popularTools = tools.filter(tool => tool.popular)
-
-  $: favoriteTools = tools.filter(tool => $favorites.includes(tool.path))
-  $: recentList = $recentTools
-    .map(id => tools.find(tool => tool.path === id))
-    .filter(/** @returns {tool is typeof tools[number]} */ (tool) => tool !== undefined)
-
-  // Derived, never a literal: a hardcoded count is how the stat row once
-  // ended up disagreeing with the headline that sat right above it.
-  const toolCount = tools.length
-
-  const heroStats = [
-    { value: String(toolCount), label: 'Tools' },
-    { value: String(categories.length), label: 'Categories' },
-    { value: '0', label: 'Data Upload' }
-  ]
-
-  let searchQuery = ''
-  let selectedCategory = 'all'
-
-  $: filteredTools = tools.filter(tool => {
-    const matchesSearch = searchQuery === '' ||
-      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.desc.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesCategory = selectedCategory === 'all' ||
-      tool.category === selectedCategory
-
-    return matchesSearch && matchesCategory
-  })
-
-  $: hasResults = filteredTools.length > 0
-  $: showPopular = searchQuery === '' && selectedCategory === 'all'
-  $: currentCategoryLabel = selectedCategory === 'all'
-    ? 'All'
-    : (getCategoryLabel(selectedCategory) || 'All')
-
-  function clearFilters() {
-    searchQuery = ''
-    selectedCategory = 'all'
-  }
+  const popularTools = registryTools.filter(tool => tool.popular === true)
 
   function setTheme() {
     if (browser) {
@@ -78,9 +21,7 @@
     }
   }
 
-  onMount(() => {
-    setTheme()
-  })
+  onMount(setTheme)
 
   $: if ($theme !== undefined && browser) {
     setTheme()
@@ -106,340 +47,490 @@
   <meta name="twitter:image" content={ogImage} />
 </svelte:head>
 
-<div class="home-container">
-  <header class="home-header">
-    <div class="header-top">
-      <a href="{base}/" class="logo">
-        <div class="logo-icon">
-          <span class="logo-glyph" aria-hidden="true">$</span>
-        </div>
-        <span class="logo-title">tols</span>
-      </a>
-      <button type="button" class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
+<div class="landing-shell">
+  <header class="site-header">
+    <a href="{base}/" class="brand-link" aria-label="tols home">
+      <span class="wordmark brand-wordmark" aria-hidden="true">
+        <img class="wordmark-black" src={wordmarkBlack} alt="" width="1774" height="709" />
+        <img class="wordmark-white" src={wordmarkWhite} alt="" width="1774" height="709" />
+      </span>
+    </a>
+
+    <nav class="header-actions" aria-label="Project links">
+      <a href="https://www.npmjs.com/package/tols-cli" target="_blank" rel="noopener noreferrer">npm</a>
+      <a href="https://github.com/arasovic/tols" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <Button class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
         {#if $theme === 'dark'}
           <Sun size={16} />
         {:else}
           <Moon size={16} />
         {/if}
-      </button>
-    </div>
+      </Button>
+    </nav>
   </header>
 
-  <!-- id is load-bearing: app.html's skip link targets #main-content, which the
-       (app) layout provides for every tool route. This page is outside that
-       group, so it carries its own — and tabindex="-1", without which focus
-       never actually lands here (measured in Chrome: activeElement stayed on
-       <body> after activating the link). -->
-  <main id="main-content" class="home-main" tabindex="-1">
-    <HomeHero stats={heroStats} />
-
-    <HomeSearch bind:query={searchQuery} bind:selected={selectedCategory} />
-
-    <PrivacyBanner />
-
-    <section class="tools-section" aria-live="polite" aria-atomic="true">
-      {#if showPopular && favoriteTools.length > 0}
-        <div class="favorites-section">
-          <div class="section-header">
-            <div class="section-title">
-              <span>Favorites</span>
-            </div>
-          </div>
-          <div class="tools-grid">
-            {#each favoriteTools as tool (tool.path)}
-              <ToolCard
-                {tool}
-                query={searchQuery}
-                favorite
-                categoryLabel={getCategoryLabel(tool.category)}
-                on:togglefavorite={() => toggleFavorite(tool.path)}
-              />
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      {#if showPopular && recentList.length > 0}
-        <div class="recent-section">
-          <div class="section-header">
-            <div class="section-title">
-              <span>Recent</span>
-            </div>
-          </div>
-          <div class="recent-chips">
-            {#each recentList as tool (tool.path)}
-              <a href="{base}/{tool.path}" class="recent-chip">{tool.name}</a>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      {#if showPopular}
-        <div class="popular-section">
-          <div class="section-header">
-            <div class="section-title">
-              <span>Popular Tools</span>
-            </div>
-          </div>
-          <div class="tools-grid compact">
-            {#each popularTools as tool (tool.path)}
-              <ToolCard
-                {tool}
-                query={searchQuery}
-                popular
-                favorite={$favorites.includes(tool.path)}
-                on:togglefavorite={() => toggleFavorite(tool.path)}
-              />
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      {#if hasResults}
-        <div class="all-tools-section">
-          <div class="section-header">
-            <div class="section-title">
-              <span>{currentCategoryLabel} Tools</span>
-              <span class="tool-count">{filteredTools.length}</span>
-            </div>
-          </div>
-          <div class="tools-grid">
-            {#each filteredTools as tool (tool.path)}
-              <ToolCard
-                {tool}
-                query={searchQuery}
-                favorite={$favorites.includes(tool.path)}
-                categoryLabel={getCategoryLabel(tool.category)}
-                on:togglefavorite={() => toggleFavorite(tool.path)}
-              />
-            {/each}
-          </div>
-        </div>
-      {:else}
-        <div class="no-results">
-          <div class="no-results-icon">
-            <SearchX size={40} />
-          </div>
-          <h3 class="no-results-title">No results found</h3>
-          <p class="no-results-text">Try adjusting your search or category filter</p>
-          <button type="button" class="btn-secondary" on:click={clearFilters}>
-            Clear filters
-          </button>
-        </div>
-      {/if}
+  <!-- The homepage sits outside the app layout, so it owns the skip-link target. -->
+  <main id="main-content" tabindex="-1">
+    <section class="status-section" aria-labelledby="status-title">
+      <span class="wordmark hero-wordmark" aria-hidden="true">
+        <img class="wordmark-black" src={wordmarkBlack} alt="" width="1774" height="709" />
+        <img class="wordmark-white" src={wordmarkWhite} alt="" width="1774" height="709" />
+      </span>
+      <p class="brand-claim">STAYS LOCAL</p>
+      <h1 id="status-title">Interface redesign in progress</h1>
+      <p class="status-copy">The tools remain available while we rebuild the interface</p>
     </section>
 
-    <HomeFooter />
+    <section class="access-grid" aria-label="Ways to use tols">
+      <article class="cli-section">
+        <div class="section-heading">
+          <h2>CLI</h2>
+          <span>zero runtime dependencies</span>
+        </div>
+
+        <p class="section-copy">Install once, then format, encode, hash, generate and convert from your terminal</p>
+
+        <div class="command-block">
+          <span aria-hidden="true">$</span>
+          <code class="install-command">npm install -g tols-cli</code>
+        </div>
+
+        <div class="command-example" aria-label="CLI example">
+          <code>tols json fmt @data.json</code>
+          <code>tols hash sha256 &lt;&lt;&lt; "secret"</code>
+        </div>
+
+        <div class="primary-actions">
+          <a class="primary-link" href="https://www.npmjs.com/package/tols-cli" target="_blank" rel="noopener noreferrer">
+            View on npm
+            <ExternalLink size={15} aria-hidden="true" />
+          </a>
+          <a class="secondary-link" href="https://github.com/arasovic/tols" target="_blank" rel="noopener noreferrer">
+            View source
+          </a>
+        </div>
+      </article>
+
+      <article class="web-section">
+        <div class="section-heading">
+          <h2>Web tools</h2>
+          <span>available now</span>
+        </div>
+
+        <p class="section-copy">Open any tool to enter the current workspace and browse the full collection</p>
+
+        <nav class="web-tool-list" aria-label="Popular web tools">
+          {#each popularTools as tool (tool.id)}
+            <a class="web-tool-link" href="{base}/{tool.id}">
+              <span>{tool.name}</span>
+              <ArrowRight size={15} aria-hidden="true" />
+            </a>
+          {/each}
+        </nav>
+      </article>
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <span>open source</span>
+    <span>MIT</span>
+  </footer>
 </div>
 
 <style>
-  .home-container {
+  /*
+   * Temporary landing palette: keep it local so this approved holding page
+   * cannot change the shared app theme before the full redesign begins.
+   */
+  .landing-shell {
+    --landing-bg: #f4f4f0;
+    --landing-ink: #0a0a0a;
+    --landing-muted: #65655f;
+    --landing-rule: rgba(10, 10, 10, 0.18);
+    --landing-soft: rgba(10, 10, 10, 0.055);
+
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: var(--bg-base);
+    color: var(--landing-ink);
+    background: var(--landing-bg);
   }
 
-  .home-header {
-    padding: var(--space-4) var(--space-5);
-    border-bottom: 1px solid var(--border-subtle);
+  :global([data-theme='dark']) .landing-shell {
+    --landing-bg: #0a0a0a;
+    --landing-ink: #f4f4f0;
+    --landing-muted: #a5a59e;
+    --landing-rule: rgba(244, 244, 240, 0.2);
+    --landing-soft: rgba(244, 244, 240, 0.07);
   }
 
-  .header-top {
-    max-width: 1200px;
-    margin: 0 auto;
+  .site-header,
+  main,
+  .site-footer {
+    width: min(1180px, calc(100% - 48px));
+    margin-inline: auto;
+  }
+
+  .site-header {
+    min-height: 76px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-bottom: 1px solid var(--landing-rule);
   }
 
-  .logo {
+  .brand-link {
+    display: flex;
+    width: 74px;
+    color: var(--landing-ink);
+  }
+
+  .wordmark {
+    display: grid;
+  }
+
+  .wordmark img {
+    grid-area: 1 / 1;
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .wordmark .wordmark-white {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .wordmark .wordmark-black {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .wordmark .wordmark-white {
+    display: block;
+  }
+
+  .brand-wordmark {
+    width: 100%;
+  }
+
+  .header-actions {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 24px;
+  }
+
+  .header-actions a {
+    color: var(--landing-muted);
+    font-size: 12px;
     text-decoration: none;
   }
 
-  .logo-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius);
-    background: var(--accent);
-    color: white;
+  .header-actions a:hover {
+    color: var(--landing-ink);
   }
 
-  .logo-glyph {
-    font-family: var(--font-mono);
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
+  :global(button.btn.theme-toggle) {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--landing-muted);
+    background: transparent;
+    border: 1px solid var(--landing-rule);
+    border-radius: 0;
+  }
+
+  :global(button.btn.theme-toggle:hover) {
+    color: var(--landing-ink);
+    background: var(--landing-soft);
+  }
+
+  main {
+    flex: 1;
+    outline: none;
+  }
+
+  .status-section {
+    max-width: 790px;
+    padding: clamp(64px, 10vw, 128px) 0 clamp(56px, 8vw, 96px);
+  }
+
+  .hero-wordmark {
+    width: min(470px, 72vw);
+    margin-bottom: 34px;
+  }
+
+  .brand-claim {
+    display: inline-block;
+    margin-bottom: 24px;
+    padding-top: 10px;
+    color: var(--landing-ink);
+    border-top: 2px solid currentColor;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     line-height: 1;
   }
 
-  .logo-title {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    letter-spacing: var(--tracking-wide);
+  h1 {
+    max-width: 720px;
+    margin: 0;
+    color: var(--landing-ink);
+    font-family: var(--font-mono);
+    font-size: clamp(34px, 5.4vw, 68px);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 0.98;
   }
 
-  .theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius);
-    color: var(--text-tertiary);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-fast) var(--ease-out);
+  .status-copy {
+    max-width: 590px;
+    margin-top: 22px;
+    color: var(--landing-muted);
+    font-size: clamp(14px, 1.6vw, 17px);
+    line-height: 1.55;
   }
 
-  .theme-toggle:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .home-main {
-    flex: 1;
-    max-width: 900px;
-    width: 100%;
-    margin: 0 auto;
-    padding: var(--space-8) var(--space-5);
-  }
-
-  .tools-section {
-    min-height: 200px;
-  }
-
-  .popular-section {
-    margin-bottom: var(--space-8);
-  }
-
-  .favorites-section,
-  .recent-section {
-    margin-bottom: var(--space-8);
-  }
-
-  .recent-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .recent-chip {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-secondary);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-full);
-    text-decoration: none;
-    transition: all var(--transition-fast) var(--ease-out);
-  }
-
-  .recent-chip:hover {
-    background: var(--bg-hover);
-    border-color: var(--border-strong);
-    color: var(--text-primary);
-  }
-
-  .section-header {
-    margin-bottom: var(--space-4);
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-  }
-
-  .tool-count {
-    padding: var(--space-1) var(--space-2);
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-    color: var(--text-tertiary);
-    background: var(--bg-elevated);
-    border-radius: var(--radius-full);
-  }
-
-  .tools-grid {
+  .access-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-3);
+    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+    border-top: 1px solid var(--landing-rule);
+    border-bottom: 1px solid var(--landing-rule);
   }
 
-  .tools-grid.compact {
-    gap: var(--space-2);
+  .cli-section,
+  .web-section {
+    padding: clamp(32px, 5vw, 58px) 0;
   }
 
-  .no-results {
+  .cli-section {
+    padding-right: clamp(32px, 5vw, 64px);
+  }
+
+  .web-section {
+    padding-left: clamp(32px, 5vw, 64px);
+    border-left: 1px solid var(--landing-rule);
+  }
+
+  .section-heading {
     display: flex;
-    flex-direction: column;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    color: var(--landing-ink);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .section-heading span {
+    color: var(--landing-muted);
+    font-size: 10px;
+  }
+
+  .section-copy {
+    max-width: 620px;
+    min-height: 44px;
+    margin-bottom: 30px;
+    color: var(--landing-muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .command-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 66px;
+    padding: 0 20px;
+    color: var(--landing-bg);
+    background: var(--landing-ink);
+    border: 1px solid var(--landing-ink);
+  }
+
+  .command-block span {
+    color: var(--landing-muted);
+  }
+
+  .install-command {
+    color: inherit;
+    background: transparent;
+    font-size: clamp(13px, 1.8vw, 16px);
+  }
+
+  .command-example {
+    display: grid;
+    gap: 10px;
+    padding: 18px 20px;
+    color: var(--landing-muted);
+    background: var(--landing-soft);
+    border-right: 1px solid var(--landing-rule);
+    border-bottom: 1px solid var(--landing-rule);
+    border-left: 1px solid var(--landing-rule);
+  }
+
+  .command-example code {
+    color: inherit;
+    background: transparent;
+    font-size: 11px;
+  }
+
+  .primary-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .primary-link,
+  .secondary-link {
+    min-height: 42px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-12) var(--space-4);
-    text-align: center;
+    gap: 10px;
+    padding: 0 16px;
+    font-size: 12px;
+    text-decoration: none;
   }
 
-  .no-results-icon {
-    color: var(--text-muted);
-    margin-bottom: var(--space-4);
+  .primary-link {
+    color: var(--landing-bg);
+    background: var(--landing-ink);
+    border: 1px solid var(--landing-ink);
   }
 
-  .no-results-title {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
+  .primary-link:hover {
+    color: var(--landing-bg);
+    opacity: 0.82;
   }
 
-  .no-results-text {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-    margin-bottom: var(--space-4);
+  .secondary-link {
+    color: var(--landing-ink);
+    border: 1px solid var(--landing-rule);
   }
 
-  .btn-secondary {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all var(--transition-fast) var(--ease-out);
+  .secondary-link:hover {
+    color: var(--landing-ink);
+    background: var(--landing-soft);
   }
 
-  .btn-secondary:hover {
-    background: var(--bg-hover);
-    border-color: var(--border-strong);
+  .web-tool-list {
+    display: grid;
+    border-top: 1px solid var(--landing-rule);
   }
 
-  @media (max-width: 640px) {
-    .home-header {
-      padding: var(--space-3) var(--space-4);
+  .web-tool-link {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    color: var(--landing-ink);
+    border-bottom: 1px solid var(--landing-rule);
+    font-size: 12px;
+    text-decoration: none;
+  }
+
+  .web-tool-link:hover {
+    padding-left: 8px;
+    color: var(--landing-ink);
+  }
+
+  .site-footer {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: var(--landing-muted);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  a:focus-visible,
+  :global(button.btn.theme-toggle:focus-visible) {
+    outline: 2px solid var(--landing-ink);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 760px) {
+    .site-header,
+    main,
+    .site-footer {
+      width: min(100% - 32px, 1180px);
     }
 
-    .home-main {
-      padding: var(--space-6) var(--space-4);
+    .site-header {
+      min-height: 64px;
     }
 
-    .tools-grid {
+    .header-actions {
+      gap: 16px;
+    }
+
+    .status-section {
+      padding: 64px 0 56px;
+    }
+
+    .hero-wordmark {
+      margin-bottom: 28px;
+    }
+
+    .access-grid {
       grid-template-columns: 1fr;
+    }
+
+    .cli-section {
+      padding-right: 0;
+    }
+
+    .web-section {
+      padding-left: 0;
+      border-top: 1px solid var(--landing-rule);
+      border-left: 0;
+    }
+
+    .section-copy {
+      min-height: 0;
+    }
+  }
+
+  @media (max-width: 460px) {
+    .header-actions a {
+      display: none;
+    }
+
+    .primary-actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .primary-link,
+    .secondary-link {
+      width: 100%;
+    }
+
+    .command-block {
+      padding: 0 14px;
+    }
+
+    .section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 6px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .web-tool-link {
+      transition: none;
     }
   }
 </style>

@@ -1,15 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <style>
-    .background { fill: #f4f4f0; }
-    .mark { fill: #0a0a0a; }
-    @media (prefers-color-scheme: dark) {
-      .background { fill: #0a0a0a; }
-      .mark { fill: #f4f4f0; }
-    }
-  </style>
-  <rect class="background" width="32" height="32"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <svg x="2" y="10.4" width="28" height="11.2" viewBox="0 0 1774 709">
-    <g class="mark" transform="translate(-25 697) scale(1 -1)">
+    <g fill="#000" transform="translate(-25 697) scale(1 -1)">
       <path transform="translate(0 0)" d="M25 497H411V396H25ZM153 633H283V0H153Z"/>
       <path transform="translate(389 0)" d="M353 -12Q259 -12 187.5 18Q116 48 76 105.5Q36 163 36 247Q36 331 76 389.5Q116 448 187.5 478Q259 508 353 508Q447 508 517.5 478Q588 448 628 389.5Q668 331 668 247Q668 163 628 105.5Q588 48 517.5 18Q447 -12 353 -12ZM353 88Q405 88 446.5 106.5Q488 125 512 160.5Q536 196 536 247Q536 298 512 334.5Q488 371 447 390Q406 409 353 409Q301 409 259 390Q217 371 192.5 335Q168 299 168 247Q168 196 192 160.5Q216 125 258 106.5Q300 88 353 88Z"/>
       <path transform="translate(1048 0)" d="M70 697H200V0H70Z"/>
