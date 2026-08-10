@@ -1,7 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, fireEvent } from '@testing-library/svelte'
+import { render } from '@testing-library/svelte'
+import { readFileSync } from 'node:fs'
 import HomePage from '../src/routes/+page.svelte'
 import { tools } from '$lib/config/registry.js'
+
+const homepageSource = readFileSync('src/routes/+page.svelte', 'utf8')
+const appStyles = readFileSync('src/app.css', 'utf8')
 
 vi.mock('$app/paths', () => ({ base: '/dev-utilities' }))
 vi.mock('$app/environment', () => ({ browser: true }))
@@ -41,26 +45,44 @@ describe('landing page', () => {
     expect(main.getAttribute('tabindex')).toBe('-1')
   })
 
-  it('keeps a tool count out of the headline', () => {
-    // The website has 30 tools and the CLI has 29, so a number in a headline
-    // that also says "One command" would pair the web's count with a claim
-    // about the CLI. Asserting on digits, not on the exact wording, so the
-    // copy can be reworded without quietly letting a count back in.
-    const { container } = render(HomePage)
-    const headline = container.querySelector('.hero-title').textContent
-    expect(headline).toBe('Dev tools. One command.')
-    expect(headline).not.toMatch(/\d/)
+  it('states that the interface is changing without calling the site maintenance', () => {
+    const { getByRole, getByText, queryByText } = render(HomePage)
+    expect(getByRole('heading', { level: 1, name: 'Interface redesign in progress' })).toBeTruthy()
+    expect(getByText('The tools remain available while we rebuild the interface')).toBeTruthy()
+    expect(queryByText(/maintenance/i)).toBeNull()
   })
 
-  it('derives the Tools stat from the registry', () => {
-    // The stat stays: it is labelled `Tools`, it sits on the website, and 30
-    // is the website's real number. It must come from the registry, never a
-    // literal — that is how it once drifted from the headline above it.
+  it('makes the CLI install command and package destinations explicit', () => {
     const { container } = render(HomePage)
-    const stat = [...container.querySelectorAll('.hero-stat')]
-      .find((el) => el.textContent.includes('Tools'))
-      .querySelector('.hero-stat-value').textContent
-    expect(stat).toBe(String(tools.length))
+    expect(container.querySelector('.install-command').textContent).toBe('npm install -g tols-cli')
+    expect(container.querySelector('a[href="https://www.npmjs.com/package/tols-cli"]')).toBeTruthy()
+    expect(container.querySelector('a[href="https://github.com/arasovic/tols"]')).toBeTruthy()
+  })
+
+  it('keeps wordmark sources stable when server and client themes differ', () => {
+    // The server theme is always dark while the client may initialize from a
+    // saved light preference. A reactive src causes a hydration mismatch and
+    // Svelte keeps the server image instead of the client image.
+    expect(homepageSource).not.toMatch(/src=\{\$theme/)
+  })
+
+  it('isolates the temporary palette and uses the shared button primitive', () => {
+    expect(homepageSource).toContain("import Button from '$lib/ui/Button.svelte'")
+    expect(homepageSource).not.toMatch(/<button[\s>]/)
+    expect(homepageSource).toContain('Temporary landing palette: keep it local')
+    expect(appStyles).not.toContain('--landing-')
+  })
+
+  it('keeps every popular web tool reachable from registry-derived links', () => {
+    const { container } = render(HomePage)
+    const popularTools = tools.filter(tool => tool.popular)
+    const links = [...container.querySelectorAll('.web-tool-link')]
+
+    expect(links).toHaveLength(popularTools.length)
+    expect(links.map(link => link.textContent.trim())).toEqual(popularTools.map(tool => tool.name))
+    expect(links.map(link => link.getAttribute('href'))).toEqual(
+      popularTools.map(tool => `/dev-utilities/${tool.id}`)
+    )
   })
 
   /**
@@ -77,23 +99,8 @@ describe('landing page', () => {
       .map(([prev, el]) => `${prev.tagName} -> ${el.tagName} ("${el.textContent.trim()}")`)
   }
 
-  it('never skips a heading level in the default state', () => {
-    // The privacy banner rendered an <h3> straight after the hero <h1>, which
-    // was the last Accessibility failure on /. The tool cards are h2s, so the
-    // banner is their sibling, not their child.
+  it('never skips a heading level', () => {
     const { container } = render(HomePage)
     expect(headingSkips(container)).toEqual([])
-  })
-
-  it('never skips a heading level in the empty-search state', () => {
-    // `showPopular` is false whenever a query is set, so this state hides every
-    // tool card: the outline collapses to h1 -> banner h2 -> no-results h3.
-    // That is why .no-results-title stays an h3.
-    const { container } = render(HomePage)
-    const input = container.querySelector('.search-input')
-    return fireEvent.input(input, { target: { value: 'zzzznotatool' } }).then(() => {
-      expect(container.querySelector('.no-results-title')).toBeTruthy()
-      expect(headingSkips(container)).toEqual([])
-    })
   })
 })

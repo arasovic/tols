@@ -1,4 +1,11 @@
-# tols
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/arasovic/tols/main/assets/brand/tols-wordmark-white.svg">
+    <img alt="tols" src="https://raw.githubusercontent.com/arasovic/tols/main/assets/brand/tols-wordmark.svg" width="360">
+  </picture>
+</p>
+
+<p align="center"><strong>STAYS LOCAL</strong></p>
 
 Developer tools in one CLI, with no runtime dependencies. Format, encode,
 hash, generate and convert, from the shell or from a pipe.

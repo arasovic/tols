@@ -1,4 +1,11 @@
-# tols
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/tols-wordmark-white.svg">
+    <img alt="tols" src="assets/brand/tols-wordmark.svg" width="360">
+  </picture>
+</p>
+
+<p align="center"><strong>STAYS LOCAL</strong></p>
 
 [![Deploy](https://github.com/arasovic/tols/actions/workflows/deploy.yml/badge.svg)](https://github.com/arasovic/tols/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
