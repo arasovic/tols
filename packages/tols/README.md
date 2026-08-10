@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/arasovic/tols/main/assets/brand/tols-wordmark-white.svg">
-    <img alt="tols" src="https://raw.githubusercontent.com/arasovic/tols/main/assets/brand/tols-wordmark.svg" width="360">
-  </picture>
+  <img alt="tols" src="https://raw.githubusercontent.com/arasovic/tols/main/assets/brand/tols-wordmark.svg" width="360">
 </p>
 
 <p align="center"><strong>STAYS LOCAL</strong></p>

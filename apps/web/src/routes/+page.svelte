@@ -6,7 +6,7 @@
   import { tools as registryTools } from '$lib/config/registry.js'
   import { theme } from '$lib/stores/theme'
   import Button from '$lib/ui/Button.svelte'
-  import wordmarkBlack from '../../../../assets/brand/tols-wordmark.svg?url'
+  import wordmarkBlack from '../../../../assets/brand/tols-wordmark-black.svg?url'
   import wordmarkWhite from '../../../../assets/brand/tols-wordmark-white.svg?url'
 
   const pageTitle = 'tols - Free Developer Utilities & Online Tools'
