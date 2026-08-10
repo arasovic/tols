@@ -1,5 +1,9 @@
 <p align="center">
-  <img alt="tols" src="assets/brand/tols-wordmark.svg" width="360">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/tols-wordmark-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/brand/tols-wordmark-black.svg">
+    <img alt="tols" src="assets/brand/tols-wordmark-black.svg" width="360">
+  </picture>
 </p>
 
 <p align="center"><strong>STAYS LOCAL</strong></p>

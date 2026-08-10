@@ -63,20 +63,25 @@ describe('brand', () => {
     expect(shell).not.toMatch(/mask-icon[^>]+#ffb000/i)
   })
 
-  it('keeps the README wordmark visible when picture sources are stripped', () => {
-    const adaptiveWordmark = readFileSync(join(BRAND_ROOT, 'tols-wordmark.svg'), 'utf8')
-    expect(adaptiveWordmark).toContain('@media (prefers-color-scheme: dark)')
-    expect(adaptiveWordmark).toMatch(/fill:\s*#0a0a0a/i)
-    expect(adaptiveWordmark).toMatch(/fill:\s*#f4f4f0/i)
+  it('uses GitHub theme sources in the repository README', () => {
+    const source = readFileSync(join(REPO_ROOT, 'README.md'), 'utf8')
+    expect(source).toContain('<picture>')
+    expect(source).toContain('media="(prefers-color-scheme: dark)" srcset="assets/brand/tols-wordmark-white.svg"')
+    expect(source).toContain('media="(prefers-color-scheme: light)" srcset="assets/brand/tols-wordmark-black.svg"')
+    expect(source).toContain('<img alt="tols" src="assets/brand/tols-wordmark-black.svg"')
+  })
 
-    for (const readme of [
-      join(REPO_ROOT, 'README.md'),
-      join(REPO_ROOT, 'packages', 'tols', 'README.md')
-    ]) {
-      const source = readFileSync(readme, 'utf8')
-      expect(source, `${readme} relies on a stripped picture source`).not.toContain('<picture>')
-      expect(source.match(/<img alt="tols"/g), `${readme} needs one wordmark image`).toHaveLength(1)
-    }
+  it('keeps the npm wordmark independent from every host theme', () => {
+    const npmWordmark = readFileSync(join(BRAND_ROOT, 'tols-wordmark.svg'), 'utf8')
+    expect(npmWordmark).not.toContain('prefers-color-scheme')
+    expect(npmWordmark).not.toContain('<style>')
+    expect(npmWordmark).toMatch(/<rect[^>]+fill="#f4f4f0"/i)
+    expect(npmWordmark).toContain('fill="#0a0a0a"')
+
+    const source = readFileSync(join(REPO_ROOT, 'packages', 'tols', 'README.md'), 'utf8')
+    expect(source).not.toContain('<picture>')
+    expect(source.match(/<img alt="tols"/g), 'npm README needs one wordmark image').toHaveLength(1)
+    expect(source).toContain('/main/assets/brand/tols-wordmark.svg')
   })
 
   it('keeps the site wordmark independent from the system color scheme', () => {
