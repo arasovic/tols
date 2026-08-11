@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'fake-cli.js');
 
 function tols(args, { stdin = '' } = {}) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const p = spawn('node', [FIXTURE, ...args]);
     let out = '';
     let err = '';
@@ -15,8 +15,10 @@ function tols(args, { stdin = '' } = {}) {
     p.stdout.on('data', (d) => (out += d));
     p.stderr.on('data', (d) => (err += d));
     p.on('close', (code) => resolve({ code, out, err }));
-    p.stdin.write(stdin);
-    p.stdin.end();
+    p.stdin.on('error', (error) => {
+      if (error.code !== 'EPIPE') reject(error);
+    });
+    p.stdin.end(stdin);
   });
 }
 
@@ -91,6 +93,16 @@ describe('cli contract', () => {
     const r = await tols(['--version']);
     expect(r.code).toBe(0);
     expect(r.out.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  it('settles when the child exits before consuming all stdin', async () => {
+    const r = await tols(['--version'], {
+      stdin: 'x'.repeat(16 * 1024 * 1024),
+    });
+
+    expect(r.code).toBe(0);
+    expect(r.out.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(r.err).toBe('');
   });
 });
 

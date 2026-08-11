@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 export const BIN = join(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'tols.js');
 
 export function tols(args, { stdin = '' } = {}) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     // TZ pinned so assertions about formatted dates are host-independent
     const p = spawn('node', [BIN, ...args], { env: { ...process.env, TZ: 'UTC' } });
     let out = '';
@@ -16,7 +16,9 @@ export function tols(args, { stdin = '' } = {}) {
     p.stdout.on('data', (d) => (out += d));
     p.stderr.on('data', (d) => (err += d));
     p.on('close', (code) => resolve({ code, out, err }));
-    p.stdin.write(stdin);
-    p.stdin.end();
+    p.stdin.on('error', (error) => {
+      if (error.code !== 'EPIPE') reject(error);
+    });
+    p.stdin.end(stdin);
   });
 }
