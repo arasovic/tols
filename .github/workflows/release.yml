@@ -11,12 +11,11 @@ on:
   push:
     tags: ['v*']
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   publish:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -77,3 +76,40 @@ jobs:
       # exchanges this job's OIDC id-token for a short-lived npm token.
       - name: Publish tols-cli to npm
         run: npm publish -w packages/tols --provenance --access public
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Create or verify GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          expected_title="tols-cli ${TAG}"
+
+          if release_json="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json tagName,name,isDraft,isPrerelease 2>/dev/null)"; then
+            RELEASE_JSON="$release_json" EXPECTED_TAG="$TAG" EXPECTED_TITLE="$expected_title" node -e '
+              const release = JSON.parse(process.env.RELEASE_JSON);
+              const errors = [];
+              if (release.tagName !== process.env.EXPECTED_TAG) errors.push(`tag ${release.tagName}`);
+              if (release.name !== process.env.EXPECTED_TITLE) errors.push(`title ${release.name}`);
+              if (release.isDraft) errors.push("draft");
+              if (release.isPrerelease) errors.push("prerelease");
+              if (errors.length) {
+                console.error(`::error::Existing GitHub Release violates the expected contract: ${errors.join(", ")}`);
+                process.exit(1);
+              }
+            '
+            echo "GitHub Release ${TAG} already exists with expected public metadata."
+            exit 0
+          fi
+
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --generate-notes \
+            --title "$expected_title"
