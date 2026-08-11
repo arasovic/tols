@@ -118,7 +118,10 @@
     if (!backgroundElement) return
     backgroundElement.inert = previousBackgroundInert
     if (backgroundHadAriaHidden) {
-      backgroundElement.setAttribute('aria-hidden', previousBackgroundAriaHidden ?? '')
+      backgroundElement.setAttribute(
+        'aria-hidden',
+        /** @type {string} */ (previousBackgroundAriaHidden)
+      )
     } else {
       backgroundElement.removeAttribute('aria-hidden')
     }
