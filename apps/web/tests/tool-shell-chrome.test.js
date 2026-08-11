@@ -4,6 +4,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const TOOLS_DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/tools')
+const TOOL_SHELL = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/ui/ToolShell.svelte')
 
 function walk(dir) {
   return readdirSync(dir).flatMap((entry) => {
@@ -158,6 +159,12 @@ const ON_TOOLSHELL = [
 ]
 
 describe('panel box chrome', () => {
+  it('keeps command, work surface, and action rail contiguous', () => {
+    const source = readFileSync(TOOL_SHELL, 'utf8')
+    const block = source.match(/\.tool-shell\s*\{([^}]*)\}/)?.[1] ?? ''
+    expect(block).toMatch(/gap:\s*0/)
+  })
+
   it('is owned by Panel and ToolShell, not by the tool components', () => {
     // Rendering the tools would pass even if one reintroduced its own panel
     // boxes inside the ToolShell slot, so — like the <main>, header, pane and

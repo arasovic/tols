@@ -242,12 +242,12 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .options-section { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .option-row { display: flex; flex-direction: column; gap: var(--space-2); }
   .option-row label { font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); }
   .option-row input[type="range"] { width: 100%; }
-  .error-message { padding: var(--space-3); background: var(--error-bg, rgba(239, 68, 68, 0.1)); border: 1px solid var(--error); border-radius: var(--radius); color: var(--error); font-size: var(--text-sm); }
+  .error-message { padding: var(--space-3); background: var(--error-bg); border: 1px solid var(--error); border-radius: var(--radius); color: var(--error); font-size: var(--text-sm); }
   .checkboxes { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
   .checkbox { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-2); border-radius: var(--radius); transition: background var(--transition-fast) var(--ease-out); }
   .checkbox:hover { background: var(--bg-hover); }

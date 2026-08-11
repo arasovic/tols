@@ -96,6 +96,21 @@ describe('SearchOverlay', () => {
     })
   })
 
+  it('presents a full-canvas tool index instead of modal-card chrome', async () => {
+    const { component, container } = render(SearchOverlay)
+    component.open()
+
+    await waitFor(() => {
+      expect(container.querySelector('.index-title')).toHaveTextContent('Tool index')
+    })
+
+    const surface = componentSource.match(/\.search-container\s*\{([^}]*)\}/)?.[1] ?? ''
+    expect(surface).toMatch(/background:\s*var\(--bg-base\)/)
+    expect(surface).not.toMatch(/max-width:\s*640px/)
+    expect(surface).not.toMatch(/border-radius/)
+    expect(surface).not.toMatch(/box-shadow/)
+  })
+
   it('should have search input when open', async () => {
     const { component, container } = render(SearchOverlay)
 
@@ -140,6 +155,30 @@ describe('SearchOverlay', () => {
       expect(overlay).toHaveAttribute('aria-modal', 'true')
       expect(overlay).toHaveAttribute('aria-label', 'Search tools')
     })
+  })
+
+  it('makes the background inert while open and restores it on close', async () => {
+    const background = document.createElement('div')
+    background.dataset.searchBackground = ''
+    background.setAttribute('aria-hidden', 'false')
+    document.body.append(background)
+
+    try {
+      const { component } = render(SearchOverlay)
+      component.open()
+      await tick()
+
+      expect(background.inert).toBe(true)
+      expect(background).toHaveAttribute('aria-hidden', 'true')
+
+      await fireEvent.keyDown(window, { key: 'Escape' })
+      await tick()
+
+      expect(background.inert).toBe(false)
+      expect(background).toHaveAttribute('aria-hidden', 'false')
+    } finally {
+      background.remove()
+    }
   })
 
   it('should show search header with icon when open', async () => {

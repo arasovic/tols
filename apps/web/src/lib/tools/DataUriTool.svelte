@@ -251,7 +251,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .upload-section { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); padding: var(--space-6); background: var(--bg-surface); border: 2px dashed var(--border-subtle); border-radius: var(--radius-md); }
   .file-input { width: 100%; }
   .file-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

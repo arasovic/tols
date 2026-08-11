@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation'
   import { base } from '$app/paths'
   import { browser } from '$app/environment'
-  import { tick } from 'svelte'
+  import { onDestroy, tick } from 'svelte'
   import { Search, ArrowRight, X } from '@lucide/svelte'
   import { searchTools, searchToolsFuzzy } from '$lib/config/searchConfig.js'
   import { recentTools, addRecent } from '$lib/stores/recentTools.js'
@@ -23,6 +23,13 @@
   let query = ''
   /** @type {Element | null} */
   let previouslyFocused = null
+  let previousBodyOverflow = ''
+  /** @type {HTMLElement | null} */
+  let backgroundElement = null
+  let backgroundHadAriaHidden = false
+  /** @type {string | null} */
+  let previousBackgroundAriaHidden = null
+  let previousBackgroundInert = false
 
   $: filteredTools = searchToolsFuzzy(query)
   $: recentToolsData = $recentTools
@@ -44,8 +51,20 @@
   $: flatResults = groupedResults.flatMap(g => g.tools)
 
   function openOverlay() {
+    if (isOpen) return
+
     if (browser) {
       previouslyFocused = document.activeElement
+      previousBodyOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      backgroundElement = document.querySelector('[data-search-background]')
+      if (backgroundElement) {
+        previousBackgroundInert = Boolean(backgroundElement.inert)
+        backgroundHadAriaHidden = backgroundElement.hasAttribute('aria-hidden')
+        previousBackgroundAriaHidden = backgroundElement.getAttribute('aria-hidden')
+        backgroundElement.inert = true
+        backgroundElement.setAttribute('aria-hidden', 'true')
+      }
     }
 
     isOpen = true
@@ -77,11 +96,33 @@
     isOpen = false
     query = ''
     selectedIndex = 0
+    if (browser) {
+      document.body.style.overflow = previousBodyOverflow
+      restoreBackground()
+    }
     if (browser && elementToFocus instanceof HTMLElement) {
       tick().then(() => {
         elementToFocus.focus()
       })
     }
+  }
+
+  onDestroy(() => {
+    if (browser && isOpen) {
+      document.body.style.overflow = previousBodyOverflow
+      restoreBackground()
+    }
+  })
+
+  function restoreBackground() {
+    if (!backgroundElement) return
+    backgroundElement.inert = previousBackgroundInert
+    if (backgroundHadAriaHidden) {
+      backgroundElement.setAttribute('aria-hidden', previousBackgroundAriaHidden ?? '')
+    } else {
+      backgroundElement.removeAttribute('aria-hidden')
+    }
+    backgroundElement = null
   }
 
   /**
@@ -288,7 +329,11 @@
     aria-label="Search tools"
   >
     <div class="search-container">
-      <!-- Search Header -->
+      <div class="index-masthead">
+        <span class="index-kicker">tols / all tools</span>
+        <h2 class="index-title">Tool index</h2>
+      </div>
+
       <div class="search-header">
         <div class="search-icon">
           <Search size={18} />
@@ -436,7 +481,7 @@
   .overlay-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--bg-base);
     z-index: var(--z-modal);
     animation: fadeIn 120ms ease;
   }
@@ -448,24 +493,24 @@
     right: 0;
     bottom: 0;
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: center;
-    padding-top: 15vh;
+    background: var(--bg-base);
     z-index: calc(var(--z-modal) + 1);
-    pointer-events: none;
+    pointer-events: auto;
   }
 
   .search-container {
-    width: 100%;
-    max-width: 640px;
-    max-height: 70vh;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+    width: min(1180px, calc(100% - 48px));
+    height: 100dvh;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-base);
+    border-right: 1px solid var(--border-default);
+    border-left: 1px solid var(--border-default);
     overflow: hidden;
     pointer-events: auto;
-    animation: slideDown 120ms var(--ease-snap);
   }
 
   @keyframes fadeIn {
@@ -473,15 +518,30 @@
     to { opacity: 1; }
   }
 
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-8px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+  .index-masthead {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: clamp(40px, 7vh, 72px) var(--space-5) var(--space-5);
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .index-kicker {
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .index-title {
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(44px, 8vw, 96px);
+    font-weight: var(--font-normal);
+    letter-spacing: -0.04em;
+    line-height: 0.85;
   }
 
   /* Search Header */
@@ -489,9 +549,9 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--border-subtle);
-    background: var(--bg-elevated);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-base);
   }
 
   .search-icon {
@@ -501,13 +561,13 @@
 
   .search-input {
     flex: 1;
-    font-size: var(--text-base);
+    font-size: var(--text-lg);
     font-weight: var(--font-normal);
     color: var(--text-primary);
     background: transparent;
     border: none;
     outline: none;
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-2) 0 var(--space-2) var(--space-2);
     min-width: 0;
   }
 
@@ -559,21 +619,22 @@
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     font-weight: var(--font-medium);
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
   }
 
   /* Results Container */
   .results-container {
-    max-height: calc(70vh - 140px);
+    flex: 1;
+    max-height: none;
     overflow-y: auto;
     overflow-x: hidden;
   }
 
   .results-group {
-    padding: var(--space-2) 0;
+    padding: 0;
   }
 
   .results-group + .results-group {
@@ -584,7 +645,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--border-default);
     font-size: var(--text-xs);
     font-weight: var(--font-semibold);
     text-transform: uppercase;
@@ -594,13 +656,16 @@
 
   /* Result Item */
   .result-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 4ch minmax(180px, 1fr) auto minmax(180px, auto) 3ch;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-4);
     width: 100%;
-    padding: var(--space-3) var(--space-4);
+    min-height: 64px;
+    padding: var(--space-3) var(--space-5);
     background: transparent;
-    border: none;
+    border: 0;
+    border-bottom: 1px solid var(--border-subtle);
     cursor: pointer;
     text-align: left;
     transition: all var(--transition-fast) var(--ease-out);
@@ -613,7 +678,7 @@
   }
 
   .result-item.selected {
-    background: var(--accent-soft);
+    background: var(--bg-hover);
   }
 
   .result-item:focus-visible {
@@ -625,13 +690,13 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: var(--bg-elevated);
-    color: var(--accent);
-    border: 1px solid var(--border-subtle);
+    justify-content: flex-start;
+    width: 3ch;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 0;
   }
 
   .result-alias {
@@ -643,9 +708,9 @@
   }
 
   .result-item.selected .result-icon {
-    background: var(--accent-dim);
-    color: var(--accent);
-    border-color: var(--accent-dim);
+    background: transparent;
+    color: var(--text-primary);
+    border-color: transparent;
   }
 
   .result-content {
@@ -697,27 +762,31 @@
     font-size: var(--text-xs);
     font-weight: var(--font-medium);
     color: var(--text-tertiary);
-    padding: 2px 8px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
   }
 
   .result-shortcut {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     font-weight: var(--font-medium);
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     padding: 2px 6px;
     background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    transition:
+      color var(--transition-fast) var(--ease-out),
+      background var(--transition-fast) var(--ease-out),
+      border-color var(--transition-fast) var(--ease-out);
   }
 
   .result-item.selected .result-shortcut {
-    background: var(--accent-dim);
-    border-color: var(--accent-dim);
-    color: var(--accent);
+    color: var(--bg-base);
+    background: var(--text-primary);
+    border-color: var(--text-primary);
   }
 
   .result-cmd {
@@ -800,9 +869,9 @@
 
   /* Footer */
   .search-footer {
-    padding: var(--space-2) var(--space-4);
-    border-top: 1px solid var(--border-subtle);
-    background: var(--bg-elevated);
+    padding: var(--space-3) var(--space-5);
+    border-top: 1px solid var(--border-default);
+    background: var(--bg-base);
   }
 
   .footer-hints {
@@ -824,10 +893,10 @@
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: var(--font-medium);
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     padding: 1px 4px;
     background: var(--bg-surface);
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-sm);
   }
 
@@ -852,17 +921,41 @@
   /* Responsive */
   @media (max-width: 768px) {
     .search-overlay {
-      padding: var(--space-4);
-      align-items: center;
+      padding: 0;
+      align-items: stretch;
     }
 
     .search-container {
-      max-height: 80vh;
-      max-width: 100%;
+      width: 100%;
+      height: 100dvh;
+      max-height: none;
+      border: 0;
     }
 
     .results-container {
-      max-height: calc(80vh - 140px);
+      max-height: none;
+    }
+
+    .index-masthead {
+      padding: var(--space-8) var(--space-3) var(--space-4);
+    }
+
+    .search-header,
+    .group-header,
+    .search-footer {
+      padding-inline: var(--space-3);
+    }
+
+    .result-item {
+      grid-template-columns: 4ch minmax(0, 1fr) 2ch;
+      gap: var(--space-2);
+      min-height: 60px;
+      padding-inline: var(--space-3);
+    }
+
+    .result-meta,
+    .result-cmd {
+      display: none;
     }
 
     .footer-hints {

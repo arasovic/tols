@@ -317,7 +317,7 @@
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0;
     width: 100%;
   }
 
@@ -370,7 +370,6 @@
   .algo-btn.active {
     background: var(--accent);
     color: white;
-    box-shadow: var(--shadow-accent-sm);
   }
 
   .algo-name {

@@ -299,7 +299,7 @@
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0;
     width: 100%;
   }
 
@@ -308,7 +308,6 @@
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: var(--shadow);
   }
 
   .color-swatch {

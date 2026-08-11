@@ -2,10 +2,12 @@
   import { base } from '$app/paths'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
-  import { ArrowRight, ExternalLink, Moon, Sun } from '@lucide/svelte'
+  import { ArrowRight, ExternalLink } from '@lucide/svelte'
   import { tools as registryTools } from '$lib/config/registry.js'
   import { theme } from '$lib/stores/theme'
-  import Button from '$lib/ui/Button.svelte'
+  import SiteHeader from '$lib/components/SiteHeader.svelte'
+  import SearchOverlay from '$lib/components/SearchOverlay.svelte'
+  import { dispatchShortcut } from '$lib/ui/shortcuts.js'
   import wordmarkBlack from '../../../../assets/brand/tols-wordmark-black.svg?url'
   import wordmarkWhite from '../../../../assets/brand/tols-wordmark-white.svg?url'
 
@@ -14,6 +16,12 @@
   const canonicalUrl = 'https://tols.arasmehmet.com/'
   const ogImage = 'https://tols.arasmehmet.com/og-image.png'
   const popularTools = registryTools.filter(tool => tool.popular === true)
+  /** @type {import('$lib/components/SearchOverlay.svelte').default} */
+  let searchOverlay
+
+  function openTools() {
+    searchOverlay?.open()
+  }
 
   function setTheme() {
     if (browser) {
@@ -47,27 +55,15 @@
   <meta name="twitter:image" content={ogImage} />
 </svelte:head>
 
-<div class="landing-shell">
-  <header class="site-header">
-    <a href="{base}/" class="brand-link" aria-label="tols home">
-      <span class="wordmark brand-wordmark" aria-hidden="true">
-        <img class="wordmark-black" src={wordmarkBlack} alt="" width="1774" height="709" />
-        <img class="wordmark-white" src={wordmarkWhite} alt="" width="1774" height="709" />
-      </span>
-    </a>
+<svelte:window on:keydown={(event) => dispatchShortcut(event, {
+  palette: () => searchOverlay?.toggle(),
+  sidebar: () => searchOverlay?.toggle()
+})} />
 
-    <nav class="header-actions" aria-label="Project links">
-      <a href="https://www.npmjs.com/package/tols-cli" target="_blank" rel="noopener noreferrer">npm</a>
-      <a href="https://github.com/arasovic/tols" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <Button class="theme-toggle" on:click={theme.toggle} aria-label="Toggle theme">
-        {#if $theme === 'dark'}
-          <Sun size={16} />
-        {:else}
-          <Moon size={16} />
-        {/if}
-      </Button>
-    </nav>
-  </header>
+<SearchOverlay bind:this={searchOverlay} />
+
+<div class="landing-shell" data-search-background>
+  <SiteHeader on:openTools={openTools} />
 
   <!-- The homepage sits outside the app layout, so it owns the skip-link target. -->
   <main id="main-content" tabindex="-1">
@@ -77,8 +73,8 @@
         <img class="wordmark-white" src={wordmarkWhite} alt="" width="1774" height="709" />
       </span>
       <p class="brand-claim">STAYS LOCAL</p>
-      <h1 id="status-title">Interface redesign in progress</h1>
-      <p class="status-copy">The tools remain available while we rebuild the interface</p>
+      <h1 id="status-title">Use the web. Keep the command.</h1>
+      <p class="status-copy">Developer tools that run locally in your browser and teach the exact tols command.</p>
     </section>
 
     <section class="access-grid" aria-label="Ways to use tols">
@@ -88,7 +84,7 @@
           <span>zero runtime dependencies</span>
         </div>
 
-        <p class="section-copy">Install once, then format, encode, hash, generate and convert from your terminal</p>
+        <p class="section-copy">Install once. Format, encode, hash, generate, and convert without leaving your terminal.</p>
 
         <div class="command-block">
           <span aria-hidden="true">$</span>
@@ -117,7 +113,7 @@
           <span>available now</span>
         </div>
 
-        <p class="section-copy">Open any tool to enter the current workspace and browse the full collection</p>
+        <p class="section-copy">Start in the browser. Every compatible surface shows the command that performs the same work locally.</p>
 
         <nav class="web-tool-list" aria-label="Popular web tools">
           {#each popularTools as tool (tool.id)}
@@ -138,51 +134,18 @@
 </div>
 
 <style>
-  /*
-   * Temporary landing palette: keep it local so this approved holding page
-   * cannot change the shared app theme before the full redesign begins.
-   */
   .landing-shell {
-    --landing-bg: #f4f4f0;
-    --landing-ink: #0a0a0a;
-    --landing-muted: #65655f;
-    --landing-rule: rgba(10, 10, 10, 0.18);
-    --landing-soft: rgba(10, 10, 10, 0.055);
-
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    color: var(--landing-ink);
-    background: var(--landing-bg);
+    color: var(--text-primary);
+    background: var(--bg-base);
   }
 
-  :global([data-theme='dark']) .landing-shell {
-    --landing-bg: #0a0a0a;
-    --landing-ink: #f4f4f0;
-    --landing-muted: #a5a59e;
-    --landing-rule: rgba(244, 244, 240, 0.2);
-    --landing-soft: rgba(244, 244, 240, 0.07);
-  }
-
-  .site-header,
   main,
   .site-footer {
     width: min(1180px, calc(100% - 48px));
     margin-inline: auto;
-  }
-
-  .site-header {
-    min-height: 76px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--landing-rule);
-  }
-
-  .brand-link {
-    display: flex;
-    width: 74px;
-    color: var(--landing-ink);
   }
 
   .wordmark {
@@ -208,43 +171,6 @@
     display: block;
   }
 
-  .brand-wordmark {
-    width: 100%;
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .header-actions a {
-    color: var(--landing-muted);
-    font-size: 12px;
-    text-decoration: none;
-  }
-
-  .header-actions a:hover {
-    color: var(--landing-ink);
-  }
-
-  :global(button.btn.theme-toggle) {
-    width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--landing-muted);
-    background: transparent;
-    border: 1px solid var(--landing-rule);
-    border-radius: 0;
-  }
-
-  :global(button.btn.theme-toggle:hover) {
-    color: var(--landing-ink);
-    background: var(--landing-soft);
-  }
-
   main {
     flex: 1;
     outline: none;
@@ -264,7 +190,7 @@
     display: inline-block;
     margin-bottom: 24px;
     padding-top: 10px;
-    color: var(--landing-ink);
+    color: var(--text-primary);
     border-top: 2px solid currentColor;
     font-size: 11px;
     font-weight: 700;
@@ -275,7 +201,7 @@
   h1 {
     max-width: 720px;
     margin: 0;
-    color: var(--landing-ink);
+    color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: clamp(34px, 5.4vw, 68px);
     font-weight: 400;
@@ -286,7 +212,7 @@
   .status-copy {
     max-width: 590px;
     margin-top: 22px;
-    color: var(--landing-muted);
+    color: var(--text-secondary);
     font-size: clamp(14px, 1.6vw, 17px);
     line-height: 1.55;
   }
@@ -294,8 +220,8 @@
   .access-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
-    border-top: 1px solid var(--landing-rule);
-    border-bottom: 1px solid var(--landing-rule);
+    border-top: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border-default);
   }
 
   .cli-section,
@@ -309,7 +235,7 @@
 
   .web-section {
     padding-left: clamp(32px, 5vw, 64px);
-    border-left: 1px solid var(--landing-rule);
+    border-left: 1px solid var(--border-default);
   }
 
   .section-heading {
@@ -322,7 +248,7 @@
 
   .section-heading h2 {
     margin: 0;
-    color: var(--landing-ink);
+    color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: 14px;
     letter-spacing: 0.12em;
@@ -330,7 +256,7 @@
   }
 
   .section-heading span {
-    color: var(--landing-muted);
+    color: var(--text-secondary);
     font-size: 10px;
   }
 
@@ -338,7 +264,7 @@
     max-width: 620px;
     min-height: 44px;
     margin-bottom: 30px;
-    color: var(--landing-muted);
+    color: var(--text-secondary);
     font-size: 13px;
     line-height: 1.6;
   }
@@ -349,13 +275,14 @@
     gap: 14px;
     min-height: 66px;
     padding: 0 20px;
-    color: var(--landing-bg);
-    background: var(--landing-ink);
-    border: 1px solid var(--landing-ink);
+    color: var(--bg-base);
+    background: var(--text-primary);
+    border: 1px solid var(--text-primary);
   }
 
   .command-block span {
-    color: var(--landing-muted);
+    color: inherit;
+    opacity: 0.55;
   }
 
   .install-command {
@@ -368,11 +295,11 @@
     display: grid;
     gap: 10px;
     padding: 18px 20px;
-    color: var(--landing-muted);
-    background: var(--landing-soft);
-    border-right: 1px solid var(--landing-rule);
-    border-bottom: 1px solid var(--landing-rule);
-    border-left: 1px solid var(--landing-rule);
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border-default);
+    border-left: 1px solid var(--border-default);
   }
 
   .command-example code {
@@ -401,29 +328,29 @@
   }
 
   .primary-link {
-    color: var(--landing-bg);
-    background: var(--landing-ink);
-    border: 1px solid var(--landing-ink);
+    color: var(--bg-base);
+    background: var(--text-primary);
+    border: 1px solid var(--text-primary);
   }
 
   .primary-link:hover {
-    color: var(--landing-bg);
+    color: var(--bg-base);
     opacity: 0.82;
   }
 
   .secondary-link {
-    color: var(--landing-ink);
-    border: 1px solid var(--landing-rule);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
   }
 
   .secondary-link:hover {
-    color: var(--landing-ink);
-    background: var(--landing-soft);
+    color: var(--text-primary);
+    background: var(--bg-hover);
   }
 
   .web-tool-list {
     display: grid;
-    border-top: 1px solid var(--landing-rule);
+    border-top: 1px solid var(--border-default);
   }
 
   .web-tool-link {
@@ -432,15 +359,15 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    color: var(--landing-ink);
-    border-bottom: 1px solid var(--landing-rule);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-default);
     font-size: 12px;
     text-decoration: none;
   }
 
   .web-tool-link:hover {
     padding-left: 8px;
-    color: var(--landing-ink);
+    color: var(--text-primary);
   }
 
   .site-footer {
@@ -448,31 +375,22 @@
     display: flex;
     align-items: center;
     gap: 18px;
-    color: var(--landing-muted);
+    color: var(--text-secondary);
     font-size: 10px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   a:focus-visible,
-  :global(button.btn.theme-toggle:focus-visible) {
-    outline: 2px solid var(--landing-ink);
+  :global(button:focus-visible) {
+    outline: 2px solid var(--text-primary);
     outline-offset: 4px;
   }
 
   @media (max-width: 760px) {
-    .site-header,
     main,
     .site-footer {
       width: min(100% - 32px, 1180px);
-    }
-
-    .site-header {
-      min-height: 64px;
-    }
-
-    .header-actions {
-      gap: 16px;
     }
 
     .status-section {
@@ -493,7 +411,7 @@
 
     .web-section {
       padding-left: 0;
-      border-top: 1px solid var(--landing-rule);
+      border-top: 1px solid var(--border-default);
       border-left: 0;
     }
 
@@ -503,10 +421,6 @@
   }
 
   @media (max-width: 460px) {
-    .header-actions a {
-      display: none;
-    }
-
     .primary-actions {
       align-items: stretch;
       flex-direction: column;

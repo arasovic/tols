@@ -1,4 +1,4 @@
-/* tols design tokens — terminal-native, achromatic base + amber signature */
+/* tols design tokens — editorial, achromatic, and locally functional */
 
 @font-face {
   font-family: 'Commit Mono';
@@ -47,13 +47,13 @@
   --border-strong: rgba(255, 255, 255, 0.16);
   --border-focus: var(--accent);
 
-  /* Signature — amber phosphor. Used for focus, primary action, the command strip. */
-  --accent: #ffb000;
-  --accent-hover: #ffc233;
-  --accent-active: #e09a00;
-  --accent-dim: rgba(255, 176, 0, 0.12);
-  --accent-soft: rgba(255, 176, 0, 0.06);
-  --accent-muted: rgba(255, 176, 0, 0.12);
+  /* Interface emphasis stays monochrome; colour communicates meaning only. */
+  --accent: #f2f2f2;
+  --accent-hover: #ffffff;
+  --accent-active: #d4d4d4;
+  --accent-dim: rgba(242, 242, 242, 0.12);
+  --accent-soft: rgba(242, 242, 242, 0.06);
+  --accent-muted: rgba(242, 242, 242, 0.12);
   --accent-secondary: #d4d4d4;
   --accent-secondary-muted: rgba(212, 212, 212, 0.12);
 
@@ -72,7 +72,7 @@
   --text-muted: #858585;
   --text-disabled: #4d4d4d;
 
-  /* Semantic — two hues only; warning shares the amber signature */
+  /* Semantic colour is reserved for state and feedback. */
   --success: #3da35d;
   --success-soft: rgba(61, 163, 93, 0.12);
   --success-text: #57bd77;
@@ -83,8 +83,8 @@
   --error-muted: rgba(229, 72, 77, 0.12);
   --error-text: #f16b6f;
 
-  --warning: var(--accent);
-  --warning-soft: var(--accent-dim);
+  --warning: #ffb000;
+  --warning-soft: rgba(255, 176, 0, 0.12);
 
   --info: #a6a6a6;
   --info-soft: rgba(166, 166, 166, 0.10);
@@ -95,15 +95,15 @@
   --error-border: var(--error);
   --bg-error: var(--error-soft);
   --border-error: var(--error);
-  --bg-warning: var(--accent-soft);
+  --bg-warning: var(--warning-soft);
   --accent-subtle: var(--accent-soft);
   --text-accent: var(--accent);
   --text-error: var(--error-text);
   --text-success: var(--success-text);
-  --text-warning: var(--accent);
-  --warning-hover: var(--accent-hover);
-  --warning-muted: var(--accent-muted);
-  --warning-subtle: var(--accent-soft);
+  --text-warning: var(--warning);
+  --warning-hover: #ffc233;
+  --warning-muted: rgba(255, 176, 0, 0.12);
+  --warning-subtle: rgba(255, 176, 0, 0.06);
   --font-bold: var(--font-semibold);
   --btn-size: 28px;
   --delay: 0ms;
@@ -156,11 +156,11 @@
   --tracking-normal: 0.01em;
   --tracking-wide: 0.08em;
 
-  /* Radius — sharpened, deliberate 2px */
-  --radius-sm: 2px;
-  --radius: 2px;
-  --radius-md: 2px;
-  --radius-lg: 3px;
+  /* Square geometry is part of the editorial surface language. */
+  --radius-sm: 0px;
+  --radius: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
   --radius-full: 9999px;
 
   /* Elevation is borders, not shadows. Only the modal layer keeps a shadow. */
@@ -211,7 +211,7 @@
 }
 
 /* ========================================
-   LIGHT THEME — paper, amber darkened to hold contrast
+   LIGHT THEME — paper and ink
    ======================================== */
 
 [data-theme="light"] {
@@ -227,12 +227,12 @@
   --border-strong: rgba(0, 0, 0, 0.20);
   --border-focus: var(--accent);
 
-  --accent: #a15c00;
-  --accent-hover: #8a4e00;
-  --accent-active: #6f3f00;
-  --accent-dim: rgba(161, 92, 0, 0.10);
-  --accent-soft: rgba(161, 92, 0, 0.05);
-  --accent-muted: rgba(161, 92, 0, 0.10);
+  --accent: #171717;
+  --accent-hover: #000000;
+  --accent-active: #404040;
+  --accent-dim: rgba(23, 23, 23, 0.10);
+  --accent-soft: rgba(23, 23, 23, 0.05);
+  --accent-muted: rgba(23, 23, 23, 0.10);
   --accent-secondary: #404040;
   --accent-secondary-muted: rgba(64, 64, 64, 0.10);
 
@@ -255,8 +255,8 @@
   --error-muted: rgba(192, 43, 48, 0.10);
   --error-text: #a52327;
 
-  --warning: var(--accent);
-  --warning-soft: var(--accent-dim);
+  --warning: #a15c00;
+  --warning-soft: rgba(161, 92, 0, 0.10);
 
   --info: #525252;
   --info-soft: rgba(82, 82, 82, 0.08);
@@ -266,15 +266,15 @@
   --error-border: var(--error);
   --bg-error: var(--error-soft);
   --border-error: var(--error);
-  --bg-warning: var(--accent-soft);
+  --bg-warning: var(--warning-soft);
   --accent-subtle: var(--accent-soft);
   --text-accent: var(--accent);
   --text-error: var(--error-text);
   --text-success: var(--success-text);
-  --text-warning: var(--accent);
-  --warning-hover: var(--accent-hover);
-  --warning-muted: var(--accent-muted);
-  --warning-subtle: var(--accent-soft);
+  --text-warning: var(--warning);
+  --warning-hover: #8a4e00;
+  --warning-muted: rgba(161, 92, 0, 0.10);
+  --warning-subtle: rgba(161, 92, 0, 0.05);
 
   --diff-remove-bg: rgba(192, 43, 48, 0.09);
   --diff-remove-bg-subtle: rgba(192, 43, 48, 0.05);

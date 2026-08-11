@@ -35,9 +35,10 @@ function hasAllowedHeadOrigin(value) {
 const CANONICAL = /rel="canonical"/g
 
 /**
- * All 31 built pages. They are flat `.html` files in `build/` — `xml.html`,
- * `index.html` — not `build/<tool>/index.html` directories. Every `.html` file
- * in `build/` is a page a crawler will see.
+ * The 31 canonical pages plus the static-host fallback. They are flat `.html`
+ * files in `build/` — `xml.html`, `index.html`, `404.html` — not
+ * `build/<tool>/index.html` directories. Every `.html` file in `build/` is a
+ * page a crawler will see.
  *
  * Reading the built output is what makes this guard stronger than the source
  * read it replaced: it asserts what actually ships, not what the source
@@ -48,6 +49,10 @@ function builtPages() {
   return readdirSync(BUILD)
     .filter((f) => f.endsWith('.html'))
     .map((f) => join(BUILD, f))
+}
+
+function canonicalPages() {
+  return builtPages().filter(file => !file.endsWith('/404.html'))
 }
 
 /**
@@ -78,7 +83,18 @@ describe('canonical URLs (built pages)', () => {
       existsSync(BUILD),
       `No build at ${BUILD}. Run \`npm run build\` first — these assertions read the built pages.`
     ).toBe(true)
-    expect(builtPages().length).toBe(31)
+    expect(builtPages().length).toBe(32)
+  })
+
+  it('ships the custom not-found surface as the static host fallback', () => {
+    const fallback = join(BUILD, '404.html')
+    expect(existsSync(fallback)).toBe(true)
+    const source = readFileSync(fallback, 'utf8')
+    expect(source).toContain('Nothing at this address.')
+    expect(source).toContain('Back to tols')
+    expect(source).toContain('name="robots" content="noindex"')
+    expect(source).not.toContain('name="robots" content="index, follow"')
+    expect(source.match(/name="robots"/g)).toHaveLength(1)
   })
 
   it('are declared exactly once by every built page', () => {
@@ -86,7 +102,7 @@ describe('canonical URLs (built pages)', () => {
     // no page is relying on it. A tool page added without a canonical fails
     // here rather than shipping an unindexed page. Counting, not presence: a
     // second canonical sneaked in by the shell would otherwise sail through.
-    const offenders = builtPages()
+    const offenders = canonicalPages()
       .map((file) => [file, (readFileSync(file, 'utf8').match(CANONICAL) || []).length])
       .filter(([, count]) => count !== 1)
       .map(([file, count]) => `${file.slice(BUILD.length + 1)}: ${count}`)
@@ -103,7 +119,7 @@ describe('canonical URLs (built pages)', () => {
     // which is full of demo links (a JSONP sample calls api.example.com) and
     // inline SVGs whose xmlns is the w3.org namespace — none of it
     // crawler-facing. The canonical, og:* and JSON-LD tags all live in <head>.
-    const offenders = builtPages().flatMap((file) => {
+    const offenders = canonicalPages().flatMap((file) => {
       const source = readFileSync(file, 'utf8')
       const head = source.match(/<head>([\s\S]*?)<\/head>/)?.[1] ?? ''
       return (head.match(/https?:\/\/[^'"\s)]+/g) || [])
@@ -119,7 +135,7 @@ describe('canonical URLs (built pages)', () => {
     // and iMessage all discard an og:image they cannot decode rather than
     // falling back to one they can. Nothing failed: the file existed, the URL
     // resolved, and the defect was only visible by pasting a link somewhere.
-    const offenders = builtPages().flatMap((file) => {
+    const offenders = canonicalPages().flatMap((file) => {
       const source = readFileSync(file, 'utf8')
       return (source.match(/https?:\/\/\S+\.svg/g) || []).map(
         (url) => `${file.slice(BUILD.length + 1)}: ${url}`

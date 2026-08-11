@@ -270,7 +270,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
   .barcode-input { display: flex; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .input-group { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -279,6 +279,6 @@
   .input-group input:focus, .input-group select:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }
   .type-group { width: 120px; }
   .barcode-preview { display: flex; justify-content: center; padding: var(--space-6); }
-  .barcode-canvas { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+  .barcode-canvas { background: white; border-radius: var(--radius); }
   @media (max-width: 768px) { .barcode-input { flex-direction: column; } .type-group { width: 100%; } }
 </style>

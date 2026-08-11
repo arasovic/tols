@@ -497,7 +497,7 @@
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0;
     width: 100%;
   }
 
@@ -622,7 +622,6 @@
     background: var(--accent);
     color: white;
     border-color: var(--accent);
-    box-shadow: var(--shadow-accent-sm);
   }
 
   .error-state {

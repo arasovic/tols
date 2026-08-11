@@ -253,7 +253,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .jsonp-inputs { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .input-row { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4); }
   .input-group { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -265,8 +265,8 @@
   .code-block { margin: 0; padding: var(--space-3) var(--space-4); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); overflow-x: auto; }
   .result-display { padding: var(--space-4); }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); font-size: var(--text-sm); }
-  .result-display.success { background: rgba(34, 197, 94, 0.1); }
-  .result-display.error { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+  .result-display.success { background: var(--success-soft); }
+  .result-display.error { background: var(--error-soft); color: var(--error); }
   .result-display pre { margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); }
   .info-section { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .info-section h3 { font-size: var(--text-base); font-weight: var(--font-semibold); color: var(--text-primary); margin-bottom: var(--space-2); }

@@ -253,7 +253,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .error-display { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); color: var(--error-text); border-radius: var(--radius-md); }
   .qr-input-section { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .input-group { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -262,7 +262,7 @@
   .input-group input[type="text"]:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }
   .size-group input[type="range"] { width: 100%; }
   .qr-preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); }
-  .qr-preview canvas { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+  .qr-preview canvas { background: white; border-radius: var(--radius); }
   .examples-section h3 { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text-tertiary); margin-bottom: var(--space-3); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
   .examples { display: flex; flex-wrap: wrap; gap: var(--space-2); }
   .example-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }

@@ -12,9 +12,11 @@
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage --maxWorkers=50%",
     "test:built": "vitest --run --config vitest.built.config.js",
+    "test:browser": "playwright test",
     "test:watch": "vitest --watch"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.70.2",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",

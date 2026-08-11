@@ -11,11 +11,13 @@
 <style>
   .action-rail {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    padding: var(--space-2) 0 0;
-    border-top: 1px solid var(--border-subtle);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-default);
+    border-top: 0;
   }
 
   .rail-main,
@@ -24,5 +26,6 @@
     align-items: center;
     gap: var(--space-2);
     flex-wrap: wrap;
+    min-width: 0;
   }
 </style>

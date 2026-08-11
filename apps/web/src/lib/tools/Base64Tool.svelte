@@ -292,7 +292,7 @@
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0;
     width: 100%;
   }
 
@@ -331,7 +331,6 @@
     background: var(--bg-surface);
     color: var(--text-primary);
     border: 1px solid var(--border-default);
-    box-shadow: var(--shadow-xs);
   }
 
   .editor-textarea {

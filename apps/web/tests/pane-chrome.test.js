@@ -4,6 +4,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const TOOLS_DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/tools')
+const UI_DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/ui')
 
 function walk(dir) {
   return readdirSync(dir).flatMap((entry) => {
@@ -60,6 +61,19 @@ const PANE_CHROME_PATTERNS = [
 ]
 
 describe('pane chrome', () => {
+  it('uses one continuous ruled surface and stacks below 900px', () => {
+    const panel = readFileSync(join(UI_DIR, 'Panel.svelte'), 'utf8')
+    const group = readFileSync(join(UI_DIR, 'PanelGroup.svelte'), 'utf8')
+    const panelBlock = panel.match(/\.panel\s*\{([^}]*)\}/)?.[1] ?? ''
+    const groupBlock = group.match(/\.panel-group\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(panelBlock).toMatch(/border-radius:\s*0/)
+    expect(groupBlock).toMatch(/gap:\s*0/)
+    expect(group).toMatch(/@media \(min-width:\s*900px\)/)
+    expect(group).toMatch(/border-left:\s*0/)
+    expect(group).toMatch(/border-top:\s*0/)
+  })
+
   it('is owned by Workbench, not by the tools that render it', () => {
     // Rendering the shells would pass even if a tool reintroduced its own two
     // panes inside the Workbench slots, so — like the <main> and header guards —

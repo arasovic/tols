@@ -4,6 +4,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const TOOLS_DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/tools')
+const FACT_STRIP = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/ui/FactStrip.svelte')
 
 function walk(dir) {
   return readdirSync(dir).flatMap((entry) => {
@@ -61,6 +62,13 @@ const STRIP_CHROME_PATTERNS = STRIP_CHROME_CLASSES.flatMap((name) => [
 ])
 
 describe('fact strip chrome', () => {
+  it('uses a squared ruled strip instead of a nested card', () => {
+    const source = readFileSync(FACT_STRIP, 'utf8')
+    const block = source.match(/\.fact-strip\s*\{([^}]*)\}/)?.[1] ?? ''
+    expect(block).toMatch(/background:\s*var\(--bg-base\)/)
+    expect(block).toMatch(/border-radius:\s*0/)
+  })
+
   it('is owned by FactStrip, not by the tool components', () => {
     // Rendering the tools would pass even if one reintroduced its own strip
     // inside the FactStrip slot, so — like the <main>, header and pane

@@ -222,7 +222,7 @@ LIMIT 100;`
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0;
     width: 100%;
   }
 
@@ -256,15 +256,14 @@ LIMIT 100;`
     background: var(--bg-surface);
     color: var(--text-primary);
     border: 1px solid var(--border-default);
-    box-shadow: var(--shadow-xs);
   }
 
   .error-banner {
-    background: var(--error-bg, #fef2f2);
-    color: var(--error-text, #dc2626);
+    background: var(--error-bg);
+    color: var(--error-text);
     padding: var(--space-3);
     border-radius: var(--radius);
-    border: 1px solid var(--error-border, #fecaca);
+    border: 1px solid var(--error-border);
     font-size: var(--text-sm);
   }
 

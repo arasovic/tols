@@ -214,13 +214,13 @@
     Button. What is genuinely specific to the CSS tool: the pane contents and
     the beautify/minify mode switch.
   */
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .segmented { display: flex; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 2px; }
   .segment { display: flex; align-items: center; padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: transparent; border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .segment:hover { color: var(--text-primary); }
-  .segment.active { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); box-shadow: var(--shadow-xs); }
+  .segment.active { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); }
   .editor-textarea { width: 100%; height: 100%; min-height: var(--pane-min-height); padding: var(--space-3); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); background: transparent; border: none; resize: none; tab-size: 2; }
   .editor-textarea::placeholder { color: var(--text-muted); }
   .output-display { height: 100%; min-height: var(--pane-min-height); margin: 0; padding: var(--space-3); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); white-space: pre-wrap; word-wrap: break-word; overflow: auto; }
-  .error-bar { padding: var(--space-3); margin-bottom: var(--space-2); background: var(--error-soft, rgba(239, 68, 68, 0.1)); border: 1px solid var(--error, #ef4444); border-radius: var(--radius-md); color: var(--error, #ef4444); font-size: var(--text-sm); }
+  .error-bar { padding: var(--space-3); margin-bottom: var(--space-2); background: var(--error-soft); border: 1px solid var(--error); border-radius: var(--radius-md); color: var(--error); font-size: var(--text-sm); }
 </style>

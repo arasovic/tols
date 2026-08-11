@@ -49,6 +49,11 @@ function contrast(a, b) {
   return (hi + 0.05) / (lo + 0.05)
 }
 
+function channelSpread(hex) {
+  const channels = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
+  return Math.max(...channels) - Math.min(...channels)
+}
+
 /** Reads a literal hex value for a token out of a theme block. */
 function hexOf(block, token) {
   const m = block.match(new RegExp(`${token}\\s*:\\s*(#[0-9a-fA-F]{6})`))
@@ -144,11 +149,21 @@ describe('design tokens', () => {
     }
   })
 
-  it('keeps the signature accent usable as a UI colour in both themes', () => {
-    expect(contrast(hexOf(blockFor(':root'), '--accent'), hexOf(blockFor(':root'), '--bg-base')))
-      .toBeGreaterThanOrEqual(3)
-    expect(contrast(hexOf(blockFor('[data-theme="light"]'), '--accent'), hexOf(blockFor('[data-theme="light"]'), '--bg-base')))
-      .toBeGreaterThanOrEqual(3)
+  it('uses an achromatic UI accent with sufficient contrast in both themes', () => {
+    for (const block of [blockFor(':root'), blockFor('[data-theme="light"]')]) {
+      const accent = hexOf(block, '--accent')
+      expect(channelSpread(accent)).toBeLessThanOrEqual(4)
+      expect(contrast(accent, hexOf(block, '--bg-base'))).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('reserves amber for warnings instead of decorative chrome', () => {
+    for (const block of [blockFor(':root'), blockFor('[data-theme="light"]')]) {
+      const warning = hexOf(block, '--warning')
+      expect(channelSpread(warning)).toBeGreaterThan(32)
+      expect(warning).not.toBe(hexOf(block, '--accent'))
+      expect(contrast(warning, hexOf(block, '--bg-base'))).toBeGreaterThanOrEqual(3)
+    }
   })
 
   it('bans the banned hues from the accent ramp', () => {

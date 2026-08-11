@@ -186,11 +186,11 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .mode-toggle { display: flex; background: var(--bg-elevated); border-radius: var(--radius); padding: 3px; border: 1px solid var(--border-subtle); }
   .mode-btn { padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: transparent; transition: all var(--transition) var(--ease-out); border: none; cursor: pointer; }
   .mode-btn:hover { color: var(--text-primary); }
-  .mode-btn.active { background: var(--accent); color: var(--bg-base); box-shadow: var(--shadow-accent-sm); }
+  .mode-btn.active { background: var(--accent); color: var(--bg-base); }
   .search-section { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .search-input { width: 100%; padding: var(--space-3); font-size: var(--text-lg); text-align: center; border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg-base); color: var(--text-primary); outline: none; }
   .search-input:focus { border-color: var(--accent); box-shadow: var(--glow-focus); }

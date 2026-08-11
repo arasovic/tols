@@ -36,8 +36,8 @@
     min-width: 0;
     min-height: 0;
     background: var(--bg-base);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius);
+    border: 1px solid var(--border-default);
+    border-radius: 0;
   }
 
   .panel-head {
@@ -46,7 +46,7 @@
     justify-content: space-between;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-3);
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-default);
   }
 
   .panel-label {
