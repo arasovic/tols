@@ -1,5 +1,7 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
+import { tick } from 'svelte'
+import { page } from '$app/stores'
 import ErrorSurface from '$lib/components/ErrorSurface.svelte'
 import ErrorPage from '../src/routes/+error.svelte'
 import NotFoundPage from '../src/routes/404/+page.svelte'
@@ -13,6 +15,10 @@ vi.mock('$app/stores', async () => {
 })
 
 describe('error pages', () => {
+  beforeEach(() => {
+    page.set({ status: 503 })
+  })
+
   it('renders base-safe recovery actions for a missing route', () => {
     render(ErrorSurface, { props: { status: 404 } })
 
@@ -55,6 +61,28 @@ describe('error pages', () => {
     expect(document.title).toBe('503 — tols')
     expect(document.head.querySelector('meta[name="robots"]'))
       .toHaveAttribute('content', 'noindex')
+  })
+
+  it('falls back to 500 and reacts when SvelteKit supplies a later status', async () => {
+    page.set({ status: 0 })
+    render(ErrorPage)
+
+    expect(screen.getByRole('heading', { level: 1, name: '500' })).toBeInTheDocument()
+    expect(document.title).toBe('500 — tols')
+
+    page.set({ status: 502 })
+    await tick()
+
+    expect(screen.getByRole('heading', { level: 1, name: '502' })).toBeInTheDocument()
+    expect(document.title).toBe('502 — tols')
+  })
+
+  it('coerces an invalid status before writing the raw title fragment', () => {
+    page.set({ status: '</title><script data-injected>throw 1</script>' })
+    render(ErrorPage)
+
+    expect(document.title).toBe('NaN — tols')
+    expect(document.head.querySelector('script[data-injected]')).toBeNull()
   })
 
   it('renders the prerendered not-found route through the shared surface', () => {

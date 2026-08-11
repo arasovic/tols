@@ -76,6 +76,15 @@ describe('tool header chrome', () => {
     expect(container.querySelector('[data-tool-id]')).toBeNull()
   })
 
+  it('renders an inert heading when no registry or explicit identity is supplied', () => {
+    const { container } = render(ToolHeader)
+
+    expect(container.querySelector('h1')).toHaveTextContent('')
+    expect(container.querySelector('h1')).not.toHaveAttribute('aria-label')
+    expect(container.querySelector('.tool-desc')).toBeNull()
+    expect(container.querySelector('.tool-category')).toBeNull()
+  })
+
   it('is owned by ToolHeader, not by the tool components', () => {
     // Rendering the shells would pass even if a tool reintroduced its own
     // heading inside the ToolHeader slot, so — like the <main> guard — this

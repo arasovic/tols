@@ -42,10 +42,12 @@ describe('SearchOverlay', () => {
     const { component, container } = render(SearchOverlay)
 
     component.open()
+    component.open()
 
     await waitFor(() => {
       const overlay = container.querySelector('.search-overlay')
       expect(overlay).toBeInTheDocument()
+      expect(container.querySelectorAll('.search-overlay')).toHaveLength(1)
     })
   })
 

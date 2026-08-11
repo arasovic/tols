@@ -10,11 +10,12 @@
   export let context = ''
 
   const dispatch = createEventDispatcher()
+  const homeHref = `${base}/`
 </script>
 
 <header class="site-header">
   <div class="site-identity">
-    <a class="site-wordmark" href="{base}/" aria-label="tols">
+    <a class="site-wordmark" href={homeHref} aria-label="tols">
       <img class="wordmark-black" src={wordmarkBlack} alt="" width="1774" height="709" />
       <img class="wordmark-white" src={wordmarkWhite} alt="" width="1774" height="709" />
     </a>

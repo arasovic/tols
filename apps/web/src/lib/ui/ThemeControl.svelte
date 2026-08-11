@@ -7,12 +7,14 @@
     light: 'light',
     dark: 'dark'
   }
+
+  $: controlLabel = `Theme: ${labels[$themePreference]}. Change theme`
 </script>
 
 <Button
   class="theme-control"
   on:click={theme.cycle}
-  aria-label="Theme: {labels[$themePreference]}. Change theme"
+  aria-label={controlLabel}
 >
   <span>theme</span>
   <span aria-hidden="true">/</span>

@@ -8,6 +8,7 @@
   let searchOverlay
 
   export let status = 500
+  const homeHref = `${base}/`
   $: isNotFound = status === 404
   $: title = isNotFound ? 'Nothing at this address.' : 'The page could not be loaded.'
   $: detail = isNotFound
@@ -26,7 +27,7 @@
   <SiteHeader context={String(status)} on:openTools={() => searchOverlay?.open()} />
 
   <main id="main-content" tabindex="-1">
-    <p class="error-kicker">HTTP / {status}</p>
+    <p class="error-kicker"><span>HTTP / </span>{status}</p>
     <h1>{status}</h1>
     <div class="error-copy">
       <p class="error-title">{title}</p>
@@ -34,7 +35,7 @@
     </div>
 
     <nav class="error-actions" aria-label="Error recovery">
-      <a class="home-link" href="{base}/">Back to tols</a>
+      <a class="home-link" href={homeHref}>Back to tols</a>
       <button type="button" on:click={() => searchOverlay?.open()}>Open tool index</button>
     </nav>
   </main>
