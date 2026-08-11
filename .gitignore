@@ -20,6 +20,8 @@ npm-debug.log*
 
 # Testing
 coverage
+apps/web/playwright-report/
+apps/web/test-results/
 
 # Local planning docs (never commit)
 docs/*

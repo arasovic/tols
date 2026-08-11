@@ -49,7 +49,7 @@ describe('tool aliases', () => {
   })
 
   it('keeps every alias inside the fixed nav column', () => {
-    // Sidebar.svelte sizes `.nav-alias` to a fixed 3ch so all 30 labels start
+    // SearchOverlay.svelte sizes `.result-alias` to a fixed 3ch so all labels start
     // on the same column. A 4-character alias would silently re-ragged it.
     expect(MAX_ALIAS_LENGTH).toBe(3)
     const tooWide = Object.entries(TOOL_ALIASES)

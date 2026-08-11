@@ -21,8 +21,12 @@
   .panel-group {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-3);
+    gap: 0;
     min-height: 0;
+  }
+
+  .panel-group :global(.panel + .panel) {
+    border-top: 0;
   }
 
   /* 900px matches ToolHeader's stacking point and the workbench panes: below
@@ -31,6 +35,11 @@
   @media (min-width: 900px) {
     .panel-group {
       grid-template-columns: repeat(var(--panel-group-columns), minmax(0, 1fr));
+    }
+
+    .panel-group :global(.panel + .panel) {
+      border-top: 1px solid var(--border-default);
+      border-left: 0;
     }
   }
 </style>

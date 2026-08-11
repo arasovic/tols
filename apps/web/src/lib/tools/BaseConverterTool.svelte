@@ -323,7 +323,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .converter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
   .base-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .base-header { display: flex; justify-content: space-between; align-items: center; }
@@ -336,6 +336,6 @@
   .conversion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
   .conv-btn { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .conv-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-dim); }
-  .error-state { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft, rgba(239, 68, 68, 0.1)); border: 1px solid var(--error, #EF4444); border-radius: var(--radius); color: var(--error); font-size: var(--text-sm); }
+  .error-state { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--error-soft); border: 1px solid var(--error); border-radius: var(--radius); color: var(--error); font-size: var(--text-sm); }
   @media (max-width: 768px) { .converter-grid { grid-template-columns: 1fr; } .conversion-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>

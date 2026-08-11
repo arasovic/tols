@@ -38,7 +38,7 @@ function ladder(id) {
 }
 
 /**
- * Sidebar.svelte sizes `.nav-alias` to a fixed `3ch` so all 30 labels start on
+ * SearchOverlay.svelte sizes `.result-alias` to a fixed `3ch` so all labels start on
  * the same column. Anything longer silently re-raggeds it, so the number lives
  * here rather than only in the CSS and only in the test.
  */

@@ -242,7 +242,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .tool-crosslink { font-size: var(--text-xs); color: var(--accent); text-decoration: none; margin-top: var(--space-1); }
   .tool-crosslink:hover { text-decoration: underline; }
   .input-textarea { width: 100%; min-height: 100px; padding: var(--space-3); border: none; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); resize: vertical; outline: none; }

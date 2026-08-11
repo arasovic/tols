@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render } from '@testing-library/svelte'
+import { render, screen } from '@testing-library/svelte'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -9,6 +9,7 @@ import Layout from '../src/routes/(app)/+layout.svelte'
 import { labelInNameViolations } from './test-utils.js'
 
 const APP_ROUTES = join(dirname(fileURLToPath(import.meta.url)), '../src/routes/(app)')
+const layoutSource = readFileSync(join(APP_ROUTES, '+layout.svelte'), 'utf8')
 
 function walk(dir) {
   return readdirSync(dir).flatMap((entry) => {
@@ -44,7 +45,14 @@ vi.mock('$lib/stores/theme', () => ({
       cb('dark')
       return () => {}
     }),
-    toggle: vi.fn()
+    toggle: vi.fn(),
+    cycle: vi.fn()
+  },
+  themePreference: {
+    subscribe: vi.fn((cb) => {
+      cb('system')
+      return () => {}
+    })
   }
 }))
 
@@ -100,6 +108,25 @@ describe('(app) layout header title', () => {
     // layout renders it.
     const { container } = render(Layout)
     expect(labelInNameViolations(container)).toEqual([])
+  })
+
+  it('uses one shared header and no persistent sidebar', () => {
+    const { container } = render(Layout)
+    expect(container.querySelector('.site-header')).not.toBeNull()
+    expect(container.querySelector('.sidebar')).toBeNull()
+    expect(screen.getByRole('button', { name: /all tools/i })).toBeInTheDocument()
+  })
+
+  it('lets the document own page scrolling instead of trapping a viewport', () => {
+    const layoutBlock = layoutSource.match(/\.layout\s*\{([^}]*)\}/)?.[1] ?? ''
+    const mainBlock = layoutSource.match(/\.main\s*\{([^}]*)\}/)?.[1] ?? ''
+    const contentBlock = layoutSource.match(/\.content\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(layoutBlock).not.toMatch(/(?:^|\n)\s*height:\s*100vh/)
+    expect(layoutBlock).not.toMatch(/overflow:\s*hidden/)
+    expect(mainBlock).not.toMatch(/(?:^|\n)\s*height:\s*100vh/)
+    expect(mainBlock).not.toMatch(/overflow:\s*hidden/)
+    expect(contentBlock).not.toMatch(/overflow-y:\s*auto/)
   })
 
   it('owns the single <main> and the skip-link target for every tool route', () => {

@@ -206,7 +206,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
 
   .cron-input-section { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .cron-parts { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2); }

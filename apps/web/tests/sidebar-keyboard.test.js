@@ -25,7 +25,14 @@ vi.mock('$lib/stores/theme', () => ({
       cb('dark')
       return () => {}
     }),
-    toggle: vi.fn()
+    toggle: vi.fn(),
+    cycle: vi.fn()
+  },
+  themePreference: {
+    subscribe: vi.fn((cb) => {
+      cb('system')
+      return () => {}
+    })
   }
 }))
 
@@ -39,69 +46,45 @@ vi.mock('$lib/stores/recentTools.js', () => ({
   addRecent: vi.fn()
 }))
 
-describe('Cmd+B / Ctrl+B sidebar toggle through the app layout', () => {
+describe('legacy Cmd+B / Ctrl+B tool index shortcut', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('toggles the sidebar exactly once per Cmd+B press', async () => {
+  it('toggles the tool index exactly once per Cmd+B press', async () => {
     const { container } = render(Layout)
-    const sidebar = container.querySelector('.sidebar')
-    expect(sidebar).not.toHaveClass('open')
+    expect(container.querySelector('.search-overlay')).toBeNull()
 
     await fireEvent.keyDown(window, { key: 'b', metaKey: true })
-    expect(sidebar).toHaveClass('open')
+    expect(container.querySelector('.search-overlay')).not.toBeNull()
 
     await fireEvent.keyDown(window, { key: 'b', metaKey: true })
-    expect(sidebar).not.toHaveClass('open')
+    expect(container.querySelector('.search-overlay')).toBeNull()
   })
 
-  it('toggles the sidebar exactly once per Ctrl+B press', async () => {
+  it('toggles the tool index exactly once per Ctrl+B press', async () => {
     const { container } = render(Layout)
-    const sidebar = container.querySelector('.sidebar')
 
     await fireEvent.keyDown(window, { key: 'b', ctrlKey: true })
-    expect(sidebar).toHaveClass('open')
+    expect(container.querySelector('.search-overlay')).not.toBeNull()
 
     await fireEvent.keyDown(window, { key: 'b', ctrlKey: true })
-    expect(sidebar).not.toHaveClass('open')
+    expect(container.querySelector('.search-overlay')).toBeNull()
   })
 
-  it('still closes the drawer with Escape after Cmd+B opens it', async () => {
+  it('closes the tool index with Escape after Cmd+B opens it', async () => {
     const { container } = render(Layout)
-    const sidebar = container.querySelector('.sidebar')
 
     await fireEvent.keyDown(window, { key: 'b', metaKey: true })
-    expect(sidebar).toHaveClass('open')
+    expect(container.querySelector('.search-overlay')).not.toBeNull()
 
     await fireEvent.keyDown(window, { key: 'Escape' })
-    expect(sidebar).not.toHaveClass('open')
+    expect(container.querySelector('.search-overlay')).toBeNull()
   })
 
-  it('keeps the closed sidebar out of the tab order and the a11y tree', async () => {
-    // The off-canvas panel is hidden by `transform` only, so without `inert` its
-    // 32 focusables stay tabbable and focus disappears off the left edge for 32
-    // presses on every tool route.
-    //
-    // This asserts the PROPERTY, not the attribute, and that is deliberate:
-    // `inert` is in Svelte 4's attribute_lookup table, so the client compiler
-    // emits `aside.inert = value` rather than setAttribute. In a browser the
-    // property reflects to the attribute and drives the behaviour; jsdom
-    // implements neither, so `hasAttribute('inert')` is false here even though
-    // the shipped page is correct. The focus-order effect itself is verified in
-    // Chrome, not here — jsdom has no concept of inertness.
+  it('removes the obsolete off-canvas navigation from the layout', async () => {
     const { container } = render(Layout)
-    const sidebar = container.querySelector('.sidebar')
-    const focusables = () =>
-      sidebar.querySelectorAll('a[href], button, [tabindex]:not([tabindex="-1"])')
-
-    expect(sidebar.inert).toBe(true)
-    expect(focusables().length).toBeGreaterThan(0) // the guard is not passing vacuously
-
-    await fireEvent.keyDown(window, { key: 'b', metaKey: true })
-    expect(sidebar.inert).toBe(false)
-
-    await fireEvent.keyDown(window, { key: 'Escape' })
-    expect(sidebar.inert).toBe(true)
+    expect(container.querySelector('.sidebar')).toBeNull()
+    expect(container.querySelector('.menu-btn')).toBeNull()
   })
 })

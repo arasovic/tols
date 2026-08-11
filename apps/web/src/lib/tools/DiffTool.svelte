@@ -492,14 +492,14 @@ console.log(greet(user));`
   .tool {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0;
     width: 100%;
   }
 
   .segmented { display: flex; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 2px; }
   .segment { display: flex; align-items: center; padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-secondary); background: transparent; border: none; cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
   .segment:hover { color: var(--text-primary); }
-  .segment.active { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); box-shadow: var(--shadow-xs); }
+  .segment.active { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); }
 
   .diff-textarea { flex: 1; min-height: 150px; padding: var(--space-3); border: none; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-snug); resize: vertical; outline: none; }
   .diff-textarea::placeholder { color: var(--text-muted); }

@@ -71,9 +71,9 @@
     flex-wrap: wrap;
     gap: var(--space-3) var(--space-6);
     padding: var(--space-3) var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
+    background: var(--bg-base);
+    border: 1px solid var(--border-default);
+    border-radius: 0;
   }
 
   .fact {

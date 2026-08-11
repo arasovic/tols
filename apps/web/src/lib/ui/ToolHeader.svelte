@@ -1,6 +1,6 @@
 <!-- apps/web/src/lib/ui/ToolHeader.svelte -->
 <script>
-  import { getTool } from '$lib/config/registry.js'
+  import { getCategoryLabel, getTool } from '$lib/config/registry.js'
 
   /**
    * Registry id, e.g. 'hash'. The name and description are read from the
@@ -18,7 +18,9 @@
 
   $: entry = toolId ? getTool(toolId) : undefined
   $: resolvedName = name || entry?.name || ''
+  $: resolvedLabel = entry?.label || resolvedName
   $: resolvedDescription = description || entry?.description || ''
+  $: resolvedCategory = entry ? getCategoryLabel(entry.category) : ''
 </script>
 
 <!--
@@ -28,9 +30,15 @@
   the description. Keeping it here means each tool page has exactly one <h1>,
   which is what the a11y suite asserts.
 -->
-<header class="tool-header">
+<header class="tool-header" data-tool-id={toolId || undefined}>
   <div class="tool-meta">
-    <h1 class="tool-name">{resolvedName}</h1>
+    {#if resolvedCategory}<p class="tool-category">{resolvedCategory}</p>{/if}
+    <h1 class="tool-name" aria-label={resolvedName || undefined}>
+      <span aria-hidden="true">{resolvedLabel}</span>
+    </h1>
+    {#if resolvedLabel !== resolvedName}
+      <span class="canonical-name" aria-hidden="true">{resolvedName}</span>
+    {/if}
     {#if resolvedDescription}<p class="tool-desc">{resolvedDescription}</p>{/if}
   </div>
   <!--
@@ -49,29 +57,54 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--space-4);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border-subtle);
+    padding: clamp(44px, 7vw, 88px) 0 clamp(32px, 5vw, 64px);
+    border-bottom: 1px solid var(--border-default);
   }
 
   .tool-meta {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: var(--space-3);
     min-width: 0;
   }
 
   .tool-name {
     margin: 0;
     color: var(--text-primary);
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    letter-spacing: var(--tracking-tight);
+    font-family: var(--font-display);
+    font-size: clamp(46px, 15.3vw, 156px);
+    font-weight: var(--font-normal);
+    letter-spacing: -0.055em;
+    line-height: 0.78;
+  }
+
+  .tool-category {
+    margin: 0;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .canonical-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .tool-desc {
     margin: 0;
-    color: var(--text-tertiary);
-    font-size: var(--text-sm);
+    max-width: 58ch;
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
   }
 
   .tool-actions {
@@ -94,7 +127,7 @@
     .tool-header {
       flex-direction: column;
       align-items: stretch;
-      gap: var(--space-3);
+      gap: var(--space-6);
     }
 
     /* Keeps the buttons where they were on the wide layout instead of jumping

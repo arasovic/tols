@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { render, screen } from '@testing-library/svelte'
+import ToolHeader from '$lib/ui/ToolHeader.svelte'
 
 const TOOLS_DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/tools')
 
@@ -49,6 +51,40 @@ const CHROME_PATTERNS = CHROME_CLASSES.flatMap((name) => [
 ])
 
 describe('tool header chrome', () => {
+  it('derives a large short identity and category while preserving the canonical heading name', () => {
+    const { container } = render(ToolHeader, { props: { toolId: 'json' } })
+    const heading = screen.getByRole('heading', { level: 1, name: 'JSON Formatter' })
+
+    expect(heading).toHaveTextContent('JSON')
+    expect(container.querySelector('.tool-category')).toHaveTextContent('Data')
+    expect(container.querySelector('.tool-desc')).toHaveTextContent('Format, validate & beautify JSON data with syntax highlighting')
+    expect(container.querySelector('[data-tool-id="json"]')).toBeInTheDocument()
+  })
+
+  it('renders explicit identity copy for a surface outside the registry', () => {
+    const { container } = render(ToolHeader, {
+      props: {
+        name: 'Standalone Tool',
+        description: 'A purpose-built utility.'
+      }
+    })
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Standalone Tool' }))
+      .toHaveTextContent('Standalone Tool')
+    expect(container.querySelector('.tool-desc')).toHaveTextContent('A purpose-built utility.')
+    expect(container.querySelector('.tool-category')).toBeNull()
+    expect(container.querySelector('[data-tool-id]')).toBeNull()
+  })
+
+  it('renders an inert heading when no registry or explicit identity is supplied', () => {
+    const { container } = render(ToolHeader)
+
+    expect(container.querySelector('h1')).toHaveTextContent('')
+    expect(container.querySelector('h1')).not.toHaveAttribute('aria-label')
+    expect(container.querySelector('.tool-desc')).toBeNull()
+    expect(container.querySelector('.tool-category')).toBeNull()
+  })
+
   it('is owned by ToolHeader, not by the tool components', () => {
     // Rendering the shells would pass even if a tool reintroduced its own
     // heading inside the ToolHeader slot, so — like the <main> guard — this

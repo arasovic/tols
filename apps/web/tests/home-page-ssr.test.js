@@ -11,7 +11,14 @@ vi.mock('$lib/stores/theme', () => ({
       cb('dark')
       return () => {}
     }),
-    toggle: vi.fn()
+    toggle: vi.fn(),
+    cycle: vi.fn()
+  },
+  themePreference: {
+    subscribe: vi.fn((cb) => {
+      cb('system')
+      return () => {}
+    })
   }
 }))
 

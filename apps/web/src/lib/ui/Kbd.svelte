@@ -16,10 +16,21 @@
     padding: 1px var(--space-1);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--text-muted);
-    background: transparent;
-    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-sm);
     white-space: nowrap;
+    transition:
+      color var(--transition-fast) var(--ease-out),
+      background var(--transition-fast) var(--ease-out),
+      border-color var(--transition-fast) var(--ease-out);
+  }
+
+  :global(button:hover) .kbd,
+  :global(button:focus-visible) .kbd {
+    color: var(--bg-base);
+    background: var(--text-primary);
+    border-color: var(--text-primary);
   }
 </style>

@@ -306,7 +306,7 @@
 </div>
 
 <style>
-  .tool { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+  .tool { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-4); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
   .control-group { display: flex; flex-direction: column; gap: var(--space-1); }
   .control-group.wide { grid-column: 1 / -1; }
@@ -315,7 +315,7 @@
   .control-group input:focus { border-color: var(--accent); }
   .control-group input[type="color"] { height: 38px; cursor: pointer; }
   .preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-6); }
-  .preview canvas { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-  .error-message { padding: var(--space-3); background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); color: #dc2626; font-size: var(--text-sm); }
+  .preview canvas { display: block; max-width: 100%; height: auto; border-radius: var(--radius); }
+  .error-message { padding: var(--space-3); background: var(--error-soft); border: 1px solid var(--error); border-radius: var(--radius); color: var(--error-text); font-size: var(--text-sm); }
   @media (max-width: 768px) { .controls { grid-template-columns: 1fr; } }
 </style>

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { readFileSync } from 'node:fs'
 import HomePage from '../src/routes/+page.svelte'
 import { tools } from '$lib/config/registry.js'
@@ -17,7 +17,14 @@ vi.mock('$lib/stores/theme', () => ({
       cb('dark')
       return () => {}
     }),
-    toggle: vi.fn()
+    toggle: vi.fn(),
+    cycle: vi.fn()
+  },
+  themePreference: {
+    subscribe: vi.fn((cb) => {
+      cb('system')
+      return () => {}
+    })
   }
 }))
 
@@ -45,11 +52,11 @@ describe('landing page', () => {
     expect(main.getAttribute('tabindex')).toBe('-1')
   })
 
-  it('states that the interface is changing without calling the site maintenance', () => {
+  it('states the finished web-to-CLI promise without temporary redesign copy', () => {
     const { getByRole, getByText, queryByText } = render(HomePage)
-    expect(getByRole('heading', { level: 1, name: 'Interface redesign in progress' })).toBeTruthy()
-    expect(getByText('The tools remain available while we rebuild the interface')).toBeTruthy()
-    expect(queryByText(/maintenance/i)).toBeNull()
+    expect(getByRole('heading', { level: 1, name: 'Use the web. Keep the command.' })).toBeTruthy()
+    expect(getByText('Developer tools that run locally in your browser and teach the exact tols command.')).toBeTruthy()
+    expect(queryByText(/redesign|rebuild|maintenance/i)).toBeNull()
   })
 
   it('makes the CLI install command and package destinations explicit', () => {
@@ -66,11 +73,30 @@ describe('landing page', () => {
     expect(homepageSource).not.toMatch(/src=\{\$theme/)
   })
 
-  it('isolates the temporary palette and uses the shared button primitive', () => {
-    expect(homepageSource).toContain("import Button from '$lib/ui/Button.svelte'")
+  it('uses the shared header, tool index, and global theme vocabulary', () => {
+    expect(homepageSource).toContain("import SiteHeader from '$lib/components/SiteHeader.svelte'")
+    expect(homepageSource).toContain("import SearchOverlay from '$lib/components/SearchOverlay.svelte'")
     expect(homepageSource).not.toMatch(/<button[\s>]/)
-    expect(homepageSource).toContain('Temporary landing palette: keep it local')
+    expect(homepageSource).not.toContain('--landing-')
     expect(appStyles).not.toContain('--landing-')
+
+    const { getByRole } = render(HomePage)
+    expect(getByRole('button', { name: /all tools/i })).toBeInTheDocument()
+  })
+
+  it('opens and toggles the tool index from the header and global shortcut', async () => {
+    render(HomePage)
+
+    await fireEvent.click(screen.getByRole('button', { name: /all tools/i }))
+    expect(await screen.findByRole('dialog', { name: 'Search tools' })).toBeInTheDocument()
+
+    await fireEvent.keyDown(window, { key: 'k', metaKey: true })
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Search tools' })).not.toBeInTheDocument()
+    })
+
+    await fireEvent.keyDown(window, { key: 'b', metaKey: true })
+    expect(await screen.findByRole('dialog', { name: 'Search tools' })).toBeInTheDocument()
   })
 
   it('keeps every popular web tool reachable from registry-derived links', () => {

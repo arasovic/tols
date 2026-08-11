@@ -212,7 +212,7 @@ This is a **bold** text and this is *italic*.
   .tool { 
     display: flex; 
     flex-direction: column; 
-    gap: var(--space-4); 
+    gap: 0;
     width: 100%;
   }
 
