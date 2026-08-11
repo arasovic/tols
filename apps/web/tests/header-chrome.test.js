@@ -61,6 +61,21 @@ describe('tool header chrome', () => {
     expect(container.querySelector('[data-tool-id="json"]')).toBeInTheDocument()
   })
 
+  it('renders explicit identity copy for a surface outside the registry', () => {
+    const { container } = render(ToolHeader, {
+      props: {
+        name: 'Standalone Tool',
+        description: 'A purpose-built utility.'
+      }
+    })
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Standalone Tool' }))
+      .toHaveTextContent('Standalone Tool')
+    expect(container.querySelector('.tool-desc')).toHaveTextContent('A purpose-built utility.')
+    expect(container.querySelector('.tool-category')).toBeNull()
+    expect(container.querySelector('[data-tool-id]')).toBeNull()
+  })
+
   it('is owned by ToolHeader, not by the tool components', () => {
     // Rendering the shells would pass even if a tool reintroduced its own
     // heading inside the ToolHeader slot, so — like the <main> guard — this

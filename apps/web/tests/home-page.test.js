@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { readFileSync } from 'node:fs'
 import HomePage from '../src/routes/+page.svelte'
 import { tools } from '$lib/config/registry.js'
@@ -82,6 +82,21 @@ describe('landing page', () => {
 
     const { getByRole } = render(HomePage)
     expect(getByRole('button', { name: /all tools/i })).toBeInTheDocument()
+  })
+
+  it('opens and toggles the tool index from the header and global shortcut', async () => {
+    render(HomePage)
+
+    await fireEvent.click(screen.getByRole('button', { name: /all tools/i }))
+    expect(await screen.findByRole('dialog', { name: 'Search tools' })).toBeInTheDocument()
+
+    await fireEvent.keyDown(window, { key: 'k', metaKey: true })
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Search tools' })).not.toBeInTheDocument()
+    })
+
+    await fireEvent.keyDown(window, { key: 'b', metaKey: true })
+    expect(await screen.findByRole('dialog', { name: 'Search tools' })).toBeInTheDocument()
   })
 
   it('keeps every popular web tool reachable from registry-derived links', () => {

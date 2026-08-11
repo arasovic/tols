@@ -184,15 +184,33 @@ describe('theme store', () => {
   })
 
   it('should handle localStorage errors gracefully', async () => {
-    const originalSetItem = localStorage.setItem
-    localStorage.setItem = vi.fn().mockImplementation(() => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('Storage quota exceeded')
     })
 
     const { theme: freshTheme } = await import('$lib/stores/theme')
     freshTheme.toggle()
     expect(get(freshTheme)).toBe('light')
+    expect(warn).toHaveBeenCalledWith(
+      'Failed to save theme to localStorage:',
+      expect.objectContaining({ message: 'Storage quota exceeded' })
+    )
+  })
 
-    localStorage.setItem = originalSetItem
+  it('falls back to system when reading localStorage fails', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('Storage unavailable')
+    })
+
+    const { theme: freshTheme, themePreference } = await import('$lib/stores/theme')
+
+    expect(get(themePreference)).toBe('system')
+    expect(get(freshTheme)).toBe('dark')
+    expect(warn).toHaveBeenCalledWith(
+      'Failed to load theme from localStorage:',
+      expect.objectContaining({ message: 'Storage unavailable' })
+    )
   })
 })
