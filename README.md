@@ -14,9 +14,9 @@
   <a href="https://www.npmjs.com/package/tols-cli"><img alt="npm weekly downloads" src="https://img.shields.io/npm/dw/tols-cli?style=flat&label=downloads"></a>
   <a href="packages/tols/package.json"><img alt="Node.js 20 or newer" src="https://img.shields.io/badge/node-%3E%3D20-339933?style=flat&logo=nodedotjs&logoColor=white"></a>
   <a href="packages/tols/package.json"><img alt="Zero runtime dependencies" src="https://img.shields.io/badge/dependencies-zero-2ea44f?style=flat"></a>
-  <a href="https://tols.arasmehmet.com/"><img alt="Runs locally in the browser" src="https://img.shields.io/badge/browser-runs%20locally-5c4ee5?style=flat&logo=html5&logoColor=white"></a>
-  <a href="https://tols.arasmehmet.com/"><img alt="Available on the web and command line" src="https://img.shields.io/badge/runtime-web%20%7C%20CLI-0b7285?style=flat"></a>
-  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue?style=flat&logo=opensourceinitiative&logoColor=white"></a>
+  <a href="https://tols.arasmehmet.com/"><img alt="Runs locally in the browser" src="https://img.shields.io/badge/browser-runs%20locally-5c4ee5?style=flat&logo=googlechrome&logoColor=white"></a>
+  <a href="https://tols.arasmehmet.com/"><img alt="Available on the web and command line" src="https://img.shields.io/badge/web-CLI-0b7285?style=flat"></a>
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/MIT-blue?style=flat&logo=opensourceinitiative&logoColor=white"></a>
 </p>
 
 Developer tools, available both as a website and as a command line
