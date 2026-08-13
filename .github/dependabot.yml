@@ -1,6 +1,12 @@
 version: 2
 
+# Each ecosystem groups every update into a single pull request. This is a small
+# repository reviewed in batches, so one branch per week per ecosystem is the
+# reviewable unit; one branch per dependency is not. Security updates are not
+# grouped and still arrive on their own branch, which is the point of them.
 updates:
+  # The package currently declares no dependencies. The entry stays so the first
+  # one added is covered without anyone remembering to come back here.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -8,13 +14,10 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Europe/Istanbul"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 1
     groups:
-      development-minor-and-patch:
-        dependency-type: "development"
-        update-types:
-          - "minor"
-          - "patch"
+      npm:
+        patterns: ["*"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -23,4 +26,7 @@ updates:
       day: "monday"
       time: "06:30"
       timezone: "Europe/Istanbul"
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 1
+    groups:
+      github-actions:
+        patterns: ["*"]
