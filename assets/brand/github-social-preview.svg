@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">tols — stays local</title>
+  <desc id="description">GitHub social preview for tols with the npm install command.</desc>
+
+  <rect width="1280" height="640" fill="#0b0b0b"/>
+  <rect x="0.5" y="0.5" width="1279" height="639" fill="none" stroke="#f4f4f0" stroke-opacity="0.08"/>
+
+  <g fill="#f4f4f0" transform="translate(427 167) scale(0.24 -0.24) translate(25 -697)">
+    <path d="M25 497H411V396H25ZM153 633H283V0H153Z"/>
+    <path transform="translate(389)" d="M353 -12Q259 -12 187.5 18Q116 48 76 105.5Q36 163 36 247Q36 331 76 389.5Q116 448 187.5 478Q259 508 353 508Q447 508 517.5 478Q588 448 628 389.5Q668 331 668 247Q668 163 628 105.5Q588 48 517.5 18Q447 -12 353 -12ZM353 88Q405 88 446.5 106.5Q488 125 512 160.5Q536 196 536 247Q536 298 512 334.5Q488 371 447 390Q406 409 353 409Q301 409 259 390Q217 371 192.5 335Q168 299 168 247Q168 196 192 160.5Q216 125 258 106.5Q300 88 353 88Z"/>
+    <path transform="translate(1048)" d="M70 697H200V0H70Z"/>
+    <path transform="translate(1274)" d="M40 165H160Q171 131 205.5 109.5Q240 88 296 88Q334 88 355 95Q376 102 384 115.5Q392 129 392 146Q392 167 379 178.5Q366 190 339 197Q312 204 270 210Q228 217 189 227Q150 237 120 253.5Q90 270 72.5 295.5Q55 321 55 358Q55 394 72.5 422Q90 450 121.5 469Q153 488 195.5 498Q238 508 287 508Q361 508 410 486.5Q459 465 483.5 426.5Q508 388 508 338H393Q385 375 361 391.5Q337 408 287 408Q238 408 213 393Q188 378 188 352Q188 331 203.5 319.5Q219 308 249.5 301Q280 294 326 286Q365 278 400.5 268Q436 258 464 242.5Q492 227 508.5 201.5Q525 176 525 137Q525 89 497.5 56Q470 23 419 5.5Q368 -12 297 -12Q234 -12 188.5 1.5Q143 15 113 36.5Q83 58 66.5 82.5Q50 107 44 129Q38 151 40 165Z"/>
+  </g>
+
+  <text x="640" y="411" text-anchor="middle"
+        font-family="'Commit Mono', ui-monospace, 'SF Mono', Menlo, monospace"
+        font-size="28" font-weight="700" letter-spacing="8" fill="#f4f4f0">STAYS LOCAL</text>
+
+  <text x="640" y="488" text-anchor="middle"
+        font-family="'Commit Mono', ui-monospace, 'SF Mono', Menlo, monospace"
+        font-size="32" fill="#b8b8b2">$ npm install -g tols-cli</text>
+</svg>
