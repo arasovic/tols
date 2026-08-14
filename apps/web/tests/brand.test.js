@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import sharp from 'sharp'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const REPO_ROOT = join(ROOT, '..', '..')
@@ -61,6 +62,31 @@ describe('brand', () => {
     const shell = readFileSync(join(ROOT, 'src', 'app.html'), 'utf8')
     expect(shell).toContain('href="%sveltekit.assets%/safari-pinned-tab.svg" color="#0a0a0a"')
     expect(shell).not.toMatch(/mask-icon[^>]+#ffb000/i)
+  })
+
+  it('keeps social preview artwork on the achromatic brand palette', () => {
+    const source = readFileSync(join(ROOT, 'static', 'og-image.svg'), 'utf8')
+
+    expect(source).not.toMatch(/#ffb000/i)
+    expect(source).toContain('translate(1274)')
+    expect(source).toContain('STAYS LOCAL')
+    expect(source).toContain('$ npm install -g tols-cli')
+  })
+
+  it('ships the achromatic social preview as a 1200x630 raster image', async () => {
+    const { data, info } = await sharp(join(ROOT, 'static', 'og-image.png'))
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+
+    expect([info.width, info.height, info.channels]).toEqual([1200, 630, 3])
+
+    let amberPixels = 0
+    for (let offset = 0; offset < data.length; offset += info.channels) {
+      const [red, green, blue] = data.subarray(offset, offset + info.channels)
+      if (red >= 220 && green >= 120 && green <= 210 && blue <= 40) amberPixels += 1
+    }
+    expect(amberPixels).toBe(0)
   })
 
   it('uses GitHub theme sources in the repository README', () => {
