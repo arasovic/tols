@@ -53,7 +53,7 @@
     "url": "git+https://github.com/arasovic/tols.git",
     "directory": "packages/tols"
   },
-  "homepage": "https://github.com/arasovic/tols/tree/main/packages/tols#readme",
+  "homepage": "https://tols.arasmehmet.com/",
   "bugs": {
     "url": "https://github.com/arasovic/tols/issues"
   }
