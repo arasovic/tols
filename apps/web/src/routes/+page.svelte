@@ -14,7 +14,7 @@
   const pageTitle = 'tols - Free Developer Utilities & Online Tools'
   const pageDescription = 'Free online developer tools: JSON formatter, Base64 encoder, UUID generator, hash calculator, JWT decoder, and more. Essential utilities for developers.'
   const canonicalUrl = 'https://tols.arasmehmet.com/'
-  const ogImage = 'https://tols.arasmehmet.com/og-image.png'
+  const ogImage = 'https://tols.arasmehmet.com/og-image-20260814.png'
   const popularTools = registryTools.filter(tool => tool.popular === true)
   /** @type {import('$lib/components/SearchOverlay.svelte').default} */
   let searchOverlay
