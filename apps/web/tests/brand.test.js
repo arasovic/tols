@@ -46,7 +46,8 @@ describe('brand', () => {
       // rasterises an SVG preview, and the SVG is the artwork that
       // scripts/generate-icons.js renders it from.
       'og-image.svg',
-      'og-image.png'
+      'og-image.png',
+      'og-image-20260814.png'
     ]) {
       expect(existsSync(join(ROOT, 'static', asset)), `${asset} missing`).toBe(true)
     }
@@ -74,7 +75,7 @@ describe('brand', () => {
   })
 
   it('ships the achromatic social preview as a 1200x630 raster image', async () => {
-    const { data, info } = await sharp(join(ROOT, 'static', 'og-image.png'))
+    const { data, info } = await sharp(join(ROOT, 'static', 'og-image-20260814.png'))
       .removeAlpha()
       .raw()
       .toBuffer({ resolveWithObject: true })

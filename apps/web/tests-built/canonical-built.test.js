@@ -18,6 +18,7 @@ const BUILD = join(dirname(fileURLToPath(import.meta.url)), '../build')
  */
 const SITE_ORIGIN = 'https://tols.arasmehmet.com'
 const SCHEMA_ORIGIN = 'https://schema.org'
+const ACTIVE_OG_IMAGE = `${SITE_ORIGIN}/og-image-20260814.png`
 
 /**
  * Whether a URL lives on an origin the head may legitimately reference. The
@@ -140,6 +141,20 @@ describe('canonical URLs (built pages)', () => {
       return (source.match(/https?:\/\/\S+\.svg/g) || []).map(
         (url) => `${file.slice(BUILD.length + 1)}: ${url}`
       )
+    })
+    expect(offenders).toEqual([])
+  })
+
+  it('use the cache-busted social image URL on every canonical page', () => {
+    expect(existsSync(join(BUILD, 'og-image-20260814.png'))).toBe(true)
+
+    const offenders = canonicalPages().flatMap((file) => {
+      const source = readFileSync(file, 'utf8')
+      const socialImages = [...source.matchAll(/(?:property="og:image"|name="twitter:image") content="([^"]+)"/g)]
+        .map((match) => match[1])
+      return socialImages.length === 2 && socialImages.every((url) => url === ACTIVE_OG_IMAGE)
+        ? []
+        : [`${file.slice(BUILD.length + 1)}: ${socialImages.join(', ')}`]
     })
     expect(offenders).toEqual([])
   })

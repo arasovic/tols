@@ -28,7 +28,7 @@ const targets = [
  *
  * 1200x630 is the artwork's own size and the size every platform crops to.
  */
-const OG = { source: 'og-image.svg', file: 'og-image.png', width: 1200, height: 630 }
+const OG = { source: 'og-image.svg', file: 'og-image-20260814.png', width: 1200, height: 630 }
 
 async function main() {
   for (const { file, size } of targets) {
