@@ -16,23 +16,23 @@
     "test:watch": "vitest --watch"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.63.0",
     "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.70.2",
-    "@sveltejs/vite-plugin-svelte": "^7.2.0",
-    "@testing-library/jest-dom": "^7.0.0",
+    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/svelte": "^5.4.2",
-    "@vitest/coverage-v8": "4.1.10",
-    "jsdom": "^30.0.1",
-    "sharp": "^0.35.3",
-    "svelte": "^5.56.8",
-    "svelte-check": "^4.7.5",
-    "typescript": "^6.0.3",
-    "vite": "^8.2.1",
-    "vitest": "^4.1.10"
+    "@vitest/coverage-v8": "5.0.1",
+    "jsdom": "^30.1.0",
+    "sharp": "^0.35.4",
+    "svelte": "^5.57.0",
+    "svelte-check": "^4.7.6",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
   },
   "dependencies": {
-    "@lucide/svelte": "^1.30.0",
+    "@lucide/svelte": "^1.47.0",
     "tols-cli": "*"
   },
   "description": "The tols website: developer tools running entirely in the browser."
